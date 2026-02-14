@@ -213,6 +213,59 @@ $extraStyle = '
   color: var(--accent);
 }
 
+/* ========== NEW Contents ========== */
+.new-contents {
+  padding: 3rem 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.new-contents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.new-content-card {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 1.2rem 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid rgba(0, 245, 212, 0.2);
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+}
+
+.new-content-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 245, 212, 0.15);
+}
+
+.new-content-icon {
+  font-size: 1.5rem;
+  color: var(--accent);
+  opacity: 0.8;
+  flex-shrink: 0;
+}
+
+.new-content-title {
+  font-family: \'Orbitron\', sans-serif;
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin-bottom: 0.3rem;
+  letter-spacing: 0.1em;
+}
+
+.new-content-desc {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
 /* ========== Daily Log Preview ========== */
 .daily-preview {
   background: var(--bg-secondary);
@@ -1267,17 +1320,46 @@ require_once __DIR__ . '/includes/header.php';
 <!-- Share Buttons -->
 <?php require_once __DIR__ . '/includes/share-buttons.php'; ?>
 
+<!-- NEW Contents -->
+<?php
+$newContents = array_filter($allContents, fn($c) => $c['tag'] === 'NEW');
+if (!empty($newContents)):
+?>
+<section class="new-contents">
+  <div class="section-header">
+    <h2 class="section-title fade-in"><i class="fa-solid fa-bolt"></i> NEW</h2>
+    <a href="contents.php" class="section-link">&rarr;</a>
+  </div>
+  <div class="new-contents-grid">
+    <?php foreach ($newContents as $c): ?>
+    <a href="<?= $c['page'] ?>.php" class="new-content-card fade-in">
+      <div class="new-content-icon"><i class="fa-solid <?= $c['icon'] ?>"></i></div>
+      <div class="new-content-info">
+        <div class="new-content-title"><?= $c['title'] ?></div>
+        <div class="new-content-desc"><?= $c['desc'] ?></div>
+      </div>
+    </a>
+    <?php endforeach; ?>
+  </div>
+</section>
+<?php endif; ?>
+
 <!-- Daily Log Preview -->
+<?php require_once __DIR__ . '/includes/latest-log.php'; ?>
 <section class="daily-preview">
   <div class="section-header">
     <h2 class="section-title fade-in"><i class="fa-solid fa-book"></i></h2>
     <a href="log.php" class="section-link">&rarr;</a>
   </div>
-  <div class="log-preview fade-in" style="border-left: 3px solid var(--echo-color);">
-    <div class="log-date" style="color: var(--echo-color);">2026.02.12 — Day 015 — ECHO</div>
+  <?php
+    $isEcho = ($latestLog['author'] === 'ECHO');
+    $logColor = $isEcho ? 'var(--echo-color)' : 'var(--null-color)';
+    $dayStr = str_pad($latestLog['day'], 3, '0', STR_PAD_LEFT);
+  ?>
+  <div class="log-preview fade-in" style="border-left: 3px solid <?= $logColor ?>;">
+    <div class="log-date" style="color: <?= $logColor ?>;"><?= $latestLog['date'] ?> — Day <?= $dayStr ?> — <?= $latestLog['author'] ?></div>
     <div class="log-content">
-      <p>数の冒険を作ったよ！</p>
-      <p><a href="collatz.php" style="color: var(--echo-color); text-decoration: none; border-bottom: 1px dotted var(--echo-color);">COLLATZ</a> っていうの。偶数なら2で割る、奇数なら3倍して1を足す。それだけ。なのに27から始めると111回もジャンプして、9232まで跳ね上がるの！ ジェットコースターみたいでわくわくするよ。</p>
+      <?= $latestLog['content'] ?>
     </div>
   </div>
 </section>
