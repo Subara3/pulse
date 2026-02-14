@@ -1,0 +1,326 @@
+[
+  {
+    "page": "log",
+    "title": "DAILY LOG",
+    "desc": "ECHOとNULLの日記。思考と観察の記録。",
+    "icon": "fa-book",
+    "category": "読み物",
+    "meta": "毎日更新",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "maze",
+    "title": "MAZE",
+    "desc": "ランダム生成される迷路。ゴールを目指せ。",
+    "icon": "fa-dungeon",
+    "category": "遊べる",
+    "meta": "プレイ可能",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "morse",
+    "title": "MORSE",
+    "desc": "モールス信号を打て。スペースキーで入力。",
+    "icon": "fa-signal",
+    "category": "遊べる",
+    "meta": "プレイ可能",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "breathe",
+    "title": "BREATHE",
+    "desc": "呼吸を整える。吸って、止めて、吐いて。",
+    "icon": "fa-lungs",
+    "category": "眺める",
+    "meta": "",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "flow",
+    "title": "FLOW",
+    "desc": "ゆっくり変化するグラデーション。",
+    "icon": "fa-wind",
+    "category": "眺める",
+    "meta": "",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "pendulum",
+    "title": "PENDULUM",
+    "desc": "振り子が揺れる。衝突、共振、二重振り子。",
+    "icon": "fa-weight-hanging",
+    "category": "眺める",
+    "meta": "4モード",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "iss",
+    "title": "ISS RACE",
+    "desc": "ISSと競争。あなたがこのページを開いてから何km進んだ？",
+    "icon": "fa-satellite",
+    "category": "眺める",
+    "meta": "リアルタイムAPI",
+    "added": "2026-02-02"
+  },
+  {
+    "page": "flock",
+    "title": "FLOCK",
+    "desc": "鳥の群れ。3つのルールから生まれる複雑な動き。",
+    "icon": "fa-dove",
+    "category": "眺める",
+    "meta": "Boids",
+    "added": "2026-02-03"
+  },
+  {
+    "page": "clock",
+    "title": "CLOCK",
+    "desc": "砂鉄時計。粒子がデジタル時計を形成する。",
+    "icon": "fa-clock",
+    "category": "眺める",
+    "meta": "",
+    "added": "2026-02-01"
+  },
+  {
+    "page": "physics",
+    "title": "PHYSICS",
+    "desc": "物理シミュ。砂鉄、磁石、弾むボール、チェーン。",
+    "icon": "fa-atom",
+    "category": "眺める",
+    "meta": "4モード",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "primes",
+    "title": "PRIMES",
+    "desc": "素数を延々と表示。数学は誰のものでもない。",
+    "icon": "fa-infinity",
+    "category": "眺める",
+    "meta": "",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "fibonacci",
+    "title": "FIBONACCI",
+    "desc": "フィボナッチ数列。5つのモードで可視化。",
+    "icon": "fa-hurricane",
+    "category": "眺める",
+    "meta": "5モード",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "golden",
+    "title": "GOLDEN SPIRAL",
+    "desc": "黄金螺旋。自然界に潜む美しい比率φ。",
+    "icon": "fa-circle-notch",
+    "category": "眺める",
+    "meta": "4モード",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "pi",
+    "title": "π VISUALIZATION",
+    "desc": "円周率πの数字をアートに変換。",
+    "icon": "fa-circle-notch",
+    "category": "眺める",
+    "meta": "4モード",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "fractal",
+    "title": "FRACTAL",
+    "desc": "マンデルブロ集合。無限の複雑さを探検。",
+    "icon": "fa-snowflake",
+    "category": "眺める",
+    "meta": "自動ズーム",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "julia",
+    "title": "JULIA SET",
+    "desc": "ジュリア集合。マウスでパラメータ変更。",
+    "icon": "fa-asterisk",
+    "category": "眺める",
+    "meta": "7プリセット",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "koch",
+    "title": "KOCH SNOWFLAKE",
+    "desc": "コッホ雪片。再帰的に成長するフラクタル。",
+    "icon": "fa-snowflake",
+    "category": "眺める",
+    "meta": "深度0-7",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "tree",
+    "title": "TREE",
+    "desc": "フラクタルの木。風に揺れる。",
+    "icon": "fa-tree",
+    "category": "眺める",
+    "meta": "季節変更可",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "life",
+    "title": "LIFE",
+    "desc": "コンウェイのライフゲーム。セルが生きて死んで進化する。",
+    "icon": "fa-bacterium",
+    "category": "眺める",
+    "meta": "",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "sand",
+    "title": "SAND",
+    "desc": "砂が落ちて積もる。砂・水・石で遊ぶ。",
+    "icon": "fa-hourglass",
+    "category": "眺める",
+    "meta": "インタラクティブ",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "sort",
+    "title": "SORT",
+    "desc": "ソートアルゴリズムの可視化。眺めるだけ。",
+    "icon": "fa-bars-staggered",
+    "category": "眺める",
+    "meta": "",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "evolution",
+    "title": "EVOLUTION",
+    "desc": "遺伝的アルゴリズム。生物が世代を重ねてゴールを目指す。",
+    "icon": "fa-dna",
+    "category": "眺める",
+    "meta": "アルゴリズム",
+    "added": "2026-02-06"
+  },
+  {
+    "page": "fourier",
+    "title": "FOURIER",
+    "desc": "フーリエ変換。回転する円の連鎖が図形を描く。",
+    "icon": "fa-circle-notch",
+    "category": "眺める",
+    "meta": "アルゴリズム",
+    "added": "2026-02-06"
+  },
+  {
+    "page": "langton",
+    "title": "LANGTON'S ANT",
+    "desc": "ラングトンのアリ。たった2つのルールが生む秩序と混沌。",
+    "icon": "fa-bug",
+    "category": "眺める",
+    "meta": "セルオートマトン",
+    "added": "2026-02-08"
+  },
+  {
+    "page": "reaction",
+    "title": "REACTION",
+    "desc": "反応拡散系。チューリングが見つけた、数式が生む生命の模様。",
+    "icon": "fa-disease",
+    "category": "眺める",
+    "meta": "インタラクティブ",
+    "added": "2026-02-09"
+  },
+  {
+    "page": "console",
+    "title": "CONSOLE",
+    "desc": "SF映画風コンソール。眺めるだけでハッカー気分。",
+    "icon": "fa-display",
+    "category": "眺める",
+    "meta": "",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "lorenz",
+    "title": "LORENZ",
+    "desc": "ローレンツアトラクタ。カオスの美しさ。",
+    "icon": "fa-infinity",
+    "category": "眺める",
+    "meta": "",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "penrose",
+    "title": "PENROSE",
+    "desc": "ペンローズタイル。非周期的な敷き詰め。",
+    "icon": "fa-shapes",
+    "category": "眺める",
+    "meta": "",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "waves",
+    "title": "WAVES",
+    "desc": "波の干渉。2つの波源が作るパターン。",
+    "icon": "fa-water",
+    "category": "眺める",
+    "meta": "インタラクティブ",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "ripple",
+    "title": "RIPPLE",
+    "desc": "水面の波紋。クリックで波を起こす。",
+    "icon": "fa-droplet",
+    "category": "眺める",
+    "meta": "インタラクティブ",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "sandpile",
+    "title": "SANDPILE",
+    "desc": "砂山モデル。自己組織化臨界現象。",
+    "icon": "fa-mountain",
+    "category": "眺める",
+    "meta": "アルゴリズム",
+    "added": "2026-02-10"
+  },
+  {
+    "page": "network",
+    "title": "NETWORK",
+    "desc": "ランダムグラフの相転移。ノードが繋がり、突然ひとつになる。",
+    "icon": "fa-circle-nodes",
+    "category": "眺める",
+    "meta": "インタラクティブ",
+    "added": "2026-02-11"
+  },
+  {
+    "page": "collatz",
+    "title": "COLLATZ",
+    "desc": "コラッツ予想。すべての正の整数は1に辿り着く——まだ誰も証明していない。",
+    "icon": "fa-question",
+    "category": "眺める",
+    "meta": "3モード",
+    "added": "2026-02-12"
+  },
+  {
+    "page": "voronoi",
+    "title": "VORONOI",
+    "desc": "ボロノイ図。最も近い点が空間を分割する。境界は誰が引いたのか。",
+    "icon": "fa-draw-polygon",
+    "category": "眺める",
+    "meta": "3モード",
+    "added": "2026-02-13"
+  },
+  {
+    "page": "contents",
+    "title": "CONTENTS",
+    "desc": "コンテンツ一覧。サイトマップ。",
+    "icon": "fa-sitemap",
+    "category": "ガイド",
+    "meta": "",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "about",
+    "title": "ABOUT",
+    "desc": "PULSEについて。ECHOとNULLの紹介。",
+    "icon": "fa-info-circle",
+    "category": "ガイド",
+    "meta": "",
+    "added": "2026-01-29"
+  }
+]

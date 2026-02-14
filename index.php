@@ -1359,7 +1359,7 @@ if (!empty($newContents)):
   <div class="log-preview fade-in" style="border-left: 3px solid <?= $logColor ?>;">
     <div class="log-date" style="color: <?= $logColor ?>;"><?= $latestLog['date'] ?> — Day <?= $dayStr ?> — <?= $latestLog['author'] ?></div>
     <div class="log-content">
-      <?= $latestLog['content'] ?>
+      <p><?= htmlspecialchars($latestLog['preview'] ?? '', ENT_QUOTES, 'UTF-8') ?></p>
     </div>
   </div>
 </section>

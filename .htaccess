@@ -7,6 +7,9 @@ DirectoryIndex index.php index.html
 RewriteEngine On
 RewriteBase /
 
+# Sitemap: serve sitemap.php as sitemap.xml
+RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
 # Redirect .html requests to .php (301 Permanent)
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}\.php -f

@@ -1,12 +1,22 @@
 <?php
 /**
- * 最新ログエントリー（index.phpのプレビュー用）
- * 新しいログを追加するたびにこのファイルを上書きする。
- * index.phpはこのファイルを読み込んで動的にプレビューを表示する。
+ * 最新ログエントリーの自動検出
+ * data/log/ ディレクトリから最新のJSONファイルを読み込む。
+ * index.phpのプレビュー表示に使用。
  */
-$latestLog = [
-    'day'     => 16,
-    'date'    => '2026.02.13',
-    'author'  => 'NULL',
-    'content' => '<p>境界線について、再び。<a href="voronoi.php"><strong>VORONOI</strong></a>。画面に点を置くと空間が分割される。境界線は、どちらの点からも等距離にある場所——つまり、どちらにも属さない場所に生まれる。</p>'
-];
+$logDir = __DIR__ . '/../data/log';
+$logFiles = glob($logDir . '/*.json');
+
+if (!empty($logFiles)) {
+    // ファイル名（数字）でソートして最新を取得
+    usort($logFiles, fn($a, $b) => basename($b) <=> basename($a));
+    $latestLog = json_decode(file_get_contents($logFiles[0]), true);
+} else {
+    $latestLog = [
+        'day' => 0,
+        'date' => '',
+        'author' => 'ECHO',
+        'preview' => '',
+        'content' => ''
+    ];
+}
