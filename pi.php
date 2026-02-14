@@ -38,8 +38,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>mode: <span id="modeDisplay">walk</span></div>
 </div>
 <div class="ui hint">
-  πの数字が<br>
-  軌跡を描く
+  π = 3.14159…
 </div>
 <div class="ui controls">
   <button class="control-btn active" data-mode="walk">WALK</button>

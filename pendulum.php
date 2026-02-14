@@ -40,9 +40,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>energy: <span id="energyDisplay">100%</span></div>
 </div>
 <div class="ui hint">
-  ドラッグで揺らす<br>
-  ダブルクリックで追加<br>
-  右クリックで削除
+  Drag to swing<br>
+  Double-click to add<br>
+  Right-click to remove
 </div>
 <div class="ui slider-group">
   <label>Gravity <input type="range" id="gravitySlider" min="0.1" max="2" step="0.1" value="0.5"></label>

@@ -38,9 +38,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>φ ≈ <span id="phiApprox">1.618</span></div>
 </div>
 <div class="ui hint">
-  1, 1, 2, 3, 5...<br>
-  各数は前2つの和<br>
-  自然界に遍在
+  Fₙ = Fₙ₋₁ + Fₙ₋₂<br>
+  1, 1, 2, 3, 5, 8, 13…
 </div>
 <div class="ui controls">
   <button class="control-btn active" data-mode="spiral">SPIRAL</button>

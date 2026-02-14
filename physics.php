@@ -34,9 +34,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>mode: <span id="modeDisplay">magnet</span></div>
 </div>
 <div class="ui hint">
-  クリックで追加<br>
-  ドラッグで磁石<br>
-  スペースでリセット
+  Click to add<br>
+  Drag to magnet<br>
+  Space to reset
 </div>
 <div class="ui controls">
   <button class="control-btn active" data-mode="magnet">MAGNET</button>

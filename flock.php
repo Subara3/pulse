@@ -206,34 +206,34 @@ require_once __DIR__ . '/includes/floating-nav.php';
 </div>
 
 <div class="ui hint">
-  クリックで引き寄せ<br>
-  右クリックで逃げる<br>
-  ドラッグで継続
+  Click to attract<br>
+  Right-click to repel<br>
+  Drag to sustain
 </div>
 
 <div class="rules">
   <div class="rules-title">BOIDS RULES</div>
   <div class="rule-item">
     <div class="rule-icon sep">←→</div>
-    <div>Separation：仲間と離れる</div>
+    <div>Separation</div>
   </div>
   <div class="rule-item">
     <div class="rule-icon ali">→→</div>
-    <div>Alignment：同じ方向に向かう</div>
+    <div>Alignment</div>
   </div>
   <div class="rule-item">
     <div class="rule-icon coh">⊙</div>
-    <div>Cohesion：群れの中心へ</div>
+    <div>Cohesion</div>
   </div>
 
   <div class="slider-group">
     <div class="slider-row">
-      <span class="slider-label">数</span>
+      <span class="slider-label">Count</span>
       <input type="range" id="countSlider" min="50" max="500" value="200">
       <span class="slider-value" id="countValue">200</span>
     </div>
     <div class="slider-row">
-      <span class="slider-label">速度</span>
+      <span class="slider-label">Speed</span>
       <input type="range" id="speedSlider" min="1" max="10" value="4">
       <span class="slider-value" id="speedValue">4</span>
     </div>

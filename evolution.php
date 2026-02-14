@@ -445,10 +445,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <!-- 凡例 -->
 <div class="legend">
   <div class="legend-title">LEGEND</div>
-  <div class="legend-item"><span class="legend-dot alive"></span> 生存中</div>
-  <div class="legend-item"><span class="legend-dot dead"></span> 死亡</div>
-  <div class="legend-item"><span class="legend-dot best"></span> ゴール到達</div>
-  <div class="legend-item"><span class="legend-dot" style="background:#7b2cbf;box-shadow:0 0 8px #7b2cbf"></span> 天敵</div>
+  <div class="legend-item"><span class="legend-dot alive"></span> Alive</div>
+  <div class="legend-item"><span class="legend-dot dead"></span> Dead</div>
+  <div class="legend-item"><span class="legend-dot best"></span> Goal</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#7b2cbf;box-shadow:0 0 8px #7b2cbf"></span> Predator</div>
 </div>
 
 <!-- コントロール -->
@@ -482,7 +482,7 @@ const STAGES = [
   {
     id: 1,
     name: 'SIMPLE',
-    desc: '障害物なし。まずはここから。',
+    desc: 'No obstacles.',
     goal: (w, h) => ({ x: w / 2, y: 80 }),
     start: (w, h) => ({ x: w / 2, y: h - 100 }),
     obstacles: () => [],
@@ -492,7 +492,7 @@ const STAGES = [
   {
     id: 2,
     name: 'WALL',
-    desc: '壁を回り込め。',
+    desc: 'Get around the wall.',
     goal: (w, h) => ({ x: w / 2, y: 80 }),
     start: (w, h) => ({ x: w / 2, y: h - 100 }),
     obstacles: (w, h) => [
@@ -504,7 +504,7 @@ const STAGES = [
   {
     id: 3,
     name: 'MAZE',
-    desc: '複数の壁を突破せよ。',
+    desc: 'Break through multiple walls.',
     goal: (w, h) => ({ x: w / 2, y: 80 }),
     start: (w, h) => ({ x: w / 2, y: h - 100 }),
     obstacles: (w, h) => [
@@ -518,7 +518,7 @@ const STAGES = [
   {
     id: 4,
     name: 'NARROW',
-    desc: '狭い隙間を通れ。',
+    desc: 'Squeeze through narrow gaps.',
     goal: (w, h) => ({ x: w / 2, y: 80 }),
     start: (w, h) => ({ x: w / 2, y: h - 100 }),
     obstacles: (w, h) => [
@@ -535,7 +535,7 @@ const STAGES = [
   {
     id: 5,
     name: 'ZIGZAG',
-    desc: 'ジグザグに進め。',
+    desc: 'Navigate the zigzag.',
     goal: (w, h) => ({ x: w - 100, y: 80 }),
     start: (w, h) => ({ x: 100, y: h - 100 }),
     obstacles: (w, h) => [
@@ -549,7 +549,7 @@ const STAGES = [
   {
     id: 6,
     name: 'GAUNTLET',
-    desc: '最終試練。すべてを乗り越えろ。',
+    desc: 'The final trial.',
     goal: (w, h) => ({ x: w / 2, y: 60 }),
     start: (w, h) => ({ x: w / 2, y: h - 80 }),
     obstacles: (w, h) => [
@@ -575,7 +575,7 @@ const STAGES = [
   {
     id: 'A',
     name: 'PREDATOR',
-    desc: '天敵登場。赤い球から逃げろ。',
+    desc: 'Predator incoming.',
     goal: (w, h) => ({ x: w / 2, y: 80 }),
     start: (w, h) => ({ x: w / 2, y: h - 100 }),
     obstacles: () => [],
@@ -587,7 +587,7 @@ const STAGES = [
   {
     id: 'B',
     name: 'HUNT',
-    desc: '壁を使って逃げろ。',
+    desc: 'Use walls as cover.',
     goal: (w, h) => ({ x: w / 2, y: 80 }),
     start: (w, h) => ({ x: w / 2, y: h - 100 }),
     obstacles: (w, h) => [
@@ -601,7 +601,7 @@ const STAGES = [
   {
     id: 'C',
     name: 'SWARM',
-    desc: '2体の天敵。挟み撃ちに注意。',
+    desc: 'Two predators. Watch the pinch.',
     goal: (w, h) => ({ x: w / 2, y: 80 }),
     start: (w, h) => ({ x: w / 2, y: h - 100 }),
     obstacles: (w, h) => [
@@ -616,7 +616,7 @@ const STAGES = [
   {
     id: 'D',
     name: 'CORRIDOR',
-    desc: '狭い通路で天敵から逃げろ。',
+    desc: 'Escape through narrow corridors.',
     goal: (w, h) => ({ x: w / 2, y: 80 }),
     start: (w, h) => ({ x: w / 2, y: h - 100 }),
     obstacles: (w, h) => [
@@ -633,7 +633,7 @@ const STAGES = [
   {
     id: 'E',
     name: 'SURVIVAL',
-    desc: '最終試練。3体の天敵から生き延びろ。',
+    desc: 'Survive three predators.',
     goal: (w, h) => ({ x: w / 2, y: 80 }),
     start: (w, h) => ({ x: w / 2, y: h - 100 }),
     obstacles: (w, h) => [

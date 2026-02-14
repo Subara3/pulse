@@ -39,9 +39,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>area: <span id="area">finite</span></div>
 </div>
 <div class="ui hint">
-  無限の周長<br>
-  有限の面積<br>
-  美しいパラドックス
+  ∞ perimeter<br>
+  finite area<br>
+  a paradox
 </div>
 <div class="ui controls">
   <button class="control-btn" id="depthDown">DEPTH -</button>

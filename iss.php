@@ -702,7 +702,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <!-- 比較パネル -->
   <div class="comparison-panel">
     <p class="comparison-text" id="comparisonText">
-      システム初期化中...
+      SYSTEM INITIALIZING...
     </p>
   </div>
 
@@ -808,14 +808,14 @@ function formatSystemTime() {
 
 function generateComparison(distanceKm) {
   const comparisons = [
-    { threshold: 1, text: `コーヒーを一口飲む間に<span class="highlight">${formatNumber(distanceKm)} km</span>移動` },
-    { threshold: 10, text: `東京〜横浜間（28km）を<span class="highlight">${(distanceKm / 28).toFixed(1)}回</span>移動した距離` },
-    { threshold: 50, text: `新幹線のぞみ（285km/h）の<span class="highlight">${(ISS_SPEED_KMH / 285).toFixed(0)}倍</span>の速度で移動中` },
-    { threshold: 200, text: `東京〜大阪間（500km）の<span class="highlight">${((distanceKm / 500) * 100).toFixed(1)}%</span>を突破` },
-    { threshold: 500, text: `東京〜大阪を<span class="highlight">${(distanceKm / 500).toFixed(2)}往復</span>した距離` },
-    { threshold: 2000, text: `日本列島（3000km）を<span class="highlight">${(distanceKm / 3000).toFixed(2)}回</span>縦断` },
-    { threshold: 10000, text: `地球一周の<span class="highlight">${((distanceKm / 40075) * 100).toFixed(1)}%</span>を走破` },
-    { threshold: 40000, text: `地球を<span class="highlight">${(distanceKm / 40075).toFixed(2)}周</span>した！` },
+    { threshold: 1, text: `In the time it takes to sip coffee, <span class="highlight">${formatNumber(distanceKm)} km</span>` },
+    { threshold: 10, text: `Tokyo–Yokohama (28 km) <span class="highlight">×${(distanceKm / 28).toFixed(1)}</span>` },
+    { threshold: 50, text: `Shinkansen Nozomi (285 km/h) <span class="highlight">×${(ISS_SPEED_KMH / 285).toFixed(0)}</span>` },
+    { threshold: 200, text: `Tokyo–Osaka (500 km) <span class="highlight">${((distanceKm / 500) * 100).toFixed(1)}%</span>` },
+    { threshold: 500, text: `Tokyo–Osaka <span class="highlight">×${(distanceKm / 500).toFixed(2)}</span>` },
+    { threshold: 2000, text: `Japan archipelago (3,000 km) <span class="highlight">×${(distanceKm / 3000).toFixed(2)}</span>` },
+    { threshold: 10000, text: `Earth circumference <span class="highlight">${((distanceKm / 40075) * 100).toFixed(1)}%</span>` },
+    { threshold: 40000, text: `orbited Earth <span class="highlight">×${(distanceKm / 40075).toFixed(2)}</span>` },
   ];
 
   let text = comparisons[0].text;
@@ -823,7 +823,7 @@ function generateComparison(distanceKm) {
     if (distanceKm >= c.threshold) text = c.text;
   }
 
-  return text + `<br><span class="dim">...あなたはまだソファにいますか？</span>`;
+  return text + `<br><span class="dim">…still on the couch?</span>`;
 }
 
 async function fetchISSData() {

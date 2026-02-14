@@ -80,7 +80,7 @@ require_once __DIR__ . '/includes/sfx.php';
   </div>
   
   <div class="hint">
-    <strong>短押し</strong> = ドット (・)　　<strong>長押し</strong> = ダッシュ (ー)
+    <strong>Tap</strong> = dot (·)　　<strong>Hold</strong> = dash (—)
   </div>
   
   <div class="morse-table" id="morseTable"></div>

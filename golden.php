@@ -38,8 +38,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>fibonacci: <span id="fibDisplay">1, 1, 2, 3...</span></div>
 </div>
 <div class="ui hint">
-  黄金比 φ<br>
-  自然界の美
+  φ = 1.618…<br>
+  (1+√5)/2
 </div>
 <div class="ui controls">
   <button class="control-btn active" data-mode="spiral">SPIRAL</button>

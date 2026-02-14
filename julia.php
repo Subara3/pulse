@@ -42,10 +42,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>iterations: <span id="iterations">100</span></div>
 </div>
 <div class="ui hint">
-  マウスで<br>
-  cの値を変更<br>
-  ホイールでズーム<br>
-  クリックで固定
+  Move → change c<br>
+  Scroll → zoom<br>
+  Click → lock
 </div>
 <div class="loading" id="loading">RENDERING...</div>
 <div class="ui controls">
