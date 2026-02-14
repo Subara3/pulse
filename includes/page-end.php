@@ -10,26 +10,42 @@
 </noscript>
 
 <!-- 固定バナー広告（下部） -->
-<div id="stickyAd" style="position:fixed;bottom:0;left:0;right:0;z-index:9000;display:none">
-  <div style="display:flex;justify-content:flex-start;background:#0a0a0f;padding:2px 8px">
-    <button id="stickyAdClose" style="background:none;border:1px solid rgba(255,255,255,0.25);color:#ccc;font-size:0.75rem;padding:3px 12px;border-radius:4px;cursor:pointer;font-family:sans-serif;line-height:1.2">✕ 閉じる</button>
+<style>
+#stickyAd{position:fixed;bottom:0;left:0;right:0;z-index:9000;display:none}
+#stickyAdBar{display:flex;align-items:center;background:#1a1a2e;padding:8px 12px;border-bottom:1px solid rgba(0,245,212,0.3)}
+#stickyAdClose{background:#00f5d4;color:#0a0a0f;border:none;font-size:0.85rem;font-weight:bold;padding:6px 16px;border-radius:4px;cursor:pointer;font-family:sans-serif}
+#stickyAdClose:hover{background:#00dbb8}
+#stickyAdBox{position:relative;height:90px;max-height:90px;overflow:hidden;background:#0a0a0f}
+#stickyAdBox *{max-height:90px!important}
+#stickyAdBox iframe{max-height:90px!important;height:90px!important}
+</style>
+<div id="stickyAd">
+  <div id="stickyAdBar">
+    <button id="stickyAdClose">✕ 閉じる</button>
   </div>
-  <div style="position:relative;max-height:90px;height:90px;overflow:hidden;background:#0a0a0f;border-top:1px solid rgba(255,255,255,0.08)">
-    <ins class="adsbygoogle" style="display:block;width:100%;height:90px;max-height:90px" data-ad-client="ca-pub-7086371722392050" data-ad-slot="4953305789" data-ad-format="horizontal" data-full-width-responsive="false"></ins>
+  <div id="stickyAdBox">
+    <ins class="adsbygoogle" style="display:block;height:90px" data-ad-client="ca-pub-7086371722392050" data-ad-slot="4953305789" data-ad-format="horizontal" data-full-width-responsive="false"></ins>
   </div>
 </div>
 <script>
 (function(){
-  var wrap = document.getElementById('stickyAd');
-  var btn = document.getElementById('stickyAdClose');
-  if (sessionStorage.getItem('pulse_ad_closed')) return;
-  wrap.style.display = '';
-  try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
-  btn.addEventListener('click', function(e){
-    e.stopPropagation();
-    e.preventDefault();
-    wrap.style.display = 'none';
-    sessionStorage.setItem('pulse_ad_closed', '1');
+  var wrap=document.getElementById('stickyAd');
+  var box=document.getElementById('stickyAdBox');
+  var btn=document.getElementById('stickyAdClose');
+  if(sessionStorage.getItem('pulse_ad_closed'))return;
+  wrap.style.display='block';
+  try{(adsbygoogle=window.adsbygoogle||[]).push({});}catch(e){}
+  // AdSenseがコンテナを膨張させるのをJSで定期的に強制修正
+  var enforcer=setInterval(function(){
+    if(box){box.style.height='90px';box.style.maxHeight='90px';box.style.overflow='hidden';}
+    var iframes=box?box.querySelectorAll('iframe'):[];
+    for(var i=0;i<iframes.length;i++){iframes[i].style.maxHeight='90px';}
+  },500);
+  btn.addEventListener('click',function(e){
+    e.stopPropagation();e.preventDefault();
+    wrap.style.display='none';
+    sessionStorage.setItem('pulse_ad_closed','1');
+    clearInterval(enforcer);
   });
 })();
 </script>
