@@ -396,7 +396,8 @@ input[type="range"]::-webkit-slider-thumb {
   .floating-nav { bottom: 0.5rem; left: auto; right: 4.5rem; flex-direction: row; }
   .stage-select { top: 0.5rem; bottom: auto; left: 50%; transform: translateX(-50%); }
   .stage-btn { width: 28px; height: 28px; font-size: 0.6rem; }
-  .hud { top: 0.5rem; bottom: auto; left: 0.5rem; }
+  /* HUDを下部に移動してゴールが見えるようにする */
+  .hud { top: auto; bottom: 4rem; left: 0.5rem; }
   .hud-panel { padding: 0.4rem 0.6rem; }
   .hud-title { font-size: 0.55rem; margin-bottom: 0.3rem; }
   .hud-row { padding: 0.1rem 0; }
