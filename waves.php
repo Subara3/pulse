@@ -13,7 +13,7 @@ $extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght
 
 $extraStyle = '
 body {
-  background: linear-gradient(180deg, #0a0a15 0%, #0d1020 50%, #0a0a15 100%);
+  background: linear-gradient(180deg, #0a0a0f 0%, #0a0f14 50%, #0a0a0f 100%);
   min-height: 100vh;
   overflow: hidden;
 }
@@ -75,10 +75,10 @@ function resize() {
 }
 
 const waves = [
-  { y: 0.7, amplitude: 30, frequency: 0.01, speed: 0.02, color: 'rgba(0, 100, 150, 0.3)' },
-  { y: 0.65, amplitude: 25, frequency: 0.015, speed: 0.025, color: 'rgba(0, 120, 170, 0.3)' },
-  { y: 0.6, amplitude: 20, frequency: 0.02, speed: 0.03, color: 'rgba(0, 140, 190, 0.4)' },
-  { y: 0.55, amplitude: 15, frequency: 0.025, speed: 0.035, color: 'rgba(0, 180, 220, 0.4)' },
+  { y: 0.7, amplitude: 30, frequency: 0.01, speed: 0.02, color: 'rgba(0, 150, 130, 0.3)' },
+  { y: 0.65, amplitude: 25, frequency: 0.015, speed: 0.025, color: 'rgba(0, 170, 150, 0.3)' },
+  { y: 0.6, amplitude: 20, frequency: 0.02, speed: 0.03, color: 'rgba(0, 195, 170, 0.4)' },
+  { y: 0.55, amplitude: 15, frequency: 0.025, speed: 0.035, color: 'rgba(0, 220, 190, 0.4)' },
   { y: 0.5, amplitude: 10, frequency: 0.03, speed: 0.04, color: 'rgba(0, 245, 212, 0.3)' }
 ];
 
@@ -104,7 +104,7 @@ function drawWave(wave, offset) {
   
   const gradient = ctx.createLinearGradient(0, baseY - wave.amplitude, 0, height);
   gradient.addColorStop(0, wave.color);
-  gradient.addColorStop(1, 'rgba(0, 50, 80, 0.1)');
+  gradient.addColorStop(1, 'rgba(0, 60, 55, 0.1)');
   
   ctx.fillStyle = gradient;
   ctx.fill();
@@ -165,9 +165,9 @@ function drawReflection() {
 
 function draw() {
   const gradient = ctx.createLinearGradient(0, 0, 0, height);
-  gradient.addColorStop(0, '#0a0a15');
-  gradient.addColorStop(0.3, '#0d1020');
-  gradient.addColorStop(1, '#0a0a15');
+  gradient.addColorStop(0, '#0a0a0f');
+  gradient.addColorStop(0.3, '#0a0f14');
+  gradient.addColorStop(1, '#0a0a0f');
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 

@@ -17,13 +17,13 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 .title { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.15); font-size: 0.7rem; letter-spacing: 0.2em; }
 .stats { top: 1rem; right: 1.5rem; text-align: right; font-family: "JetBrains Mono", monospace; font-size: 0.8rem; color: rgba(255,255,255,0.5); }
 .stats div { margin-bottom: 0.3rem; }
-.stats span { color: #ffd700; }
+.stats span { color: #00f5d4; }
 .controls { bottom: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; }
 .control-btn { padding: 0.5rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); font-family: "Orbitron", sans-serif; font-size: 0.7rem; cursor: pointer; border-radius: 4px; transition: all 0.3s; }
-.control-btn:hover { background: rgba(255, 215, 0, 0.1); border-color: rgba(255, 215, 0, 0.5); color: #ffd700; }
-.control-btn.active { background: rgba(255, 215, 0, 0.2); border-color: #ffd700; color: #ffd700; }
+.control-btn:hover { background: rgba(0, 245, 212, 0.1); border-color: rgba(0, 245, 212, 0.5); color: #00f5d4; }
+.control-btn.active { background: rgba(0, 245, 212, 0.2); border-color: #00f5d4; color: #00f5d4; }
 .hint { top: 50%; left: 1.5rem; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.7rem; line-height: 1.8; }
-.golden-display { top: 1rem; left: 50%; transform: translateX(-50%); font-family: "JetBrains Mono", monospace; font-size: 1.2rem; color: #ffd700; letter-spacing: 0.05em; }
+.golden-display { top: 1rem; left: 50%; transform: translateX(-50%); font-family: "JetBrains Mono", monospace; font-size: 1.2rem; color: #00f5d4; letter-spacing: 0.05em; }
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -93,7 +93,7 @@ function drawSpiral() {
   const centerY = height / 2;
   const maxRadius = Math.min(width, height) * 0.4;
   
-  ctx.strokeStyle = '#ffd700';
+  ctx.strokeStyle = '#00f5d4';
   ctx.lineWidth = 2;
   ctx.beginPath();
   
@@ -120,7 +120,7 @@ function drawSpiral() {
   // 中心の点
   ctx.beginPath();
   ctx.arc(centerX, centerY, 5, 0, Math.PI * 2);
-  ctx.fillStyle = '#ffd700';
+  ctx.fillStyle = '#00f5d4';
   ctx.fill();
 }
 
@@ -132,7 +132,7 @@ function drawRectangles() {
   const limit = animating ? Math.floor(animationProgress * 12) + 1 : 12;
   
   const colors = [
-    'rgba(255, 215, 0, 0.8)',
+    'rgba(0, 245, 212, 0.8)',
     'rgba(255, 180, 0, 0.7)',
     'rgba(255, 150, 0, 0.6)',
     'rgba(200, 150, 50, 0.5)'
@@ -170,7 +170,7 @@ function drawRectangles() {
     }
     
     ctx.arc(arcX, arcY, size, startAngle, endAngle);
-    ctx.strokeStyle = '#ffd700';
+    ctx.strokeStyle = '#00f5d4';
     ctx.stroke();
     
     // 次の位置を計算
@@ -198,7 +198,7 @@ function drawSunflower() {
     const x = centerX + Math.cos(angle) * radius;
     const y = centerY + Math.sin(angle) * radius;
     
-    const hue = (i * 0.5) % 60 + 30; // 黄色〜オレンジ
+    const hue = (i * 0.5) % 40 + 165; // teal〜cyan
     ctx.beginPath();
     ctx.arc(x, y, 3 + (i % 5) * 0.5, 0, Math.PI * 2);
     ctx.fillStyle = `hsl(${hue}, 80%, 50%)`;
@@ -218,7 +218,7 @@ function drawShell() {
   
   const segments = animating ? Math.floor(animationProgress * 50) + 5 : 50;
   
-  ctx.strokeStyle = '#ffd700';
+  ctx.strokeStyle = '#00f5d4';
   ctx.lineWidth = 2;
   
   for (let ring = 0; ring < 8; ring++) {

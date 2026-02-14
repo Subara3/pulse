@@ -236,7 +236,7 @@ class Particle {
     this.targetX = null;
     this.targetY = null;
     this.size = 1.5 + Math.random() * 1.5;
-    this.hue = 175 + Math.random() * 25;
+    this.hue = Math.random() < 0.8 ? 170 + Math.random() * 30 : 260 + Math.random() * 30;
   }
 
   update() {

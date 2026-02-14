@@ -17,13 +17,13 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 .title { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.15); font-size: 0.7rem; letter-spacing: 0.2em; }
 .stats { top: 1rem; right: 1.5rem; text-align: right; font-family: "JetBrains Mono", monospace; font-size: 0.8rem; color: rgba(255,255,255,0.5); background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 8px; }
 .stats div { margin-bottom: 0.3rem; }
-.stats span { color: #87ceeb; }
+.stats span { color: #00f5d4; }
 .controls { bottom: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; }
 .control-btn { padding: 0.5rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); font-family: "Orbitron", sans-serif; font-size: 0.7rem; cursor: pointer; border-radius: 4px; transition: all 0.3s; }
-.control-btn:hover { background: rgba(135, 206, 235, 0.1); border-color: rgba(135, 206, 235, 0.5); color: #87ceeb; }
-.control-btn.active { background: rgba(135, 206, 235, 0.2); border-color: #87ceeb; color: #87ceeb; }
+.control-btn:hover { background: rgba(0, 245, 212, 0.1); border-color: rgba(0, 245, 212, 0.5); color: #00f5d4; }
+.control-btn.active { background: rgba(0, 245, 212, 0.2); border-color: #00f5d4; color: #00f5d4; }
 .hint { top: 50%; left: 1.5rem; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.7rem; line-height: 1.8; }
-.depth-display { top: 1rem; left: 50%; transform: translateX(-50%); font-family: "JetBrains Mono", monospace; font-size: 1.5rem; color: #87ceeb; }
+.depth-display { top: 1rem; left: 50%; transform: translateX(-50%); font-family: "JetBrains Mono", monospace; font-size: 1.5rem; color: #00f5d4; }
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -62,7 +62,7 @@ let depth = 0;
 let shape = 'snowflake';
 let animating = false;
 let colorMode = false;
-let hue = 200;
+let hue = 175;
 
 function init() {
   width = canvas.width = window.innerWidth;
@@ -151,14 +151,14 @@ function draw() {
     }
     
     if (!colorMode) {
-      ctx.strokeStyle = '#87ceeb';
+      ctx.strokeStyle = '#00f5d4';
     }
     ctx.lineWidth = Math.max(0.5, 2 - depth * 0.3);
     ctx.stroke();
     
     if (shape !== 'curve') {
       ctx.closePath();
-      ctx.fillStyle = 'rgba(135, 206, 235, 0.05)';
+      ctx.fillStyle = 'rgba(0, 245, 212, 0.05)';
       ctx.fill();
     }
   }

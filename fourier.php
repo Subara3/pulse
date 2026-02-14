@@ -591,8 +591,8 @@ function draw() {
   // 現在の点
   ctx.beginPath();
   ctx.arc(drawX, drawY, 4, 0, Math.PI * 2);
-  ctx.fillStyle = '#ffd700';
-  ctx.shadowColor = '#ffd700';
+  ctx.fillStyle = '#00f5d4';
+  ctx.shadowColor = '#00f5d4';
   ctx.shadowBlur = 15;
   ctx.fill();
   ctx.shadowBlur = 0;

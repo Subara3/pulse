@@ -57,8 +57,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <button class="control-btn" id="zoomInBtn">ZOOM +</button>
   <button class="control-btn" id="zoomOutBtn">ZOOM -</button>
   <button class="control-btn active" data-theme="pulse">PULSE</button>
-  <button class="control-btn" data-theme="fire">FIRE</button>
-  <button class="control-btn" data-theme="ocean">OCEAN</button>
+  <button class="control-btn" data-theme="ember">EMBER</button>
+  <button class="control-btn" data-theme="deep">DEEP</button>
   <button class="control-btn" data-theme="mono">MONO</button>
 </div>
 <div class="ui presets">
@@ -89,26 +89,33 @@ let dragStartCenterX, dragStartCenterY;
 // 色テーマ
 const THEMES = {
   pulse: (t) => {
-    const r = Math.floor(Math.sin(t * 3) * 80 + 80);
-    const g = Math.floor(Math.sin(t * 3 + 2) * 100 + 155);
-    const b = Math.floor(Math.sin(t * 3 + 4) * 50 + 180);
-    return [r, g, b];
+    // Teal primary (#00f5d4) - site accent
+    const r = Math.floor(Math.sin(t * 3) * 30);
+    const g = Math.floor(Math.sin(t * 3 + 1) * 60 + 195);
+    const b = Math.floor(Math.sin(t * 3 + 2) * 40 + 172);
+    return [Math.max(0, r), Math.min(255, g), Math.min(255, b)];
   },
-  fire: (t) => {
-    const r = Math.floor(255 * Math.min(1, t * 3));
-    const g = Math.floor(255 * Math.min(1, t * 1.5));
-    const b = Math.floor(255 * Math.pow(t, 3));
-    return [r, g, b];
+  ember: (t) => {
+    // Magenta-pink range (hue 290-330), related to purple accent
+    const r = Math.floor(180 * Math.min(1, t * 2.5) + 75 * t);
+    const g = Math.floor(50 * Math.pow(t, 2));
+    const b = Math.floor(191 * Math.min(1, t * 2));
+    return [Math.min(255, r), g, Math.min(255, b)];
   },
-  ocean: (t) => {
-    const r = Math.floor(50 * t);
-    const g = Math.floor(100 + 100 * t);
-    const b = Math.floor(150 + 105 * t);
-    return [r, g, b];
+  deep: (t) => {
+    // Teal-to-blue (hue 185-220)
+    const r = Math.floor(20 * t);
+    const g = Math.floor(120 + 125 * t);
+    const b = Math.floor(170 + 85 * t);
+    return [r, Math.min(255, g), Math.min(255, b)];
   },
   mono: (t) => {
-    const v = Math.floor(255 * t);
-    return [v, v, v];
+    // Subtle blue tint (hue 210-220)
+    const v = Math.floor(230 * t);
+    const r = Math.floor(v * 0.85);
+    const g = Math.floor(v * 0.9);
+    const b = v;
+    return [r, g, b];
   }
 };
 

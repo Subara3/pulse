@@ -24,7 +24,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(-45deg, #0a0a0f, #1a1a2e, #16213e, #0f3460);
+  background: linear-gradient(-45deg, #0a0a0f, #004d40, #00695c, #00897b);
   background-size: 400% 400%;
   animation: gradient-flow 20s ease infinite;
 }
@@ -74,7 +74,7 @@ body {
 .orb-3 {
   width: 300px;
   height: 300px;
-  background: #f72585;
+  background: #009688;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -84,7 +84,7 @@ body {
 .orb-4 {
   width: 350px;
   height: 350px;
-  background: #4361ee;
+  background: #00796b;
   bottom: 20%;
   left: 20%;
   animation-delay: -15s;
@@ -172,10 +172,10 @@ body {
   box-shadow: 0 0 15px rgba(255,255,255,0.3);
 }
 
-.preset-ocean { background: linear-gradient(135deg, #0a0a0f, #16213e); }
-.preset-sunset { background: linear-gradient(135deg, #2d1b4e, #c94b4b); }
-.preset-forest { background: linear-gradient(135deg, #0a1a0a, #134e5e); }
-.preset-night { background: linear-gradient(135deg, #0f0c29, #302b63); }
+.preset-ocean { background: linear-gradient(135deg, #004d40, #00f5d4); }
+.preset-sunset { background: linear-gradient(135deg, #7b2cbf, #c39bd3); }
+.preset-forest { background: linear-gradient(135deg, #004d40, #26a69a); }
+.preset-night { background: linear-gradient(135deg, #1a1a2e, #0f3460); }
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -211,20 +211,20 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <script>
 const presets = {
   ocean: {
-    bg: 'linear-gradient(-45deg, #0a0a0f, #1a1a2e, #16213e, #0f3460)',
-    orbs: ['#00f5d4', '#7b2cbf', '#4cc9f0', '#4361ee']
+    bg: 'linear-gradient(-45deg, #0a0a0f, #004d40, #00695c, #00897b)',
+    orbs: ['#00f5d4', '#00b894', '#009688', '#00796b']
   },
   sunset: {
-    bg: 'linear-gradient(-45deg, #2d1b4e, #8b2f5f, #c94b4b, #f4a261)',
-    orbs: ['#f72585', '#ff6b35', '#f4a261', '#7209b7']
+    bg: 'linear-gradient(-45deg, #1a0a2e, #7b2cbf, #9b59b6, #c39bd3)',
+    orbs: ['#7b2cbf', '#9b59b6', '#c39bd3', '#e8daef']
   },
   forest: {
-    bg: 'linear-gradient(-45deg, #0a1a0a, #134e5e, #2c5f2d, #1b4332)',
-    orbs: ['#40916c', '#52b788', '#74c69d', '#2d6a4f']
+    bg: 'linear-gradient(-45deg, #0a0a0f, #004d40, #00695c, #00897b)',
+    orbs: ['#004d40', '#00695c', '#00897b', '#26a69a']
   },
   night: {
-    bg: 'linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #0f0c29)',
-    orbs: ['#6c63ff', '#9d4edd', '#5a189a', '#3c096c']
+    bg: 'linear-gradient(-45deg, #1a1a2e, #16213e, #0f3460, #2c3e6b)',
+    orbs: ['#1a1a2e', '#16213e', '#0f3460', '#2c3e6b']
   }
 };
 

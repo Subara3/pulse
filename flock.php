@@ -12,7 +12,7 @@ $extraHead = '';
 
 $extraStyle = '
 body {
-  background: linear-gradient(to bottom, #0a0a12 0%, #1a1a2e 50%, #16213e 100%);
+  background: linear-gradient(to bottom, #0a0a0f 0%, #0a1a1a 50%, #0a0f15 100%);
   min-height: 100vh;
   overflow: hidden;
 }
@@ -84,9 +84,9 @@ body {
 }
 
 .control-btn:hover {
-  background: rgba(255,255,255,0.08);
-  border-color: rgba(255,255,255,0.3);
-  color: rgba(255,255,255,0.7);
+  background: rgba(0, 245, 212, 0.08);
+  border-color: rgba(0, 245, 212, 0.4);
+  color: rgba(0, 245, 212, 0.8);
 }
 
 .control-btn.active {
@@ -138,9 +138,9 @@ body {
   flex-shrink: 0;
 }
 
-.rule-icon.sep { background: rgba(255,107,107,0.3); color: #ff6b6b; }
-.rule-icon.ali { background: rgba(78,205,196,0.3); color: #4ecdc4; }
-.rule-icon.coh { background: rgba(69,183,209,0.3); color: #45b7d1; }
+.rule-icon.sep { background: rgba(123,44,191,0.3); color: #7b2cbf; }
+.rule-icon.ali { background: rgba(0,245,212,0.3); color: #00f5d4; }
+.rule-icon.coh { background: rgba(0,191,165,0.3); color: #00bfa5; }
 
 .slider-group {
   margin-top: 1rem;
@@ -266,7 +266,7 @@ class Boid {
     this.y = y || Math.random() * height;
     this.vx = (Math.random() - 0.5) * 2;
     this.vy = (Math.random() - 0.5) * 2;
-    this.hue = 180 + Math.random() * 40; // シアン〜青
+    this.hue = 175 + Math.random() * 40; // ティール〜シアン
     this.size = 3 + Math.random() * 2;
   }
 
@@ -432,7 +432,7 @@ function adjustBoidCount() {
 
 function draw() {
   // フェード効果
-  ctx.fillStyle = 'rgba(10, 10, 18, 0.15)';
+  ctx.fillStyle = 'rgba(10, 10, 15, 0.15)';
   ctx.fillRect(0, 0, width, height);
 
   // Boid更新・描画
@@ -447,7 +447,7 @@ function draw() {
     ctx.arc(mouseX, mouseY, 200, 0, Math.PI * 2);
     ctx.strokeStyle = mode === 'attract'
       ? 'rgba(0, 245, 212, 0.2)'
-      : 'rgba(255, 107, 107, 0.2)';
+      : 'rgba(123, 44, 191, 0.2)';
     ctx.lineWidth = 1;
     ctx.stroke();
 
@@ -455,7 +455,7 @@ function draw() {
     ctx.arc(mouseX, mouseY, 10, 0, Math.PI * 2);
     ctx.fillStyle = mode === 'attract'
       ? 'rgba(0, 245, 212, 0.5)'
-      : 'rgba(255, 107, 107, 0.5)';
+      : 'rgba(123, 44, 191, 0.5)';
     ctx.fill();
   }
 

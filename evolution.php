@@ -98,8 +98,8 @@ canvas {
 }
 
 .hud-value.best {
-  color: #ffd700;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+  color: #00f5d4;
+  text-shadow: 0 0 10px rgba(0, 245, 212, 0.5);
 }
 
 /* ステージ選択 */
@@ -141,8 +141,8 @@ canvas {
 }
 
 .stage-btn.cleared {
-  border-color: #ffd700;
-  color: #ffd700;
+  border-color: #00f5d4;
+  color: #00f5d4;
 }
 
 .stage-btn.cleared::after {
@@ -307,7 +307,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 .legend-dot.alive { background: var(--accent); }
 .legend-dot.dead { background: rgba(255, 255, 255, 0.2); }
-.legend-dot.best { background: #ffd700; box-shadow: 0 0 8px #ffd700; }
+.legend-dot.best { background: #00f5d4; box-shadow: 0 0 8px #00f5d4; }
 
 /* クリア演出 */
 .clear-overlay {
@@ -335,8 +335,8 @@ input[type="range"]::-webkit-slider-thumb {
 .clear-title {
   font-family: "Orbitron", sans-serif;
   font-size: 3rem;
-  color: #ffd700;
-  text-shadow: 0 0 30px #ffd700;
+  color: #00f5d4;
+  text-shadow: 0 0 30px #00f5d4;
   margin-bottom: 1rem;
   animation: clear-pulse 1s infinite;
 }
@@ -362,10 +362,10 @@ input[type="range"]::-webkit-slider-thumb {
 
 .clear-btn {
   padding: 1rem 2rem;
-  background: rgba(255, 215, 0, 0.2);
-  border: 2px solid #ffd700;
+  background: rgba(0, 245, 212, 0.2);
+  border: 2px solid #00f5d4;
   border-radius: 8px;
-  color: #ffd700;
+  color: #00f5d4;
   font-family: "Orbitron", sans-serif;
   font-size: 1rem;
   cursor: pointer;
@@ -373,8 +373,8 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .clear-btn:hover {
-  background: rgba(255, 215, 0, 0.3);
-  box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+  background: rgba(0, 245, 212, 0.3);
+  box-shadow: 0 0 30px rgba(0, 245, 212, 0.3);
 }
 
 .clear-btn.secondary {
@@ -448,7 +448,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div class="legend-item"><span class="legend-dot alive"></span> 生存中</div>
   <div class="legend-item"><span class="legend-dot dead"></span> 死亡</div>
   <div class="legend-item"><span class="legend-dot best"></span> ゴール到達</div>
-  <div class="legend-item"><span class="legend-dot" style="background:#ff3c3c;box-shadow:0 0 8px #ff3c3c"></span> 天敵</div>
+  <div class="legend-item"><span class="legend-dot" style="background:#7b2cbf;box-shadow:0 0 8px #7b2cbf"></span> 天敵</div>
 </div>
 
 <!-- コントロール -->
@@ -756,14 +756,14 @@ class Predator {
     // 外側のグロー
     ctx.beginPath();
     ctx.arc(this.pos.x, this.pos.y, this.radius + 8, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255, 60, 60, 0.15)';
+    ctx.fillStyle = 'rgba(123, 44, 191, 0.15)';
     ctx.fill();
 
     // 本体
     ctx.beginPath();
     ctx.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255, 60, 60, 0.9)';
-    ctx.shadowColor = '#ff3c3c';
+    ctx.fillStyle = 'rgba(123, 44, 191, 0.9)';
+    ctx.shadowColor = '#7b2cbf';
     ctx.shadowBlur = 20;
     ctx.fill();
     ctx.shadowBlur = 0;
@@ -966,8 +966,8 @@ class Agent {
     const alpha = this.dead ? 0.15 : (this.reached ? 1 : 0.6);
 
     if (this.reached) {
-      ctx.fillStyle = `rgba(255, 215, 0, ${alpha})`;
-      ctx.shadowColor = '#ffd700';
+      ctx.fillStyle = `rgba(0, 245, 212, ${alpha})`;
+      ctx.shadowColor = '#00f5d4';
       ctx.shadowBlur = 12;
     } else if (this.dead) {
       ctx.fillStyle = `rgba(80, 80, 80, ${alpha})`;
@@ -1074,8 +1074,8 @@ function draw() {
   }
 
   // 障害物
-  ctx.fillStyle = 'rgba(255, 80, 80, 0.25)';
-  ctx.strokeStyle = 'rgba(255, 80, 80, 0.6)';
+  ctx.fillStyle = 'rgba(123, 44, 191, 0.25)';
+  ctx.strokeStyle = 'rgba(123, 44, 191, 0.6)';
   ctx.lineWidth = 2;
   for (const obs of obstacles) {
     ctx.fillRect(obs.x, obs.y, obs.w, obs.h);
@@ -1100,19 +1100,19 @@ function draw() {
   const glowSize = 8 + Math.sin(Date.now() / 200) * 4;
   ctx.beginPath();
   ctx.arc(goal.x, goal.y, CONFIG.goalRadius + glowSize, 0, Math.PI * 2);
-  ctx.strokeStyle = 'rgba(255, 215, 0, 0.15)';
+  ctx.strokeStyle = 'rgba(0, 245, 212, 0.15)';
   ctx.lineWidth = 2;
   ctx.stroke();
 
   ctx.beginPath();
   ctx.arc(goal.x, goal.y, CONFIG.goalRadius, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255, 215, 0, 0.2)';
+  ctx.fillStyle = 'rgba(0, 245, 212, 0.2)';
   ctx.fill();
-  ctx.strokeStyle = 'rgba(255, 215, 0, 0.8)';
+  ctx.strokeStyle = 'rgba(0, 245, 212, 0.8)';
   ctx.lineWidth = 3;
   ctx.stroke();
 
-  ctx.fillStyle = '#ffd700';
+  ctx.fillStyle = '#00f5d4';
   ctx.font = '11px Orbitron';
   ctx.fillText('GOAL', goal.x, goal.y + 42);
 
@@ -1120,7 +1120,7 @@ function draw() {
   const reachedCount = population.filter(a => a.reached).length;
   const threshold = STAGES[currentStage].clearThreshold;
   ctx.font = '13px JetBrains Mono';
-  ctx.fillStyle = reachedCount >= threshold ? 'rgba(255, 215, 0, 1)' : 'rgba(255, 255, 255, 0.6)';
+  ctx.fillStyle = reachedCount >= threshold ? 'rgba(0, 245, 212, 1)' : 'rgba(255, 255, 255, 0.6)';
   ctx.fillText(reachedCount + '/' + threshold, goal.x, goal.y + 58);
 
   // 個体

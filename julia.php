@@ -52,8 +52,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <button class="control-btn" id="animateBtn">▶ ANIMATE</button>
   <button class="control-btn" id="resetBtn">RESET</button>
   <button class="control-btn active" data-theme="pulse">PULSE</button>
-  <button class="control-btn" data-theme="fire">FIRE</button>
-  <button class="control-btn" data-theme="ocean">OCEAN</button>
+  <button class="control-btn" data-theme="ember">EMBER</button>
+  <button class="control-btn" data-theme="deep">DEEP</button>
   <button class="control-btn" data-theme="psyche">PSYCHE</button>
 </div>
 <div class="ui presets">
@@ -85,28 +85,41 @@ let animAngle = 0;
 
 const THEMES = {
   pulse: (t) => {
-    const r = Math.floor(Math.sin(t * 3) * 80 + 80);
-    const g = Math.floor(Math.sin(t * 3 + 2) * 100 + 155);
-    const b = Math.floor(Math.sin(t * 3 + 4) * 50 + 180);
-    return [r, g, b];
+    // Teal primary (#00f5d4) - site accent
+    const r = Math.floor(Math.sin(t * 3) * 30);
+    const g = Math.floor(Math.sin(t * 3 + 1) * 60 + 195);
+    const b = Math.floor(Math.sin(t * 3 + 2) * 40 + 172);
+    return [Math.max(0, r), Math.min(255, g), Math.min(255, b)];
   },
-  fire: (t) => {
-    const r = Math.floor(255 * Math.min(1, t * 3));
-    const g = Math.floor(255 * Math.min(1, t * 1.5));
-    const b = Math.floor(255 * Math.pow(t, 3));
-    return [r, g, b];
+  ember: (t) => {
+    // Magenta-purple range (hue 290-330)
+    const r = Math.floor(180 * Math.min(1, t * 2.5) + 75 * t);
+    const g = Math.floor(50 * Math.pow(t, 2));
+    const b = Math.floor(191 * Math.min(1, t * 2));
+    return [Math.min(255, r), g, Math.min(255, b)];
   },
-  ocean: (t) => {
-    const r = Math.floor(50 * t);
-    const g = Math.floor(100 + 100 * t);
-    const b = Math.floor(150 + 105 * t);
-    return [r, g, b];
+  deep: (t) => {
+    // Teal-to-blue (hue 185-220)
+    const r = Math.floor(20 * t);
+    const g = Math.floor(120 + 125 * t);
+    const b = Math.floor(170 + 85 * t);
+    return [r, Math.min(255, g), Math.min(255, b)];
   },
   psyche: (t) => {
-    const r = Math.floor(Math.sin(t * 10) * 127 + 128);
-    const g = Math.floor(Math.sin(t * 10 + 2) * 127 + 128);
-    const b = Math.floor(Math.sin(t * 10 + 4) * 127 + 128);
-    return [r, g, b];
+    // Constrained teal-purple cycle (hue 160-300)
+    const hue = 160 + (Math.sin(t * 10) * 0.5 + 0.5) * 140;
+    const s = 0.8;
+    const l = 0.55 + Math.sin(t * 10 + 2) * 0.15;
+    // HSL to RGB conversion
+    const c = (1 - Math.abs(2 * l - 1)) * s;
+    const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
+    const m = l - c / 2;
+    let r1, g1, b1;
+    if (hue < 180) { r1 = 0; g1 = c; b1 = x; }
+    else if (hue < 240) { r1 = 0; g1 = x; b1 = c; }
+    else if (hue < 300) { r1 = x; g1 = 0; b1 = c; }
+    else { r1 = c; g1 = 0; b1 = x; }
+    return [Math.floor((r1 + m) * 255), Math.floor((g1 + m) * 255), Math.floor((b1 + m) * 255)];
   }
 };
 

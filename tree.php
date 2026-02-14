@@ -11,7 +11,7 @@ $pageCanonical = 'https://pulse.subara3.com/tree.php';
 $extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">';
 
 $extraStyle = '
-body { background: linear-gradient(to bottom, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height: 100vh; overflow: hidden; margin: 0; }
+body { background: linear-gradient(to bottom, #0a0a0f 0%, #0a0a14 50%, #0a0a18 100%); min-height: 100vh; overflow: hidden; margin: 0; }
 #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
 .ui { position: fixed; z-index: 1000; font-family: "Orbitron", sans-serif; }
 .info { bottom: 1rem; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.3); font-size: 0.6rem; text-align: center; }
@@ -42,10 +42,10 @@ let windStrength = 0.02;
 let season = 0; // 0:春, 1:夏, 2:秋, 3:冬
 const seasons = ['SPRING', 'SUMMER', 'AUTUMN', 'WINTER'];
 const seasonColors = [
-  { leaf: '#90EE90', trunk: '#8B4513' }, // 春：黄緑
-  { leaf: '#228B22', trunk: '#654321' }, // 夏：深緑
-  { leaf: '#FF6347', trunk: '#8B4513' }, // 秋：紅葉
-  { leaf: '#E0E0E0', trunk: '#A0A0A0' }, // 冬：雪
+  { leaf: '#00f5d4', trunk: '#8B4513' }, // 春：ティール
+  { leaf: '#00b894', trunk: '#654321' }, // 夏：ディープティール
+  { leaf: '#7b2cbf', trunk: '#8B4513' }, // 秋：パープル
+  { leaf: '#b8c6db', trunk: '#A0A0A0' }, // 冬：クールシルバーブルー
 ];
 
 function resize() {
@@ -106,20 +106,20 @@ function drawTree() {
   // 背景グラデーション（季節で変化）
   const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
   if (season === 3) { // 冬
-    gradient.addColorStop(0, '#2c3e50');
-    gradient.addColorStop(1, '#bdc3c7');
+    gradient.addColorStop(0, '#0a0a12');
+    gradient.addColorStop(1, '#0f1018');
   } else if (season === 2) { // 秋
-    gradient.addColorStop(0, '#1a1a2e');
-    gradient.addColorStop(1, '#4a3728');
+    gradient.addColorStop(0, '#0a0a0f');
+    gradient.addColorStop(1, '#120a18');
   } else { // 春・夏
-    gradient.addColorStop(0, '#1a1a2e');
-    gradient.addColorStop(1, '#16213e');
+    gradient.addColorStop(0, '#0a0a0f');
+    gradient.addColorStop(1, '#0a0a18');
   }
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
   
   // 地面
-  ctx.fillStyle = season === 3 ? '#E8E8E8' : '#1a472a';
+  ctx.fillStyle = season === 3 ? '#1a1a24' : '#0a1a14';
   ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
   
   // 木を描画

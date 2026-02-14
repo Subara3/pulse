@@ -152,7 +152,9 @@ function resize() {
 }
 
 function getRainbowColor(offset) {
-  const hue = (Date.now() / 20 + offset) % 360;
+  // Constrain hue to 160-300 range (teal through blue to purple)
+  const raw = (Date.now() / 20 + offset) % 140;
+  const hue = 160 + raw;
   return `hsla(${hue}, 80%, 60%, `;
 }
 

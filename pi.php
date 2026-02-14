@@ -79,8 +79,8 @@ let colorGrid = [];
 const GRID_SIZE = 50;
 
 const COLORS = [
-  '#ff6b6b', '#feca57', '#48dbfb', '#1dd1a1', '#5f27cd',
-  '#ff9ff3', '#54a0ff', '#00d2d3', '#ff9f43', '#c8d6e5'
+  '#004d40', '#00695c', '#00897b', '#009688', '#00bfa5',
+  '#00f5d4', '#26c6da', '#5c6bc0', '#7b2cbf', '#9c27b0'
 ];
 
 function init() {

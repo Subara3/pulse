@@ -113,10 +113,10 @@ function drawSpiral() {
     const size = FIB[i] * scale;
     
     // 四角形
-    const hue = colorMode ? (i * 30 + time * 50) % 360 : 174;
+    const hue = colorMode ? (i * 25 + time * 30) % 60 + 165 : 174;
     ctx.strokeStyle = `hsla(${hue}, 70%, 60%, ${0.4 - i * 0.02})`;
     ctx.lineWidth = 1;
-    
+
     let rectX = x, rectY = y, rectW = size, rectH = size;
     switch (i % 4) {
       case 0: break;
@@ -125,11 +125,11 @@ function drawSpiral() {
       case 3: rectY = y - size; break;
     }
     ctx.strokeRect(rectX, rectY, rectW, rectH);
-    
+
     // 弧（螺旋）
     ctx.beginPath();
     let arcX, arcY, startAngle, endAngle;
-    
+
     switch (i % 4) {
       case 0:
         arcX = x + size; arcY = y + size;
@@ -148,7 +148,7 @@ function drawSpiral() {
         startAngle = Math.PI * 0.5; endAngle = Math.PI;
         break;
     }
-    
+
     ctx.arc(arcX, arcY, size, startAngle, endAngle);
     ctx.strokeStyle = `hsla(${hue}, 70%, 60%, ${0.9 - i * 0.05})`;
     ctx.lineWidth = 3 - i * 0.2;
@@ -187,7 +187,7 @@ function drawSunflower() {
     const x = centerX + Math.cos(angle) * radius;
     const y = centerY + Math.sin(angle) * radius;
     
-    const hue = colorMode ? (i * 0.7 + time * 30) % 360 : 45 + (i % 20);
+    const hue = colorMode ? (i * 0.5 + time * 20) % 60 + 165 : 174 + (i % 20);
     const size = 4 + Math.sin(i * 0.1 + time * 2) * 1;
     
     ctx.beginPath();
@@ -199,7 +199,7 @@ function drawSunflower() {
   // 中心
   ctx.beginPath();
   ctx.arc(centerX, centerY, 25, 0, Math.PI * 2);
-  ctx.fillStyle = '#5D4037';
+  ctx.fillStyle = '#0a2a2a';
   ctx.fill();
 }
 
@@ -215,7 +215,7 @@ function drawTree() {
     const endX = x + Math.cos(angle) * len;
     const endY = y + Math.sin(angle) * len;
     
-    const hue = colorMode ? (depth * 30 + time * 50) % 360 : 174;
+    const hue = colorMode ? (depth * 25 + time * 30) % 60 + 165 : 174;
     ctx.strokeStyle = `hsla(${hue}, 70%, 60%, ${1 - depth * 0.08})`;
     ctx.lineWidth = Math.max(1, 8 - depth);
     
@@ -243,7 +243,7 @@ function drawWave() {
     ctx.beginPath();
     
     const fibFreq = FIB[f % FIB.length];
-    const hue = colorMode ? (f * 25 + time * 50) % 360 : 174;
+    const hue = colorMode ? (f * 25 + time * 30) % 60 + 165 : 174;
     
     for (let x = 0; x < width; x += 2) {
       const y = height / 2 + 
@@ -273,7 +273,7 @@ function drawBars() {
     const x = width / 2 - (limit * barWidth) / 2 + i * barWidth;
     const y = height - 50 - barHeight;
     
-    const hue = colorMode ? (i * 25 + time * 50) % 360 : 174;
+    const hue = colorMode ? (i * 25 + time * 30) % 60 + 165 : 174;
     
     // バー
     ctx.fillStyle = `hsla(${hue}, 70%, 50%, 0.8)`;
