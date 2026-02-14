@@ -1,0 +1,9 @@
+# サーバー側で書き込まれるファイル
+data/pulse.db
+data/stats.json
+
+# IDE / エディタ
+.claude/
+.vscode/
+*.swp
+*.swo
