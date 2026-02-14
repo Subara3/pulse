@@ -27,50 +27,6 @@
  */
 ?>
 
-<style>
-/* 効果音トグルボタン */
-.sfx-toggle {
-  position: fixed;
-  top: 1.5rem;
-  right: 5rem;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: rgba(255,255,255,0.4);
-  padding: 0.4rem 0.8rem;
-  font-family: "Orbitron", sans-serif;
-  font-size: 0.65rem;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.3s;
-  z-index: 100;
-}
-
-.sfx-toggle:hover {
-  border-color: rgba(255,255,255,0.3);
-  color: rgba(255,255,255,0.6);
-}
-
-.sfx-toggle.on {
-  border-color: rgba(0, 245, 212, 0.4);
-  color: rgba(0, 245, 212, 0.7);
-}
-
-.sfx-toggle.on::before {
-  content: '🔊 ';
-}
-
-.sfx-toggle.off::before {
-  content: '🔇 ';
-}
-
-.hide-ui .sfx-toggle {
-  opacity: 0 !important;
-  pointer-events: none;
-}
-</style>
-
-<button class="sfx-toggle on" id="sfxToggle">SFX</button>
-
 <script>
 const SFX = (function() {
   let audioCtx = null;
@@ -246,27 +202,7 @@ const SFX = (function() {
     }
   };
   
-  // トグルボタン
-  const toggleBtn = document.getElementById('sfxToggle');
-  if (toggleBtn) {
-    // ローカルストレージから設定を復元
-    const saved = localStorage.getItem('pulse_sfx_enabled');
-    if (saved !== null) {
-      enabled = saved === 'true';
-      toggleBtn.className = 'sfx-toggle ' + (enabled ? 'on' : 'off');
-    }
-    
-    toggleBtn.addEventListener('click', function() {
-      enabled = !enabled;
-      this.className = 'sfx-toggle ' + (enabled ? 'on' : 'off');
-      localStorage.setItem('pulse_sfx_enabled', enabled);
-      
-      // フィードバック音
-      if (enabled) {
-        sounds.click();
-      }
-    });
-  }
+  // SFX常時有効（ブラウザのタブミュートで制御）
   
   return {
     play: function(name, throttleMs) {
@@ -280,10 +216,6 @@ const SFX = (function() {
     },
     toggle: function() {
       enabled = !enabled;
-      if (toggleBtn) {
-        toggleBtn.className = 'sfx-toggle ' + (enabled ? 'on' : 'off');
-      }
-      localStorage.setItem('pulse_sfx_enabled', enabled);
     },
     isEnabled: function() {
       return enabled;
