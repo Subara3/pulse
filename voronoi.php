@@ -169,9 +169,10 @@ require_once __DIR__ . '/includes/share.php';
   const infoPanel = document.getElementById('infoPanel');
 
   const MODES = ['CELL', 'DISTANCE', 'DUAL'];
-  const RES = 3;
-  const INIT_COUNT = 20;
-  const MAX_SEEDS = 80;
+  const isMobile = window.innerWidth <= 768;
+  const RES = isMobile ? 4 : 3;
+  const INIT_COUNT = isMobile ? 12 : 20;
+  const MAX_SEEDS = isMobile ? 40 : 80;
   const DRAG_RADIUS = 20;
 
   let W, H, gridW, gridH;

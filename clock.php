@@ -41,7 +41,8 @@ let soundEnabled = localStorage.getItem('pulse_clock_sound') !== 'false'; // デ
 let audioCtx = null;
 let soundInitialized = false;
 
-const PARTICLE_COUNT = 1600;
+const isMobile = window.innerWidth <= 768;
+const PARTICLE_COUNT = isMobile ? 800 : 1600;
 
 // サウンド初期化
 function initSound() {

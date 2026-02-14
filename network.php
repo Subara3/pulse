@@ -241,7 +241,8 @@ require_once __DIR__ . '/includes/share.php';
   const phaseIndicator = document.getElementById('phaseIndicator');
 
   // Constants
-  const N = 80;
+  const isMobile = window.innerWidth <= 768;
+  const N = isMobile ? 40 : 80;
   const ACCENT = [0, 245, 212];
   const PURPLE = [123, 44, 191];
   const DIM = [60, 60, 80];

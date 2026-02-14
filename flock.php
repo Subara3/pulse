@@ -258,7 +258,8 @@ let boids = [];
 let mouseX = -1000, mouseY = -1000;
 let mouseDown = false;
 let mode = 'attract';
-let targetCount = 200;
+const isMobile = window.innerWidth <= 768;
+let targetCount = isMobile ? 100 : 200;
 let maxSpeed = 4;
 
 // Boidクラス
