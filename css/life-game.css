@@ -1,0 +1,36 @@
+/**
+ * Conway's Game of Life - PULSE用スタイル
+ */
+
+#life-game-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: auto; /* クリックでセル追加可能 */
+  opacity: 0.15;
+  background: transparent;
+}
+
+/* ヒーローセクションでは少し目立たせる */
+.hero ~ * #life-game-canvas,
+body:has(.hero) #life-game-canvas {
+  opacity: 0.18;
+}
+
+/* モバイルではパフォーマンス優先 */
+@media (max-width: 768px) {
+  #life-game-canvas {
+    opacity: 0.1;
+    pointer-events: none; /* モバイルではクリック無効 */
+  }
+}
+
+/* アニメーション無効設定を尊重 */
+@media (prefers-reduced-motion: reduce) {
+  #life-game-canvas {
+    display: none;
+  }
+}
