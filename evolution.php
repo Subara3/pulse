@@ -403,6 +403,7 @@ input[type="range"]::-webkit-slider-thumb {
 ';
 
 require_once __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/includes/sfx.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 
@@ -939,6 +940,7 @@ class Agent {
     const dy = this.pos.y - goal.y;
     if (Math.sqrt(dx * dx + dy * dy) < CONFIG.goalRadius) {
       this.reached = true;
+      SFX.play('success', 200);
     }
   }
 
@@ -1050,6 +1052,7 @@ function showClearScreen() {
   clearStats.textContent = `Cleared in Generation ${generation}`;
   clearOverlay.classList.add('show');
   paused = true;
+  SFX.play('complete');
   createStageButtons();
 }
 
