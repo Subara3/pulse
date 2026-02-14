@@ -14,8 +14,8 @@
   <div style="display:flex;justify-content:flex-start;background:#0a0a0f;padding:2px 8px">
     <button id="stickyAdClose" style="background:none;border:1px solid rgba(255,255,255,0.25);color:#ccc;font-size:0.75rem;padding:3px 12px;border-radius:4px;cursor:pointer;font-family:sans-serif;line-height:1.2">✕ 閉じる</button>
   </div>
-  <div style="max-height:90px;overflow:hidden;background:#0a0a0f;border-top:1px solid rgba(255,255,255,0.08)">
-    <ins class="adsbygoogle" style="display:block;height:90px" data-ad-client="ca-pub-7086371722392050" data-ad-slot="4953305789" data-ad-format="horizontal" data-full-width-responsive="false"></ins>
+  <div style="position:relative;max-height:90px;height:90px;overflow:hidden;background:#0a0a0f;border-top:1px solid rgba(255,255,255,0.08)">
+    <ins class="adsbygoogle" style="display:block;width:100%;height:90px;max-height:90px" data-ad-client="ca-pub-7086371722392050" data-ad-slot="4953305789" data-ad-format="horizontal" data-full-width-responsive="false"></ins>
   </div>
 </div>
 <script>
