@@ -11,7 +11,7 @@
 
 <!-- 固定バナー広告（下部） -->
 <div id="stickyAd" style="position:fixed;bottom:0;left:0;right:0;z-index:9000;background:#0d0d14;border-top:1px solid rgba(255,255,255,0.08);padding:0.4rem 0;text-align:center;display:none">
-<button id="stickyAdClose" style="position:absolute;top:-28px;right:8px;background:#0d0d14;border:1px solid rgba(255,255,255,0.15);border-bottom:none;color:#888;font-size:0.75rem;padding:4px 10px;border-radius:6px 6px 0 0;cursor:pointer;line-height:1;transition:color 0.2s" aria-label="広告を閉じる">&times;</button>
+<button id="stickyAdClose" style="position:absolute;top:-32px;left:8px;z-index:9999;background:#0d0d14;border:1px solid rgba(255,255,255,0.2);border-bottom:none;color:#aaa;font-size:0.8rem;padding:6px 14px;border-radius:8px 8px 0 0;cursor:pointer;line-height:1;font-family:sans-serif;transition:all 0.2s" aria-label="広告を閉じる">✕ 閉じる</button>
 <div style="max-width:728px;margin:0 auto">
 <ins class="adsbygoogle" style="display:block;height:90px" data-ad-client="ca-pub-7086371722392050" data-ad-slot="4953305789" data-ad-format="horizontal" data-full-width-responsive="true"></ins>
 </div>
@@ -23,11 +23,13 @@
   if (sessionStorage.getItem('pulse_ad_closed')) return;
   wrap.style.display = '';
   try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
-  btn.addEventListener('click', function(){
+  btn.addEventListener('click', function(e){
+    e.stopPropagation();
+    e.preventDefault();
     wrap.style.display = 'none';
     sessionStorage.setItem('pulse_ad_closed', '1');
   });
-  btn.addEventListener('mouseenter', function(){ this.style.color = '#00f5d4'; });
-  btn.addEventListener('mouseleave', function(){ this.style.color = '#888'; });
+  btn.addEventListener('mouseenter', function(){ this.style.color = '#00f5d4'; this.style.borderColor = '#00f5d4'; });
+  btn.addEventListener('mouseleave', function(){ this.style.color = '#aaa'; this.style.borderColor = 'rgba(255,255,255,0.2)'; });
 })();
 </script>
