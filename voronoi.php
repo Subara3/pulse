@@ -138,7 +138,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
 <div class="ui hud" id="hud">
   SEEDS: <span id="hudSeeds" class="highlight">0</span><br>
-  MODE: <span id="hudMode">CELL</span>
+  MODE: <span id="hudMode">CELL</span><br>
+  COLOR: <span id="hudPalette">PULSE</span>
 </div>
 
 <div class="ui controls">
@@ -158,6 +159,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   const ctx = canvas.getContext('2d');
   const hudSeeds = document.getElementById('hudSeeds');
   const hudMode = document.getElementById('hudMode');
+  const hudPalette = document.getElementById('hudPalette');
   const modeBtn = document.getElementById('modeBtn');
   const autoBtn = document.getElementById('autoBtn');
   const colorBtn = document.getElementById('colorBtn');
@@ -165,8 +167,6 @@ require_once __DIR__ . '/includes/floating-nav.php';
   const infoPanel = document.getElementById('infoPanel');
 
   const MODES = ['CELL', 'DISTANCE', 'DUAL'];
-  const ACCENT = [0, 245, 212];
-  const PURPLE = [123, 44, 191];
   const RES = 3;
   const INIT_COUNT = 20;
   const MAX_SEEDS = 80;
@@ -184,7 +184,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
   let needsCompute = true;
   let delaunayEdges = [];
 
-  // --- Palettes ---
+  // --- Color system ---
+  // 配色思想: PULSEサイトカラー(teal #00f5d4 + purple #7b2cbf)を軸に
+  // 各パレットは限定されたhue範囲内で変化させ、統一感を保つ。
+  // Golden ratioで色相を分散し、隣接セル間のコントラストを確保。
+
   function hsl2rgb(h, s, l) {
     s /= 100; l /= 100;
     const k = n => (n + h / 30) % 12;
@@ -193,29 +197,94 @@ require_once __DIR__ . '/includes/floating-nav.php';
     return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
   }
 
-  function makePalette(count, sat, light) {
-    const pal = [];
-    for (let i = 0; i < count; i++) {
-      pal.push(hsl2rgb((i * 360 / count + paletteIdx * 90) % 360, sat, light));
-    }
-    return pal;
-  }
+  const PHI = 0.618033988749895;
 
   const PALETTES = [
-    () => makePalette(MAX_SEEDS, 65, 22),
-    () => makePalette(MAX_SEEDS, 45, 32),
-    () => makePalette(MAX_SEEDS, 80, 15),
-    () => { // mono
-      const p = [];
-      for (let i = 0; i < MAX_SEEDS; i++) {
-        const v = 12 + (i * 7) % 20;
-        p.push([v, v, v + 8]);
+    // PULSE — サイトカラー: teal(70%) + purple(30%)
+    {
+      name: 'PULSE',
+      edge: [90, 200, 180],
+      glow: [0, 245, 212],
+      generate(n) {
+        const p = [];
+        for (let i = 0; i < n; i++) {
+          const t = (i * PHI) % 1;
+          if (t < 0.7) {
+            p.push(hsl2rgb(168 + (i * 31 % 37), 38 + (i * 17 % 28), 11 + (i * 13 % 16)));
+          } else {
+            p.push(hsl2rgb(262 + (i * 23 % 32), 32 + (i * 19 % 26), 12 + (i * 11 % 14)));
+          }
+        }
+        return p;
       }
-      return p;
+    },
+    // DEEP — 深海: 紺碧〜群青
+    {
+      name: 'DEEP',
+      edge: [100, 150, 210],
+      glow: [70, 130, 230],
+      generate(n) {
+        const p = [];
+        for (let i = 0; i < n; i++) {
+          const h = 200 + ((i * PHI * 50) % 50);
+          p.push(hsl2rgb(h, 30 + (i * 23 % 35), 8 + (i * 17 % 20)));
+        }
+        return p;
+      }
+    },
+    // BLOOM — 花: マゼンタ〜ラベンダー
+    {
+      name: 'BLOOM',
+      edge: [200, 130, 180],
+      glow: [230, 90, 170],
+      generate(n) {
+        const p = [];
+        for (let i = 0; i < n; i++) {
+          const t = (i * PHI) % 1;
+          if (t < 0.6) {
+            p.push(hsl2rgb(310 + (i * 29 % 40), 33 + (i * 13 % 30), 13 + (i * 19 % 15)));
+          } else {
+            p.push(hsl2rgb(268 + (i * 17 % 28), 28 + (i * 23 % 28), 11 + (i * 11 % 15)));
+          }
+        }
+        return p;
+      }
+    },
+    // TERRA — 大地: 翡翠〜琥珀
+    {
+      name: 'TERRA',
+      edge: [150, 180, 110],
+      glow: [110, 190, 70],
+      generate(n) {
+        const p = [];
+        for (let i = 0; i < n; i++) {
+          const t = (i * PHI) % 1;
+          if (t < 0.55) {
+            p.push(hsl2rgb(90 + (i * 23 % 55), 26 + (i * 17 % 30), 10 + (i * 13 % 16)));
+          } else {
+            p.push(hsl2rgb(25 + (i * 19 % 30), 33 + (i * 11 % 30), 14 + (i * 23 % 14)));
+          }
+        }
+        return p;
+      }
+    },
+    // VOID — 虚無: モノクローム（微かな青み）
+    {
+      name: 'VOID',
+      edge: [130, 135, 155],
+      glow: [110, 115, 140],
+      generate(n) {
+        const p = [];
+        for (let i = 0; i < n; i++) {
+          p.push(hsl2rgb(220 + (i * 7 % 15), 6 + (i * 11 % 12), 8 + (i * 19 % 20)));
+        }
+        return p;
+      }
     }
   ];
 
-  let palette = PALETTES[0]();
+  let paletteDef = PALETTES[0];
+  let palette = paletteDef.generate(MAX_SEEDS);
 
   // --- Seed management ---
   function createSeed(x, y) {
@@ -318,40 +387,40 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     const data = imgData.data;
     const modeName = MODES[mode];
+    const edge = paletteDef.edge;
 
-    // Fill pixels from grid
     for (let gy = 0; gy < gridH; gy++) {
       for (let gx = 0; gx < gridW; gx++) {
         const si = grid[gy * gridW + gx];
         const col = palette[si % palette.length];
 
-        // Edge detection
         let isEdge = false;
         if (gx > 0 && grid[gy * gridW + gx - 1] !== si) isEdge = true;
         else if (gx < gridW - 1 && grid[gy * gridW + gx + 1] !== si) isEdge = true;
         else if (gy > 0 && grid[(gy - 1) * gridW + gx] !== si) isEdge = true;
         else if (gy < gridH - 1 && grid[(gy + 1) * gridW + gx] !== si) isEdge = true;
 
-        // Distance factor for DISTANCE mode
         let distFactor = 1;
         if (modeName === 'DISTANCE') {
           const px = gx * RES + RES * 0.5;
           const py = gy * RES + RES * 0.5;
           const dx = px - seeds[si].x, dy = py - seeds[si].y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          distFactor = Math.max(0.08, 1 - dist / (Math.min(W, H) * 0.35));
+          distFactor = Math.max(0.05, 1 - dist / (Math.min(W, H) * 0.35));
         }
 
         let r, g, b;
         if (isEdge) {
-          r = ACCENT[0]; g = ACCENT[1]; b = ACCENT[2];
+          // エッジ: パレット固有色をセル色とブレンド → 有機的な境界
+          r = edge[0] * 0.55 + col[0] * 0.45;
+          g = edge[1] * 0.55 + col[1] * 0.45;
+          b = edge[2] * 0.55 + col[2] * 0.45;
         } else {
           r = col[0] * distFactor;
           g = col[1] * distFactor;
           b = col[2] * distFactor;
         }
 
-        // Fill RES x RES block
         const startX = gx * RES;
         const startY = gy * RES;
         const endX = Math.min(startX + RES, W);
@@ -372,8 +441,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
     // Delaunay overlay
     if (modeName === 'DUAL') {
-      ctx.strokeStyle = 'rgba(' + PURPLE[0] + ',' + PURPLE[1] + ',' + PURPLE[2] + ',0.5)';
-      ctx.lineWidth = 1;
+      const gl = paletteDef.glow;
+      ctx.strokeStyle = 'rgba(' + gl[0] + ',' + gl[1] + ',' + gl[2] + ',0.2)';
+      ctx.lineWidth = 0.8;
       for (const [a, b] of delaunayEdges) {
         ctx.beginPath();
         ctx.moveTo(seeds[a].x, seeds[a].y);
@@ -382,15 +452,25 @@ require_once __DIR__ . '/includes/floating-nav.php';
       }
     }
 
-    // Draw seed points
+    // シード描画 — 有機的な細胞核
+    const gl = paletteDef.glow;
     for (let i = 0; i < n; i++) {
-      ctx.fillStyle = '#fff';
+      const sx = seeds[i].x, sy = seeds[i].y;
+      // 外側グロー（柔らかい光輪）
+      ctx.fillStyle = 'rgba(' + gl[0] + ',' + gl[1] + ',' + gl[2] + ',0.06)';
       ctx.beginPath();
-      ctx.arc(seeds[i].x, seeds[i].y, 2.5, 0, Math.PI * 2);
+      ctx.arc(sx, sy, 12, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = 'rgba(' + ACCENT[0] + ',' + ACCENT[1] + ',' + ACCENT[2] + ',0.15)';
+      // 中間リング
+      ctx.strokeStyle = 'rgba(' + gl[0] + ',' + gl[1] + ',' + gl[2] + ',0.2)';
+      ctx.lineWidth = 0.6;
       ctx.beginPath();
-      ctx.arc(seeds[i].x, seeds[i].y, 8, 0, Math.PI * 2);
+      ctx.arc(sx, sy, 4.5, 0, Math.PI * 2);
+      ctx.stroke();
+      // 核（小さく明るい）
+      ctx.fillStyle = 'rgba(' + Math.min(255, gl[0] + 100) + ',' + Math.min(255, gl[1] + 100) + ',' + Math.min(255, gl[2] + 100) + ',0.6)';
+      ctx.beginPath();
+      ctx.arc(sx, sy, 1.3, 0, Math.PI * 2);
       ctx.fill();
     }
   }
@@ -413,6 +493,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function updateHud() {
     hudSeeds.textContent = seeds.length;
     hudMode.textContent = MODES[mode];
+    hudPalette.textContent = paletteDef.name;
   }
 
   // --- Main loop ---
@@ -472,7 +553,6 @@ require_once __DIR__ . '/includes/floating-nav.php';
       const hit = findNearest(mx, my);
       if (hit >= 0) {
         seeds.splice(hit, 1);
-        palette = PALETTES[paletteIdx % PALETTES.length]();
         needsCompute = true;
         SFX.play('pop');
       }
@@ -559,14 +639,15 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   colorBtn.addEventListener('click', function() {
     paletteIdx = (paletteIdx + 1) % PALETTES.length;
-    palette = PALETTES[paletteIdx]();
+    paletteDef = PALETTES[paletteIdx];
+    palette = paletteDef.generate(MAX_SEEDS);
     needsCompute = true;
     SFX.play('click');
   });
 
   resetBtn.addEventListener('click', function() {
     initSeeds();
-    palette = PALETTES[paletteIdx % PALETTES.length]();
+    palette = paletteDef.generate(MAX_SEEDS);
     SFX.play('click');
   });
 
