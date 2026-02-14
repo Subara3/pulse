@@ -315,18 +315,19 @@ document.querySelectorAll('[data-mode]').forEach(btn => {
     this.classList.add('active');
     mode = this.dataset.mode;
     reset();
+    SFX.play('toggle');
   });
 });
 
-document.getElementById('resetBtn').addEventListener('click', reset);
+document.getElementById('resetBtn').addEventListener('click', () => { reset(); SFX.play('click'); });
 
 canvas.addEventListener('mousedown', (e) => {
   mouseDown = true;
   mouseX = e.clientX;
   mouseY = e.clientY;
   
-  if (mode === 'sand' || mode === 'magnet') addParticles(e.clientX, e.clientY, 50);
-  else if (mode === 'balls') { balls.push(new Ball(e.clientX, e.clientY)); if (balls.length > 50) balls.shift(); }
+  if (mode === 'sand' || mode === 'magnet') { addParticles(e.clientX, e.clientY, 50); SFX.play('spawn', 60); }
+  else if (mode === 'balls') { balls.push(new Ball(e.clientX, e.clientY)); if (balls.length > 50) balls.shift(); SFX.play('spawn'); }
 });
 
 canvas.addEventListener('mousemove', (e) => {
@@ -343,8 +344,8 @@ canvas.addEventListener('touchstart', (e) => {
   mouseDown = true;
   mouseX = e.touches[0].clientX;
   mouseY = e.touches[0].clientY;
-  if (mode === 'sand' || mode === 'magnet') addParticles(mouseX, mouseY, 50);
-  else if (mode === 'balls') { balls.push(new Ball(mouseX, mouseY)); if (balls.length > 50) balls.shift(); }
+  if (mode === 'sand' || mode === 'magnet') { addParticles(mouseX, mouseY, 50); SFX.play('spawn', 60); }
+  else if (mode === 'balls') { balls.push(new Ball(mouseX, mouseY)); if (balls.length > 50) balls.shift(); SFX.play('spawn'); }
 }, { passive: false });
 
 canvas.addEventListener('touchmove', (e) => {
@@ -366,5 +367,6 @@ init();
 draw();
 </script>
 
+<?php require_once __DIR__ . '/includes/sfx.php'; ?>
 </body>
 </html>

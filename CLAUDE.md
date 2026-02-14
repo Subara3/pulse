@@ -61,6 +61,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   // Canvas初期化、リサイズ処理、メインループ、イベント処理
 })();
 </script>
+<?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/share-buttons.php'; ?>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 </body>
@@ -124,6 +125,40 @@ git push origin main
 - **Canvas 2D**: WebGLや外部ライブラリは使わない
 - **モバイル対応**: タッチイベント対応、レスポンシブUI
 - **共通UI**: HUD（右上）、コントロール（右下）、情報（左下）
+
+## 効果音（SFX）ルール
+
+**新コンテンツには必ず効果音を入れること。** Web Audio APIベースの自動生成音。
+
+### 使い方
+1. テンプレートに `<?php require_once __DIR__ . '/includes/sfx.php'; ?>` を含める（`</script>`の後）
+2. インタラクション箇所で `SFX.play('音名')` を呼ぶ
+3. 連打が起きる箇所はスロットル付き: `SFX.play('音名', 50)` (50ms抑制)
+
+### 利用可能な音
+| 音名 | 用途 | 例 |
+|---|---|---|
+| `spawn` | エンティティ生成 | 点追加、パーティクル生成 |
+| `pop` | エンティティ消滅 | 点削除、セル死亡 |
+| `collide` | 衝突・接触 | 物体同士の衝突、壁バウンド |
+| `ripple` | 波紋・水滴 | 波紋生成、拡散 |
+| `tick` | 刻み・ステップ | セル配置、1ステップ進行 |
+| `toggle` | モード切替 | 表示モード変更、AUTO切替 |
+| `click` | UIクリック | リセット、カラー変更 |
+| `move` | 移動 | ドラッグ中の移動 |
+| `success` | 成功・決定 | ゴール到達 |
+| `complete` | 完了 | ソート完了、パズルクリア |
+| `fail` | 失敗 | ゲームオーバー |
+| `grow` | 成長 | レベルアップ |
+
+### 音の選び方
+- **クリック/タップ操作** → `spawn`（生成系）or `tick`（トグル系）
+- **モード切替ボタン** → `toggle`
+- **リセット/クリア** → `click`
+- **物体が生まれる** → `spawn`、**消える** → `pop`
+- **衝突/バウンド** → `collide`（スロットル50ms推奨）
+- **波紋/拡散** → `ripple`（スロットル80ms推奨）
+- **うるさくしないこと**: 毎フレーム鳴る処理にはスロットル必須
 
 ## 既存コンテンツ一覧（被りチェック用）
 

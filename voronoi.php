@@ -474,6 +474,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
         seeds.splice(hit, 1);
         palette = PALETTES[paletteIdx % PALETTES.length]();
         needsCompute = true;
+        SFX.play('pop');
       }
       return;
     }
@@ -487,6 +488,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
         seeds[seeds.length - 1].vx = (Math.random() - 0.5) * 0.8;
         seeds[seeds.length - 1].vy = (Math.random() - 0.5) * 0.8;
         needsCompute = true;
+        SFX.play('spawn');
       }
     }, 250);
   });
@@ -505,6 +507,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     } else if (seeds.length < MAX_SEEDS) {
       seeds.push(createSeed(mx, my));
       needsCompute = true;
+      SFX.play('spawn');
     }
   }, {passive: false});
 
@@ -545,22 +548,26 @@ require_once __DIR__ . '/includes/floating-nav.php';
   modeBtn.addEventListener('click', function() {
     mode = (mode + 1) % MODES.length;
     needsCompute = true;
+    SFX.play('toggle');
   });
 
   autoBtn.addEventListener('click', function() {
     autoMode = !autoMode;
     this.classList.toggle('active', autoMode);
+    SFX.play('toggle');
   });
 
   colorBtn.addEventListener('click', function() {
     paletteIdx = (paletteIdx + 1) % PALETTES.length;
     palette = PALETTES[paletteIdx]();
     needsCompute = true;
+    SFX.play('click');
   });
 
   resetBtn.addEventListener('click', function() {
     initSeeds();
     palette = PALETTES[paletteIdx % PALETTES.length]();
+    SFX.play('click');
   });
 
   // Resize
@@ -587,6 +594,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 })();
 </script>
 
+<?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/share-buttons.php'; ?>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 </body>

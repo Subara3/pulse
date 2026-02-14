@@ -483,6 +483,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     const rx = Math.floor(Math.random() * cols);
     const ry = Math.floor(Math.random() * rows);
     addAnt(rx, ry);
+    SFX.play('spawn');
   });
 
   document.getElementById('speedSlider').addEventListener('input', function() {
@@ -496,6 +497,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     const cx = Math.floor(e.clientX / cellSize);
     const cy = Math.floor(e.clientY / cellSize);
     addAnt(cx, cy);
+    SFX.play('spawn');
     // ヒントを消す
     if (hintEl) hintEl.style.opacity = '0';
   });
@@ -511,6 +513,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 })();
 </script>
 
+<?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/share-buttons.php'; ?>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 </body>

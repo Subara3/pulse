@@ -207,12 +207,14 @@ window.addEventListener('resize', resize);
 
 canvas.addEventListener('click', (e) => {
   createRipple(e.clientX, e.clientY);
+  SFX.play('ripple', 80);
 });
 
 canvas.addEventListener('touchstart', (e) => {
   e.preventDefault();
   const touch = e.touches[0];
   createRipple(touch.clientX, touch.clientY);
+  SFX.play('ripple', 80);
 });
 
 document.querySelectorAll('.btn').forEach(btn => {
@@ -221,6 +223,7 @@ document.querySelectorAll('.btn').forEach(btn => {
     document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     colorMode = btn.dataset.color;
+    SFX.play('toggle');
   });
 });
 
@@ -239,5 +242,6 @@ animate();
 setTimeout(() => createRipple(width / 2, height / 2), 500);
 </script>
 
+<?php require_once __DIR__ . '/includes/sfx.php'; ?>
 </body>
 </html>

@@ -292,6 +292,7 @@ canvas.addEventListener('mousedown', (e) => {
     if (grid[x] && grid[x][y] !== undefined) {
       grid[x][y] = grid[x][y] ? 0 : 1;
       lastCell = { x, y };
+      SFX.play('tick', 30);
     }
   }
 });
@@ -324,14 +325,15 @@ document.getElementById('playBtn').addEventListener('click', function() {
   isPlaying = !isPlaying;
   this.textContent = isPlaying ? '▶ PLAY' : '❚❚ PAUSE';
   this.classList.toggle('active', isPlaying);
+  SFX.play('toggle');
 });
 
 document.getElementById('stepBtn').addEventListener('click', () => {
-  if (!isPlaying) step();
+  if (!isPlaying) { step(); SFX.play('tick'); }
 });
 
-document.getElementById('clearBtn').addEventListener('click', clear);
-document.getElementById('randomBtn').addEventListener('click', randomize);
+document.getElementById('clearBtn').addEventListener('click', () => { clear(); SFX.play('click'); });
+document.getElementById('randomBtn').addEventListener('click', () => { randomize(); SFX.play('click'); });
 
 document.getElementById('speedSlider').addEventListener('input', function() {
   speed = parseInt(this.value);
@@ -343,6 +345,7 @@ document.querySelectorAll('.pattern-btn').forEach(btn => {
     document.querySelectorAll('.pattern-btn').forEach(b => b.classList.remove('active'));
     this.classList.add('active');
     selectedPattern = this.dataset.pattern;
+    SFX.play('toggle');
   });
 });
 
@@ -353,5 +356,6 @@ window.addEventListener('resize', resize);
 init();
 </script>
 
+<?php require_once __DIR__ . '/includes/sfx.php'; ?>
 </body>
 </html>

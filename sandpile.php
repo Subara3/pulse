@@ -233,6 +233,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     topple();
     drawFull();
     updateGrainCount();
+    SFX.play('tick', 50);
   }
 
   canvas.addEventListener('mousedown', (e) => {
@@ -267,6 +268,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   autoBtn.addEventListener('click', () => {
     autoMode = !autoMode;
     autoBtn.classList.toggle('active', autoMode);
+    SFX.play('toggle');
 
     if (autoMode) {
       // autoIntervalは使わない。ループ内で処理する。
@@ -279,6 +281,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     autoMode = false;
     autoBtn.classList.remove('active');
     init();
+    SFX.play('click');
   });
 
   window.addEventListener('resize', () => {
@@ -305,5 +308,6 @@ require_once __DIR__ . '/includes/floating-nav.php';
 })();
 </script>
 
+<?php require_once __DIR__ . '/includes/sfx.php'; ?>
 </body>
 </html>

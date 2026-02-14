@@ -172,6 +172,7 @@ function shuffle() {
   swapping = [-1, -1];
   comparisons = 0;
   swapCount = 0;
+  SFX.play('click');
   
   for (let i = 0; i < arraySize; i++) {
     array[i] = Math.random() * 0.9 + 0.1;
@@ -360,6 +361,7 @@ function loop() {
         sorting = false;
         sortGenerator = null;
         sorted = array.map((_, i) => i);
+        SFX.play('complete');
         // 完了後、少し待ってシャッフル
         setTimeout(shuffle, 2000);
         break;
@@ -379,6 +381,7 @@ document.querySelectorAll('.control-btn[data-algo]').forEach(btn => {
     btn.classList.add('active');
     currentAlgo = btn.dataset.algo;
     document.getElementById('algoName').textContent = algoNames[currentAlgo];
+    SFX.play('toggle');
     shuffle();
   });
 });
@@ -394,5 +397,6 @@ init();
 loop();
 </script>
 
+<?php require_once __DIR__ . '/includes/sfx.php'; ?>
 </body>
 </html>
