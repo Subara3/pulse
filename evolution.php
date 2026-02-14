@@ -391,15 +391,22 @@ input[type="range"]::-webkit-slider-thumb {
 
 @media (max-width: 768px) {
   .legend { display: none; }
-  .stage-info { max-width: 150px; padding: 0.8rem; }
-  .stage-info-name { font-size: 0.85rem; }
-  .stage-info-desc { font-size: 0.6rem; }
-  .stage-select { top: auto; bottom: 4rem; }
-  .stage-btn { width: 35px; height: 35px; font-size: 0.7rem; }
-  .hud-panel { padding: 0.8rem 1rem; }
-  .controls { bottom: 0.5rem; gap: 0.5rem; }
-  .ctrl-btn { padding: 0.5rem 0.8rem; font-size: 0.6rem; }
-  .clear-title { font-size: 2rem; }
+  .stage-info { display: none; }
+  .stage-select { top: auto; bottom: 4.5rem; left: 50%; transform: translateX(-50%); }
+  .stage-btn { width: 32px; height: 32px; font-size: 0.65rem; }
+  .hud { top: auto; bottom: 7rem; left: 0.5rem; }
+  .hud-panel { padding: 0.5rem 0.8rem; }
+  .hud-title { font-size: 0.6rem; margin-bottom: 0.4rem; }
+  .hud-row { padding: 0.15rem 0; }
+  .hud-label { font-size: 0.55rem; }
+  .hud-value { font-size: 0.7rem; min-width: 40px; }
+  .controls { bottom: 0.5rem; gap: 0.4rem; }
+  .ctrl-btn { padding: 0.4rem 0.6rem; font-size: 0.55rem; }
+  .speed-control { bottom: 0.5rem; right: 0.5rem; padding: 0.5rem 0.7rem; }
+  .speed-label { font-size: 0.55rem; }
+  input[type="range"] { width: 70px; }
+  .clear-title { font-size: 1.8rem; }
+  .clear-btn { padding: 0.7rem 1.2rem; font-size: 0.85rem; }
 }
 ';
 
@@ -486,8 +493,8 @@ const STAGES = [
     id: 1,
     name: 'SIMPLE',
     desc: 'No obstacles.',
-    goal: (w, h) => ({ x: w / 2, y: 80 }),
-    start: (w, h) => ({ x: w / 2, y: h - 100 }),
+    goal: (w, h) => ({ x: w / 2, y: h * 0.12 }),
+    start: (w, h) => ({ x: w / 2, y: h * 0.88 }),
     obstacles: () => [],
     lifespan: 300,
     clearThreshold: 10
@@ -496,10 +503,10 @@ const STAGES = [
     id: 2,
     name: 'WALL',
     desc: 'Get around the wall.',
-    goal: (w, h) => ({ x: w / 2, y: 80 }),
-    start: (w, h) => ({ x: w / 2, y: h - 100 }),
+    goal: (w, h) => ({ x: w / 2, y: h * 0.12 }),
+    start: (w, h) => ({ x: w / 2, y: h * 0.88 }),
     obstacles: (w, h) => [
-      { x: w / 2 - 180, y: h / 2, w: 360, h: 20 }
+      { x: w * 0.2, y: h / 2, w: w * 0.6, h: 20 }
     ],
     lifespan: 400,
     clearThreshold: 8
@@ -508,12 +515,12 @@ const STAGES = [
     id: 3,
     name: 'MAZE',
     desc: 'Break through multiple walls.',
-    goal: (w, h) => ({ x: w / 2, y: 80 }),
-    start: (w, h) => ({ x: w / 2, y: h - 100 }),
+    goal: (w, h) => ({ x: w / 2, y: h * 0.12 }),
+    start: (w, h) => ({ x: w / 2, y: h * 0.88 }),
     obstacles: (w, h) => [
-      { x: w / 2 - 200, y: h * 0.7, w: 250, h: 15 },
-      { x: w / 2 - 50, y: h * 0.5, w: 250, h: 15 },
-      { x: w / 2 - 200, y: h * 0.3, w: 250, h: 15 }
+      { x: w * 0.15, y: h * 0.7, w: w * 0.45, h: 15 },
+      { x: w * 0.4, y: h * 0.5, w: w * 0.45, h: 15 },
+      { x: w * 0.15, y: h * 0.3, w: w * 0.45, h: 15 }
     ],
     lifespan: 500,
     clearThreshold: 5
@@ -522,16 +529,17 @@ const STAGES = [
     id: 4,
     name: 'NARROW',
     desc: 'Squeeze through narrow gaps.',
-    goal: (w, h) => ({ x: w / 2, y: 80 }),
-    start: (w, h) => ({ x: w / 2, y: h - 100 }),
-    obstacles: (w, h) => [
-      // 下段の狭い隙間
-      { x: 0, y: h * 0.7, w: w / 2 - 30, h: 20 },
-      { x: w / 2 + 30, y: h * 0.7, w: w / 2, h: 20 },
-      // 上段の狭い隙間（ずれてる）
-      { x: 0, y: h * 0.35, w: w / 2 + 80, h: 20 },
-      { x: w / 2 + 140, y: h * 0.35, w: w / 2, h: 20 }
-    ],
+    goal: (w, h) => ({ x: w / 2, y: h * 0.12 }),
+    start: (w, h) => ({ x: w / 2, y: h * 0.88 }),
+    obstacles: (w, h) => {
+      const gap = Math.max(40, w * 0.08);
+      return [
+        { x: 0, y: h * 0.7, w: w / 2 - gap, h: 20 },
+        { x: w / 2 + gap, y: h * 0.7, w: w / 2, h: 20 },
+        { x: 0, y: h * 0.35, w: w * 0.55, h: 20 },
+        { x: w * 0.65, y: h * 0.35, w: w * 0.35, h: 20 }
+      ];
+    },
     lifespan: 500,
     clearThreshold: 5
   },
@@ -539,8 +547,8 @@ const STAGES = [
     id: 5,
     name: 'ZIGZAG',
     desc: 'Navigate the zigzag.',
-    goal: (w, h) => ({ x: w - 100, y: 80 }),
-    start: (w, h) => ({ x: 100, y: h - 100 }),
+    goal: (w, h) => ({ x: w * 0.85, y: h * 0.12 }),
+    start: (w, h) => ({ x: w * 0.15, y: h * 0.88 }),
     obstacles: (w, h) => [
       { x: 0, y: h * 0.75, w: w * 0.6, h: 15 },
       { x: w * 0.4, y: h * 0.5, w: w * 0.6, h: 15 },
@@ -553,23 +561,21 @@ const STAGES = [
     id: 6,
     name: 'GAUNTLET',
     desc: 'The final trial.',
-    goal: (w, h) => ({ x: w / 2, y: 60 }),
-    start: (w, h) => ({ x: w / 2, y: h - 80 }),
-    obstacles: (w, h) => [
-      // 下段 - 狭い隙間
-      { x: 0, y: h * 0.82, w: w / 2 - 35, h: 18 },
-      { x: w / 2 + 35, y: h * 0.82, w: w / 2, h: 18 },
-      // 中下段 - 左右交互
-      { x: w * 0.5, y: h * 0.65, w: w * 0.5, h: 15 },
-      // 中段 - 狭い隙間（右寄り）
-      { x: 0, y: h * 0.5, w: w * 0.65, h: 18 },
-      { x: w * 0.75, y: h * 0.5, w: w * 0.25, h: 18 },
-      // 中上段 - 左右交互
-      { x: 0, y: h * 0.35, w: w * 0.5, h: 15 },
-      // 上段 - 狭い隙間（中央）
-      { x: 0, y: h * 0.2, w: w / 2 - 30, h: 18 },
-      { x: w / 2 + 30, y: h * 0.2, w: w / 2, h: 18 }
-    ],
+    goal: (w, h) => ({ x: w / 2, y: h * 0.1 }),
+    start: (w, h) => ({ x: w / 2, y: h * 0.9 }),
+    obstacles: (w, h) => {
+      const gap = Math.max(35, w * 0.07);
+      return [
+        { x: 0, y: h * 0.82, w: w / 2 - gap, h: 18 },
+        { x: w / 2 + gap, y: h * 0.82, w: w / 2, h: 18 },
+        { x: w * 0.5, y: h * 0.65, w: w * 0.5, h: 15 },
+        { x: 0, y: h * 0.5, w: w * 0.65, h: 18 },
+        { x: w * 0.75, y: h * 0.5, w: w * 0.25, h: 18 },
+        { x: 0, y: h * 0.35, w: w * 0.5, h: 15 },
+        { x: 0, y: h * 0.2, w: w / 2 - gap, h: 18 },
+        { x: w / 2 + gap, y: h * 0.2, w: w / 2, h: 18 }
+      ];
+    },
     lifespan: 1000,
     clearThreshold: 3,
     predators: 0
@@ -579,8 +585,8 @@ const STAGES = [
     id: 'A',
     name: 'PREDATOR',
     desc: 'Predator incoming.',
-    goal: (w, h) => ({ x: w / 2, y: 80 }),
-    start: (w, h) => ({ x: w / 2, y: h - 100 }),
+    goal: (w, h) => ({ x: w / 2, y: h * 0.12 }),
+    start: (w, h) => ({ x: w / 2, y: h * 0.88 }),
     obstacles: () => [],
     lifespan: 400,
     clearThreshold: 8,
@@ -591,10 +597,10 @@ const STAGES = [
     id: 'B',
     name: 'HUNT',
     desc: 'Use walls as cover.',
-    goal: (w, h) => ({ x: w / 2, y: 80 }),
-    start: (w, h) => ({ x: w / 2, y: h - 100 }),
+    goal: (w, h) => ({ x: w / 2, y: h * 0.12 }),
+    start: (w, h) => ({ x: w / 2, y: h * 0.88 }),
     obstacles: (w, h) => [
-      { x: w / 2 - 150, y: h / 2, w: 300, h: 20 }
+      { x: w * 0.25, y: h / 2, w: w * 0.5, h: 20 }
     ],
     lifespan: 500,
     clearThreshold: 6,
@@ -605,8 +611,8 @@ const STAGES = [
     id: 'C',
     name: 'SWARM',
     desc: 'Two predators. Watch the pinch.',
-    goal: (w, h) => ({ x: w / 2, y: 80 }),
-    start: (w, h) => ({ x: w / 2, y: h - 100 }),
+    goal: (w, h) => ({ x: w / 2, y: h * 0.12 }),
+    start: (w, h) => ({ x: w / 2, y: h * 0.88 }),
     obstacles: (w, h) => [
       { x: w * 0.2, y: h * 0.6, w: w * 0.25, h: 15 },
       { x: w * 0.55, y: h * 0.6, w: w * 0.25, h: 15 }
@@ -620,14 +626,17 @@ const STAGES = [
     id: 'D',
     name: 'CORRIDOR',
     desc: 'Escape through narrow corridors.',
-    goal: (w, h) => ({ x: w / 2, y: 80 }),
-    start: (w, h) => ({ x: w / 2, y: h - 100 }),
-    obstacles: (w, h) => [
-      { x: 0, y: h * 0.65, w: w / 2 - 50, h: 20 },
-      { x: w / 2 + 50, y: h * 0.65, w: w / 2, h: 20 },
-      { x: 0, y: h * 0.35, w: w / 2 - 50, h: 20 },
-      { x: w / 2 + 50, y: h * 0.35, w: w / 2, h: 20 }
-    ],
+    goal: (w, h) => ({ x: w / 2, y: h * 0.12 }),
+    start: (w, h) => ({ x: w / 2, y: h * 0.88 }),
+    obstacles: (w, h) => {
+      const gap = Math.max(50, w * 0.1);
+      return [
+        { x: 0, y: h * 0.65, w: w / 2 - gap, h: 20 },
+        { x: w / 2 + gap, y: h * 0.65, w: w / 2, h: 20 },
+        { x: 0, y: h * 0.35, w: w / 2 - gap, h: 20 },
+        { x: w / 2 + gap, y: h * 0.35, w: w / 2, h: 20 }
+      ];
+    },
     lifespan: 700,
     clearThreshold: 4,
     predators: 2,
@@ -637,8 +646,8 @@ const STAGES = [
     id: 'E',
     name: 'SURVIVAL',
     desc: 'Survive three predators.',
-    goal: (w, h) => ({ x: w / 2, y: 80 }),
-    start: (w, h) => ({ x: w / 2, y: h - 100 }),
+    goal: (w, h) => ({ x: w / 2, y: h * 0.12 }),
+    start: (w, h) => ({ x: w / 2, y: h * 0.88 }),
     obstacles: (w, h) => [
       { x: w * 0.1, y: h * 0.7, w: w * 0.35, h: 15 },
       { x: w * 0.55, y: h * 0.7, w: w * 0.35, h: 15 },
