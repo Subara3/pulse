@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/access_log.php';
 
 // アクセス記録
 recordPageView('voronoi');
@@ -127,6 +128,7 @@ body {
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
+require_once __DIR__ . '/includes/share.php';
 ?>
 
 <canvas id="canvas"></canvas>
@@ -678,6 +680,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/share-buttons.php'; ?>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
+<?php require_once __DIR__ . '/includes/related.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

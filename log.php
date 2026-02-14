@@ -1,5 +1,6 @@
 ﻿<?php
 require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/access_log.php';
 
 // アクセス記録
 recordPageView('log');

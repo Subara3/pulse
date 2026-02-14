@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/access_log.php';
 
 recordPageView('flock');
 
@@ -194,6 +195,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
+require_once __DIR__ . '/includes/share.php';
 ?>
 
 <canvas id="canvas"></canvas>
@@ -543,6 +545,7 @@ init();
 draw();
 </script>
 
+<?php require_once __DIR__ . '/includes/related.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/access_log.php';
 
 recordPageView('fourier');
 
@@ -268,6 +269,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
+require_once __DIR__ . '/includes/share.php';
 ?>
 
 <div class="container">
@@ -692,6 +694,7 @@ loop();
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
+<?php require_once __DIR__ . '/includes/related.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

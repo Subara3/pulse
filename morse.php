@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/access_log.php';
 
 recordPageView('morse');
 
@@ -52,6 +53,7 @@ body { background: #0a0a0f; min-height: 100vh; display: flex; flex-direction: co
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
+require_once __DIR__ . '/includes/share.php';
 require_once __DIR__ . '/includes/sfx.php';
 ?>
 
@@ -303,6 +305,7 @@ document.getElementById('morseTable').innerHTML = tableHtml;
 generateTarget();
 </script>
 
+<?php require_once __DIR__ . '/includes/related.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

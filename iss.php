@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/access_log.php';
 
 recordPageView('iss');
 
@@ -533,6 +534,7 @@ body::after {
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
+require_once __DIR__ . '/includes/share.php';
 ?>
 
 <div class="corner-deco tl"></div>
@@ -875,6 +877,7 @@ update();
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
+<?php require_once __DIR__ . '/includes/related.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

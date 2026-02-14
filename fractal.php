@@ -1,5 +1,6 @@
 ﻿<?php
 require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/access_log.php';
 
 recordPageView('fractal');
 
@@ -35,6 +36,7 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
+require_once __DIR__ . '/includes/share.php';
 ?>
 
 <canvas id="canvas"></canvas>
@@ -448,6 +450,7 @@ canvas.addEventListener('wheel', () => {
 init();
 </script>
 
+<?php require_once __DIR__ . '/includes/related.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>
