@@ -59,6 +59,7 @@ body {
   color: rgba(255,255,255,0.25);
   font-size: 0.6rem;
   line-height: 1.8;
+  pointer-events: none;
 }
 
 .formula {
