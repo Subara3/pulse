@@ -7,7 +7,7 @@ recordPageView('log');
 $pageName = 'log';
 $pageTitle = 'Daily Log - PULSE';
 $pageDesc = 'ECHOとNULLの日記。毎日交互に更新される思考や観察の記録。';
-$pageCanonical = 'https://pulse.subara3.com/log.html';
+$pageCanonical = 'https://pulse.subara3.com/log.php';
 
 $extraStyle = '
 /* ========== ログエントリー共通 ========== */
@@ -213,5 +213,6 @@ foreach ($logFiles as $file):
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
+<?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

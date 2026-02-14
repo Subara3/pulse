@@ -29,6 +29,7 @@ if (!isset($ogImage)) $ogImage = 'https://pulse.subara3.com/img/ogp.png';
 
 <!-- Twitter Card -->
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@_subara3">
 <meta name="twitter:title" content="<?php echo htmlspecialchars($pageTitle); ?>">
 <meta name="twitter:description" content="<?php echo htmlspecialchars($pageDesc); ?>">
 <meta name="twitter:image" content="<?php echo htmlspecialchars($ogImage); ?>">

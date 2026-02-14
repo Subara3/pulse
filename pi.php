@@ -302,5 +302,6 @@ init();
 animate();
 </script>
 
+<?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

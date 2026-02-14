@@ -287,5 +287,6 @@ init();
 document.getElementById('fibDisplay').textContent = FIB.slice(0, 8).join(', ') + '...';
 </script>
 
+<?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

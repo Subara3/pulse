@@ -179,5 +179,6 @@ require_once __DIR__ . '/includes/nav.php';
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
+<?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

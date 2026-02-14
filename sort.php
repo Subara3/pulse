@@ -398,5 +398,6 @@ loop();
 </script>
 
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
+<?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>
