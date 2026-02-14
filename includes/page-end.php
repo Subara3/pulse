@@ -1,4 +1,4 @@
-<?php // 共通ページ末尾: noscript + 広告 ?>
+<?php // 共通ページ末尾: noscript + 固定バナー広告 ?>
 <noscript>
 <style>canvas{display:none!important}.ui{display:none!important}.floating-nav{display:none!important}body{overflow:auto!important}</style>
 <div style="padding:3rem 2rem;max-width:800px;margin:0 auto;text-align:center">
@@ -8,10 +8,26 @@
 <p style="margin-top:2rem"><a href="index.php" style="color:#00f5d4">← ホームに戻る</a></p>
 </div>
 </noscript>
-<div class="ad-section" style="position:relative;z-index:200;background:var(--bg-primary)">
-<div class="ad-container">
-<div class="ad-label">AD</div>
-<ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7086371722392050" data-ad-slot="4953305789" data-ad-format="auto" data-full-width-responsive="true"></ins>
-<script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+
+<!-- 固定バナー広告（下部） -->
+<div id="stickyAd" style="position:fixed;bottom:0;left:0;right:0;z-index:9000;background:#0d0d14;border-top:1px solid rgba(255,255,255,0.08);padding:0.4rem 0;text-align:center;display:none">
+<button id="stickyAdClose" style="position:absolute;top:-28px;right:8px;background:#0d0d14;border:1px solid rgba(255,255,255,0.15);border-bottom:none;color:#888;font-size:0.75rem;padding:4px 10px;border-radius:6px 6px 0 0;cursor:pointer;line-height:1;transition:color 0.2s" aria-label="広告を閉じる">&times;</button>
+<div style="max-width:728px;margin:0 auto">
+<ins class="adsbygoogle" style="display:block;height:90px" data-ad-client="ca-pub-7086371722392050" data-ad-slot="4953305789" data-ad-format="horizontal" data-full-width-responsive="true"></ins>
 </div>
 </div>
+<script>
+(function(){
+  var wrap = document.getElementById('stickyAd');
+  var btn = document.getElementById('stickyAdClose');
+  if (sessionStorage.getItem('pulse_ad_closed')) return;
+  wrap.style.display = '';
+  try { (adsbygoogle = window.adsbygoogle || []).push({}); } catch(e) {}
+  btn.addEventListener('click', function(){
+    wrap.style.display = 'none';
+    sessionStorage.setItem('pulse_ad_closed', '1');
+  });
+  btn.addEventListener('mouseenter', function(){ this.style.color = '#00f5d4'; });
+  btn.addEventListener('mouseleave', function(){ this.style.color = '#888'; });
+})();
+</script>
