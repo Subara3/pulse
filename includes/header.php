@@ -36,6 +36,10 @@ if (!isset($ogImage)) $ogImage = 'https://pulse.subara3.com/img/ogp.png';
 <!-- Theme Color -->
 <meta name="theme-color" content="#0a0a0f">
 
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="<?php echo $basePath; ?>favicon.svg">
+<link rel="apple-touch-icon" href="<?php echo $basePath; ?>favicon.svg">
+
 <!-- JSON-LD WebSite -->
 <script type="application/ld+json">
 {
