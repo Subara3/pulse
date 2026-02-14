@@ -156,6 +156,15 @@ body {
 .twin {
   border: 1px solid #f39c12;
 }
+
+@media (max-width: 768px) {
+  .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
+  .stats { top: 0.5rem; right: 0.5rem; font-size: 0.5rem; }
+  .info { bottom: 3.5rem; left: 0.5rem; font-size: 0.5rem; }
+  .controls { bottom: 0.5rem; gap: 0.3rem; }
+  .control-btn { padding: 0.35rem 0.6rem; font-size: 0.5rem; }
+  .legend { display: none; }
+}
 ';
 
 require_once __DIR__ . '/includes/header.php';

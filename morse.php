@@ -49,6 +49,17 @@ body { background: #0a0a0f; min-height: 100vh; display: flex; flex-direction: co
 .mode-btn:hover { border-color: rgba(0, 245, 212, 0.5); }
 .mode-btn.active { background: rgba(0, 245, 212, 0.2); border-color: #00f5d4; color: #00f5d4; }
 .target-morse.hidden { opacity: 0; }
+
+@media (max-width: 768px) {
+  body { padding: 1rem; }
+  .page-title { font-size: 1rem; }
+  .target-char { font-size: 3rem; }
+  .target-morse { font-size: 1rem; }
+  .input-display { font-size: 1.5rem; min-height: 40px; }
+  .morse-chart { gap: 0.3rem; padding: 0.8rem; }
+  .morse-item { font-size: 0.55rem; }
+  .mode-btn { padding: 0.4rem 1rem; font-size: 0.6rem; }
+}
 ';
 
 require_once __DIR__ . '/includes/header.php';

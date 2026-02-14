@@ -26,6 +26,16 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 .slider-group { top: 1rem; right: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.6rem; color: rgba(255,255,255,0.4); }
 .slider-group label { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
 .slider-group input { width: 80px; }
+
+@media (max-width: 768px) {
+  .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
+  .stats { top: auto; bottom: 3.5rem; right: 1rem; font-size: 0.55rem; }
+  .hint { display: none; }
+  .slider-group { top: 0.5rem; right: 0.5rem; font-size: 0.5rem; }
+  .slider-group input { width: 60px; }
+  .controls { bottom: 0.5rem; left: 0.5rem; max-width: 100%; gap: 0.3rem; }
+  .control-btn { padding: 0.35rem 0.5rem; font-size: 0.5rem; }
+}
 ';
 
 require_once __DIR__ . '/includes/header.php';

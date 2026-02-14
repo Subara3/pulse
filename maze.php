@@ -146,6 +146,22 @@ body {
   margin-top: 1rem;
   text-align: center;
 }
+
+@media (max-width: 768px) {
+  body { padding: 1rem; }
+  .header { top: 0.5rem; left: 0.5rem; }
+  .logo { font-size: 1rem; }
+  .hint { font-size: 0.55rem; }
+  .stats { gap: 1.5rem; margin-bottom: 1rem; }
+  .stat-value { font-size: 1.2rem; }
+  .stat-label { font-size: 0.55rem; }
+  .controls { gap: 0.3rem; flex-wrap: wrap; }
+  .control-btn { padding: 0.4rem 0.6rem; font-size: 0.55rem; }
+  .btn-primary { padding: 0.5rem 1rem; font-size: 0.7rem; }
+  .size-btn { padding: 0.3rem 0.5rem; font-size: 0.5rem; }
+  .message { padding: 1.5rem 2rem; font-size: 1rem; }
+  .instructions { font-size: 0.6rem; }
+}
 ';
 
 require_once __DIR__ . '/includes/header.php';

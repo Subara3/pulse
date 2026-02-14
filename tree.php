@@ -17,6 +17,10 @@ body { background: linear-gradient(to bottom, #0a0a0f 0%, #0a0a14 50%, #0a0a18 1
 .ui { position: fixed; z-index: 1000; font-family: "Orbitron", sans-serif; }
 .info { bottom: 1rem; left: 50%; transform: translateX(-50%); color: rgba(255,255,255,0.3); font-size: 0.6rem; text-align: center; }
 .hide-ui .info, .hide-ui .content-controls, .hide-ui .floating-nav { opacity: 0 !important; pointer-events: none; }
+
+@media (max-width: 768px) {
+  .info { font-size: 0.5rem; bottom: 0.5rem; }
+}
 ';
 
 // コントロールボタン設定

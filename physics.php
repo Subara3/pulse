@@ -22,6 +22,14 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 .control-btn.active { background: rgba(0, 245, 212, 0.2); border-color: #00f5d4; color: #00f5d4; }
 .hint { top: 50%; left: 1.5rem; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.6rem; line-height: 1.8; }
 .stats { top: 1rem; right: 1.5rem; font-family: "JetBrains Mono", monospace; font-size: 0.65rem; color: rgba(255,255,255,0.4); text-align: right; }
+
+@media (max-width: 768px) {
+  .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
+  .hint { display: none; }
+  .stats { top: 0.5rem; right: 0.5rem; font-size: 0.5rem; }
+  .controls { bottom: 0.5rem; gap: 0.3rem; }
+  .control-btn { padding: 0.35rem 0.6rem; font-size: 0.5rem; }
+}
 ';
 
 require_once __DIR__ . '/includes/header.php';

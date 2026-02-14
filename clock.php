@@ -17,6 +17,11 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 .ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; }
 .title { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.15); font-size: 0.7rem; letter-spacing: 0.2em; }
 .stats { top: 1rem; right: 1.5rem; font-family: "JetBrains Mono", monospace; font-size: 0.65rem; color: rgba(255,255,255,0.4); }
+
+@media (max-width: 768px) {
+  .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
+  .stats { font-size: 0.55rem; top: 0.5rem; right: 0.5rem; }
+}
 ';
 
 require_once __DIR__ . '/includes/header.php';

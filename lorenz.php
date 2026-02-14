@@ -20,6 +20,12 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; margin: 0; }
 .info { bottom: 1rem; left: 1rem; color: rgba(255,255,255,0.3); font-size: 0.6rem; line-height: 1.8; }
 .formula { color: rgba(0,245,212,0.5); font-family: serif; font-style: italic; }
 .hide-ui .back-link, .hide-ui .info, .hide-ui .content-controls, .hide-ui .floating-nav { opacity: 0 !important; pointer-events: none; }
+
+@media (max-width: 768px) {
+  .back-link { display: none; }
+  .info { font-size: 0.5rem; bottom: 0.5rem; left: 0.5rem; }
+  .formula { font-size: 0.45rem; }
+}
 ';
 
 // コントロールボタン設定

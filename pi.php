@@ -25,6 +25,14 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 .control-btn.active { background: rgba(0, 245, 212, 0.2); border-color: #00f5d4; color: #00f5d4; }
 .hint { top: 50%; left: 1.5rem; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.7rem; line-height: 1.8; }
 .pi-display { top: 1rem; left: 50%; transform: translateX(-50%); font-family: "JetBrains Mono", monospace; font-size: 1.5rem; color: #00f5d4; letter-spacing: 0.1em; }
+
+@media (max-width: 768px) {
+  .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
+  .hint { display: none; }
+  .pi-display { font-size: 1rem; top: 0.5rem; }
+  .controls { bottom: 0.5rem; gap: 0.3rem; }
+  .control-btn { padding: 0.35rem 0.6rem; font-size: 0.5rem; }
+}
 ';
 
 require_once __DIR__ . '/includes/header.php';

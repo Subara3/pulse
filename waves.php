@@ -54,6 +54,12 @@ body {
   font-size: 0.7rem;
   letter-spacing: 0.2em;
 }
+
+@media (max-width: 768px) {
+  .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
+  .controls { bottom: 0.5rem; gap: 0.3rem; }
+  .control-btn { padding: 0.35rem 0.6rem; font-size: 0.5rem; }
+}
 ';
 
 require_once __DIR__ . '/includes/header.php';

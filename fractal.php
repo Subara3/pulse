@@ -32,6 +32,15 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 .presets { display: flex; flex-direction: column; gap: 0.3rem; position: fixed; top: 50%; right: 1.5rem; transform: translateY(-50%); }
 .preset-btn { padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); font-family: "JetBrains Mono", monospace; font-size: 0.65rem; cursor: pointer; border-radius: 4px; transition: all 0.3s; text-align: left; }
 .preset-btn:hover { background: rgba(0, 245, 212, 0.1); border-color: rgba(0, 245, 212, 0.3); color: #00f5d4; }
+
+@media (max-width: 768px) {
+  .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
+  .info { top: 0.5rem; right: 0.5rem; font-size: 0.5rem; }
+  .presets { top: auto; bottom: 4rem; right: 0.5rem; transform: none; flex-direction: row; flex-wrap: wrap; max-width: 200px; }
+  .preset-btn { padding: 0.3rem 0.5rem; font-size: 0.5rem; }
+  .controls { bottom: 0.5rem; gap: 0.3rem; }
+  .control-btn { padding: 0.35rem 0.6rem; font-size: 0.5rem; }
+}
 ';
 
 require_once __DIR__ . '/includes/header.php';

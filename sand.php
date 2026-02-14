@@ -96,6 +96,15 @@ body {
   font-size: 0.7rem;
   text-align: right;
 }
+
+@media (max-width: 768px) {
+  .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
+  .hint { top: 0.5rem; right: 0.5rem; font-size: 0.55rem; }
+  .controls { bottom: 0.5rem; gap: 0.3rem; }
+  .control-btn { padding: 0.35rem 0.6rem; font-size: 0.5rem; }
+  .color-presets { gap: 0.3rem; }
+  .color-btn { width: 25px; height: 25px; }
+}
 ';
 
 require_once __DIR__ . '/includes/header.php';

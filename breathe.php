@@ -153,6 +153,15 @@ body {
   font-size: 0.7rem;
   letter-spacing: 0.2em;
 }
+
+@media (max-width: 768px) {
+  .circle-container { width: 200px; height: 200px; }
+  .instruction { font-size: 1.2rem; }
+  .timer { font-size: 0.7rem; }
+  .controls { gap: 0.4rem; }
+  .control-btn { padding: 0.4rem 0.7rem; font-size: 0.55rem; }
+  .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
+}
 ';
 
 require_once __DIR__ . '/includes/header.php';

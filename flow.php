@@ -177,6 +177,13 @@ body {
 .preset-sunset { background: linear-gradient(135deg, #7b2cbf, #c39bd3); }
 .preset-forest { background: linear-gradient(135deg, #004d40, #26a69a); }
 .preset-night { background: linear-gradient(135deg, #1a1a2e, #0f3460); }
+
+@media (max-width: 768px) {
+  .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
+  .color-presets { top: 0.5rem; right: 0.5rem; gap: 0.3rem; }
+  .color-preset { width: 30px; height: 30px; }
+  .hint { display: none; }
+}
 ';
 
 require_once __DIR__ . '/includes/header.php';

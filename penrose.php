@@ -17,6 +17,10 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; margin: 0; }
 .ui { position: fixed; z-index: 1000; font-family: "Orbitron", sans-serif; }
 .title { bottom: 1rem; left: 1rem; color: rgba(255,255,255,0.15); font-size: 0.7rem; letter-spacing: 0.2em; }
 .hide-ui .title, .hide-ui .content-controls, .hide-ui .floating-nav { opacity: 0 !important; pointer-events: none; }
+
+@media (max-width: 768px) {
+  .title { font-size: 0.55rem; bottom: 0.5rem; left: 0.5rem; }
+}
 ';
 
 // コントロールボタン設定
