@@ -333,10 +333,11 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
 // 設定
+const isMobile = window.innerWidth <= 768;
 let time = 0;
 let paused = false;
 let speed = 3;
-let numCircles = 50;
+let numCircles = isMobile ? 30 : 50;
 let showCircles = true;
 let path = [];
 let fourierX = [];

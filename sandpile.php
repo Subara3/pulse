@@ -107,7 +107,8 @@ require_once __DIR__ . '/includes/share.php';
   const autoBtn = document.getElementById('autoBtn');
   const clearBtn = document.getElementById('clearBtn');
 
-  const CELL_SIZE = 4;
+  const isMobile = window.innerWidth <= 768;
+  const CELL_SIZE = isMobile ? 6 : 4;
   const COLORS = ['#0a0a0f', '#1a1a3e', '#7b2cbf', '#00f5d4'];
 
   let width, height, cols, rows;

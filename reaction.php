@@ -380,7 +380,8 @@ const ctx = canvas.getContext('2d');
 const brushCursor = document.getElementById('brushCursor');
 
 // ── シミュレーション設定 ──
-const SIM_SCALE = 4;
+const isMobile = window.innerWidth <= 768;
+const SIM_SCALE = isMobile ? 6 : 4;
 let simW, simH;
 let U, V, nextU, nextV;
 let imageData, pixels;

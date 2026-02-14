@@ -138,9 +138,10 @@ require_once __DIR__ . '/includes/share.php';
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
+const isMobile = window.innerWidth <= 768;
 let width, height;
 let array = [];
-let arraySize = 100;
+let arraySize = isMobile ? 50 : 100;
 let comparing = [-1, -1];
 let swapping = [-1, -1];
 let sorted = [];

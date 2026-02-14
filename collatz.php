@@ -233,8 +233,9 @@ require_once __DIR__ . '/includes/content-controls.php';
   //  Reversed Collatz sequences as angular paths
   // ============================================
   let treeN = 2;
-  const TREE_MAX = 8000;
-  const TREE_PER_FRAME = 5;
+  const isMobile = window.innerWidth <= 768;
+  const TREE_MAX = isMobile ? 4000 : 8000;
+  const TREE_PER_FRAME = isMobile ? 3 : 5;
   let treeAngle = 8;
 
   function resetTree() {
@@ -441,8 +442,8 @@ require_once __DIR__ . '/includes/content-controls.php';
   //  Scatter plot of total stopping times
   // ============================================
   let stopN = 1;
-  const STOP_MAX = 10000;
-  const STOP_PER_FRAME = 8;
+  const STOP_MAX = isMobile ? 5000 : 10000;
+  const STOP_PER_FRAME = isMobile ? 5 : 8;
   let maxST = 0;
 
   function resetStop() {

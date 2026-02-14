@@ -244,8 +244,9 @@ require_once __DIR__ . '/includes/share.php';
   const colorBtn = document.getElementById('colorBtn');
   const presets = document.getElementById('presets');
 
+  const isMobile = window.innerWidth <= 768;
   let W, H, cx, cy, radius;
-  let numPoints = 200;
+  let numPoints = isMobile ? 120 : 200;
   let multiplier = 2;
   let animating = false;
   let animSpeed = 0.003;

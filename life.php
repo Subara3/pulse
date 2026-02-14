@@ -74,7 +74,8 @@ const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
 // 設定
-const CELL_SIZE = 12;
+const isMobile = window.innerWidth <= 768;
+const CELL_SIZE = isMobile ? 16 : 12;
 let cols, rows;
 let grid = [];
 let isPlaying = true;

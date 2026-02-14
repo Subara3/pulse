@@ -120,7 +120,8 @@ const ctx = canvas.getContext('2d');
 
 let width, height;
 let cols, rows;
-const CELL_SIZE = 4;
+const isMobile = window.innerWidth <= 768;
+const CELL_SIZE = isMobile ? 6 : 4;
 let grid;
 let isPointerDown = false;
 let currentMaterial = 'sand';

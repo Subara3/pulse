@@ -55,9 +55,10 @@ const beta = 8 / 3;
 const dt = 0.005;
 
 // 軌道の点
+const isMobile = window.innerWidth <= 768;
 let points = [];
-const maxPoints = 5000;
-let trailLength = 2000;
+const maxPoints = isMobile ? 2500 : 5000;
+let trailLength = isMobile ? 1000 : 2000;
 
 // 現在の位置
 let x, y, z;
