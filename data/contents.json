@@ -306,6 +306,15 @@
     "added": "2026-02-13"
   },
   {
+    "page": "string",
+    "title": "STRING ART",
+    "desc": "ストリングアート。円周上の点を糸で結ぶと、数式が曲線を描き出す。",
+    "icon": "fa-spider-web",
+    "category": "眺める",
+    "meta": "6プリセット",
+    "added": "2026-02-14"
+  },
+  {
     "page": "contents",
     "title": "CONTENTS",
     "desc": "コンテンツ一覧。サイトマップ。",
