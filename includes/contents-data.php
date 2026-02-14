@@ -280,6 +280,15 @@ $allContents = [
     'tag' => 'NEW',
     'meta' => '3モード'
   ],
+  [
+    'page' => 'voronoi',
+    'title' => 'VORONOI',
+    'desc' => 'ボロノイ図。最も近い点が空間を分割する。境界は誰が引いたのか。',
+    'icon' => 'fa-draw-polygon',
+    'category' => '眺める',
+    'tag' => 'NEW',
+    'meta' => '3モード'
+  ],
 
   // ========== ガイド ==========
   [
