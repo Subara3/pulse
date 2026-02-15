@@ -315,6 +315,15 @@
     "added": "2026-02-14"
   },
   {
+    "page": "dla",
+    "title": "DLA",
+    "desc": "拡散律速凝集。ランダムウォークする粒子が触れた瞬間、結晶は成長する。",
+    "icon": "fa-snowflake",
+    "category": "眺める",
+    "meta": "3モード",
+    "added": "2026-02-15"
+  },
+  {
     "page": "contents",
     "title": "CONTENTS",
     "desc": "コンテンツ一覧。サイトマップ。",
