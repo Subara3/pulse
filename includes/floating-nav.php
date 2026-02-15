@@ -30,6 +30,12 @@ $otherContents = array_values($otherContents);
     <i class="fa-solid fa-ellipsis"></i>
   </button>
   
+  <!-- 言語切り替え -->
+  <button class="float-btn float-lang" id="langToggle" title="Switch language">
+    <span class="lang-icon" data-lang-ja>EN</span>
+    <span class="lang-icon" data-lang-en>JA</span>
+  </button>
+  
   <!-- 展開メニュー -->
   <div class="float-submenu" id="floatSubmenu">
     <a href="about.php"><i class="fa-solid fa-info-circle"></i></a>
@@ -88,6 +94,24 @@ $otherContents = array_values($otherContents);
 .float-random:hover {
   background: var(--null-color);
 }
+
+.float-lang {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.lang-icon { display: none; }
+[data-current-lang="ja"] .lang-icon[data-lang-ja] { display: inline; }
+[data-current-lang="en"] .lang-icon[data-lang-en] { display: inline; }
+
+/* 言語によるテキスト切り替え */
+[data-lang-ja], [data-lang-en] { display: none !important; }
+[data-current-lang="ja"] [data-lang-ja] { display: inline !important; }
+[data-current-lang="en"] [data-lang-en] { display: inline !important; }
+[data-lang-ja-block], [data-lang-en-block] { display: none !important; }
+[data-current-lang="ja"] [data-lang-ja-block] { display: block !important; }
+[data-current-lang="en"] [data-lang-en-block] { display: block !important; }
 
 /* サブメニュー */
 .float-submenu {

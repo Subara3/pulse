@@ -109,6 +109,9 @@ if (isset($pageName) && !in_array($pageName, ['index', 'about', 'contents'])) {
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 <?php if (isset($extraHead)) echo $extraHead; ?>
 
+<!-- Language -->
+<script src="<?php echo $basePath; ?>includes/lang.js"></script>
+
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
