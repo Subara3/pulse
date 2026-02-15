@@ -220,14 +220,15 @@ P.bright(c, f) // 明るくする
 眺める: BREATHE, FLOW, PENDULUM, ISS, FLOCK, CLOCK, PHYSICS, PRIMES,
         FIBONACCI, GOLDEN, π, FRACTAL, JULIA, KOCH, TREE, LIFE, SAND,
         SORT, EVOLUTION, FOURIER, LANGTON, REACTION, CONSOLE, LORENZ,
-        PENROSE, WAVES, RIPPLE, SANDPILE, NETWORK, COLLATZ, VORONOI
+        PENROSE, WAVES, RIPPLE, SANDPILE, NETWORK, COLLATZ, VORONOI,
+        STRING, DLA
 
 **カバー済み領域**: フラクタル、セルオートマトン(2D)、振動/波、カオス、
 粒子物理、ソート、グラフ理論、数列/数論、パターン生成、遺伝的アルゴリズム、
-空間分割(ボロノイ)
+空間分割(ボロノイ)、拡散律速凝集(DLA)、ストリングアート
 
-**未開拓の領域例**: パスファインディング、流体シミュレーション、DLA(拡散律速凝集)、
-パーコレーション、ランダムウォーク、円充填、確率/統計、ストリングアート、
+**未開拓の領域例**: パスファインディング、流体シミュレーション、
+パーコレーション、ランダムウォーク、円充填、確率/統計、
 チューリングマシン(1D)、Lシステム、光学、色彩理論、位相幾何学
 
 ## やってはいけないこと
