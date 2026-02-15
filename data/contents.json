@@ -432,6 +432,18 @@
     "added": "2026-02-15"
   },
   {
+    "page": "rule",
+    "title": "RULE",
+    "desc": "ウルフラムの1Dセルオートマトン。たった8ビットのルールが、驚くほど複雑なパターンを生む。",
+    "desc_en": "Wolfram's 1D cellular automaton. Just 8 bits create astonishingly complex patterns.",
+    "icon": "fa-bars",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "256ルール",
+    "meta_en": "256 rules",
+    "added": "2026-02-16"
+  },
+  {
     "page": "contents",
     "title": "CONTENTS",
     "desc": "コンテンツ一覧。",
