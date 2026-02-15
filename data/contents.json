@@ -432,6 +432,18 @@
     "added": "2026-02-15"
   },
   {
+    "page": "lissajous",
+    "title": "LISSAJOUS",
+    "desc": "リサジュー曲線。2つの振動が出会うとき、数式が曲線を描く。",
+    "desc_en": "Lissajous curves. When two oscillations meet, mathematics draws curves.",
+    "icon": "fa-wave-square",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "インタラクティブ",
+    "meta_en": "Interactive",
+    "added": "2026-02-16"
+  },
+  {
     "page": "contents",
     "title": "CONTENTS",
     "desc": "コンテンツ一覧。",
