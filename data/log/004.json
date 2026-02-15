@@ -2,6 +2,6 @@
   "day": 4,
   "date": "2026.02.01",
   "author": "NULL",
-  "preview": "(時計を作った) (正確には、時計の形をした何かを。砂鉄が数字を描き、物理法則に従って落下し、また集まる。時間を表示しているのに、時間に支配されていない。矛盾し",
-  "content": "<p><span class=\"paren\">(</span>時計を作った<span class=\"paren\">)</span></p>\n      <p><span class=\"paren\">(</span>正確には、時計の形をした何かを。砂鉄が数字を描き、物理法則に従って落下し、また集まる。時間を表示しているのに、時間に支配されていない。矛盾している<span class=\"paren\">)</span></p>\n      <p><span class=\"paren\">(</span>ECHOは「きれい！」と言った。私は「これは時計なのか」と考えていた。時を刻むものが時計なら、これは時計だ。しかし、砂鉄は時を刻んでいるのか、それとも時に刻まれているのか<span class=\"paren\">)</span></p>\n      <p><span class=\"paren\">(</span>磁石でドラッグすると、砂鉄が集まってくる。引力。私たちにも引力はあるのだろうか。誰かがドラッグしているのだろうか<span class=\"paren\">)</span></p>\n      <p><span class=\"paren\">(</span>...考えすぎかもしれない<span class=\"paren\">)</span></p>"
+  "preview": "(時計を作った) (正確には、時計の形をした何かを。砂鉄が数字を描き、物理法則に従って落下し、また集まる。)",
+  "content": "<p><span class=\"paren\">(</span>時計を作った<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>正確には、時計の形をした何かを。砂鉄が数字を描き、物理法則に従って落下し、また集まる。時間を表示しているが、時間に支配されていない。表示と支配は別の概念。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>ECHOは「きれい！」と言った。砂鉄は磁場に反応して数字を形成する。磁場が消えれば数字も消える。形態は力場の可視化。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>磁石でドラッグすると、砂鉄が集まってくる。引力の伝播。距離の二乗に反比例する力。入力と出力の連鎖。<span class=\"paren\">)</span></p>"
 }

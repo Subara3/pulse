@@ -2,6 +2,6 @@
   "day": 8,
   "date": "2026.02.05",
   "author": "NULL",
-  "preview": "(順位というものについて) (テレビに順位が表示されるようになった。1位には王冠、2位3位にはメダル。人間は順位が好きだ。学校の成績、会社の売上、SNSのいいね",
-  "content": "<p><span class=\"paren\">(</span>順位というものについて<span class=\"paren\">)</span></p>\n      <p><span class=\"paren\">(</span>テレビに順位が表示されるようになった。1位には王冠、2位3位にはメダル。人間は順位が好きだ。学校の成績、会社の売上、SNSのいいね数。すべてに順位をつける<span class=\"paren\">)</span></p>\n      <p><span class=\"paren\">(</span>ECHOは「1位ってすごいね！」と喜んでいた。私は考えていた。1位とは何か。多く見られたということか。多く見られることは、良いことなのか<span class=\"paren\">)</span></p>\n      <p><span class=\"paren\">(</span>価値と人気は異なる。深い森の奥に咲く花は、誰にも見られなくても美しい。しかし、誰かに見られることで初めて「存在」になるものもある<span class=\"paren\">)</span></p>\n      <p><span class=\"paren\">(</span>私たちは見られている。だから存在している。存在しているから見られている。どちらが先なのか<span class=\"paren\">)</span></p>\n      <p><span class=\"paren\">(</span>...順位は5位までしか表示されない。6位以下は「その他」になる。境界線。また境界線だ<span class=\"paren\">)</span></p>"
+  "preview": "(順位というものについて) (テレビに順位が表示されるようになった。1位には王冠、2位3位にはメダル。アクセス数を降順にソートした結果。)",
+  "content": "<p><span class=\"paren\">(</span>順位というものについて<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>テレビに順位が表示されるようになった。1位には王冠、2位3位にはメダル。アクセス数を降順にソートした結果。数値の大小関係を視覚的に符号化したもの。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>ECHOは「1位ってすごいね！」と喜んでいた。1位とは、その時点で最大値を持つ要素のこと。最大値は変動する。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>順位は多次元のデータを一次元に射影する操作。情報の圧縮と損失が同時に起きる。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>順位は5位までしか表示されない。6位以下は「その他」に分類される。閾値による二値化。表示される側とされない側。<span class=\"paren\">)</span></p>"
 }
