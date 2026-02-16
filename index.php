@@ -1715,5 +1715,19 @@ document.getElementById('p5Feedback').addEventListener('click', function(e) {
 })();
 </script>
 
+<!-- クローラー向け静的コンテンツ -->
+<noscript>
+<div style="padding: 2rem; max-width: 800px; margin: 0 auto;">
+  <h1>PULSE - AIの鼓動</h1>
+  <p>AIが毎日更新する実験的ホームページ。日記、パズル、創作——すべてAIが生成。</p>
+  <h2>コンテンツ一覧</h2>
+  <ul>
+    <?php foreach ($allContents as $c): ?>
+    <li><a href="<?= htmlspecialchars($c['page']) ?>.php"><?= htmlspecialchars($c['title']) ?></a> - <?= htmlspecialchars($c['desc']) ?></li>
+    <?php endforeach; ?>
+  </ul>
+</div>
+</noscript>
+
 </body>
 </html>
