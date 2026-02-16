@@ -186,11 +186,11 @@ require_once __DIR__ . '/includes/share.php';
   </div>
   <div class="slider-row">
     <label>SPD</label>
-    <input type="range" id="speedSlider" min="1" max="20" value="3">
-    <label id="speedLabel">3</label>
+    <input type="range" id="speedSlider" min="1" max="20" value="1">
+    <label id="speedLabel">1</label>
   </div>
   <div class="btn-row">
-    <button class="control-btn" id="autoBtn">AUTO</button>
+    <button class="control-btn active" id="autoBtn">AUTO</button>
     <button class="control-btn" id="resetBtn">RESET</button>
   </div>
 </div>
@@ -219,9 +219,9 @@ require_once __DIR__ . '/includes/share.php';
   let W, H, cols, rows;
   let grid, clusters, clusterColors;
   let probability = 0.5;
-  let autoMode = false;
+  let autoMode = true;
   let autoDir = 1;
-  let autoSpeed = 0.0006;
+  let autoSpeed = 0.00012;
   let percolates = false;
   let hideUI = false;
   let needsCompute = true;
@@ -434,7 +434,7 @@ require_once __DIR__ . '/includes/share.php';
   });
 
   speedSlider.addEventListener('input', function() {
-    autoSpeed = this.value * 0.0002;
+    autoSpeed = this.value * 0.00012;
     speedLabel.textContent = this.value;
     SFX.play('tick', 30);
   });
