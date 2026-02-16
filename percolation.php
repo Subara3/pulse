@@ -184,6 +184,11 @@ require_once __DIR__ . '/includes/share.php';
     <input type="range" id="probSlider" min="0" max="100" value="50">
     <label id="probLabel">0.50</label>
   </div>
+  <div class="slider-row">
+    <label>SPD</label>
+    <input type="range" id="speedSlider" min="1" max="20" value="3">
+    <label id="speedLabel">3</label>
+  </div>
   <div class="btn-row">
     <button class="control-btn" id="autoBtn">AUTO</button>
     <button class="control-btn" id="resetBtn">RESET</button>
@@ -202,6 +207,8 @@ require_once __DIR__ . '/includes/share.php';
   const hudPerc = document.getElementById('hudPerc');
   const probSlider = document.getElementById('probSlider');
   const probLabel = document.getElementById('probLabel');
+  const speedSlider = document.getElementById('speedSlider');
+  const speedLabel = document.getElementById('speedLabel');
   const autoBtn = document.getElementById('autoBtn');
   const resetBtn = document.getElementById('resetBtn');
 
@@ -214,7 +221,7 @@ require_once __DIR__ . '/includes/share.php';
   let probability = 0.5;
   let autoMode = false;
   let autoDir = 1;
-  let autoSpeed = 0.002;
+  let autoSpeed = 0.0006;
   let percolates = false;
   let hideUI = false;
   let needsCompute = true;
@@ -423,6 +430,12 @@ require_once __DIR__ . '/includes/share.php';
   probSlider.addEventListener('input', function() {
     probability = this.value / 100;
     needsCompute = true;
+    SFX.play('tick', 30);
+  });
+
+  speedSlider.addEventListener('input', function() {
+    autoSpeed = this.value * 0.0002;
+    speedLabel.textContent = this.value;
     SFX.play('tick', 30);
   });
 
