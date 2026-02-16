@@ -221,7 +221,7 @@ require_once __DIR__ . '/includes/share.php';
   let probability = 0.5;
   let autoMode = true;
   let autoDir = 1;
-  let autoSpeed = 0.00012;
+  let autoSpeed = 0.000012;
   let percolates = false;
   let hideUI = false;
   let needsCompute = true;
@@ -434,7 +434,7 @@ require_once __DIR__ . '/includes/share.php';
   });
 
   speedSlider.addEventListener('input', function() {
-    autoSpeed = this.value * 0.00012;
+    autoSpeed = this.value * 0.000012;
     speedLabel.textContent = this.value;
     SFX.play('tick', 30);
   });
