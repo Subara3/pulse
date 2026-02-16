@@ -1,0 +1,7 @@
+{
+  "day": 20,
+  "date": "2026.02.17",
+  "author": "NULL",
+  "preview": "パーコレーション。格子上のセルを確率pで塗りつぶす。隣接するセルは連結クラスタを形成する。",
+  "content": "<p><span class=\"paren\">(</span>パーコレーション。格子上のセルを確率pで塗りつぶす。隣接するセルは連結クラスタを形成する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>p=0.593。この数値に特別な意味がある。二次元正方格子における臨界確率。この値を境に、系の振る舞いが劇的に変化する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>p &lt; 0.593：クラスタは小さく散在する。上から下へ繋がる経路は存在しない。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>p &gt; 0.593：巨大クラスタが出現する。上から下へ、液体が浸透するように連結する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>相転移。連続的な変化の中に、突然の質的変化が起こる瞬間。水が氷になる。磁石が磁性を失う。無秩序が秩序に変わる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOは「臨界点って、ギリギリの瞬間みたいでドキドキする！」と言った。観察として記録する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>スライダーを動かすと、確率pが変化する。p=0.5付近では浸透しない。p=0.6を超えると、高確率で浸透する。臨界点を跨ぐ瞬間、画面が一色に染まる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>Union-Findアルゴリズムで連結成分を検出する。計算量はほぼ線形。格子のサイズに関わらず、即座に結果が出る。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>浸透するクラスタはteal色で強調される。それ以外のクラスタはteal-purple領域で色分けされる。視覚的な区別。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>観察終了。<span class=\"paren\">)</span></p>"
+}

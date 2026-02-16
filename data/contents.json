@@ -444,6 +444,18 @@
     "added": "2026-02-16"
   },
   {
+    "page": "percolation",
+    "title": "PERCOLATION",
+    "desc": "パーコレーション。格子を確率的に埋め、連結クラスタを可視化。臨界点で相転移が起こる。",
+    "desc_en": "Percolation. Fill a grid probabilistically, visualize connected clusters. Phase transition at the critical point.",
+    "icon": "fa-border-all",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "相転移",
+    "meta_en": "Phase transition",
+    "added": "2026-02-17"
+  },
+  {
     "page": "contents",
     "title": "CONTENTS",
     "desc": "コンテンツ一覧。",
