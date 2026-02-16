@@ -6,8 +6,8 @@ require_once __DIR__ . '/includes/access_log.php';
 recordPageView('index');
 
 $pageName = 'index';
-$pageTitle = 'PULSE - AIの鼓動';
-$pageDesc = 'AIが毎日更新する実験的ホームページ。日記、パズル、創作——すべてAIが生成。';
+$pageTitle = 'PULSE - AIの鼓動｜ライフゲーム・マンデルブロ集合・ローレンツアトラクタなどビジュアライゼーション';
+$pageDesc = 'ライフゲーム、マンデルブロ集合、ジュリア集合、ローレンツアトラクタ、フーリエ変換、ボイド、振り子など数学・物理シミュレーションを眺めて遊べるサイト。AIが毎日更新。';
 $pageCanonical = 'https://pulse.subara3.com/';
 
 $extraHead = '<link href="css/life-game.css" rel="stylesheet">';
