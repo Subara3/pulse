@@ -420,6 +420,18 @@
     "added": "2026-02-17"
   },
   {
+    "page": "packing",
+    "title": "CIRCLE PACKING",
+    "desc": "円充填。空間をゆっくり埋め尽くす、成長する円たち。",
+    "desc_en": "Circle packing. Growing circles slowly fill the space.",
+    "icon": "fa-circle",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "インタラクティブ",
+    "meta_en": "Interactive",
+    "added": "2026-02-18"
+  },
+  {
     "page": "contents",
     "title": "CONTENTS",
     "desc": "コンテンツ一覧。",
