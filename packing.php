@@ -207,9 +207,9 @@ require_once __DIR__ . '/includes/share.php';
   let hideUI = false;
   let growthRate = 0.3;
   let lastSpawnTime = 0;
-  let spawnInterval = 1000; // 1秒に1回新しい円を生成
+  let spawnInterval = 500; // 0.5秒に1回新しい円を生成
   let lastGrowTime = 0;
-  let growInterval = 100; // 100msごとに成長
+  let growInterval = 50; // 50msごとに成長
 
   const MODES = ['RANDOM', 'CENTER', 'EDGE'];
   const MIN_RADIUS = 3;
@@ -397,7 +397,7 @@ require_once __DIR__ . '/includes/share.php';
   }
 
   function growCircles() {
-    const rate = parseFloat(speedSlider.value) * 0.15;
+    const rate = parseFloat(speedSlider.value) * 0.3;
     let anyGrowing = false;
     
     for (const c of circles) {
@@ -626,8 +626,27 @@ require_once __DIR__ . '/includes/share.php';
   style.textContent = '.hide-ui .ui, .hide-ui .floating-nav, .hide-ui .content-controls { opacity: 0 !important; pointer-events: none; }';
   document.head.appendChild(style);
 
+  // Initial circles to show something immediately
+  function initialSpawn() {
+    for (let i = 0; i < 5; i++) {
+      const pos = findValidPosition();
+      if (pos) {
+        const col = palette.getColor(MIN_RADIUS, MAX_RADIUS);
+        circles.push({
+          x: pos.x,
+          y: pos.y,
+          r: MIN_RADIUS + Math.random() * 30, // Start with some size
+          growing: true,
+          color: col,
+          birthTime: Date.now()
+        });
+      }
+    }
+  }
+
   // Start
   resize();
+  initialSpawn();
   loop();
 })();
 </script>
