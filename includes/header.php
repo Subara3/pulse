@@ -106,6 +106,19 @@ if (isset($pageName) && !in_array($pageName, ['index', 'about', 'contents'])) {
     echo '<script type="application/ld+json">' . "\n";
     echo json_encode($schema, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
     echo "\n</script>\n";
+    
+    // BreadcrumbList
+    $breadcrumb = [
+        '@context' => 'https://schema.org',
+        '@type' => 'BreadcrumbList',
+        'itemListElement' => [
+            ['@type' => 'ListItem', 'position' => 1, 'name' => 'PULSE', 'item' => 'https://pulse.subara3.com/'],
+            ['@type' => 'ListItem', 'position' => 2, 'name' => $pageTitle, 'item' => $pageCanonical]
+        ]
+    ];
+    echo '<script type="application/ld+json">' . "\n";
+    echo json_encode($breadcrumb, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+    echo "\n</script>\n";
 }
 ?>
 
