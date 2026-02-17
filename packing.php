@@ -294,16 +294,35 @@ require_once __DIR__ . '/includes/floating-nav.php';
     return [(e.clientX - r.left) * (W / r.width), (e.clientY - r.top) * (H / r.height)];
   }
 
+  function findCircleAt(x, y) {
+    for (var i = circles.length - 1; i >= 0; i--) {
+      var c = circles[i];
+      var dx = x - c.x, dy = y - c.y;
+      if (Math.sqrt(dx*dx + dy*dy) <= c.r) return i;
+    }
+    return -1;
+  }
+
+  function handleTap(x, y) {
+    var idx = findCircleAt(x, y);
+    if (idx >= 0) {
+      circles.splice(idx, 1);
+      if (typeof SFX !== 'undefined') SFX.play('pop');
+    } else {
+      if (addCircle(x, y) && typeof SFX !== 'undefined') SFX.play('spawn');
+    }
+  }
+
   canvas.addEventListener('click', function(e) {
     var p = getPos(e);
-    if (addCircle(p[0], p[1])) typeof SFX !== 'undefined' && SFX.play('spawn');
+    handleTap(p[0], p[1]);
   });
 
   canvas.addEventListener('touchstart', function(e) {
     e.preventDefault();
     var t = e.changedTouches[0];
     var p = getPos(t);
-    if (addCircle(p[0], p[1])) typeof SFX !== 'undefined' && SFX.play('spawn');
+    handleTap(p[0], p[1]);
   }, { passive: false });
 
   colorBtn.addEventListener('click', function() {
