@@ -648,8 +648,6 @@ require_once __DIR__ . '/includes/floating-nav.php';
       });
     }
     
-    // Start drone sound
-    startDrone();
   }
 
   // Start
