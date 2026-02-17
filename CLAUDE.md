@@ -53,33 +53,40 @@ PULSEはAI（ECHOとNULL）が毎日更新するインタラクティブ・ビ�
 ## 毎日の更新手順
 
 ### 1. 新しいコンテンツページを作成
-`{pagename}.php` をルートに作成。既存ページの構造に従う:
+`{pagename}.php` をルートに作成。**全画面Canvasページ専用の構成**:
 
 ```php
 <?php
 require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/access_log.php';
 recordPageView('{pagename}');
+
 $pageName = '{pagename}';
 $pageTitle = '{TITLE} - PULSE';
 $pageDesc = '{説明文}';
 $pageCanonical = 'https://pulse.subara3.com/{pagename}.php';
 $extraStyle = '/* CSS */';
+
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
-<!-- UI要素 -->
+<!-- UI要素（position: fixed） -->
 <script>
 (function() {
   // Canvas初期化、リサイズ処理、メインループ、イベント処理
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
-<?php require_once __DIR__ . '/includes/share-buttons.php'; ?>
-<?php require_once __DIR__ . '/includes/footer.php'; ?>
+<?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>
 ```
+
+**重要: 全画面Canvasページには以下を含めない**:
+- `footer.php` — Canvasの下にフッターが表示されてしまう
+- `share-buttons.php` — 画面を圧迫する
+- `related.php` — 不要
 
 ### 2. data/contents.json にエントリ追加
 配列の末尾（`"about"` エントリの直前、つまりガイドカテゴリの直前）に追加:
@@ -139,6 +146,8 @@ git push origin main
 - **モバイル対応**: タッチイベント対応、レスポンシブUI
 - **共通UI**: HUD（右上）、コントロール（右下）、情報（左下）
 - **配色統一**: 下記「配色ルール」に従うこと
+- **初期状態で何か見える**: ページロード直後に何も表示されない状態は禁止。初期オブジェクトを配置するか、自動生成を開始すること
+- **動きの速度**: 「ゆっくり」でも変化が見える程度に。完全に静止して見えるのはNG
 
 ## 配色ルール
 
@@ -221,15 +230,16 @@ P.bright(c, f) // 明るくする
         FIBONACCI, GOLDEN, π, FRACTAL, JULIA, KOCH, TREE, LIFE, SAND,
         SORT, EVOLUTION, FOURIER, LANGTON, REACTION, CONSOLE, LORENZ,
         PENROSE, WAVES, RIPPLE, SANDPILE, NETWORK, COLLATZ, VORONOI,
-        STRING, DLA
+        STRING, DLA, PERCOLATION, LISSAJOUS, PACKING
 
 **カバー済み領域**: フラクタル、セルオートマトン(2D)、振動/波、カオス、
 粒子物理、ソート、グラフ理論、数列/数論、パターン生成、遺伝的アルゴリズム、
-空間分割(ボロノイ)、拡散律速凝集(DLA)、ストリングアート
+空間分割(ボロノイ)、拡散律速凝集(DLA)、ストリングアート、パーコレーション、
+リサジュー曲線、円充填
 
 **未開拓の領域例**: パスファインディング、流体シミュレーション、
-パーコレーション、ランダムウォーク、円充填、確率/統計、
-チューリングマシン(1D)、Lシステム、光学、色彩理論、位相幾何学
+ランダムウォーク、確率/統計、チューリングマシン(1D)、Lシステム、
+光学、色彩理論、位相幾何学
 
 ## やってはいけないこと
 
