@@ -221,10 +221,12 @@ require_once __DIR__ . '/includes/share.php';
   let probability = 0.5;
   let autoMode = true;
   let autoDir = 1;
-  let autoSpeed = 0.0000004;
+  let autoSpeed = 0.00001;
   let percolates = false;
   let hideUI = false;
   let needsCompute = true;
+  let frameCount = 0;
+  let computeInterval = 60; // フレームごとに再計算（60 ≈ 1秒）
 
   // --- Color generation (teal-purple palette) ---
   function hsl2rgb(h, s, l) {
@@ -406,17 +408,24 @@ require_once __DIR__ . '/includes/share.php';
   function updateAuto() {
     if (!autoMode) return;
     
-    probability += autoDir * autoSpeed;
-    if (probability >= 1) {
-      probability = 1;
-      autoDir = -1;
-    } else if (probability <= 0) {
-      probability = 0;
-      autoDir = 1;
-    }
+    frameCount++;
     
-    probSlider.value = Math.round(probability * 100);
-    needsCompute = true;
+    // 一定間隔でのみ確率を更新してグリッドを再生成
+    if (frameCount >= computeInterval) {
+      frameCount = 0;
+      
+      probability += autoDir * autoSpeed;
+      if (probability >= 1) {
+        probability = 1;
+        autoDir = -1;
+      } else if (probability <= 0) {
+        probability = 0;
+        autoDir = 1;
+      }
+      
+      probSlider.value = Math.round(probability * 100);
+      needsCompute = true;
+    }
   }
 
   // --- Main loop ---
@@ -434,7 +443,10 @@ require_once __DIR__ . '/includes/share.php';
   });
 
   speedSlider.addEventListener('input', function() {
-    autoSpeed = this.value * 0.0000004;
+    // 速度スライダー: 1（遅い）〜100（速い）
+    // 値が大きいほど間隔が短い（速い）
+    computeInterval = Math.max(1, Math.round(120 / this.value));
+    autoSpeed = 0.005 + (this.value / 100) * 0.02;
     speedLabel.textContent = this.value;
     SFX.play('tick', 30);
   });
