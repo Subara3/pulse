@@ -130,23 +130,10 @@ body {
 }
 
 @media (max-width: 600px) {
-  .hud {
-    font-size: 0.55rem;
-    top: 1rem;
-    right: 1rem;
-  }
-  .controls {
-    bottom: 1rem;
-    right: 1rem;
-  }
-  .info {
-    bottom: 1rem;
-    left: 1rem;
-    font-size: 0.5rem;
-  }
-  .slider-wrap input[type="range"] {
-    width: 60px;
-  }
+  .hud { font-size: 0.55rem; top: 1rem; right: 1rem; }
+  .controls { bottom: 1rem; right: 1rem; }
+  .info { bottom: 1rem; left: 1rem; font-size: 0.5rem; }
+  .slider-wrap input[type="range"] { width: 60px; }
 }
 ';
 
@@ -156,506 +143,203 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
 <canvas id="canvas"></canvas>
 
-<div class="ui info" id="infoPanel">
+<div class="ui info">
   CLICK TO ADD CIRCLES<br>
-  CIRCLES GROW UNTIL THEY TOUCH<br>
+  CIRCLES GROW UNTIL TOUCH<br>
   WATCH THE SPACE FILL
 </div>
 
-<div class="ui hud" id="hud">
+<div class="ui hud">
   CIRCLES: <span id="hudCircles" class="highlight">0</span><br>
   GROWING: <span id="hudGrowing" class="highlight">0</span><br>
-  COVERAGE: <span id="hudCoverage" class="highlight">0%</span><br>
-  MODE: <span id="hudMode">RANDOM</span>
+  COVERAGE: <span id="hudCoverage" class="highlight">0%</span>
 </div>
 
 <div class="ui controls">
   <div class="slider-wrap">
     <label>SPEED</label>
-    <input type="range" id="speedSlider" min="1" max="10" value="3">
+    <input type="range" id="speedSlider" min="1" max="10" value="5">
   </div>
   <div class="btn-row">
-    <button class="control-btn" id="modeBtn">MODE</button>
     <button class="control-btn" id="colorBtn">COLOR</button>
-  </div>
-  <div class="btn-row">
-    <button class="control-btn" id="pauseBtn">PAUSE</button>
     <button class="control-btn" id="resetBtn">RESET</button>
   </div>
 </div>
 
 <script>
 (function() {
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  const hudCircles = document.getElementById('hudCircles');
-  const hudGrowing = document.getElementById('hudGrowing');
-  const hudCoverage = document.getElementById('hudCoverage');
-  const hudMode = document.getElementById('hudMode');
-  const speedSlider = document.getElementById('speedSlider');
-  const modeBtn = document.getElementById('modeBtn');
-  const colorBtn = document.getElementById('colorBtn');
-  const pauseBtn = document.getElementById('pauseBtn');
-  const resetBtn = document.getElementById('resetBtn');
+  var canvas = document.getElementById('canvas');
+  var ctx = canvas.getContext('2d');
+  var hudCircles = document.getElementById('hudCircles');
+  var hudGrowing = document.getElementById('hudGrowing');
+  var hudCoverage = document.getElementById('hudCoverage');
+  var speedSlider = document.getElementById('speedSlider');
+  var colorBtn = document.getElementById('colorBtn');
+  var resetBtn = document.getElementById('resetBtn');
 
-  let W, H;
-  let circles = [];
-  let paused = false;
-  let mode = 0;
-  let paletteIdx = 0;
-  let hideUI = false;
-  let growthRate = 0.3;
-  let lastSpawnTime = 0;
-  let spawnInterval = 500; // 0.5秒に1回新しい円を生成
-  let lastGrowTime = 0;
-  let growInterval = 50; // 50msごとに成長
+  var W, H;
+  var circles = [];
+  var paletteIdx = 0;
+  var MIN_RADIUS = 5;
+  var MAX_RADIUS = 150;
+  var lastSpawn = 0;
+  var spawnInterval = 400;
 
-  const MODES = ['RANDOM', 'CENTER', 'EDGE'];
-  const MIN_RADIUS = 3;
-  const MAX_RADIUS = 200;
-  const MAX_ATTEMPTS = 100;
-
-  // Audio context for ambient drone
-  let audioCtx = null;
-  let droneOsc = null;
-  let droneGain = null;
-  let droneActive = false;
-
-  function initAudio() {
-    if (audioCtx) return;
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    
-    // Ambient drone - very quiet background hum
-    droneOsc = audioCtx.createOscillator();
-    droneGain = audioCtx.createGain();
-    const filter = audioCtx.createBiquadFilter();
-    
-    droneOsc.type = 'sine';
-    droneOsc.frequency.value = 55; // Low A
-    filter.type = 'lowpass';
-    filter.frequency.value = 200;
-    droneGain.gain.value = 0;
-    
-    droneOsc.connect(filter);
-    filter.connect(droneGain);
-    droneGain.connect(audioCtx.destination);
-    droneOsc.start();
-  }
-
-  function startDrone() {
-    if (!audioCtx || droneActive) return;
-    droneActive = true;
-    droneGain.gain.linearRampToValueAtTime(0.03, audioCtx.currentTime + 2);
-  }
-
-  function stopDrone() {
-    if (!audioCtx || !droneActive) return;
-    droneActive = false;
-    droneGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1);
-  }
-
-  function updateDrone() {
-    if (!audioCtx || !droneActive) return;
-    // Modulate drone based on growing circles
-    const growing = circles.filter(c => c.growing).length;
-    const targetFreq = 55 + (growing * 2);
-    droneOsc.frequency.linearRampToValueAtTime(
-      Math.min(targetFreq, 110), 
-      audioCtx.currentTime + 0.5
-    );
-  }
-
-  // Color palettes - teal/purple spectrum
-  const PALETTES = [
-    {
-      name: 'PULSE',
-      getColor: function(r, maxR) {
-        const t = r / maxR;
-        return {
-          h: 175 + t * 50,  // teal to blue-purple
-          s: 70,
-          l: 35 + t * 20
-        };
-      }
-    },
-    {
-      name: 'AURORA',
-      getColor: function(r, maxR) {
-        const t = r / maxR;
-        return {
-          h: 180 + t * 80,  // cyan to violet
-          s: 60 + t * 20,
-          l: 30 + t * 25
-        };
-      }
-    },
-    {
-      name: 'DEPTH',
-      getColor: function(r, maxR) {
-        const t = r / maxR;
-        return {
-          h: 270 - t * 30,  // purple to blue
-          s: 50 + t * 30,
-          l: 25 + t * 30
-        };
-      }
-    },
-    {
-      name: 'VOID',
-      getColor: function(r, maxR) {
-        const t = r / maxR;
-        return {
-          h: 200,
-          s: 10 + t * 40,
-          l: 15 + t * 35
-        };
-      }
-    }
+  var PALETTES = [
+    function(r) { var t = r / MAX_RADIUS; return 'hsla(' + (175 + t * 50) + ',70%,' + (35 + t * 20) + '%,0.7)'; },
+    function(r) { var t = r / MAX_RADIUS; return 'hsla(' + (180 + t * 80) + ',65%,' + (30 + t * 25) + '%,0.7)'; },
+    function(r) { var t = r / MAX_RADIUS; return 'hsla(' + (270 - t * 30) + ',55%,' + (25 + t * 30) + '%,0.7)'; }
   ];
 
-  let palette = PALETTES[0];
-
-  function canPlace(x, y, r) {
-    // Check wall collision
-    if (x - r < 0 || x + r > W || y - r < 0 || y + r > H) {
-      return false;
-    }
-    // Check other circles
-    for (const c of circles) {
-      const dx = x - c.x;
-      const dy = y - c.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < r + c.r + 1) {
-        return false;
-      }
-    }
-    return true;
+  function getColor(r) {
+    return PALETTES[paletteIdx](r);
   }
 
-  function findValidPosition() {
-    const modeName = MODES[mode];
-    
-    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
-      let x, y;
-      
-      if (modeName === 'CENTER') {
-        // Bias toward center
-        const angle = Math.random() * Math.PI * 2;
-        const dist = Math.random() * Math.min(W, H) * 0.4;
-        x = W / 2 + Math.cos(angle) * dist;
-        y = H / 2 + Math.sin(angle) * dist;
-      } else if (modeName === 'EDGE') {
-        // Bias toward edges
-        const side = Math.floor(Math.random() * 4);
-        const margin = MIN_RADIUS + 10;
-        if (side === 0) { x = margin + Math.random() * 50; y = Math.random() * H; }
-        else if (side === 1) { x = W - margin - Math.random() * 50; y = Math.random() * H; }
-        else if (side === 2) { x = Math.random() * W; y = margin + Math.random() * 50; }
-        else { x = Math.random() * W; y = H - margin - Math.random() * 50; }
-      } else {
-        // Random
-        x = MIN_RADIUS + Math.random() * (W - MIN_RADIUS * 2);
-        y = MIN_RADIUS + Math.random() * (H - MIN_RADIUS * 2);
-      }
-      
-      if (canPlace(x, y, MIN_RADIUS)) {
-        return { x, y };
-      }
+  function canPlace(x, y, r) {
+    if (x - r < 0 || x + r > W || y - r < 0 || y + r > H) return false;
+    for (var i = 0; i < circles.length; i++) {
+      var c = circles[i];
+      var dx = x - c.x, dy = y - c.y;
+      if (Math.sqrt(dx*dx + dy*dy) < r + c.r + 2) return false;
     }
-    return null;
+    return true;
   }
 
   function addCircle(x, y) {
-    if (!canPlace(x, y, MIN_RADIUS)) {
-      // Try nearby positions
-      for (let i = 0; i < 10; i++) {
-        const nx = x + (Math.random() - 0.5) * 50;
-        const ny = y + (Math.random() - 0.5) * 50;
-        if (canPlace(nx, ny, MIN_RADIUS)) {
-          x = nx;
-          y = ny;
-          break;
-        }
-      }
-      if (!canPlace(x, y, MIN_RADIUS)) return false;
-    }
-    
-    const col = palette.getColor(MIN_RADIUS, MAX_RADIUS);
-    circles.push({
-      x: x,
-      y: y,
-      r: MIN_RADIUS,
-      growing: true,
-      color: col,
-      birthTime: Date.now()
-    });
-    
-    SFX.play('spawn');
-    startDrone();
+    if (!canPlace(x, y, MIN_RADIUS)) return false;
+    circles.push({ x: x, y: y, r: MIN_RADIUS, growing: true });
     return true;
   }
 
+  function spawnRandom() {
+    for (var i = 0; i < 50; i++) {
+      var x = MIN_RADIUS + Math.random() * (W - MIN_RADIUS * 2);
+      var y = MIN_RADIUS + Math.random() * (H - MIN_RADIUS * 2);
+      if (addCircle(x, y)) {
+        SFX.play('spawn', 100);
+        return;
+      }
+    }
+  }
+
   function growCircles() {
-    const rate = parseFloat(speedSlider.value) * 0.3;
-    let anyGrowing = false;
-    
-    for (const c of circles) {
+    var rate = parseFloat(speedSlider.value) * 0.3;
+    for (var i = 0; i < circles.length; i++) {
+      var c = circles[i];
       if (!c.growing) continue;
-      
-      const newR = c.r + rate;
-      
-      // Check if can grow
-      if (newR >= MAX_RADIUS) {
-        c.growing = false;
-        SFX.play('collide', 100);
-        continue;
-      }
-      
-      // Wall collision
+      var newR = c.r + rate;
+      if (newR >= MAX_RADIUS) { c.growing = false; SFX.play('pop', 50); continue; }
       if (c.x - newR < 0 || c.x + newR > W || c.y - newR < 0 || c.y + newR > H) {
-        c.growing = false;
-        SFX.play('collide', 100);
-        continue;
+        c.growing = false; SFX.play('pop', 50); continue;
       }
-      
-      // Other circle collision
-      let blocked = false;
-      for (const other of circles) {
-        if (other === c) continue;
-        const dx = c.x - other.x;
-        const dy = c.y - other.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < newR + other.r + 0.5) {
-          blocked = true;
-          break;
-        }
+      var blocked = false;
+      for (var j = 0; j < circles.length; j++) {
+        if (i === j) continue;
+        var o = circles[j];
+        var dx = c.x - o.x, dy = c.y - o.y;
+        if (Math.sqrt(dx*dx + dy*dy) < newR + o.r + 1) { blocked = true; break; }
       }
-      
-      if (blocked) {
-        c.growing = false;
-        SFX.play('pop', 80);
-      } else {
-        c.r = newR;
-        c.color = palette.getColor(c.r, MAX_RADIUS);
-        anyGrowing = true;
-      }
+      if (blocked) { c.growing = false; SFX.play('pop', 50); }
+      else { c.r = newR; }
     }
-    
-    if (!anyGrowing && droneActive) {
-      stopDrone();
-    }
-    
-    updateDrone();
   }
 
-  function calculateCoverage() {
-    let totalArea = 0;
-    for (const c of circles) {
-      totalArea += Math.PI * c.r * c.r;
+  function getCoverage() {
+    var total = 0;
+    for (var i = 0; i < circles.length; i++) {
+      total += Math.PI * circles[i].r * circles[i].r;
     }
-    const screenArea = W * H;
-    return Math.min(100, (totalArea / screenArea) * 100);
-  }
-
-  function autoSpawn() {
-    if (paused) return;
-    
-    const now = Date.now();
-    if (now - lastSpawnTime < spawnInterval) return;
-    
-    // Check if any space remains
-    const coverage = calculateCoverage();
-    if (coverage > 85) return; // Stop spawning when mostly filled
-    
-    const pos = findValidPosition();
-    if (pos) {
-      addCircle(pos.x, pos.y);
-      lastSpawnTime = now;
-    }
+    return Math.min(100, total / (W * H) * 100);
   }
 
   function update() {
-    if (paused) return;
-    
-    const now = Date.now();
-    
-    // Slow growth - every 100ms
-    if (now - lastGrowTime >= growInterval) {
-      growCircles();
-      lastGrowTime = now;
+    growCircles();
+    var now = Date.now();
+    if (now - lastSpawn > spawnInterval && getCoverage() < 80) {
+      spawnRandom();
+      lastSpawn = now;
     }
-    
-    // Auto spawn new circles
-    autoSpawn();
   }
 
   function render() {
     ctx.fillStyle = '#0a0a0f';
     ctx.fillRect(0, 0, W, H);
-    
-    // Draw circles
-    for (const c of circles) {
-      const col = c.color;
-      
-      // Fill
+    for (var i = 0; i < circles.length; i++) {
+      var c = circles[i];
       ctx.beginPath();
       ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'hsla(' + col.h + ',' + col.s + '%,' + col.l + '%, 0.6)';
+      ctx.fillStyle = getColor(c.r);
       ctx.fill();
-      
-      // Glow for growing circles
       if (c.growing) {
-        ctx.beginPath();
-        ctx.arc(c.x, c.y, c.r + 3, 0, Math.PI * 2);
-        ctx.strokeStyle = 'hsla(' + col.h + ',' + col.s + '%,' + (col.l + 20) + '%, 0.4)';
+        ctx.strokeStyle = 'rgba(0,245,212,0.4)';
         ctx.lineWidth = 2;
         ctx.stroke();
       }
-      
-      // Border
-      ctx.beginPath();
-      ctx.arc(c.x, c.y, c.r, 0, Math.PI * 2);
-      ctx.strokeStyle = 'hsla(' + col.h + ',' + col.s + '%,' + (col.l + 30) + '%, 0.3)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
     }
-    
-    // Update HUD
-    const growingCount = circles.filter(c => c.growing).length;
+    var growing = 0;
+    for (var i = 0; i < circles.length; i++) if (circles[i].growing) growing++;
     hudCircles.textContent = circles.length;
-    hudGrowing.textContent = growingCount;
-    hudCoverage.textContent = calculateCoverage().toFixed(1) + '%';
-    hudMode.textContent = MODES[mode];
+    hudGrowing.textContent = growing;
+    hudCoverage.textContent = getCoverage().toFixed(1) + '%';
   }
 
-  let animFrame = null;
   function loop() {
     update();
     render();
-    animFrame = requestAnimationFrame(loop);
+    requestAnimationFrame(loop);
   }
 
-  // Events
   function getPos(e) {
-    const r = canvas.getBoundingClientRect();
-    return [
-      (e.clientX - r.left) * (W / r.width),
-      (e.clientY - r.top) * (H / r.height)
-    ];
+    var r = canvas.getBoundingClientRect();
+    return [(e.clientX - r.left) * (W / r.width), (e.clientY - r.top) * (H / r.height)];
   }
 
   canvas.addEventListener('click', function(e) {
-    initAudio();
-    const [mx, my] = getPos(e);
-    addCircle(mx, my);
+    var p = getPos(e);
+    if (addCircle(p[0], p[1])) SFX.play('spawn');
   });
 
   canvas.addEventListener('touchstart', function(e) {
     e.preventDefault();
-    initAudio();
-    const t = e.changedTouches[0];
-    const [mx, my] = getPos(t);
-    addCircle(mx, my);
+    var t = e.changedTouches[0];
+    var p = getPos(t);
+    if (addCircle(p[0], p[1])) SFX.play('spawn');
   }, { passive: false });
-
-  modeBtn.addEventListener('click', function() {
-    mode = (mode + 1) % MODES.length;
-    SFX.play('toggle');
-  });
 
   colorBtn.addEventListener('click', function() {
     paletteIdx = (paletteIdx + 1) % PALETTES.length;
-    palette = PALETTES[paletteIdx];
-    // Update existing circles
-    for (const c of circles) {
-      c.color = palette.getColor(c.r, MAX_RADIUS);
-    }
     SFX.play('click');
-  });
-
-  pauseBtn.addEventListener('click', function() {
-    initAudio();
-    paused = !paused;
-    this.classList.toggle('active', paused);
-    this.textContent = paused ? 'PLAY' : 'PAUSE';
-    if (paused) {
-      stopDrone();
-    }
-    SFX.play('toggle');
   });
 
   resetBtn.addEventListener('click', function() {
     circles = [];
-    lastSpawnTime = 0;
-    stopDrone();
+    initCircles();
     SFX.play('click');
-  });
-
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'h' || e.key === 'H') {
-      hideUI = !hideUI;
-      document.body.classList.toggle('hide-ui', hideUI);
-    }
-    if (e.key === ' ') {
-      e.preventDefault();
-      initAudio();
-      paused = !paused;
-      pauseBtn.classList.toggle('active', paused);
-      pauseBtn.textContent = paused ? 'PLAY' : 'PAUSE';
-      if (paused) {
-        stopDrone();
-      }
-    }
   });
 
   function resize() {
     W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight;
-    // Keep existing circles that still fit
-    circles = circles.filter(c => 
-      c.x - c.r >= 0 && c.x + c.r <= W && 
-      c.y - c.r >= 0 && c.y + c.r <= H
-    );
   }
 
-  window.addEventListener('resize', resize);
-
-  // UI hide style
-  const style = document.createElement('style');
-  style.textContent = '.hide-ui .ui, .hide-ui .floating-nav, .hide-ui .content-controls { opacity: 0 !important; pointer-events: none; }';
-  document.head.appendChild(style);
-
-  // Initial circles to show something immediately
-  function initialSpawn() {
-    // Place 5 circles at random positions directly
-    const positions = [
-      { x: W * 0.2, y: H * 0.3 },
-      { x: W * 0.7, y: H * 0.2 },
-      { x: W * 0.5, y: H * 0.5 },
-      { x: W * 0.3, y: H * 0.7 },
-      { x: W * 0.8, y: H * 0.6 }
-    ];
-    
-    for (const pos of positions) {
-      const col = palette.getColor(MIN_RADIUS, MAX_RADIUS);
-      circles.push({
-        x: pos.x,
-        y: pos.y,
-        r: MIN_RADIUS + Math.random() * 20,
-        growing: true,
-        color: col,
-        birthTime: Date.now()
-      });
+  function initCircles() {
+    // Start with 5 circles
+    for (var i = 0; i < 5; i++) {
+      var x = W * 0.2 + Math.random() * W * 0.6;
+      var y = H * 0.2 + Math.random() * H * 0.6;
+      addCircle(x, y);
     }
-    
   }
+
+  window.addEventListener('resize', function() {
+    resize();
+    circles = [];
+    initCircles();
+  });
 
   // Start
-  console.log('[PACKING] Starting, canvas:', canvas, 'W:', W, 'H:', H);
   resize();
-  console.log('[PACKING] After resize, W:', W, 'H:', H);
-  initialSpawn();
-  console.log('[PACKING] After initialSpawn, circles:', circles.length, circles);
+  initCircles();
   loop();
 })();
 </script>
