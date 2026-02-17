@@ -216,7 +216,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var x = MIN_RADIUS + Math.random() * (W - MIN_RADIUS * 2);
       var y = MIN_RADIUS + Math.random() * (H - MIN_RADIUS * 2);
       if (addCircle(x, y)) {
-        SFX.play('spawn', 100);
+        if (typeof SFX !== 'undefined') SFX.play('spawn', 100);
         return;
       }
     }
@@ -228,9 +228,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var c = circles[i];
       if (!c.growing) continue;
       var newR = c.r + rate;
-      if (newR >= MAX_RADIUS) { c.growing = false; SFX.play('pop', 50); continue; }
+      if (newR >= MAX_RADIUS) { c.growing = false; if (typeof SFX !== 'undefined') SFX.play('pop', 50); continue; }
       if (c.x - newR < 0 || c.x + newR > W || c.y - newR < 0 || c.y + newR > H) {
-        c.growing = false; SFX.play('pop', 50); continue;
+        c.growing = false; typeof SFX !== 'undefined' && SFX.play('pop', 50); continue;
       }
       var blocked = false;
       for (var j = 0; j < circles.length; j++) {
@@ -239,7 +239,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
         var dx = c.x - o.x, dy = c.y - o.y;
         if (Math.sqrt(dx*dx + dy*dy) < newR + o.r + 1) { blocked = true; break; }
       }
-      if (blocked) { c.growing = false; SFX.play('pop', 50); }
+      if (blocked) { c.growing = false; typeof SFX !== 'undefined' && SFX.play('pop', 50); }
       else { c.r = newR; }
     }
   }
@@ -296,25 +296,25 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   canvas.addEventListener('click', function(e) {
     var p = getPos(e);
-    if (addCircle(p[0], p[1])) SFX.play('spawn');
+    if (addCircle(p[0], p[1])) typeof SFX !== 'undefined' && SFX.play('spawn');
   });
 
   canvas.addEventListener('touchstart', function(e) {
     e.preventDefault();
     var t = e.changedTouches[0];
     var p = getPos(t);
-    if (addCircle(p[0], p[1])) SFX.play('spawn');
+    if (addCircle(p[0], p[1])) typeof SFX !== 'undefined' && SFX.play('spawn');
   }, { passive: false });
 
   colorBtn.addEventListener('click', function() {
     paletteIdx = (paletteIdx + 1) % PALETTES.length;
-    SFX.play('click');
+    typeof SFX !== 'undefined' && SFX.play('click');
   });
 
   resetBtn.addEventListener('click', function() {
     circles = [];
     initCircles();
-    SFX.play('click');
+    typeof SFX !== 'undefined' && SFX.play('click');
   });
 
   function resize() {
@@ -323,11 +323,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   function initCircles() {
-    // Start with 5 circles
+    // Start with 5 circles (no SFX here - not loaded yet)
     for (var i = 0; i < 5; i++) {
       var x = W * 0.2 + Math.random() * W * 0.6;
       var y = H * 0.2 + Math.random() * H * 0.6;
-      addCircle(x, y);
+      if (canPlace(x, y, MIN_RADIUS)) {
+        circles.push({ x: x, y: y, r: MIN_RADIUS, growing: true });
+      }
     }
   }
 
