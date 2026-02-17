@@ -651,8 +651,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   // Start
+  console.log('[PACKING] Starting, canvas:', canvas, 'W:', W, 'H:', H);
   resize();
+  console.log('[PACKING] After resize, W:', W, 'H:', H);
   initialSpawn();
+  console.log('[PACKING] After initialSpawn, circles:', circles.length, circles);
   loop();
 })();
 </script>
