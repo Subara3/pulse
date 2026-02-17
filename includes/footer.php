@@ -8,8 +8,10 @@
     <a href="index.php#feedback" title="Feedback"><i class="fa-solid fa-comment"></i></a>
   </div>
   <div class="footer-external">
-    <a href="https://subara3.com/" target="_blank"><i class="fa-solid fa-globe"></i></a>
-    <a href="https://snowdebgm.subara3.com/" target="_blank"><i class="fa-solid fa-music"></i></a>
+    <a href="https://subara3.com/" target="_blank" title="栖王ヴァルハラ３丁目"><i class="fa-solid fa-globe"></i></a>
+    <a href="https://books.subara3.com/" target="_blank" title="Kindleセールの本棚"><i class="fa-solid fa-book"></i></a>
+    <a href="https://steam.subara3.com/" target="_blank" title="Steamの本棚"><i class="fa-brands fa-steam"></i></a>
+    <a href="https://snowdebgm.subara3.com/" target="_blank" title="BGM"><i class="fa-solid fa-music"></i></a>
   </div>
   <p class="footer-copy">&copy; 2026 PULSE</p>
 </footer>
