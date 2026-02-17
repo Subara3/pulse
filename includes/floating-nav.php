@@ -155,17 +155,49 @@ $otherContents = array_values($otherContents);
   color: var(--accent);
 }
 
-/* モバイル調整 */
+/* モバイル調整 - 折りたたみ式 */
 @media (max-width: 768px) {
   .floating-nav {
-    bottom: 1.5rem;
+    bottom: 1rem;
     left: 1rem;
   }
   
   .float-btn {
-    width: 45px;
-    height: 45px;
-    font-size: 1rem;
+    width: 42px;
+    height: 42px;
+    font-size: 0.95rem;
+  }
+  
+  /* モバイルでは最初は折りたたみ */
+  .floating-nav .float-back,
+  .floating-nav .float-random,
+  .floating-nav .float-lang {
+    opacity: 0;
+    transform: scale(0.5);
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+  
+  .floating-nav.expanded .float-back,
+  .floating-nav.expanded .float-random,
+  .floating-nav.expanded .float-lang {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+  
+  /* メニューボタンを展開トリガーに */
+  .floating-nav .float-menu i::before {
+    content: "\f0c9"; /* hamburger icon */
+  }
+  
+  .floating-nav.expanded .float-menu i::before {
+    content: "\f00d"; /* X icon */
+  }
+  
+  .float-submenu {
+    bottom: 50px;
+    left: 0;
   }
 }
 </style>
@@ -184,18 +216,34 @@ $otherContents = array_values($otherContents);
     });
   }
   
-  // サブメニュー開閉
+  // サブメニュー開閉 + モバイル折りたたみ
   const menuBtn = document.getElementById('floatMenuBtn');
   const submenu = document.getElementById('floatSubmenu');
+  const floatingNav = document.getElementById('floatingNav');
+  const isMobile = window.innerWidth <= 768;
   
-  if (menuBtn && submenu) {
+  if (menuBtn && floatingNav) {
     menuBtn.addEventListener('click', function(e) {
       e.stopPropagation();
-      submenu.classList.toggle('open');
+      
+      if (isMobile) {
+        // モバイル: まず展開、展開済みならサブメニュー
+        if (!floatingNav.classList.contains('expanded')) {
+          floatingNav.classList.add('expanded');
+        } else if (submenu) {
+          submenu.classList.toggle('open');
+        }
+      } else if (submenu) {
+        // PC: サブメニューのみ
+        submenu.classList.toggle('open');
+      }
     });
     
-    document.addEventListener('click', function() {
-      submenu.classList.remove('open');
+    document.addEventListener('click', function(e) {
+      if (!floatingNav.contains(e.target)) {
+        if (submenu) submenu.classList.remove('open');
+        if (isMobile) floatingNav.classList.remove('expanded');
+      }
     });
   }
   
