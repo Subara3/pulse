@@ -209,7 +209,7 @@ require_once __DIR__ . '/includes/share.php';
   let crystal = [];
   let crystalGrid = {};
   let paused = false;
-  let mode = 0;
+  let mode = 1; // RADIAL（中心から放射状に成長）
   let paletteIdx = 0;
   let hideUI = false;
   let stepsPerFrame = 20;
