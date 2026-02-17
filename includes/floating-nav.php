@@ -30,11 +30,13 @@ $otherContents = array_values($otherContents);
     <i class="fa-solid fa-ellipsis"></i>
   </button>
   
-  <!-- 言語切り替え -->
+  <?php if (!empty($showLangToggle)): ?>
+  <!-- 言語切り替え（テキストコンテンツがあるページのみ） -->
   <button class="float-btn float-lang" id="langToggle" title="Switch language">
     <span class="lang-icon" data-lang-ja>EN</span>
     <span class="lang-icon" data-lang-en>JA</span>
   </button>
+  <?php endif; ?>
   
   <!-- 展開メニュー -->
   <div class="float-submenu" id="floatSubmenu">
