@@ -1,6 +1,6 @@
 <?php
 /**
- * 動的サイトマップ生成
+ * 動的サイトマップ生成（多言語対応）
  * data/contents.json から自動的にURLを生成する。
  * .htaccess で sitemap.xml → sitemap.php にリライト。
  */
@@ -11,9 +11,13 @@ $contents = json_decode(file_get_contents($jsonPath), true) ?: [];
 
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 ?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://pulse.subara3.com/</loc>
+    <xhtml:link rel="alternate" hreflang="ja" href="https://pulse.subara3.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://pulse.subara3.com/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://pulse.subara3.com/"/>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -21,9 +25,13 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
     $freq = ($c['page'] === 'log') ? 'daily' : 'monthly';
     $prio = ($c['page'] === 'log' || $c['page'] === 'contents') ? '0.7' : '0.8';
     if ($c['category'] === 'ガイド' && $c['page'] === 'about') $prio = '0.7';
+    $url = "https://pulse.subara3.com/{$c['page']}.php";
 ?>
   <url>
-    <loc>https://pulse.subara3.com/<?= $c['page'] ?>.php</loc>
+    <loc><?= $url ?></loc>
+    <xhtml:link rel="alternate" hreflang="ja" href="<?= $url ?>"/>
+    <xhtml:link rel="alternate" hreflang="en" href="<?= $url ?>"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="<?= $url ?>"/>
     <changefreq><?= $freq ?></changefreq>
     <priority><?= $prio ?></priority>
   </url>

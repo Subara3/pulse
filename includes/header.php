@@ -17,6 +17,17 @@ if (!isset($ogImage)) $ogImage = 'https://pulse.subara3.com/img/ogp.png';
 <meta name="description" content="<?php echo htmlspecialchars($pageDesc); ?>">
 <link rel="canonical" href="<?php echo htmlspecialchars($pageCanonical); ?>">
 
+<!-- 多言語SEO: hreflang -->
+<link rel="alternate" hreflang="ja" href="<?php echo htmlspecialchars($pageCanonical); ?>">
+<link rel="alternate" hreflang="en" href="<?php echo htmlspecialchars($pageCanonical); ?>">
+<link rel="alternate" hreflang="x-default" href="<?php echo htmlspecialchars($pageCanonical); ?>">
+
+<?php if (!empty($pageTitleEn) && !empty($pageDescEn)): ?>
+<!-- 英語版メタ情報（Google多言語対応） -->
+<meta name="title" lang="en" content="<?php echo htmlspecialchars($pageTitleEn); ?>">
+<meta name="description" lang="en" content="<?php echo htmlspecialchars($pageDescEn); ?>">
+<?php endif; ?>
+
 <!-- OGP -->
 <meta property="og:title" content="<?php echo htmlspecialchars($pageTitle); ?>">
 <meta property="og:description" content="<?php echo htmlspecialchars($pageDesc); ?>">
