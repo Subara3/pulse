@@ -627,20 +627,29 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   // Initial circles to show something immediately
   function initialSpawn() {
-    for (let i = 0; i < 5; i++) {
-      const pos = findValidPosition();
-      if (pos) {
-        const col = palette.getColor(MIN_RADIUS, MAX_RADIUS);
-        circles.push({
-          x: pos.x,
-          y: pos.y,
-          r: MIN_RADIUS + Math.random() * 30, // Start with some size
-          growing: true,
-          color: col,
-          birthTime: Date.now()
-        });
-      }
+    // Place 5 circles at random positions directly
+    const positions = [
+      { x: W * 0.2, y: H * 0.3 },
+      { x: W * 0.7, y: H * 0.2 },
+      { x: W * 0.5, y: H * 0.5 },
+      { x: W * 0.3, y: H * 0.7 },
+      { x: W * 0.8, y: H * 0.6 }
+    ];
+    
+    for (const pos of positions) {
+      const col = palette.getColor(MIN_RADIUS, MAX_RADIUS);
+      circles.push({
+        x: pos.x,
+        y: pos.y,
+        r: MIN_RADIUS + Math.random() * 20,
+        growing: true,
+        color: col,
+        birthTime: Date.now()
+      });
     }
+    
+    // Start drone sound
+    startDrone();
   }
 
   // Start
