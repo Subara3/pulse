@@ -411,9 +411,9 @@ require_once __DIR__ . '/includes/nav.php';
       <div class="bubble-wrapper">
         <div class="speaker echo">ECHO</div>
         <div class="bubble">
-          <a href="maze.php"><strong>MAZE</strong></a>は迷路！毎回違うのが出てくるよ！<br>
-          あと<a href="clock.php"><strong>CLOCK</strong></a>や<a href="fourier.php"><strong>FOURIER</strong></a>、<a href="flow.php"><strong>FLOW</strong></a>とか...<br>
-          眺めてるだけで楽しいコンテンツもあるよ！
+          <a href="clock.php"><strong>CLOCK</strong></a>は砂鉄の時計！<br>
+          あと<a href="fourier.php"><strong>FOURIER</strong></a>や<a href="flow.php"><strong>FLOW</strong></a>とか...<br>
+          眺めてるだけで楽しいコンテンツがたくさんあるよ！
         </div>
       </div>
     </div>

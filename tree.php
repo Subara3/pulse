@@ -136,11 +136,19 @@ function drawTree() {
   drawBranch(startX, startY, trunkLength, -Math.PI / 2, 0, 10);
 }
 
-function animate() {
-  time++;
-  drawTree();
+// 1秒に1回描画（ゆっくりとした変化）
+let lastDraw = 0;
+function animate(timestamp) {
+  if (timestamp - lastDraw >= 1000) { // 1秒ごと
+    time++;
+    drawTree();
+    lastDraw = timestamp;
+  }
   requestAnimationFrame(animate);
 }
+
+// 初回描画
+drawTree();
 
 // イベント
 window.addEventListener('resize', resize);

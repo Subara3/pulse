@@ -12,18 +12,6 @@
     "added": "2026-01-29"
   },
   {
-    "page": "maze",
-    "title": "MAZE",
-    "desc": "ランダム生成される迷路。ゴールを目指せ。",
-    "desc_en": "Randomly generated maze. Find your way to the goal.",
-    "icon": "fa-dungeon",
-    "category": "遊べる",
-    "category_en": "Play",
-    "meta": "プレイ可能",
-    "meta_en": "Playable",
-    "added": "2026-01-29"
-  },
-  {
     "page": "morse",
     "title": "MORSE",
     "desc": "モールス信号を打て。スペースキーで入力。",
@@ -36,18 +24,6 @@
     "added": "2026-01-29"
   },
   {
-    "page": "breathe",
-    "title": "BREATHE",
-    "desc": "呼吸を整える。吸って、止めて、吐いて。",
-    "desc_en": "Breathing exercise. Inhale, hold, exhale.",
-    "icon": "fa-lungs",
-    "category": "眺める",
-    "category_en": "Watch",
-    "meta": "",
-    "meta_en": "",
-    "added": "2026-01-29"
-  },
-  {
     "page": "flow",
     "title": "FLOW",
     "desc": "ゆっくり変化するグラデーション。",
@@ -57,18 +33,6 @@
     "category_en": "Watch",
     "meta": "",
     "meta_en": "",
-    "added": "2026-01-29"
-  },
-  {
-    "page": "pendulum",
-    "title": "PENDULUM",
-    "desc": "振り子が揺れる。衝突、共振、二重振り子。",
-    "desc_en": "Swinging pendulums. Collision, resonance, double pendulum.",
-    "icon": "fa-weight-hanging",
-    "category": "眺める",
-    "category_en": "Watch",
-    "meta": "4モード",
-    "meta_en": "4 modes",
     "added": "2026-01-29"
   },
   {
