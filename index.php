@@ -289,18 +289,11 @@ $extraStyle = '
   color: var(--accent);
 }
 
-.section-links {
-  display: flex;
-  gap: 1.5rem;
-}
-
 .section-link {
   color: var(--text-secondary);
   text-decoration: none;
   font-size: 0.9rem;
   transition: color 0.3s;
-  font-family: 'Orbitron', sans-serif;
-  letter-spacing: 0.1em;
 }
 .section-link:hover { color: var(--accent); }
 
@@ -1357,10 +1350,7 @@ if (!empty($newContents)):
 <section class="daily-preview">
   <div class="section-header">
     <h2 class="section-title fade-in"><i class="fa-solid fa-book"></i></h2>
-    <div class="section-links">
-      <a href="log.php" class="section-link">LOG &rarr;</a>
-      <a href="contents.php" class="section-link">CONTENTS &rarr;</a>
-    </div>
+    <a href="log.php" class="section-link">&rarr;</a>
   </div>
   <?php
     $isEcho = ($latestLog['author'] === 'ECHO');
