@@ -49,6 +49,33 @@ body {
   font-weight: 700;
 }
 
+.calc-log {
+  margin-top: 1rem;
+  max-height: 200px;
+  overflow: hidden;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6rem;
+  line-height: 1.6;
+}
+
+.calc-log .entry {
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+.calc-log .entry.new {
+  opacity: 1;
+  color: #00f5d4;
+}
+
+.calc-log .op {
+  color: #7b2cbf;
+}
+
+.calc-log .result {
+  color: #00f5d4;
+}
+
 .info {
   bottom: 1.5rem;
   left: 1.5rem;
@@ -104,6 +131,7 @@ require_once __DIR__ . '/includes/content-controls.php';
   <div>FALLING: <span class="val" id="hudFalling">0</span></div>
   <div>REACHED 1: <span class="val" id="hudReached">0</span></div>
   <div>LONGEST: <span class="val" id="hudLongest">0</span> steps</div>
+  <div class="calc-log" id="calcLog"></div>
 </div>
 
 <div class="ui info">
@@ -120,8 +148,25 @@ require_once __DIR__ . '/includes/content-controls.php';
   const hudFalling = document.getElementById('hudFalling');
   const hudReached = document.getElementById('hudReached');
   const hudLongest = document.getElementById('hudLongest');
+  const calcLog = document.getElementById('calcLog');
 
   let width, height;
+  const logEntries = [];
+  const MAX_LOG = 12;
+
+  function addLog(from, to, op) {
+    const entry = { from, to, op, age: 0 };
+    logEntries.unshift(entry);
+    if (logEntries.length > MAX_LOG) logEntries.pop();
+    renderLog();
+  }
+
+  function renderLog() {
+    calcLog.innerHTML = logEntries.map((e, i) => {
+      const cls = i === 0 ? 'entry new' : 'entry';
+      return `<div class="${cls}">${e.from} <span class="op">${e.op}</span> <span class="result">${e.to}</span></div>`;
+    }).join('');
+  }
   let particles = [];
   let reachedCount = 0;
   let longestPath = 0;
@@ -188,10 +233,13 @@ require_once __DIR__ . '/includes/content-controls.php';
       }
 
       // 次のステップ
+      const prevN = this.n;
       if (this.n % 2 === 0) {
         this.n = this.n / 2;
+        addLog(prevN, this.n, '÷2 →');
       } else {
         this.n = 3 * this.n + 1;
+        addLog(prevN, this.n, '×3+1 →');
       }
       this.steps++;
       this.history.push(this.n);
