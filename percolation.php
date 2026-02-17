@@ -226,7 +226,7 @@ require_once __DIR__ . '/includes/share.php';
   let hideUI = false;
   let needsCompute = true;
   let frameCount = 0;
-  let computeInterval = 60; // フレームごとに再計算（60 ≈ 1秒）
+  let computeInterval = 300; // フレームごとに再計算（300 ≈ 5秒）
 
   // --- Color generation (teal-purple palette) ---
   function hsl2rgb(h, s, l) {
@@ -445,7 +445,7 @@ require_once __DIR__ . '/includes/share.php';
   speedSlider.addEventListener('input', function() {
     // 速度スライダー: 1（遅い）〜100（速い）
     // 値が大きいほど間隔が短い（速い）
-    computeInterval = Math.max(1, Math.round(120 / this.value));
+    computeInterval = Math.max(1, Math.round(600 / this.value));
     autoSpeed = 0.005 + (this.value / 100) * 0.02;
     speedLabel.textContent = this.value;
     SFX.play('tick', 30);
