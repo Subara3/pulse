@@ -226,7 +226,7 @@ require_once __DIR__ . '/includes/share.php';
   let hideUI = false;
   let needsCompute = true;
   let frameCount = 0;
-  let computeInterval = 300; // フレームごとに再計算（300 ≈ 5秒）
+  let computeInterval = 60; // フレームごとに再計算（60 ≈ 1秒）
 
   // --- Color generation (teal-purple palette) ---
   function hsl2rgb(h, s, l) {
