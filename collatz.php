@@ -49,33 +49,6 @@ body {
   font-weight: 700;
 }
 
-.calc-log {
-  margin-top: 1rem;
-  max-height: 200px;
-  overflow: hidden;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.6rem;
-  line-height: 1.6;
-}
-
-.calc-log .entry {
-  opacity: 0.6;
-  white-space: nowrap;
-}
-
-.calc-log .entry.new {
-  opacity: 1;
-  color: #00f5d4;
-}
-
-.calc-log .op {
-  color: #7b2cbf;
-}
-
-.calc-log .result {
-  color: #00f5d4;
-}
-
 .info {
   bottom: 1.5rem;
   left: 1.5rem;
@@ -131,7 +104,6 @@ require_once __DIR__ . '/includes/content-controls.php';
   <div>FALLING: <span class="val" id="hudFalling">0</span></div>
   <div>REACHED 1: <span class="val" id="hudReached">0</span></div>
   <div>LONGEST: <span class="val" id="hudLongest">0</span> steps</div>
-  <div class="calc-log" id="calcLog"></div>
 </div>
 
 <div class="ui info">
@@ -148,26 +120,10 @@ require_once __DIR__ . '/includes/content-controls.php';
   const hudFalling = document.getElementById('hudFalling');
   const hudReached = document.getElementById('hudReached');
   const hudLongest = document.getElementById('hudLongest');
-  const calcLog = document.getElementById('calcLog');
 
   let width, height;
-  const logEntries = [];
-  const MAX_LOG = 12;
-
-  function addLog(from, to, op) {
-    const entry = { from, to, op, age: 0 };
-    logEntries.unshift(entry);
-    if (logEntries.length > MAX_LOG) logEntries.pop();
-    renderLog();
-  }
-
-  function renderLog() {
-    calcLog.innerHTML = logEntries.map((e, i) => {
-      const cls = i === 0 ? 'entry new' : 'entry';
-      return `<div class="${cls}">${e.from} <span class="op">${e.op}</span> <span class="result">${e.to}</span></div>`;
-    }).join('');
-  }
   let particles = [];
+  let floatingTexts = []; // 計算エフェクト用
   let reachedCount = 0;
   let longestPath = 0;
   let nextN = 2;
@@ -177,12 +133,58 @@ require_once __DIR__ . '/includes/content-controls.php';
 
   // 色パレット
   function getColor(n, steps) {
-    // 大きい数ほど紫、小さいほどティール
     const t = Math.min(1, Math.log10(n) / 4);
     const r = Math.floor(0 + t * 123);
     const g = Math.floor(245 - t * 200);
     const b = Math.floor(212 + t * 40);
     return { r, g, b };
+  }
+
+  // フローティングテキスト（計算エフェクト）
+  class FloatingText {
+    constructor(x, y, text, isUp) {
+      this.x = x;
+      this.y = y;
+      this.text = text;
+      this.isUp = isUp; // 上昇（×3+1）か下降（÷2）か
+      this.life = 1;
+      this.vy = isUp ? -1.5 : 1.5;
+    }
+
+    update() {
+      this.y += this.vy;
+      this.life -= 0.025;
+      return this.life > 0;
+    }
+
+    draw() {
+      const alpha = this.life;
+      ctx.save();
+      ctx.font = 'bold 14px "JetBrains Mono"';
+      ctx.textAlign = 'center';
+      
+      // 背景（読みやすくするため）
+      const metrics = ctx.measureText(this.text);
+      const padding = 4;
+      ctx.fillStyle = `rgba(10,10,15,${alpha * 0.8})`;
+      ctx.fillRect(
+        this.x - metrics.width / 2 - padding,
+        this.y - 10 - padding,
+        metrics.width + padding * 2,
+        20 + padding * 2
+      );
+      
+      // テキスト
+      if (this.isUp) {
+        // ×3+1 は紫（上昇）
+        ctx.fillStyle = `rgba(180,100,255,${alpha})`;
+      } else {
+        // ÷2 はティール（下降）
+        ctx.fillStyle = `rgba(0,245,212,${alpha})`;
+      }
+      ctx.fillText(this.text, this.x, this.y);
+      ctx.restore();
+    }
   }
 
   // パーティクルクラス
@@ -209,7 +211,6 @@ require_once __DIR__ . '/includes/content-controls.php';
       // 待機中
       if (this.waitFrames > 0) {
         this.waitFrames--;
-        // ゆっくりターゲット位置に移動
         this.y += (this.targetY - this.y) * 0.1;
         this.x += (sinkX - this.x) * 0.02;
         return true;
@@ -234,18 +235,32 @@ require_once __DIR__ . '/includes/content-controls.php';
 
       // 次のステップ
       const prevN = this.n;
+      let isUp = false;
+      
       if (this.n % 2 === 0) {
         this.n = this.n / 2;
-        addLog(prevN, this.n, '÷2 →');
+        // エフェクト: ÷2
+        floatingTexts.push(new FloatingText(
+          this.x + 30,
+          this.y,
+          `${prevN} ÷2 = ${this.n}`,
+          false
+        ));
       } else {
         this.n = 3 * this.n + 1;
-        addLog(prevN, this.n, '×3+1 →');
+        isUp = true;
+        // エフェクト: ×3+1
+        floatingTexts.push(new FloatingText(
+          this.x + 30,
+          this.y,
+          `${prevN} ×3+1 = ${this.n}`,
+          true
+        ));
       }
       this.steps++;
       this.history.push(this.n);
 
       // 新しいターゲット位置を計算
-      // n=1 が sinkY、大きい数ほど上
       const maxN = 10000;
       const logN = Math.log10(Math.max(1, this.n));
       const logMax = Math.log10(maxN);
@@ -257,7 +272,7 @@ require_once __DIR__ . '/includes/content-controls.php';
       this.x += (sinkX - this.x) * 0.05;
 
       // 次の更新まで待機
-      this.waitFrames = 30; // 0.5秒くらい
+      this.waitFrames = 40;
 
       return true;
     }
@@ -282,12 +297,12 @@ require_once __DIR__ . '/includes/content-controls.php';
       ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
       ctx.fill();
 
-      // 数字ラベル（大きい数のみ）
-      if (this.n > 10 && this.fadeOut > 0.5) {
-        ctx.fillStyle = `rgba(255,255,255,${alpha * 0.6})`;
-        ctx.font = '10px "Orbitron"';
+      // 数字ラベル
+      if (this.fadeOut > 0.5) {
+        ctx.fillStyle = `rgba(255,255,255,${alpha * 0.9})`;
+        ctx.font = 'bold 12px "Orbitron"';
         ctx.textAlign = 'center';
-        ctx.fillText(this.n.toString(), this.x, this.y - size - 5);
+        ctx.fillText(this.n.toString(), this.x, this.y - size - 8);
       }
     }
   }
@@ -314,6 +329,7 @@ require_once __DIR__ . '/includes/content-controls.php';
 
   function reset() {
     particles = [];
+    floatingTexts = [];
     reachedCount = 0;
     longestPath = 0;
     nextN = 2;
@@ -321,10 +337,8 @@ require_once __DIR__ . '/includes/content-controls.php';
   }
 
   function drawSink() {
-    // 「1」の吸い込み口
     const pulse = 0.8 + Math.sin(Date.now() * 0.002) * 0.2;
 
-    // 外側のグロー
     const grad = ctx.createRadialGradient(sinkX, sinkY, 0, sinkX, sinkY, 80);
     grad.addColorStop(0, `rgba(0,245,212,${0.2 * pulse})`);
     grad.addColorStop(0.5, `rgba(123,44,191,${0.1 * pulse})`);
@@ -334,21 +348,18 @@ require_once __DIR__ . '/includes/content-controls.php';
     ctx.arc(sinkX, sinkY, 80, 0, Math.PI * 2);
     ctx.fill();
 
-    // 中央の「1」
     ctx.fillStyle = `rgba(0,245,212,${0.8 * pulse})`;
     ctx.font = 'bold 48px "Orbitron"';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('1', sinkX, sinkY);
 
-    // 説明
     ctx.fillStyle = 'rgba(255,255,255,0.2)';
     ctx.font = '12px "Orbitron"';
     ctx.fillText('ALL PATHS LEAD HERE', sinkX, sinkY + 50);
   }
 
   function drawScale() {
-    // 左側にスケール表示
     ctx.fillStyle = 'rgba(255,255,255,0.1)';
     ctx.font = '10px "JetBrains Mono"';
     ctx.textAlign = 'right';
@@ -370,24 +381,26 @@ require_once __DIR__ . '/includes/content-controls.php';
   }
 
   function update() {
-    // パーティクルを更新
     particles = particles.filter(p => p.update());
+    floatingTexts = floatingTexts.filter(t => t.update());
   }
 
   function render() {
-    // 背景
     ctx.fillStyle = '#0a0a0f';
     ctx.fillRect(0, 0, width, height);
 
     drawScale();
     drawSink();
 
-    // パーティクル描画
     for (const p of particles) {
       p.draw();
     }
 
-    // HUD更新
+    // フローティングテキスト（計算エフェクト）
+    for (const t of floatingTexts) {
+      t.draw();
+    }
+
     hudFalling.textContent = particles.filter(p => !p.done).length;
     hudReached.textContent = reachedCount;
     hudLongest.textContent = longestPath;
@@ -395,8 +408,7 @@ require_once __DIR__ . '/includes/content-controls.php';
 
   let lastUpdate = 0;
   function loop(timestamp) {
-    // 1秒に2回更新（ゆっくり）
-    if (timestamp - lastUpdate > 16) { // 60fps for smooth animation
+    if (timestamp - lastUpdate > 16) {
       update();
       lastUpdate = timestamp;
     }
@@ -404,35 +416,23 @@ require_once __DIR__ . '/includes/content-controls.php';
     requestAnimationFrame(loop);
   }
 
-  // 自動スポーン
   let autoSpawnInterval;
   function startAutoSpawn() {
     autoSpawnInterval = setInterval(() => {
       if (particles.length < 30) {
         spawnParticle();
       }
-    }, 2000); // 2秒ごと
+    }, 2000);
   }
 
-  // イベント
-  document.getElementById('spawnBtn').addEventListener('click', () => {
-    spawnParticle();
-  });
-
-  document.getElementById('burstBtn').addEventListener('click', () => {
-    spawnBurst();
-  });
-
-  document.getElementById('resetBtn').addEventListener('click', () => {
-    reset();
-  });
+  document.getElementById('spawnBtn').addEventListener('click', () => spawnParticle());
+  document.getElementById('burstBtn').addEventListener('click', () => spawnBurst());
+  document.getElementById('resetBtn').addEventListener('click', () => reset());
 
   canvas.addEventListener('click', (e) => {
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-
-    // クリック位置から数を推定
     const ratio = Math.max(0, (sinkY - y) / (sinkY - 80));
     const n = Math.max(2, Math.floor(Math.pow(10, ratio * 4)));
     spawnParticle(n);
@@ -460,10 +460,8 @@ require_once __DIR__ . '/includes/content-controls.php';
 
   window.addEventListener('resize', resize);
 
-  // 初期化
   resize();
   startAutoSpawn();
-  // 最初にいくつかスポーン
   for (let i = 0; i < 5; i++) {
     setTimeout(() => spawnParticle(), i * 500);
   }
