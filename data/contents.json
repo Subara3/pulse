@@ -432,6 +432,18 @@
     "added": "2026-02-18"
   },
   {
+    "page": "pathfind",
+    "title": "PATHFIND",
+    "desc": "探索アルゴリズムの可視化。A*、ダイクストラ、BFSがゴールを探す過程を眺める。",
+    "desc_en": "Pathfinding algorithms visualized. Watch A*, Dijkstra, and BFS search for the goal.",
+    "icon": "fa-route",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "3アルゴリズム",
+    "meta_en": "3 algorithms",
+    "added": "2026-02-19"
+  },
+  {
     "page": "contents",
     "title": "CONTENTS",
     "desc": "コンテンツ一覧。",
