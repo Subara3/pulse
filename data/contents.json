@@ -444,6 +444,18 @@
     "added": "2026-02-19"
   },
   {
+    "page": "rule",
+    "title": "RULE",
+    "desc": "1次元セルオートマトン。単純なルールから複雑な模様が生まれる。",
+    "desc_en": "1D Cellular Automaton. Complex patterns emerge from simple rules.",
+    "icon": "fa-code",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "256ルール",
+    "meta_en": "256 rules",
+    "added": "2026-02-20"
+  },
+  {
     "page": "contents",
     "title": "CONTENTS",
     "desc": "コンテンツ一覧。",
