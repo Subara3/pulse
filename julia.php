@@ -14,28 +14,19 @@ $extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght
 $extraStyle = '
 body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; }
-.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; }
+.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
 .title { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.15); font-size: 0.7rem; letter-spacing: 0.2em; }
-.stats { top: 1rem; right: 1.5rem; text-align: right; font-family: "JetBrains Mono", monospace; font-size: 0.75rem; color: rgba(255,255,255,0.5); background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 8px; }
+.stats { top: 1rem; right: 1rem; text-align: right; font-family: "JetBrains Mono", monospace; font-size: 0.75rem; color: rgba(255,255,255,0.5); background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 8px; }
 .stats div { margin-bottom: 0.3rem; }
 .stats span { color: #00f5d4; }
-.control-group, .theme-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.control-btn { padding: 0.5rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); font-family: "Orbitron", sans-serif; font-size: 0.7rem; cursor: pointer; border-radius: 4px; transition: all 0.3s; }
-.control-btn:hover { background: rgba(0, 245, 212, 0.1); border-color: rgba(0, 245, 212, 0.5); color: #00f5d4; }
-.control-btn.active { background: rgba(0, 245, 212, 0.2); border-color: #00f5d4; color: #00f5d4; }
-.hint { top: 50%; left: 1.5rem; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.7rem; line-height: 1.8; }
+.hint { top: 50%; left: 1.5rem; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.65rem; line-height: 1.8; }
 .loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(255,255,255,0.3); font-family: "Orbitron", sans-serif; font-size: 0.9rem; display: none; }
 .loading.show { display: block; }
-.preset-group { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 1rem; }
-.preset-btn { padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); font-family: "JetBrains Mono", monospace; font-size: 0.65rem; cursor: pointer; border-radius: 4px; transition: all 0.3s; text-align: left; }
-.preset-btn:hover { background: rgba(0, 245, 212, 0.1); border-color: rgba(0, 245, 212, 0.3); color: #00f5d4; }
 
 @media (max-width: 768px) {
   .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
-  .stats { top: 0.5rem; right: 0.5rem; font-size: 0.5rem; }
-  .preset-group { flex-direction: row; flex-wrap: wrap; }
-  .preset-btn { padding: 0.3rem 0.5rem; font-size: 0.5rem; }
-  .control-btn { padding: 0.35rem 0.6rem; font-size: 0.5rem; }
+  .stats { top: 0.5rem; right: 0.5rem; font-size: 0.55rem; padding: 0.5rem; }
+  .hint { display: none; }
 }
 ';
 

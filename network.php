@@ -13,167 +13,20 @@ $pageCanonical = 'https://pulse.subara3.com/network.php';
 $extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">';
 
 $extraStyle = '
-body {
-  background: #0a0a0f;
-  min-height: 100vh;
-  overflow: hidden;
-}
-
-#canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.ui {
-  position: fixed;
-  z-index: 100;
-  font-family: "Orbitron", sans-serif;
-  pointer-events: none;
-}
-
-.ui * {
-  pointer-events: auto;
-}
-
-.title {
-  bottom: 1.5rem;
-  left: 1.5rem;
-  color: rgba(255,255,255,0.15);
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-}
-
-.hud {
-  top: 1.5rem;
-  right: 1.5rem;
-  color: rgba(255,255,255,0.35);
-  font-size: 0.65rem;
-  text-align: right;
-  letter-spacing: 0.05em;
-  line-height: 1.8;
-}
-
-.hud .highlight {
-  color: #00f5d4;
-  font-weight: 700;
-}
-
-.hud .critical {
-  color: #7b2cbf;
-}
-
-/* drawer-controls handles positioning */
-
-.slider-wrap {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.slider-wrap label {
-  color: rgba(255,255,255,0.4);
-  font-size: 0.65rem;
-  letter-spacing: 0.05em;
-  min-width: 2.5rem;
-  text-align: right;
-}
-
-.slider-wrap input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 160px;
-  height: 3px;
-  background: rgba(255,255,255,0.15);
-  border-radius: 2px;
-  outline: none;
-}
-
-.slider-wrap input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #00f5d4;
-  cursor: pointer;
-  border: 2px solid #0a0a0f;
-  box-shadow: 0 0 8px rgba(0, 245, 212, 0.4);
-}
-
-.slider-wrap input[type="range"]::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #00f5d4;
-  cursor: pointer;
-  border: 2px solid #0a0a0f;
-  box-shadow: 0 0 8px rgba(0, 245, 212, 0.4);
-}
-
-.btn-row {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.control-btn {
-  padding: 0.5rem 1rem;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.5);
-  font-family: "Orbitron", sans-serif;
-  font-size: 0.7rem;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.3s;
-}
-
-.control-btn:hover {
-  background: rgba(0, 245, 212, 0.1);
-  border-color: rgba(0, 245, 212, 0.5);
-  color: #00f5d4;
-}
-
-.control-btn.active {
-  background: rgba(0, 245, 212, 0.2);
-  border-color: #00f5d4;
-  color: #00f5d4;
-}
-
-.phase-indicator {
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  text-align: center;
-  opacity: 0;
-  transition: opacity 1s;
-  pointer-events: none;
-}
-
-.phase-indicator.visible {
-  opacity: 1;
-}
-
-.phase-indicator .phase-text {
-  font-size: 1.2rem;
-  font-weight: 700;
-  letter-spacing: 0.3em;
-  color: #00f5d4;
-  text-shadow: 0 0 30px rgba(0, 245, 212, 0.5);
-}
+body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
+#canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
+.title { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.15); font-size: 0.7rem; letter-spacing: 0.2em; }
+.hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.35); font-size: 0.65rem; text-align: right; letter-spacing: 0.05em; line-height: 1.8; }
+.hud .highlight { color: #00f5d4; font-weight: 700; }
+.hud .critical { color: #7b2cbf; }
+.phase-indicator { top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; opacity: 0; transition: opacity 1s; pointer-events: none; }
+.phase-indicator.visible { opacity: 1; }
+.phase-indicator .phase-text { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.3em; color: #00f5d4; text-shadow: 0 0 30px rgba(0, 245, 212, 0.5); }
 
 @media (max-width: 768px) {
-  .hud {
-    font-size: 0.6rem;
-    top: 1rem;
-    right: 1rem;
-  }
-  .title {
-    bottom: 1rem;
-    left: 1rem;
-  }
+  .hud { font-size: 0.55rem; top: 0.5rem; right: 0.5rem; }
+  .title { bottom: 1rem; left: 1rem; }
 }
 ';
 
