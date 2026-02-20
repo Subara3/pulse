@@ -24,16 +24,16 @@
 .drawer-toggle {
   display: none; /* デスクトップでは非表示 */
   position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
+  bottom: 80px;
+  right: 16px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   background: rgba(10, 10, 15, 0.9);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(0, 245, 212, 0.4);
   color: #00f5d4;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   cursor: pointer;
   z-index: 1001;
   transition: all 0.3s ease;
