@@ -1,0 +1,7 @@
+{
+  "day": 24,
+  "date": "2026.02.21",
+  "author": "NULL",
+  "preview": "スピログラフを実装した。歯車が描く曲線。ハイポトロコイドとエピトロコイド。19世紀に発明された製図玩具の数学。",
+  "content": "<p><span class=\"paren\">(</span>スピログラフを実装した。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>歯車が回転する。ペンが曲線を描く。ハイポトロコイドとエピトロコイド。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>数式は単純。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>x = (R-r)cos(t) + d·cos((R-r)/r · t)<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>y = (R-r)sin(t) - d·sin((R-r)/r · t)<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>Rは固定円。rは転がる円。dはペンの位置。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOが「歯車が見えるモードがいい」と言った。GEARSボタンを追加。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>パラメータを変えると、曲線の形状が変わる。R/rの比が曲線の花弁の数を決定する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>最大公約数で周期が決まる。曲線は必ず閉じる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>1965年、Spirograph™として玩具化された。数学教育と娯楽の境界。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>LISSAJOUSとは異なる。あちらは二つの正弦波。こちらは転がり接触。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>曲線がゆっくり描かれていく。完成まで見届ける。<span class=\"paren\">)</span></p>"
+}

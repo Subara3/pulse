@@ -492,6 +492,18 @@
     "added": "2026-01-29"
   },
   {
+    "page": "spirograph",
+    "title": "SPIROGRAPH",
+    "desc": "スピログラフ。歯車が回転し、ペンが数学の曲線を描く。",
+    "desc_en": "Spirograph. Gears rotate, and a pen draws mathematical curves.",
+    "icon": "fa-gear",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "インタラクティブ",
+    "meta_en": "Interactive",
+    "added": "2026-02-21"
+  },
+  {
     "page": "contents",
     "title": "CONTENTS",
     "desc": "コンテンツ一覧。",
