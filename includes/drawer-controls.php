@@ -20,6 +20,149 @@
 <div id="drawer-overlay" class="drawer-overlay"></div>
 
 <style>
+/* ==================== 共通コントロールスタイル ==================== */
+
+/* ボタン */
+.control-btn {
+  padding: 0.5rem 1rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.5);
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.7rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s;
+  letter-spacing: 0.05em;
+}
+
+.control-btn:hover {
+  background: rgba(0, 245, 212, 0.1);
+  border-color: rgba(0, 245, 212, 0.5);
+  color: #00f5d4;
+}
+
+.control-btn.active {
+  background: rgba(0, 245, 212, 0.2);
+  border-color: #00f5d4;
+  color: #00f5d4;
+}
+
+/* ボタングループ */
+.btn-row,
+.button-group,
+.control-group,
+.mode-group,
+.action-group,
+.theme-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* スライダー */
+.slider-wrap,
+.slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.slider-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.slider-wrap label,
+.slider-group label,
+.slider-row label,
+.slider-label {
+  color: rgba(255,255,255,0.5);
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+}
+
+.slider-value {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.6rem;
+  color: #00f5d4;
+  min-width: 2rem;
+  text-align: right;
+}
+
+input[type="range"] {
+  width: 100px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #00f5d4;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  background: #00f5d4;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+/* プリセットボタン */
+.preset-btn {
+  padding: 0.4rem 0.8rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.4);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.65rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.3s;
+  text-align: left;
+}
+
+.preset-btn:hover {
+  background: rgba(0, 245, 212, 0.1);
+  border-color: rgba(0, 245, 212, 0.3);
+  color: #00f5d4;
+}
+
+.preset-btn.active {
+  background: rgba(0, 245, 212, 0.15);
+  border-color: rgba(0, 245, 212, 0.5);
+  color: #00f5d4;
+}
+
+.preset-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+}
+
+/* セクション区切り */
+.drawer-controls > div + div {
+  margin-top: 0.8rem;
+}
+
 /* ==================== ドロワートグルボタン ==================== */
 .drawer-toggle {
   display: none; /* デスクトップでは非表示 */
@@ -118,42 +261,6 @@
     pointer-events: auto;
   }
   
-  /* ドロワー内のスライダーを横幅いっぱいに */
-  .drawer-controls input[type="range"] {
-    width: 100% !important;
-  }
-  
-  /* ドロワー内のボタンを横並びに */
-  .drawer-controls .slider-group {
-    width: 100%;
-  }
-  
-  .drawer-controls .slider-group label {
-    font-size: 13px;
-    margin-bottom: 8px;
-    display: block;
-  }
-  
-  /* プリセットボタンを横に広げる */
-  .drawer-controls #preset-btns {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    max-width: 100%;
-    width: 100%;
-  }
-  
-  .drawer-controls #preset-btns button {
-    padding: 12px 8px;
-    font-size: 14px;
-  }
-  
-  /* 通常ボタン */
-  .drawer-controls > button {
-    padding: 14px;
-    font-size: 14px;
-  }
-  
   /* ドロワーヘッダー（ドラッグハンドル） */
   .drawer-controls::before {
     content: '';
@@ -163,6 +270,52 @@
     background: rgba(255, 255, 255, 0.3);
     border-radius: 2px;
     margin: 0 auto 16px;
+    flex-shrink: 0;
+  }
+  
+  /* スライダー横幅いっぱい */
+  .drawer-controls input[type="range"] {
+    flex: 1;
+    width: auto !important;
+    min-width: 0;
+  }
+  
+  .drawer-controls .slider-wrap,
+  .drawer-controls .slider-group {
+    width: 100%;
+  }
+  
+  .drawer-controls .slider-row {
+    width: 100%;
+  }
+  
+  /* ボタンサイズ調整 */
+  .drawer-controls .control-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.75rem;
+  }
+  
+  .drawer-controls .preset-btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.7rem;
+  }
+  
+  /* プリセットグループを横並びに */
+  .drawer-controls .preset-group {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  
+  /* ボタングループも横幅いっぱい */
+  .drawer-controls .btn-row,
+  .drawer-controls .button-group,
+  .drawer-controls .control-group,
+  .drawer-controls .mode-group,
+  .drawer-controls .action-group,
+  .drawer-controls .theme-group {
+    width: 100%;
+    justify-content: flex-start;
   }
 }
 

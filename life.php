@@ -14,31 +14,16 @@ $extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght
 $extraStyle = '
 body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; }
-.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; }
-.back-link { top: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.3); text-decoration: none; font-size: 0.8rem; letter-spacing: 0.1em; transition: color 0.3s; }
-.back-link:hover { color: rgba(255,255,255,0.7); }
+.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
 .title { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.15); font-size: 0.7rem; letter-spacing: 0.2em; }
-.stats { top: 3.5rem; right: 1.5rem; text-align: right; font-family: "JetBrains Mono", monospace; font-size: 0.8rem; color: rgba(255,255,255,0.5); }
+.stats { top: 1rem; right: 1rem; text-align: right; font-family: "JetBrains Mono", monospace; font-size: 0.75rem; color: rgba(255,255,255,0.5); }
 .stats div { margin-bottom: 0.3rem; }
 .stats span { color: #00f5d4; }
-.control-group { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; }
-.control-btn { padding: 0.5rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); font-family: "Orbitron", sans-serif; font-size: 0.7rem; cursor: pointer; border-radius: 4px; transition: all 0.3s; }
-.control-btn:hover { background: rgba(0, 245, 212, 0.1); border-color: rgba(0, 245, 212, 0.5); color: #00f5d4; }
-.control-btn.active { background: rgba(0, 245, 212, 0.2); border-color: #00f5d4; color: #00f5d4; }
-.hint { top: 50%; left: 1.5rem; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.7rem; line-height: 1.8; }
-.speed-control { display: flex; align-items: center; gap: 0.5rem; }
-.speed-slider { width: 80px; height: 4px; -webkit-appearance: none; background: rgba(255,255,255,0.2); border-radius: 2px; outline: none; }
-.speed-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: #00f5d4; border-radius: 50%; cursor: pointer; }
-.pattern-group { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 1rem; }
-.pattern-btn { padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); font-family: "JetBrains Mono", monospace; font-size: 0.65rem; cursor: pointer; border-radius: 4px; transition: all 0.3s; text-align: left; }
-.pattern-btn:hover { background: rgba(0, 245, 212, 0.1); border-color: rgba(0, 245, 212, 0.3); color: #00f5d4; }
-
+.hint { top: 50%; left: 1.5rem; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.65rem; line-height: 1.8; }
 @media (max-width: 768px) {
   .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
-  .stats { top: 0.5rem; right: 0.5rem; font-size: 0.5rem; }
-  .pattern-group { flex-direction: row; flex-wrap: wrap; }
-  .pattern-btn { padding: 0.3rem 0.5rem; font-size: 0.5rem; }
-  .control-btn { padding: 0.35rem 0.6rem; font-size: 0.5rem; }
+  .stats { top: 0.5rem; right: 0.5rem; font-size: 0.55rem; }
+  .hint { display: none; }
 }
 ';
 
@@ -69,13 +54,13 @@ require_once __DIR__ . '/includes/share.php';
       <input type="range" class="speed-slider" id="speedSlider" min="1" max="10" value="5">
     </div>
   </div>
-  <div class="pattern-group">
-    <button class="pattern-btn" data-pattern="glider">▸ Glider</button>
-    <button class="pattern-btn" data-pattern="lwss">▸ Spaceship</button>
-    <button class="pattern-btn" data-pattern="pulsar">▸ Pulsar</button>
-    <button class="pattern-btn" data-pattern="gosper">▸ Gosper Gun</button>
-    <button class="pattern-btn" data-pattern="rpentomino">▸ R-pentomino</button>
-    <button class="pattern-btn" data-pattern="acorn">▸ Acorn</button>
+  <div class="preset-group">
+    <button class="preset-btn" data-pattern="glider">▸ Glider</button>
+    <button class="preset-btn" data-pattern="lwss">▸ Spaceship</button>
+    <button class="preset-btn" data-pattern="pulsar">▸ Pulsar</button>
+    <button class="preset-btn" data-pattern="gosper">▸ Gosper Gun</button>
+    <button class="preset-btn" data-pattern="rpentomino">▸ R-pentomino</button>
+    <button class="preset-btn" data-pattern="acorn">▸ Acorn</button>
   </div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
@@ -301,7 +286,7 @@ canvas.addEventListener('mousedown', (e) => {
   if (selectedPattern) {
     placePattern(selectedPattern, x, y);
     selectedPattern = null;
-    document.querySelectorAll('.pattern-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
   } else {
     if (grid[x] && grid[x][y] !== undefined) {
       grid[x][y] = grid[x][y] ? 0 : 1;
@@ -354,9 +339,9 @@ document.getElementById('speedSlider').addEventListener('input', function() {
 });
 
 // パターン選択
-document.querySelectorAll('.pattern-btn').forEach(btn => {
+document.querySelectorAll('.preset-btn').forEach(btn => {
   btn.addEventListener('click', function() {
-    document.querySelectorAll('.pattern-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
     this.classList.add('active');
     selectedPattern = this.dataset.pattern;
     SFX.play('toggle');

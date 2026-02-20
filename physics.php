@@ -14,20 +14,15 @@ $extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght
 $extraStyle = '
 body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
-.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; }
+.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
 .title { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.15); font-size: 0.7rem; letter-spacing: 0.2em; }
-/* drawer-controls handles positioning */
-.control-btn { padding: 0.5rem 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); font-family: "Orbitron", sans-serif; font-size: 0.65rem; cursor: pointer; border-radius: 4px; transition: all 0.3s; }
-.control-btn:hover { background: rgba(0, 245, 212, 0.1); border-color: rgba(0, 245, 212, 0.5); color: #00f5d4; }
-.control-btn.active { background: rgba(0, 245, 212, 0.2); border-color: #00f5d4; color: #00f5d4; }
 .hint { top: 50%; left: 1.5rem; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.6rem; line-height: 1.8; }
-.stats { top: 1rem; right: 1.5rem; font-family: "JetBrains Mono", monospace; font-size: 0.65rem; color: rgba(255,255,255,0.4); text-align: right; }
+.stats { top: 1rem; right: 1rem; font-family: "JetBrains Mono", monospace; font-size: 0.65rem; color: rgba(255,255,255,0.4); text-align: right; }
 
 @media (max-width: 768px) {
   .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
   .hint { display: none; }
   .stats { top: 0.5rem; right: 0.5rem; font-size: 0.5rem; }
-  .control-btn { padding: 0.35rem 0.6rem; font-size: 0.5rem; }
 }
 ';
 

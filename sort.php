@@ -13,101 +13,19 @@ $pageCanonical = 'https://pulse.subara3.com/sort.php';
 $extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">';
 
 $extraStyle = '
-body {
-  background: #0a0a0f;
-  min-height: 100vh;
-  overflow: hidden;
-}
-
-#canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.ui {
-  position: fixed;
-  z-index: 100;
-  font-family: "Orbitron", sans-serif;
-}
-
-.back-link {
-  top: 1.5rem;
-  left: 1.5rem;
-  color: rgba(255,255,255,0.3);
-  text-decoration: none;
-  font-size: 0.8rem;
-  letter-spacing: 0.1em;
-  transition: color 0.3s;
-}
-
-.back-link:hover {
-  color: rgba(255,255,255,0.7);
-}
-
-.title {
-  bottom: 1.5rem;
-  left: 1.5rem;
-  color: rgba(255,255,255,0.15);
-  font-size: 0.7rem;
-  letter-spacing: 0.2em;
-}
-
-.info {
-  top: 1.5rem;
-  right: 1.5rem;
-  text-align: right;
-}
-
-.algorithm-name {
-  font-family: "Orbitron", sans-serif;
-  font-size: 1rem;
-  color: #00f5d4;
-  letter-spacing: 0.1em;
-  margin-bottom: 0.5rem;
-}
-
-.stats {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.4);
-}
-
-/* drawer-controls handles positioning */
-
-.control-btn {
-  padding: 0.5rem 1rem;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.5);
-  font-family: "Orbitron", sans-serif;
-  font-size: 0.65rem;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.3s;
-}
-
-.control-btn:hover {
-  background: rgba(0, 245, 212, 0.1);
-  border-color: rgba(0, 245, 212, 0.5);
-  color: #00f5d4;
-}
-
-.control-btn.active {
-  background: rgba(0, 245, 212, 0.2);
-  border-color: #00f5d4;
-  color: #00f5d4;
-}
+body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
+#canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
+.title { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.15); font-size: 0.7rem; letter-spacing: 0.2em; }
+.info { top: 1rem; right: 1rem; text-align: right; }
+.algorithm-name { font-family: "Orbitron", sans-serif; font-size: 1rem; color: #00f5d4; letter-spacing: 0.1em; margin-bottom: 0.5rem; }
+.stats { font-family: "JetBrains Mono", monospace; font-size: 0.75rem; color: rgba(255,255,255,0.4); }
 
 @media (max-width: 768px) {
-  .back-link { display: none; }
   .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
   .info { top: 0.5rem; right: 0.5rem; }
   .algorithm-name { font-size: 0.75rem; }
   .stats { font-size: 0.6rem; }
-  .control-btn { padding: 0.35rem 0.6rem; font-size: 0.5rem; }
 }
 ';
 
@@ -150,51 +68,63 @@ let swapping = [-1, -1];
 let sorted = [];
 let comparisons = 0;
 let swapCount = 0;
-let sorting = false;
 let currentAlgo = 'bubble';
-let sortGenerator = null;
-let speed = 5;
+let sorting = false;
+let generator = null;
 
-const algoNames = {
-  bubble: 'BUBBLE SORT',
-  selection: 'SELECTION SORT',
-  insertion: 'INSERTION SORT',
-  quick: 'QUICK SORT'
-};
-
-function init() {
+function resize() {
   width = canvas.width = window.innerWidth;
   height = canvas.height = window.innerHeight;
-  arraySize = Math.min(Math.floor(width / 8), 150);
-  shuffle();
 }
 
-function shuffle() {
-  sorting = false;
-  sortGenerator = null;
+function initArray() {
   array = [];
+  for (let i = 0; i < arraySize; i++) {
+    array.push(Math.random() * 0.8 + 0.1);
+  }
   sorted = [];
-  comparing = [-1, -1];
-  swapping = [-1, -1];
   comparisons = 0;
   swapCount = 0;
-  SFX.play('click');
-  
-  for (let i = 0; i < arraySize; i++) {
-    array[i] = Math.random() * 0.9 + 0.1;
-  }
-  
+  comparing = [-1, -1];
+  swapping = [-1, -1];
   updateStats();
-  
-  // 少し待ってからソート開始
-  setTimeout(() => {
-    startSort();
-  }, 500);
 }
 
 function updateStats() {
   document.getElementById('comparisons').textContent = comparisons;
   document.getElementById('swaps').textContent = swapCount;
+}
+
+function draw() {
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(0, 0, width, height);
+  
+  const barWidth = width / arraySize;
+  const maxHeight = height * 0.8;
+  
+  for (let i = 0; i < array.length; i++) {
+    const x = i * barWidth;
+    const h = array[i] * maxHeight;
+    const y = height - h;
+    
+    let color;
+    if (swapping.includes(i)) {
+      color = '#7b2cbf';
+    } else if (comparing.includes(i)) {
+      color = '#ff6b6b';
+    } else if (sorted.includes(i)) {
+      color = '#00f5d4';
+    } else {
+      const t = i / arraySize;
+      const r = Math.round(0 + t * 123);
+      const g = Math.round(245 - t * 201);
+      const b = Math.round(212 + t * (191 - 212));
+      color = `rgb(${r},${g},${b})`;
+    }
+    
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, barWidth - 1, h);
+  }
 }
 
 function* bubbleSort() {
@@ -208,6 +138,7 @@ function* bubbleSort() {
         swapping = [j, j + 1];
         [array[j], array[j + 1]] = [array[j + 1], array[j]];
         swapCount++;
+        if (typeof SFX !== 'undefined') SFX.play('tick', 30);
         yield;
         swapping = [-1, -1];
       }
@@ -215,6 +146,8 @@ function* bubbleSort() {
     sorted.push(array.length - i - 1);
   }
   comparing = [-1, -1];
+  sorted = array.map((_, i) => i);
+  if (typeof SFX !== 'undefined') SFX.play('complete');
 }
 
 function* selectionSort() {
@@ -234,12 +167,15 @@ function* selectionSort() {
       swapping = [i, minIdx];
       [array[i], array[minIdx]] = [array[minIdx], array[i]];
       swapCount++;
+      if (typeof SFX !== 'undefined') SFX.play('tick', 30);
       yield;
       swapping = [-1, -1];
     }
     sorted.push(i);
   }
   comparing = [-1, -1];
+  sorted = array.map((_, i) => i);
+  if (typeof SFX !== 'undefined') SFX.play('complete');
 }
 
 function* insertionSort() {
@@ -255,6 +191,7 @@ function* insertionSort() {
         swapping = [j - 1, j];
         [array[j - 1], array[j]] = [array[j], array[j - 1]];
         swapCount++;
+        if (typeof SFX !== 'undefined') SFX.play('tick', 30);
         yield;
         swapping = [-1, -1];
         j--;
@@ -265,6 +202,8 @@ function* insertionSort() {
     sorted.push(i);
   }
   comparing = [-1, -1];
+  sorted = array.map((_, i) => i);
+  if (typeof SFX !== 'undefined') SFX.play('complete');
 }
 
 function* quickSort(low = 0, high = array.length - 1) {
@@ -283,128 +222,111 @@ function* quickSort(low = 0, high = array.length - 1) {
           swapping = [i, j];
           [array[i], array[j]] = [array[j], array[i]];
           swapCount++;
+          if (typeof SFX !== 'undefined') SFX.play('tick', 30);
           yield;
           swapping = [-1, -1];
         }
       }
     }
     
-    if (i + 1 !== high) {
-      swapping = [i + 1, high];
-      [array[i + 1], array[high]] = [array[high], array[i + 1]];
-      swapCount++;
-      yield;
-      swapping = [-1, -1];
-    }
+    swapping = [i + 1, high];
+    [array[i + 1], array[high]] = [array[high], array[i + 1]];
+    swapCount++;
+    if (typeof SFX !== 'undefined') SFX.play('tick', 30);
+    yield;
+    swapping = [-1, -1];
     
-    sorted.push(i + 1);
+    const pi = i + 1;
+    sorted.push(pi);
     
-    yield* quickSort(low, i);
-    yield* quickSort(i + 2, high);
+    yield* quickSort(low, pi - 1);
+    yield* quickSort(pi + 1, high);
   } else if (low === high) {
     sorted.push(low);
   }
-  comparing = [-1, -1];
+  
+  if (low === 0 && high === array.length - 1) {
+    comparing = [-1, -1];
+    sorted = array.map((_, i) => i);
+    if (typeof SFX !== 'undefined') SFX.play('complete');
+  }
 }
 
 function startSort() {
   sorting = true;
   sorted = [];
-  comparing = [-1, -1];
-  swapping = [-1, -1];
   comparisons = 0;
   swapCount = 0;
   
   switch (currentAlgo) {
     case 'bubble':
-      sortGenerator = bubbleSort();
+      generator = bubbleSort();
       break;
     case 'selection':
-      sortGenerator = selectionSort();
+      generator = selectionSort();
       break;
     case 'insertion':
-      sortGenerator = insertionSort();
+      generator = insertionSort();
       break;
     case 'quick':
-      sortGenerator = quickSort();
+      generator = quickSort();
       break;
   }
 }
 
-function draw() {
-  ctx.fillStyle = '#0a0a0f';
-  ctx.fillRect(0, 0, width, height);
-  
-  const barWidth = width / array.length;
-  const maxHeight = height * 0.8;
-  
-  for (let i = 0; i < array.length; i++) {
-    const barHeight = array[i] * maxHeight;
-    const x = i * barWidth;
-    const y = height - barHeight;
-    
-    let color;
-    if (swapping.includes(i)) {
-      color = '#ff6b6b';
-    } else if (comparing.includes(i)) {
-      color = '#ffd93d';
-    } else if (sorted.includes(i)) {
-      color = '#00f5d4';
-    } else {
-      color = 'rgba(255, 255, 255, 0.6)';
-    }
-    
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, barWidth - 1, barHeight);
-  }
-}
-
-function loop() {
-  if (sorting && sortGenerator) {
-    for (let i = 0; i < speed; i++) {
-      const result = sortGenerator.next();
-      if (result.done) {
-        sorting = false;
-        sortGenerator = null;
-        sorted = array.map((_, i) => i);
-        SFX.play('complete');
-        // 完了後、少し待ってシャッフル
-        setTimeout(shuffle, 2000);
-        break;
-      }
+function step() {
+  if (generator) {
+    const result = generator.next();
+    if (result.done) {
+      sorting = false;
+      generator = null;
     }
     updateStats();
   }
-  
-  draw();
-  requestAnimationFrame(loop);
 }
 
-// コントロール
-document.querySelectorAll('.control-btn[data-algo]').forEach(btn => {
+let lastStep = 0;
+const stepInterval = 20;
+
+function animate(time) {
+  requestAnimationFrame(animate);
+  
+  if (sorting && time - lastStep > stepInterval) {
+    step();
+    lastStep = time;
+  }
+  
+  draw();
+}
+
+// イベント
+window.addEventListener('resize', resize);
+
+document.querySelectorAll('[data-algo]').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.control-btn[data-algo]').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('[data-algo]').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     currentAlgo = btn.dataset.algo;
-    document.getElementById('algoName').textContent = algoNames[currentAlgo];
-    SFX.play('toggle');
-    shuffle();
+    document.getElementById('algoName').textContent = currentAlgo.toUpperCase() + ' SORT';
+    if (typeof SFX !== 'undefined') SFX.play('toggle');
+    initArray();
+    startSort();
   });
 });
 
-document.getElementById('shuffleBtn').addEventListener('click', shuffle);
-
-window.addEventListener('resize', () => {
-  width = canvas.width = window.innerWidth;
-  height = canvas.height = window.innerHeight;
+document.getElementById('shuffleBtn').addEventListener('click', () => {
+  if (typeof SFX !== 'undefined') SFX.play('click');
+  initArray();
+  startSort();
 });
 
-init();
-loop();
+// 初期化
+resize();
+initArray();
+startSort();
+animate(0);
 </script>
-
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
-<?php require_once __DIR__ . '/includes/related.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

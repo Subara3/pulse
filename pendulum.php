@@ -15,24 +15,15 @@ $extraStyle = '
 body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; cursor: grab; }
 #canvas:active { cursor: grabbing; }
-.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; }
+.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
 .title { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.15); font-size: 0.7rem; letter-spacing: 0.2em; }
-.stats { top: 6rem; right: 1.5rem; font-family: "JetBrains Mono", monospace; font-size: 0.7rem; color: rgba(255,255,255,0.4); text-align: right; }
-.mode-group, .action-group { display: flex; gap: 0.4rem; flex-wrap: wrap; }
-.control-btn { padding: 0.5rem 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); font-family: "Orbitron", sans-serif; font-size: 0.65rem; cursor: pointer; border-radius: 4px; transition: all 0.3s; }
-.control-btn:hover { background: rgba(0, 245, 212, 0.1); border-color: rgba(0, 245, 212, 0.5); color: #00f5d4; }
-.control-btn.active { background: rgba(0, 245, 212, 0.2); border-color: #00f5d4; color: #00f5d4; }
-.hint { top: 1rem; left: 1.5rem; color: rgba(255,255,255,0.3); font-size: 0.65rem; line-height: 1.8; }
-.slider-group { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.6rem; color: rgba(255,255,255,0.4); margin-bottom: 1rem; }
-.slider-group label { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
-.slider-group input { width: 100px; }
+.stats { top: 1rem; right: 1rem; font-family: "JetBrains Mono", monospace; font-size: 0.7rem; color: rgba(255,255,255,0.4); text-align: right; }
+.hint { top: 5rem; left: 1.5rem; color: rgba(255,255,255,0.3); font-size: 0.65rem; line-height: 1.8; }
 
 @media (max-width: 768px) {
   .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
   .stats { top: 0.5rem; right: 0.5rem; font-size: 0.55rem; }
   .hint { display: none; }
-  .slider-group { font-size: 0.5rem; }
-  .control-btn { padding: 0.35rem 0.5rem; font-size: 0.5rem; }
 }
 ';
 
