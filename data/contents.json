@@ -456,6 +456,42 @@
     "added": "2026-02-20"
   },
   {
+    "page": "breathe",
+    "title": "BREATHE",
+    "desc": "呼吸を整える。吸って、止めて、吐いて。",
+    "desc_en": "Regulate your breathing. Inhale, hold, exhale.",
+    "icon": "fa-lungs",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "リラックス",
+    "meta_en": "Relax",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "maze",
+    "title": "MAZE",
+    "desc": "毎回ランダム生成される迷路。ゴールを目指せ。",
+    "desc_en": "Randomly generated maze each time. Find the goal.",
+    "icon": "fa-gamepad",
+    "category": "遊べる",
+    "category_en": "Play",
+    "meta": "プレイ可能",
+    "meta_en": "Playable",
+    "added": "2026-01-29"
+  },
+  {
+    "page": "pendulum",
+    "title": "PENDULUM",
+    "desc": "振り子が揺れる。衝突、共振、二重振り子。",
+    "desc_en": "Pendulums swinging. Collision, resonance, double pendulum.",
+    "icon": "fa-weight-hanging",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "4モード",
+    "meta_en": "4 modes",
+    "added": "2026-01-29"
+  },
+  {
     "page": "contents",
     "title": "CONTENTS",
     "desc": "コンテンツ一覧。",

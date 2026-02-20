@@ -14,7 +14,7 @@
 ?>
 
 <button id="drawer-toggle" class="drawer-toggle" aria-label="コントロールを開く">
-  <span class="drawer-toggle-icon">⚙️</span>
+  <i class="fa-solid fa-gear"></i>
 </button>
 
 <div id="drawer-overlay" class="drawer-overlay"></div>
@@ -26,14 +26,14 @@
   position: fixed;
   bottom: 20px;
   right: 20px;
-  width: 56px;
-  height: 56px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background: rgba(10, 10, 15, 0.9);
   backdrop-filter: blur(10px);
-  border: 2px solid rgba(0, 245, 212, 0.4);
+  border: 1px solid rgba(0, 245, 212, 0.4);
   color: #00f5d4;
-  font-size: 24px;
+  font-size: 1.2rem;
   cursor: pointer;
   z-index: 1001;
   transition: all 0.3s ease;
@@ -43,17 +43,12 @@
 .drawer-toggle:hover {
   transform: scale(1.1);
   border-color: #00f5d4;
+  background: rgba(0, 245, 212, 0.1);
 }
 
 .drawer-toggle.open {
   transform: rotate(90deg);
   background: rgba(0, 245, 212, 0.2);
-}
-
-.drawer-toggle-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 /* ==================== オーバーレイ ==================== */
