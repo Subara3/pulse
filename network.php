@@ -545,7 +545,6 @@ require_once __DIR__ . '/includes/share.php';
 })();
 </script>
 
-<?php require_once __DIR__ . '/includes/share-buttons.php'; ?>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 <?php require_once __DIR__ . '/includes/related.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
