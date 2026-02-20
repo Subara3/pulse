@@ -10,7 +10,6 @@ $pageCanonical = 'https://pulse.subara3.com/rule.php';
 $extraStyle = '
 #hud { position: fixed; top: 16px; right: 16px; text-align: right; font-size: 13px; color: rgba(255,255,255,0.7); pointer-events: none; z-index: 100; font-family: "JetBrains Mono", monospace; }
 #hud .rule-num { font-size: 20px; color: #00f5d4; }
-#controls { position: fixed; bottom: 16px; right: 16px; display: flex; flex-direction: column; gap: 10px; z-index: 100; }
 #controls button { background: rgba(0,245,212,0.1); border: 1px solid rgba(0,245,212,0.3); color: #00f5d4; padding: 8px 14px; cursor: pointer; font-size: 12px; border-radius: 4px; font-family: inherit; transition: all 0.2s; }
 #controls button:hover { background: rgba(0,245,212,0.2); }
 #controls button.active { background: rgba(0,245,212,0.3); }
@@ -20,6 +19,12 @@ $extraStyle = '
 #info { position: fixed; bottom: 16px; left: 16px; font-size: 11px; color: rgba(255,255,255,0.5); z-index: 100; max-width: 280px; line-height: 1.5; }
 #preset-btns { display: flex; gap: 6px; flex-wrap: wrap; max-width: 150px; }
 #preset-btns button { padding: 5px 8px; font-size: 11px; }
+
+/* モバイルではinfoを上に移動（ドロワーと重ならないように） */
+@media (max-width: 768px) {
+  #info { bottom: auto; top: 80px; left: 16px; right: 16px; max-width: none; }
+  #hud { top: 16px; }
+}
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -32,7 +37,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <span id="row-count">0</span> rows
 </div>
 
-<div id="controls">
+<div id="controls" class="drawer-controls">
   <div class="slider-group">
     <label>Rule (0-255)</label>
     <input type="range" id="rule-slider" min="0" max="255" value="30">
@@ -58,6 +63,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
   Rule: どの近傍パターンが生になるかを8ビットで定義<br>
   クリック/タップで一時停止
 </div>
+
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <script>
 (function() {
