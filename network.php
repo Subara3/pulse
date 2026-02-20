@@ -65,14 +65,7 @@ body {
   color: #7b2cbf;
 }
 
-.controls {
-  bottom: 1.5rem;
-  right: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  align-items: flex-end;
-}
+/* drawer-controls handles positioning */
 
 .slider-wrap {
   display: flex;
@@ -171,17 +164,10 @@ body {
   text-shadow: 0 0 30px rgba(0, 245, 212, 0.5);
 }
 
-@media (max-width: 600px) {
-  .slider-wrap input[type="range"] {
-    width: 100px;
-  }
+@media (max-width: 768px) {
   .hud {
     font-size: 0.6rem;
     top: 1rem;
-    right: 1rem;
-  }
-  .controls {
-    bottom: 1rem;
     right: 1rem;
   }
   .title {
@@ -208,7 +194,7 @@ require_once __DIR__ . '/includes/share.php';
   <span id="hudCritical" class="critical"></span>
 </div>
 
-<div class="ui controls">
+<div id="controls" class="drawer-controls">
   <div class="slider-wrap">
     <label for="probSlider" id="probLabel">p=0.000</label>
     <input type="range" id="probSlider" min="0" max="1000" value="0">
@@ -218,6 +204,7 @@ require_once __DIR__ . '/includes/share.php';
     <button class="control-btn" id="resetBtn">RESET</button>
   </div>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <div class="ui phase-indicator" id="phaseIndicator">
   <div class="phase-text">CONNECTED</div>

@@ -52,14 +52,7 @@ body {
   font-weight: 700;
 }
 
-.controls {
-  bottom: 1.5rem;
-  right: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  align-items: flex-end;
-}
+/* drawer-controls handles positioning */
 
 .btn-row {
   display: flex;
@@ -129,23 +122,16 @@ body {
   cursor: pointer;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .hud {
     font-size: 0.55rem;
     top: 1rem;
-    right: 1rem;
-  }
-  .controls {
-    bottom: 1rem;
     right: 1rem;
   }
   .info {
     bottom: 1rem;
     left: 1rem;
     font-size: 0.5rem;
-  }
-  .slider-wrap input[type="range"] {
-    width: 60px;
   }
 }
 ';
@@ -169,7 +155,7 @@ require_once __DIR__ . '/includes/share.php';
   MODE: <span id="hudMode">CLASSIC</span>
 </div>
 
-<div class="ui controls">
+<div id="controls" class="drawer-controls">
   <div class="slider-wrap">
     <label>SPEED</label>
     <input type="range" id="speedSlider" min="1" max="50" value="20">
@@ -183,6 +169,7 @@ require_once __DIR__ . '/includes/share.php';
     <button class="control-btn" id="resetBtn">RESET</button>
   </div>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <script>
 (function() {

@@ -16,7 +16,7 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
 .ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; }
 .title { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.15); font-size: 0.7rem; letter-spacing: 0.2em; }
-.controls { bottom: 1.5rem; right: 1.5rem; display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: flex-end; max-width: 400px; }
+/* drawer-controls handles positioning */
 .control-btn { padding: 0.5rem 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); font-family: "Orbitron", sans-serif; font-size: 0.65rem; cursor: pointer; border-radius: 4px; transition: all 0.3s; }
 .control-btn:hover { background: rgba(0, 245, 212, 0.1); border-color: rgba(0, 245, 212, 0.5); color: #00f5d4; }
 .control-btn.active { background: rgba(0, 245, 212, 0.2); border-color: #00f5d4; color: #00f5d4; }
@@ -27,7 +27,6 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
   .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
   .hint { display: none; }
   .stats { top: 0.5rem; right: 0.5rem; font-size: 0.5rem; }
-  .controls { bottom: 0.5rem; gap: 0.3rem; }
   .control-btn { padding: 0.35rem 0.6rem; font-size: 0.5rem; }
 }
 ';
@@ -48,13 +47,14 @@ require_once __DIR__ . '/includes/share.php';
   Drag to magnet<br>
   Space to reset
 </div>
-<div class="ui controls">
+<div id="controls" class="drawer-controls">
   <button class="control-btn active" data-mode="magnet">MAGNET</button>
   <button class="control-btn" data-mode="sand">SAND</button>
   <button class="control-btn" data-mode="balls">BALLS</button>
   <button class="control-btn" data-mode="chain">CHAIN</button>
   <button class="control-btn" id="resetBtn">RESET</button>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <script>
 const canvas = document.getElementById('canvas');

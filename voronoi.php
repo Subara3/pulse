@@ -61,14 +61,7 @@ body {
   font-weight: 700;
 }
 
-.controls {
-  bottom: 1.5rem;
-  right: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  align-items: flex-end;
-}
+/* drawer-controls handles positioning */
 
 .btn-row {
   display: flex;
@@ -108,14 +101,10 @@ body {
   line-height: 1.8;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .hud {
     font-size: 0.6rem;
     top: 1rem;
-    right: 1rem;
-  }
-  .controls {
-    bottom: 1rem;
     right: 1rem;
   }
   .info {
@@ -144,7 +133,7 @@ require_once __DIR__ . '/includes/share.php';
   COLOR: <span id="hudPalette">PULSE</span>
 </div>
 
-<div class="ui controls">
+<div id="controls" class="drawer-controls">
   <div class="btn-row">
     <button class="control-btn" id="modeBtn">MODE</button>
     <button class="control-btn" id="autoBtn">AUTO</button>
@@ -154,6 +143,7 @@ require_once __DIR__ . '/includes/share.php';
     <button class="control-btn" id="resetBtn">RESET</button>
   </div>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <script>
 (function() {

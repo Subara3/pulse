@@ -22,23 +22,22 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 .stats { top: 3.5rem; right: 1.5rem; text-align: right; font-family: "JetBrains Mono", monospace; font-size: 0.75rem; color: rgba(255,255,255,0.5); }
 .stats div { margin-bottom: 0.3rem; }
 .stats span { color: #00f5d4; }
-.controls { bottom: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; max-width: 500px; }
+.control-group, .theme-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
 .control-btn { padding: 0.5rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); font-family: "Orbitron", sans-serif; font-size: 0.7rem; cursor: pointer; border-radius: 4px; transition: all 0.3s; }
 .control-btn:hover { background: rgba(0, 245, 212, 0.1); border-color: rgba(0, 245, 212, 0.5); color: #00f5d4; }
 .control-btn.active { background: rgba(0, 245, 212, 0.2); border-color: #00f5d4; color: #00f5d4; }
 .hint { top: 50%; left: 1.5rem; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.7rem; line-height: 1.8; }
 .loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(255,255,255,0.3); font-family: "Orbitron", sans-serif; font-size: 0.9rem; display: none; }
 .loading.show { display: block; }
-.presets { display: flex; flex-direction: column; gap: 0.3rem; position: fixed; top: 50%; right: 1.5rem; transform: translateY(-50%); }
+.preset-group { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 1rem; }
 .preset-btn { padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); font-family: "JetBrains Mono", monospace; font-size: 0.65rem; cursor: pointer; border-radius: 4px; transition: all 0.3s; text-align: left; }
 .preset-btn:hover { background: rgba(0, 245, 212, 0.1); border-color: rgba(0, 245, 212, 0.3); color: #00f5d4; }
 
 @media (max-width: 768px) {
   .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
-  .info { top: 0.5rem; right: 0.5rem; font-size: 0.5rem; }
-  .presets { top: auto; bottom: 4rem; right: 0.5rem; transform: none; flex-direction: row; flex-wrap: wrap; max-width: 200px; }
+  .stats { top: 0.5rem; right: 0.5rem; font-size: 0.5rem; }
+  .preset-group { flex-direction: row; flex-wrap: wrap; }
   .preset-btn { padding: 0.3rem 0.5rem; font-size: 0.5rem; }
-  .controls { bottom: 0.5rem; gap: 0.3rem; }
   .control-btn { padding: 0.35rem 0.6rem; font-size: 0.5rem; }
 }
 ';
@@ -62,23 +61,28 @@ require_once __DIR__ . '/includes/share.php';
   double-click to center
 </div>
 <div class="loading" id="loading">RENDERING...</div>
-<div class="ui controls">
-  <button class="control-btn" id="autoBtn">▶ AUTO</button>
-  <button class="control-btn" id="resetBtn">RESET</button>
-  <button class="control-btn" id="zoomInBtn">ZOOM +</button>
-  <button class="control-btn" id="zoomOutBtn">ZOOM -</button>
-  <button class="control-btn active" data-theme="pulse">PULSE</button>
-  <button class="control-btn" data-theme="ember">EMBER</button>
-  <button class="control-btn" data-theme="deep">DEEP</button>
-  <button class="control-btn" data-theme="mono">MONO</button>
+<div id="controls" class="drawer-controls">
+  <div class="control-group">
+    <button class="control-btn" id="autoBtn">▶ AUTO</button>
+    <button class="control-btn" id="resetBtn">RESET</button>
+    <button class="control-btn" id="zoomInBtn">ZOOM +</button>
+    <button class="control-btn" id="zoomOutBtn">ZOOM -</button>
+  </div>
+  <div class="theme-group">
+    <button class="control-btn active" data-theme="pulse">PULSE</button>
+    <button class="control-btn" data-theme="ember">EMBER</button>
+    <button class="control-btn" data-theme="deep">DEEP</button>
+    <button class="control-btn" data-theme="mono">MONO</button>
+  </div>
+  <div class="preset-group">
+    <button class="preset-btn" data-preset="seahorse">▸ Seahorse Valley</button>
+    <button class="preset-btn" data-preset="spiral">▸ Spiral</button>
+    <button class="preset-btn" data-preset="lightning">▸ Lightning</button>
+    <button class="preset-btn" data-preset="elephant">▸ Elephant Valley</button>
+    <button class="preset-btn" data-preset="doubleSpiral">▸ Double Spiral</button>
+  </div>
 </div>
-<div class="ui presets">
-  <button class="preset-btn" data-preset="seahorse">▸ Seahorse Valley</button>
-  <button class="preset-btn" data-preset="spiral">▸ Spiral</button>
-  <button class="preset-btn" data-preset="lightning">▸ Lightning</button>
-  <button class="preset-btn" data-preset="elephant">▸ Elephant Valley</button>
-  <button class="preset-btn" data-preset="doubleSpiral">▸ Double Spiral</button>
-</div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <script>
 const canvas = document.getElementById('canvas');

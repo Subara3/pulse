@@ -61,14 +61,7 @@ body {
   color: #7b2cbf;
 }
 
-.controls {
-  bottom: 1.5rem;
-  right: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  align-items: flex-end;
-}
+/* drawer-controls handles positioning */
 
 .slider-row {
   display: flex;
@@ -144,13 +137,6 @@ body {
     top: 1rem;
     right: 1rem;
   }
-  .controls {
-    bottom: 1rem;
-    right: 1rem;
-  }
-  .slider-row input[type="range"] {
-    width: 90px;
-  }
   .info {
     bottom: 1rem;
     left: 1rem;
@@ -178,7 +164,7 @@ require_once __DIR__ . '/includes/share.php';
   PERCOLATES: <span id="hudPerc" class="no-percolates">NO</span>
 </div>
 
-<div class="ui controls">
+<div id="controls" class="drawer-controls">
   <div class="slider-row">
     <label>p</label>
     <input type="range" id="probSlider" min="0" max="100" value="50">
@@ -194,6 +180,7 @@ require_once __DIR__ . '/includes/share.php';
     <button class="control-btn" id="resetBtn">RESET</button>
   </div>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <script>
 (function() {

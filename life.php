@@ -21,7 +21,7 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 .stats { top: 3.5rem; right: 1.5rem; text-align: right; font-family: "JetBrains Mono", monospace; font-size: 0.8rem; color: rgba(255,255,255,0.5); }
 .stats div { margin-bottom: 0.3rem; }
 .stats span { color: #00f5d4; }
-.controls { bottom: 1.5rem; right: 1.5rem; display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; max-width: 400px; }
+.control-group { display: flex; gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end; }
 .control-btn { padding: 0.5rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); font-family: "Orbitron", sans-serif; font-size: 0.7rem; cursor: pointer; border-radius: 4px; transition: all 0.3s; }
 .control-btn:hover { background: rgba(0, 245, 212, 0.1); border-color: rgba(0, 245, 212, 0.5); color: #00f5d4; }
 .control-btn.active { background: rgba(0, 245, 212, 0.2); border-color: #00f5d4; color: #00f5d4; }
@@ -29,16 +29,15 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 .speed-control { display: flex; align-items: center; gap: 0.5rem; }
 .speed-slider { width: 80px; height: 4px; -webkit-appearance: none; background: rgba(255,255,255,0.2); border-radius: 2px; outline: none; }
 .speed-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; background: #00f5d4; border-radius: 50%; cursor: pointer; }
-.pattern-menu { position: fixed; top: 50%; right: 1.5rem; transform: translateY(-50%); display: flex; flex-direction: column; gap: 0.3rem; }
+.pattern-group { display: flex; flex-direction: column; gap: 0.3rem; margin-top: 1rem; }
 .pattern-btn { padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.4); font-family: "JetBrains Mono", monospace; font-size: 0.65rem; cursor: pointer; border-radius: 4px; transition: all 0.3s; text-align: left; }
 .pattern-btn:hover { background: rgba(0, 245, 212, 0.1); border-color: rgba(0, 245, 212, 0.3); color: #00f5d4; }
 
 @media (max-width: 768px) {
   .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
   .stats { top: 0.5rem; right: 0.5rem; font-size: 0.5rem; }
-  .pattern-menu { top: auto; bottom: 4rem; right: 0.5rem; transform: none; flex-direction: row; flex-wrap: wrap; max-width: 200px; }
+  .pattern-group { flex-direction: row; flex-wrap: wrap; }
   .pattern-btn { padding: 0.3rem 0.5rem; font-size: 0.5rem; }
-  .controls { bottom: 0.5rem; gap: 0.3rem; }
   .control-btn { padding: 0.35rem 0.6rem; font-size: 0.5rem; }
 }
 ';
@@ -59,24 +58,27 @@ require_once __DIR__ . '/includes/share.php';
   click to toggle cells<br>
   drag to draw
 </div>
-<div class="ui controls">
-  <button class="control-btn active" id="playBtn">▶ PLAY</button>
-  <button class="control-btn" id="stepBtn">STEP</button>
-  <button class="control-btn" id="clearBtn">CLEAR</button>
-  <button class="control-btn" id="randomBtn">RANDOM</button>
-  <div class="speed-control">
-    <span style="color: rgba(255,255,255,0.4); font-size: 0.7rem;">SPEED</span>
-    <input type="range" class="speed-slider" id="speedSlider" min="1" max="10" value="5">
+<div id="controls" class="drawer-controls">
+  <div class="control-group">
+    <button class="control-btn active" id="playBtn">▶ PLAY</button>
+    <button class="control-btn" id="stepBtn">STEP</button>
+    <button class="control-btn" id="clearBtn">CLEAR</button>
+    <button class="control-btn" id="randomBtn">RANDOM</button>
+    <div class="speed-control">
+      <span style="color: rgba(255,255,255,0.4); font-size: 0.7rem;">SPEED</span>
+      <input type="range" class="speed-slider" id="speedSlider" min="1" max="10" value="5">
+    </div>
+  </div>
+  <div class="pattern-group">
+    <button class="pattern-btn" data-pattern="glider">▸ Glider</button>
+    <button class="pattern-btn" data-pattern="lwss">▸ Spaceship</button>
+    <button class="pattern-btn" data-pattern="pulsar">▸ Pulsar</button>
+    <button class="pattern-btn" data-pattern="gosper">▸ Gosper Gun</button>
+    <button class="pattern-btn" data-pattern="rpentomino">▸ R-pentomino</button>
+    <button class="pattern-btn" data-pattern="acorn">▸ Acorn</button>
   </div>
 </div>
-<div class="ui pattern-menu">
-  <button class="pattern-btn" data-pattern="glider">▸ Glider</button>
-  <button class="pattern-btn" data-pattern="lwss">▸ Spaceship</button>
-  <button class="pattern-btn" data-pattern="pulsar">▸ Pulsar</button>
-  <button class="pattern-btn" data-pattern="gosper">▸ Gosper Gun</button>
-  <button class="pattern-btn" data-pattern="rpentomino">▸ R-pentomino</button>
-  <button class="pattern-btn" data-pattern="acorn">▸ Acorn</button>
-</div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <script>
 const canvas = document.getElementById('canvas');

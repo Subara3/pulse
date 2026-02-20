@@ -18,22 +18,20 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 .ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; }
 .title { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.15); font-size: 0.7rem; letter-spacing: 0.2em; }
 .stats { top: 6rem; right: 1.5rem; font-family: "JetBrains Mono", monospace; font-size: 0.7rem; color: rgba(255,255,255,0.4); text-align: right; }
-.controls { bottom: 5rem; left: 1.5rem; display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: flex-start; max-width: 500px; }
+.mode-group, .action-group { display: flex; gap: 0.4rem; flex-wrap: wrap; }
 .control-btn { padding: 0.5rem 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.5); font-family: "Orbitron", sans-serif; font-size: 0.65rem; cursor: pointer; border-radius: 4px; transition: all 0.3s; }
 .control-btn:hover { background: rgba(0, 245, 212, 0.1); border-color: rgba(0, 245, 212, 0.5); color: #00f5d4; }
 .control-btn.active { background: rgba(0, 245, 212, 0.2); border-color: #00f5d4; color: #00f5d4; }
 .hint { top: 1rem; left: 1.5rem; color: rgba(255,255,255,0.3); font-size: 0.65rem; line-height: 1.8; }
-.slider-group { top: 1rem; right: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.6rem; color: rgba(255,255,255,0.4); }
+.slider-group { display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.6rem; color: rgba(255,255,255,0.4); margin-bottom: 1rem; }
 .slider-group label { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
-.slider-group input { width: 80px; }
+.slider-group input { width: 100px; }
 
 @media (max-width: 768px) {
   .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
-  .stats { top: auto; bottom: 3.5rem; right: 1rem; font-size: 0.55rem; }
+  .stats { top: 0.5rem; right: 0.5rem; font-size: 0.55rem; }
   .hint { display: none; }
-  .slider-group { top: 0.5rem; right: 0.5rem; font-size: 0.5rem; }
-  .slider-group input { width: 60px; }
-  .controls { bottom: 0.5rem; left: 0.5rem; max-width: 100%; gap: 0.3rem; }
+  .slider-group { font-size: 0.5rem; }
   .control-btn { padding: 0.35rem 0.5rem; font-size: 0.5rem; }
 }
 ';
@@ -56,20 +54,25 @@ require_once __DIR__ . '/includes/share.php';
   Double-click to add<br>
   Right-click to remove
 </div>
-<div class="ui slider-group">
-  <label>Gravity <input type="range" id="gravitySlider" min="0.1" max="2" step="0.1" value="0.5"></label>
-  <label>Damping <input type="range" id="dampingSlider" min="0.9" max="1" step="0.001" value="0.999"></label>
-  <label>Bob Size <input type="range" id="sizeSlider" min="10" max="40" step="2" value="20"></label>
+<div id="controls" class="drawer-controls">
+  <div class="slider-group">
+    <label>Gravity <input type="range" id="gravitySlider" min="0.1" max="2" step="0.1" value="0.5"></label>
+    <label>Damping <input type="range" id="dampingSlider" min="0.9" max="1" step="0.001" value="0.999"></label>
+    <label>Bob Size <input type="range" id="sizeSlider" min="10" max="40" step="2" value="20"></label>
+  </div>
+  <div class="mode-group">
+    <button class="control-btn active" data-mode="single">SINGLE</button>
+    <button class="control-btn" data-mode="newton">NEWTON</button>
+    <button class="control-btn" data-mode="double">DOUBLE</button>
+    <button class="control-btn" data-mode="wave">WAVE</button>
+  </div>
+  <div class="action-group">
+    <button class="control-btn" id="collisionBtn">COLLISION</button>
+    <button class="control-btn active" id="soundBtn">🔊 SOUND</button>
+    <button class="control-btn" id="resetBtn">RESET</button>
+  </div>
 </div>
-<div class="ui controls">
-  <button class="control-btn active" data-mode="single">SINGLE</button>
-  <button class="control-btn" data-mode="newton">NEWTON</button>
-  <button class="control-btn" data-mode="double">DOUBLE</button>
-  <button class="control-btn" data-mode="wave">WAVE</button>
-  <button class="control-btn" id="collisionBtn">COLLISION</button>
-  <button class="control-btn active" id="soundBtn">🔊 SOUND</button>
-  <button class="control-btn" id="resetBtn">RESET</button>
-</div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <script>
 const canvas = document.getElementById('canvas');

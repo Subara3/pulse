@@ -60,15 +60,10 @@ body {
   max-width: 200px;
 }
 
-.controls {
-  bottom: 1.5rem;
-  right: 1.5rem;
+.button-group {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
-  justify-content: flex-end;
-  max-width: 400px;
-  pointer-events: auto;
 }
 
 .control-btn {
@@ -187,8 +182,8 @@ input[type="range"]::-webkit-slider-thumb {
   cursor: pointer;
 }
 
-@media (max-width: 600px) {
-  .rules { display: none; }
+@media (max-width: 768px) {
+  .desktop-only { display: none !important; }
   .hint { display: none; }
 }
 ';
@@ -213,7 +208,7 @@ require_once __DIR__ . '/includes/share.php';
   Drag to sustain
 </div>
 
-<div class="rules">
+<div class="rules desktop-only">
   <div class="rules-title">BOIDS RULES</div>
   <div class="rule-item">
     <div class="rule-icon sep">←→</div>
@@ -227,7 +222,9 @@ require_once __DIR__ . '/includes/share.php';
     <div class="rule-icon coh">⊙</div>
     <div>Cohesion</div>
   </div>
+</div>
 
+<div id="controls" class="drawer-controls">
   <div class="slider-group">
     <div class="slider-row">
       <span class="slider-label">Count</span>
@@ -240,14 +237,14 @@ require_once __DIR__ . '/includes/share.php';
       <span class="slider-value" id="speedValue">4</span>
     </div>
   </div>
+  <div class="button-group">
+    <button class="control-btn active" data-mode="attract">ATTRACT</button>
+    <button class="control-btn" data-mode="repel">REPEL</button>
+    <button class="control-btn" data-mode="none">OBSERVE</button>
+    <button class="control-btn" id="resetBtn">RESET</button>
+  </div>
 </div>
-
-<div class="ui controls">
-  <button class="control-btn active" data-mode="attract">ATTRACT</button>
-  <button class="control-btn" data-mode="repel">REPEL</button>
-  <button class="control-btn" data-mode="none">OBSERVE</button>
-  <button class="control-btn" id="resetBtn">RESET</button>
-</div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <script>
 const canvas = document.getElementById('canvas');

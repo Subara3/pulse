@@ -75,14 +75,7 @@ body {
   color: rgba(255,255,255,0.4);
 }
 
-.controls {
-  bottom: 1.5rem;
-  right: 1.5rem;
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
+/* drawer-controls handles positioning */
 
 .control-btn {
   padding: 0.5rem 1rem;
@@ -114,7 +107,6 @@ body {
   .info { top: 0.5rem; right: 0.5rem; }
   .algorithm-name { font-size: 0.75rem; }
   .stats { font-size: 0.6rem; }
-  .controls { bottom: 0.5rem; right: 0.5rem; gap: 0.3rem; }
   .control-btn { padding: 0.35rem 0.6rem; font-size: 0.5rem; }
 }
 ';
@@ -136,13 +128,14 @@ require_once __DIR__ . '/includes/share.php';
   </div>
 </div>
 
-<div class="ui controls">
+<div id="controls" class="drawer-controls">
   <button class="control-btn active" data-algo="bubble">BUBBLE</button>
   <button class="control-btn" data-algo="selection">SELECTION</button>
   <button class="control-btn" data-algo="insertion">INSERTION</button>
   <button class="control-btn" data-algo="quick">QUICK</button>
   <button class="control-btn" id="shuffleBtn">SHUFFLE</button>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <script>
 const canvas = document.getElementById('canvas');
