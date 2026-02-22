@@ -516,6 +516,18 @@
     "added": "2026-02-22"
   },
   {
+    "page": "cloth",
+    "title": "CLOTH",
+    "desc": "布のシミュレーション。掴んで、引っ張って、引き裂く。",
+    "desc_en": "Cloth simulation. Grab, pull, and tear.",
+    "icon": "fa-scroll",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "インタラクティブ",
+    "meta_en": "Interactive",
+    "added": "2026-02-23"
+  },
+  {
     "page": "contents",
     "title": "CONTENTS",
     "desc": "コンテンツ一覧。",
