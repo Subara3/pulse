@@ -93,6 +93,8 @@ require_once __DIR__ . '/includes/share.php';
   let autoDir = 1;
   let autoSpeed = 0.00001;
   let percolates = false;
+  let prevPercolates = false;
+  let prevCriticalSide = 0; // -1: below, 1: above
   let hideUI = false;
   let needsCompute = true;
   let frameCount = 0;
@@ -269,6 +271,19 @@ require_once __DIR__ . '/includes/share.php';
   function compute() {
     const filled = generateGrid();
     const clusterCount = findClusters();
+
+    // 状態変化時のサウンド
+    if (percolates !== prevPercolates) {
+      SFX.play(percolates ? 'spawn' : 'toggle', 45);
+      prevPercolates = percolates;
+    }
+
+    const side = probability >= CRITICAL_P ? 1 : -1;
+    if (prevCriticalSide !== 0 && side !== prevCriticalSide) {
+      SFX.play('tick', 40);
+    }
+    prevCriticalSide = side;
+
     render();
     updateHud(filled, clusterCount);
     needsCompute = false;
