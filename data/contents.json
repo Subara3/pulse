@@ -540,6 +540,18 @@
     "added": "2026-01-29"
   },
   {
+    "page": "mycelium",
+    "title": "MYCELIUM",
+    "desc": "粘菌アルゴリズム。粒子が化学の匂いを追い、ゆっくり菌糸ネットワークを育てる。",
+    "desc_en": "Physarum algorithm. Particles follow chemical trails and slowly grow a mycelial network.",
+    "icon": "fa-seedling",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "インタラクティブ",
+    "meta_en": "Interactive",
+    "added": "2026-02-24"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
