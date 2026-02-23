@@ -134,8 +134,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
         var p = {
           x: px, y: py,
           ox: px, oy: py,
-          pinned: true,
-          realPinned: y === 0 && x % 3 === 0,
+          pinned: y === 0,
           u: x / COLS,
           v: y / ROWS
         };
@@ -312,18 +311,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
     return { x: (clientX - r.left) * (W / r.width), y: (clientY - r.top) * (H / r.height) };
   }
 
-    var clothReleased = false;
-  function releaseCloth() {
-    if (clothReleased) return;
-    clothReleased = true;
-    for (var i = 0; i < points.length; i++) {
-      points[i].pinned = points[i].realPinned;
-    }
-  }
-
   // Mouse events
   canvas.addEventListener('mousedown', function(e) {
-    releaseCloth();
     var p = getPos(e);
     mouse.x = mouse.px = p.x;
     mouse.y = mouse.py = p.y;
@@ -353,7 +342,6 @@ require_once __DIR__ . '/includes/floating-nav.php';
   // Touch events
   var longPressTimer = null;
   canvas.addEventListener('touchstart', function(e) {
-    releaseCloth();
     e.preventDefault();
     var p = getPos(e);
     mouse.x = mouse.px = p.x;
@@ -410,13 +398,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
   });
 
   resetBtn.addEventListener('click', function() {
-    clothReleased = false;
     init();
     if (typeof SFX !== 'undefined') SFX.play('click');
   });
 
   window.addEventListener('resize', function() {
-    clothReleased = false;
     init();
   });
 
