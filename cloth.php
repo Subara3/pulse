@@ -46,7 +46,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <div id="controls" class="drawer-controls">
   <div class="slider-wrap">
     <label>GRAVITY</label>
-    <input type="range" id="gravSlider" min="1" max="20" value="8">
+    <input type="range" id="gravSlider" min="1" max="20" value="4">
   </div>
   <div class="slider-wrap">
     <label>STIFFNESS</label>
@@ -83,6 +83,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var mouse = { x: 0, y: 0, px: 0, py: 0, down: false, right: false };
   var TEAR_DIST = 0;
   var INFLUENCE = 0;
+  var simStarted = false;
 
   var PALETTES = [
     // teal gradient
@@ -109,6 +110,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   ];
 
   function init() {
+    simStarted = false;
     W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight;
 
@@ -118,8 +120,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var clothH = Math.min(H * 0.5, isMobile ? 250 : 400);
     COLS = Math.floor(clothW / SPACING);
     ROWS = Math.floor(clothH / SPACING);
-    TEAR_DIST = SPACING * 2.2;
-    INFLUENCE = isMobile ? 50 : 35;
+    TEAR_DIST = SPACING * 3.6;
+    INFLUENCE = isMobile ? 36 : 26;
 
     var startX = (W - COLS * SPACING) / 2;
     var startY = H * 0.12;
@@ -151,7 +153,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   function simulate() {
-    var gravity = parseFloat(gravSlider.value) * 0.05;
+    var gravity = simStarted ? (parseFloat(gravSlider.value) * 0.03) : 0;
     var iterations = Math.max(2, Math.round(parseFloat(stiffSlider.value) * 0.8));
 
     // wind
@@ -164,8 +166,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var p = points[i];
       if (p.pinned) continue;
 
-      var vx = (p.x - p.ox) * 0.99;
-      var vy = (p.y - p.oy) * 0.99;
+      var vx = (p.x - p.ox) * 0.985;
+      var vy = (p.y - p.oy) * 0.985;
 
       p.ox = p.x;
       p.oy = p.y;
@@ -313,6 +315,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   // Mouse events
   canvas.addEventListener('mousedown', function(e) {
+    simStarted = true;
     var p = getPos(e);
     mouse.x = mouse.px = p.x;
     mouse.y = mouse.py = p.y;
@@ -342,6 +345,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   // Touch events
   var longPressTimer = null;
   canvas.addEventListener('touchstart', function(e) {
+    simStarted = true;
     e.preventDefault();
     var p = getPos(e);
     mouse.x = mouse.px = p.x;
