@@ -552,6 +552,30 @@
     "added": "2026-02-24"
   },
   {
+    "page": "caustics",
+    "title": "CAUSTICS",
+    "desc": "光学カオス。水面のうねりが光を曲げ、ゆっくり揺れるカースティクスを描く。",
+    "desc_en": "Optical chaos. Surface ripples bend light and paint slowly drifting caustics.",
+    "icon": "fa-sun",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "インタラクティブ",
+    "meta_en": "Interactive",
+    "added": "2026-02-25"
+  },
+  {
+    "page": "chladni",
+    "title": "CHLADNI",
+    "desc": "クラドニ図形。振動モードが作る節線に粒子が集まり、音とともに砂紋がゆっくり現れる。",
+    "desc_en": "Chladni patterns. Particles gather on nodal lines formed by vibration modes, with gentle sound.",
+    "icon": "fa-wave-square",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "インタラクティブ",
+    "meta_en": "Interactive",
+    "added": "2026-02-26"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
