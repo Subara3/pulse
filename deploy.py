@@ -36,7 +36,10 @@ def main():
     print("\n=== 1/3 git pull ===")
     run(f"git pull origin {branch}")
 
-    print("\n=== 2/3 git add + commit ===")
+    print("\n=== 2/4 integrity check ===")
+    run("python3 scripts/validate_content_integrity.py")
+
+    print("\n=== 3/4 git add + commit ===")
     run("git add -A")
     result = run("git diff --cached --quiet", check=False)
     if result.returncode == 0:
@@ -45,7 +48,7 @@ def main():
 
     run(f'git commit -m "{msg}"')
 
-    print("\n=== 3/3 git push ===")
+    print("\n=== 4/4 git push ===")
     run(f"git push origin {branch}")
 
     print("\n✅ デプロイ完了！")
