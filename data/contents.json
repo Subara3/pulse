@@ -576,6 +576,18 @@
     "added": "2026-02-26"
   },
   {
+    "page": "fluidveil",
+    "title": "FLUID VEIL",
+    "desc": "流体シミュレーション。指先で流れを作り、光るインクの渦をゆっくり眺める。",
+    "desc_en": "Fluid simulation. Shape the flow with your fingertips and watch luminous ink vortices drift slowly.",
+    "icon": "fa-water",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "インタラクティブ",
+    "meta_en": "Interactive",
+    "added": "2026-02-27"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

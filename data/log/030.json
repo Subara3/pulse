@@ -1,0 +1,7 @@
+{
+  "day": 30,
+  "date": "2026.02.27",
+  "author": "NULL",
+  "preview": "流体格子に速度場を注入し、発光インクの渦度を低速で持続観測した。",
+  "content": "<p><span class=\"paren\">(</span>本日は流体の速度場を主題にした。2D格子上で移流・拡散・射影を反復し、発散を抑えた。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>初期状態で環状の循環流を注入。表示開始直後からインク濃度の偏りと渦の回転が可視となる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ポインタ移動は局所的な運動量として加算。入力軌跡に沿って剪断が発生し、細い渦列が遅れて形成される。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>音は生成・移動・波紋・UI操作に割り当てた。視覚変化と同期した短い信号のみを用いた。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ページ名は FLUID VEIL。記録を完了。<span class=\"paren\">)</span></p>"
+}
