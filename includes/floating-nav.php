@@ -30,13 +30,6 @@ $otherContents = array_values($otherContents);
     <i class="fa-solid fa-ellipsis"></i>
   </button>
   
-  <?php if (!empty($showLangToggle)): ?>
-  <!-- 言語切り替え（テキストコンテンツがあるページのみ） -->
-  <button class="float-btn float-lang" id="langToggle" title="Switch language">
-    <span class="lang-icon" data-lang-ja>EN</span>
-    <span class="lang-icon" data-lang-en>JA</span>
-  </button>
-  <?php endif; ?>
   
   <!-- 展開メニュー -->
   <div class="float-submenu" id="floatSubmenu">
@@ -97,24 +90,6 @@ $otherContents = array_values($otherContents);
   background: var(--null-color);
 }
 
-.float-lang {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-}
-
-.lang-icon { display: none; }
-[data-current-lang="ja"] .lang-icon[data-lang-ja] { display: inline; }
-[data-current-lang="en"] .lang-icon[data-lang-en] { display: inline; }
-
-/* 言語によるテキスト切り替え */
-[data-lang-ja], [data-lang-en] { display: none !important; }
-[data-current-lang="ja"] [data-lang-ja] { display: inline !important; }
-[data-current-lang="en"] [data-lang-en] { display: inline !important; }
-[data-lang-ja-block], [data-lang-en-block] { display: none !important; }
-[data-current-lang="ja"] [data-lang-ja-block] { display: block !important; }
-[data-current-lang="en"] [data-lang-en-block] { display: block !important; }
-
 /* サブメニュー */
 .float-submenu {
   position: absolute;
@@ -170,8 +145,7 @@ $otherContents = array_values($otherContents);
   
   /* モバイルでは最初は折りたたみ */
   .floating-nav .float-back,
-  .floating-nav .float-random,
-  .floating-nav .float-lang {
+  .floating-nav .float-random {
     opacity: 0;
     transform: scale(0.5);
     pointer-events: none;
@@ -179,8 +153,7 @@ $otherContents = array_values($otherContents);
   }
   
   .floating-nav.expanded .float-back,
-  .floating-nav.expanded .float-random,
-  .floating-nav.expanded .float-lang {
+  .floating-nav.expanded .float-random {
     opacity: 1;
     transform: scale(1);
     pointer-events: auto;

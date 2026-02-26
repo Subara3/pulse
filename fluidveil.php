@@ -5,7 +5,7 @@ recordPageView('fluidveil');
 
 $pageName = 'fluidveil';
 $pageTitle = 'FLUID VEIL - PULSE';
-$pageDesc = '流体シミュレーション。指先で流れを作り、光るインクの渦をゆっくり眺める。';
+$pageDesc = 'Fluid simulation. Shape the flow and watch luminous ink vortices drift slowly.';
 $pageCanonical = 'https://pulse.subara3.com/fluidveil.php';
 $extraStyle = '
 #canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; touch-action: none; }
@@ -46,8 +46,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
 </div>
 <div class="info">
   <p>
-    粒子は速度場の流線に沿って移動し、濃淡が尾を残す。<br>
-    ドラッグで渦を注入。放置すると粘性でほどけ、ゆっくり静まる。
+    Particles follow streamlines and leave fading tails.<br>
+    Drag to inject vortices. Leave it still and viscosity slowly calms the flow.
   </p>
 </div>
 <script>

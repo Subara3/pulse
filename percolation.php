@@ -7,7 +7,7 @@ recordPageView('percolation');
 
 $pageName = 'percolation';
 $pageTitle = 'PERCOLATION - PULSE';
-$pageDesc = 'パーコレーション。確率的にセルを埋め、連結クラスタを可視化。臨界確率p≈0.593で相転移が起こる。';
+$pageDesc = 'Percolation. Fill cells probabilistically and visualize connected clusters near p≈0.593.';
 $pageCanonical = 'https://pulse.subara3.com/percolation.php';
 
 $extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">';

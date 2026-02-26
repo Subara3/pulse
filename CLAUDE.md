@@ -72,6 +72,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
 <!-- UI要素（position: fixed） -->
+<?php
+$interactionHints = [
+  ['type' => 'click', 'label' => 'spawn'],
+  ['type' => 'drag', 'label' => 'force'],
+  ['type' => 'right', 'label' => 'erase'],
+];
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
 <script>
 (function() {
   // Canvas初期化、リサイズ処理、メインループ、イベント処理
@@ -145,6 +153,9 @@ git push origin main
 - **Canvas 2D**: WebGLや外部ライブラリは使わない
 - **モバイル対応**: タッチイベント対応、レスポンシブUI
 - **共通UI**: HUD（右上）、コントロール（右下）、情報（左下）
+- **言語方針**: UI文言は英語を標準とし、日本語説明文をページ内に追加しない
+- **操作説明方針**: 言語スイッチャーは新規実装しない。click / drag / right-click などの短いパラメータ表示で操作を伝える
+- **インタラクション凡例**: 右上に短いチップ表示を置く（例: CLICK: SPAWN / DRAG: FORCE / RIGHT: ERASE）
 - **配色統一**: 下記「配色ルール」に従うこと
 - **初期状態で何か見える**: ページロード直後に何も表示されない状態は禁止。初期オブジェクトを配置するか、自動生成を開始すること
 - **動きの速度**: 「ゆっくり」でも変化が見える程度に。完全に静止して見えるのはNG
@@ -245,6 +256,8 @@ P.bright(c, f) // 明るくする
 
 - `index.php` を直接編集する（動的生成を壊す）
 - `sed` で日本語ファイルを編集する（文字化けする）
+- 新規ページで日本語UI説明や日英併記を増やす（可読性が落ちる）
+- 言語スイッチャーを追加する（運用複雑化）
 - PHP構文エラーを含むコードをプッシュする（サイト全体が500になる）
 - 既存コンテンツと概念が被るものを作る
 - 外部API依存のコンテンツを増やす（ISS以外）

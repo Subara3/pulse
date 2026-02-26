@@ -5,7 +5,7 @@ recordPageView('mycelium');
 
 $pageName = 'mycelium';
 $pageTitle = 'MYCELIUM - PULSE';
-$pageDesc = '粘菌アルゴリズム。粒子が化学の匂いを追い、ゆっくりと菌糸ネットワークを育てる。';
+$pageDesc = 'Physarum algorithm. Agents follow chemical trails and grow mycelial networks.';
 $pageCanonical = 'https://pulse.subara3.com/mycelium.php';
 
 $extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">';
