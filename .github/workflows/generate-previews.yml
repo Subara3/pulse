@@ -1,0 +1,50 @@
+name: Generate Preview Videos
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+
+      - name: Install Playwright
+        run: |
+          npm init -y
+          npm install playwright
+          npx playwright install --with-deps chromium
+
+      - name: Generate previews
+        run: |
+          php -S 127.0.0.1:8787 >/tmp/pulse_preview_server.log 2>&1 &
+          node scripts/generate_previews.js
+
+      - name: Commit updated previews
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add img/previews
+          if git diff --cached --quiet; then
+            echo "No preview changes"
+            exit 0
+          fi
+          git commit -m "chore: regenerate preview videos"
+          git push origin main
