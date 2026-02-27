@@ -136,6 +136,16 @@ if (isset($pageName) && !in_array($pageName, ['index', 'about', 'contents'])) {
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 <?php if (isset($extraHead)) echo $extraHead; ?>
 
+<?php if ($isPreview): ?>
+<style>
+/* Embedded live-preview mode */
+.floating-nav, nav, header, footer, .info, .hud, .controls, .content-controls, .drawer-controls,
+#controls, .ui, .ad-section, .ad-container, .share-buttons, .feedback-section {
+  display: none !important;
+}
+body { overflow: hidden !important; }
+</style>
+<?php endif; ?>
 
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }

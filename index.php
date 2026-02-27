@@ -263,8 +263,12 @@ $extraStyle = '
 
 .new-content-desc {
   color: var(--text-secondary);
-  font-size: 0.8rem;
-  line-height: 1.5;
+  font-size: 0.78rem;
+  line-height: 1.45;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 @media (max-width: 680px) {

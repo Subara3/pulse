@@ -102,11 +102,20 @@ h1 {
   justify-content: center;
   color: rgba(255,255,255,0.45);
 }
-.content-preview video {
+.content-preview video,
+.content-preview iframe {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  border: 0;
+}
+.content-preview iframe {
+  transform: scale(0.58);
+  transform-origin: top left;
+  width: 172%;
+  height: 172%;
+  pointer-events: none;
 }
 .content-preview i { font-size: 1.1rem; }
 .content-icon {
@@ -117,17 +126,26 @@ h1 {
   opacity: 0.8;
 }
 
+.content-info { min-width: 0; }
+
 .content-info h3 {
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.05rem;
+  margin-bottom: 0.45rem;
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .content-info p {
   color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.6;
+  font-size: 0.88rem;
+  line-height: 1.55;
   margin-bottom: 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .content-meta {
@@ -190,7 +208,7 @@ require_once __DIR__ . '/includes/nav.php';
                 <source src="<?php echo $previewPath; ?>" type="video/mp4">
               </video>
             <?php else: ?>
-              <i class="fa-solid <?php echo $content['icon']; ?>"></i>
+              <iframe src="<?php echo $content['page']; ?>.php?preview=1" loading="lazy" title="<?php echo htmlspecialchars($content['title'], ENT_QUOTES, 'UTF-8'); ?> live preview"></iframe>
             <?php endif; ?>
           </div>
           <div class="content-icon"><i class="fa-solid <?php echo $content['icon']; ?>"></i></div>
