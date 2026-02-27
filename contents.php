@@ -75,8 +75,8 @@ h1 {
   padding: 1.5rem;
   margin-bottom: 1rem;
   display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 1.5rem;
+  grid-template-columns: 176px auto 1fr auto;
+  gap: 1rem;
   align-items: start;
   transition: all 0.3s;
   text-decoration: none;
@@ -89,6 +89,26 @@ h1 {
   transform: translateX(5px);
 }
 
+
+.content-preview {
+  width: 176px;
+  height: 99px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: linear-gradient(135deg, rgba(0,245,212,0.08), rgba(123,44,191,0.14));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.45);
+}
+.content-preview video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.content-preview i { font-size: 1.1rem; }
 .content-icon {
   font-size: 1.5rem;
   width: 50px;
@@ -130,9 +150,13 @@ h1 {
   align-self: center;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 900px) {
   .content-card {
-    grid-template-columns: auto 1fr;
+    grid-template-columns: 1fr;
+  }
+  .content-preview {
+    width: 100%;
+    height: 160px;
   }
   .content-arrow { display: none; }
 }
@@ -158,7 +182,17 @@ require_once __DIR__ . '/includes/nav.php';
       
       <?php foreach ($groupedContents[$category] as $content): ?>
         <?php if ($content['page'] === 'contents') continue; // 自分自身はスキップ ?>
+        <?php $previewPath = 'img/previews/' . $content['page'] . '.mp4'; ?>
         <a href="<?php echo $content['page']; ?>.php" class="content-card">
+          <div class="content-preview">
+            <?php if (file_exists(__DIR__ . '/' . $previewPath)): ?>
+              <video autoplay muted loop playsinline preload="metadata" aria-label="<?php echo htmlspecialchars($content['title'], ENT_QUOTES, 'UTF-8'); ?> preview">
+                <source src="<?php echo $previewPath; ?>" type="video/mp4">
+              </video>
+            <?php else: ?>
+              <i class="fa-solid <?php echo $content['icon']; ?>"></i>
+            <?php endif; ?>
+          </div>
           <div class="content-icon"><i class="fa-solid <?php echo $content['icon']; ?>"></i></div>
           <div class="content-info">
             <h3><?php echo $content['title']; ?></h3>

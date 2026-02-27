@@ -5,7 +5,7 @@ recordPageView('fluidveil');
 
 $pageName = 'fluidveil';
 $pageTitle = 'FLUID VEIL - PULSE';
-$pageDesc = 'Fluid simulation. Shape the flow and watch luminous ink vortices drift slowly.';
+$pageDesc = '流体シミュレーション。指先で流れを作り、光るインクの渦をゆっくり眺める。';
 $pageCanonical = 'https://pulse.subara3.com/fluidveil.php';
 $extraStyle = '
 #canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; touch-action: none; }

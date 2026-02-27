@@ -5,7 +5,7 @@ recordPageView('caustics');
 
 $pageName = 'caustics';
 $pageTitle = 'CAUSTICS - PULSE';
-$pageDesc = 'Optical chaos. Surface ripples bend light into slowly drifting caustics.';
+$pageDesc = '光学カオス。水面のうねりが光を曲げ、ゆっくり揺れるカースティクスを描く。';
 $pageCanonical = 'https://pulse.subara3.com/caustics.php';
 
 $extraStyle = '

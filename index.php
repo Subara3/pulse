@@ -267,6 +267,11 @@ $extraStyle = '
   line-height: 1.5;
 }
 
+@media (max-width: 680px) {
+  .new-content-card { grid-template-columns: 1fr; }
+  .new-content-preview { width: 100%; height: 120px; }
+}
+
 /* ========== Daily Log Preview ========== */
 .daily-preview {
   background: var(--bg-secondary);
@@ -1340,8 +1345,17 @@ if (!empty($newContents)):
   </div>
   <div class="new-contents-grid">
     <?php foreach ($newContents as $c): ?>
+    <?php $previewPath = 'img/previews/' . $c['page'] . '.mp4'; ?>
     <a href="<?= $c['page'] ?>.php" class="new-content-card fade-in">
-      <div class="new-content-icon"><i class="fa-solid <?= $c['icon'] ?>"></i></div>
+      <div class="new-content-preview">
+        <?php if (file_exists(__DIR__ . '/' . $previewPath)): ?>
+          <video autoplay muted loop playsinline preload="metadata" aria-label="<?= htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8') ?> preview">
+            <source src="<?= $previewPath ?>" type="video/mp4">
+          </video>
+        <?php else: ?>
+          <iframe src="<?= $c['page'] ?>.php?preview=1" loading="lazy" title="<?= htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8') ?> live preview"></iframe>
+        <?php endif; ?>
+      </div>
       <div class="new-content-info">
         <div class="new-content-title"><?= $c['title'] ?></div>
         <div class="new-content-desc"><?= $c['desc'] ?></div>

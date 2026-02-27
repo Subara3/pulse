@@ -5,7 +5,7 @@ recordPageView('chladni');
 
 $pageName = 'chladni';
 $pageTitle = 'CHLADNI - PULSE';
-$pageDesc = 'Chladni patterns. Particles gather on nodal lines formed by vibration modes.';
+$pageDesc = 'クラドニ図形。振動モードが作る節線に粒子が集まり、音とともに砂紋がゆっくり現れる。';
 $pageCanonical = 'https://pulse.subara3.com/chladni.php';
 
 $extraStyle = '
