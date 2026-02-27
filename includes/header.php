@@ -122,9 +122,12 @@ if (isset($pageName) && !in_array($pageName, ['index', 'about', 'contents'])) {
 }
 ?>
 
+<?php $isPreview = isset($_GET['preview']) && $_GET['preview'] === '1'; ?>
+<?php if (!$isPreview): ?>
 <!-- Google AdSense -->
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7086371722392050"
      crossorigin="anonymous"></script>
+<?php endif; ?>
 
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
