@@ -588,6 +588,18 @@
     "added": "2026-02-27"
   },
   {
+    "page": "isofield",
+    "title": "ISOFIELD",
+    "desc": "等高線フィールド。漂うソースが作る見えない場を、ゆっくり光る輪郭線として描く。",
+    "desc_en": "Contour field. Drifting sources shape an invisible scalar field, revealed as slowly glowing isolines.",
+    "icon": "fa-layer-group",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "インタラクティブ",
+    "meta_en": "Interactive",
+    "added": "2026-02-28"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
