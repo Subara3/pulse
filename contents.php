@@ -208,7 +208,7 @@ require_once __DIR__ . '/includes/nav.php';
                 <source src="<?php echo $previewPath; ?>" type="video/mp4">
               </video>
             <?php else: ?>
-              <iframe src="<?php echo $content['page']; ?>.php?preview=1" loading="lazy" title="<?php echo htmlspecialchars($content['title'], ENT_QUOTES, 'UTF-8'); ?> live preview"></iframe>
+              <i class="fa-solid <?php echo $content['icon']; ?>"></i>
             <?php endif; ?>
           </div>
           <div class="content-icon"><i class="fa-solid <?php echo $content['icon']; ?>"></i></div>

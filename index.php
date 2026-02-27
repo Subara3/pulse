@@ -1357,7 +1357,7 @@ if (!empty($newContents)):
             <source src="<?= $previewPath ?>" type="video/mp4">
           </video>
         <?php else: ?>
-          <iframe src="<?= $c['page'] ?>.php?preview=1" loading="lazy" title="<?= htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8') ?> live preview"></iframe>
+          <i class="fa-solid <?= $c['icon'] ?>"></i>
         <?php endif; ?>
       </div>
       <div class="new-content-info">
