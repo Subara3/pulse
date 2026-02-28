@@ -31,7 +31,9 @@ const INTERACTION_PRESETS = {
     { kind: 'click', x: 600, y: 320 },
   ],
   sand: [
-    { kind: 'drag', from: [360, 220], to: [620, 340], steps: 20 },
+    { kind: 'click', x: 480, y: 270 },
+    { kind: 'drag', from: [300, 180], to: [660, 360], steps: 26 },
+    { kind: 'drag', from: [660, 180], to: [300, 360], steps: 26 },
   ],
   physics: [
     { kind: 'click', x: 480, y: 270 },
@@ -42,6 +44,21 @@ const INTERACTION_PRESETS = {
   ],
   cloth: [
     { kind: 'drag', from: [480, 180], to: [580, 300], steps: 20 },
+  ],
+  sort: [
+    { kind: 'click', x: 520, y: 500 },
+  ],
+  evolution: [
+    { kind: 'click', x: 520, y: 500 },
+    { kind: 'click', x: 420, y: 500 },
+  ],
+  string: [
+    { kind: 'click', x: 520, y: 500 },
+    { kind: 'drag', from: [400, 250], to: [620, 260], steps: 18 },
+  ],
+  lissajous: [
+    { kind: 'drag', from: [350, 300], to: [610, 220], steps: 20 },
+    { kind: 'drag', from: [610, 220], to: [350, 300], steps: 20 },
   ],
 };
 
