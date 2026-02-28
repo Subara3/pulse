@@ -263,6 +263,19 @@ function reset() {
       chains.push(link);
       prev = link;
     }
+    return;
+  }
+
+  // 初期状態で必ず動きが見えるようにする
+  if (mode === 'magnet' || mode === 'sand') {
+    addParticles(centerX, centerY, 220);
+  } else if (mode === 'balls') {
+    for (let i = 0; i < 8; i++) {
+      balls.push(new Ball(
+        centerX + (Math.random() - 0.5) * 220,
+        centerY + (Math.random() - 0.5) * 120
+      ));
+    }
   }
 }
 

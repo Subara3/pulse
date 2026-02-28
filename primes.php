@@ -186,9 +186,9 @@ require_once __DIR__ . '/includes/share.php';
 
 <div class="controls">
   <button class="btn active" id="playBtn" onclick="togglePlay()">PAUSE</button>
-  <button class="btn" onclick="setSpeed('slow')">SLOW</button>
-  <button class="btn active" onclick="setSpeed('normal')">NORMAL</button>
-  <button class="btn" onclick="setSpeed('fast')">FAST</button>
+  <button class="btn" onclick="setSpeed('slow', this)">SLOW</button>
+  <button class="btn active" onclick="setSpeed('normal', this)">NORMAL</button>
+  <button class="btn" onclick="setSpeed('fast', this)">FAST</button>
 </div>
 
 <a href="index.php" class="back-link"><i class="fa-solid fa-arrow-left"></i></a>
@@ -240,7 +240,9 @@ function addPrime(n) {
   document.getElementById('count').textContent = count;
   document.getElementById('current').textContent = n.toLocaleString();
   
-  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  // 全体スクロールのsmooth連打は端末によって詰まりやすい
+  // 最新追加を軽量に追従
+  window.scrollTo(0, document.body.scrollHeight);
 }
 
 function findNext() {
@@ -264,13 +266,13 @@ function togglePlay() {
   if (isRunning) findNext();
 }
 
-function setSpeed(s) {
+function setSpeed(s, el) {
   document.querySelectorAll('.btn').forEach(b => {
     if (['SLOW', 'NORMAL', 'FAST'].includes(b.textContent)) {
       b.classList.remove('active');
     }
   });
-  event.target.classList.add('active');
+  if (el) el.classList.add('active');
   
   switch(s) {
     case 'slow': speed = 500; break;
