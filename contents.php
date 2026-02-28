@@ -200,11 +200,13 @@ require_once __DIR__ . '/includes/nav.php';
         <?php if ($content['page'] === 'contents') continue; // 自分自身はスキップ ?>
         <?php $previewPath = 'img/previews/' . $content['page'] . '.mp4'; ?>
         <?php $posterPath = 'img/previews/' . $content['page'] . '.jpg'; ?>
-        <a href="<?php echo $content['page']; ?>.php" class="content-card js-preview-card">
+        <?php $previewVer = file_exists(__DIR__ . '/' . $previewPath) ? filemtime(__DIR__ . '/' . $previewPath) : time(); ?>
+        <?php $posterVer = file_exists(__DIR__ . '/' . $posterPath) ? filemtime(__DIR__ . '/' . $posterPath) : $previewVer; ?>
+        <a href="<?php echo $content['page']; ?>.php" class="content-card">
           <div class="content-preview">
             <?php if (file_exists(__DIR__ . '/' . $previewPath)): ?>
-              <video class="js-preview-video" muted playsinline preload="none"<?php if (file_exists(__DIR__ . '/' . $posterPath)): ?> poster="<?php echo $posterPath; ?>"<?php endif; ?> aria-label="<?php echo htmlspecialchars($content['title'], ENT_QUOTES, 'UTF-8'); ?> preview">
-                <source src="<?php echo $previewPath; ?>" type="video/mp4">
+              <video autoplay muted loop playsinline preload="metadata"<?php if (file_exists(__DIR__ . '/' . $posterPath)): ?> poster="<?php echo $posterPath; ?>?v=<?php echo $posterVer; ?>"<?php endif; ?> aria-label="<?php echo htmlspecialchars($content['title'], ENT_QUOTES, 'UTF-8'); ?> preview">
+                <source src="<?php echo $previewPath; ?>?v=<?php echo $previewVer; ?>" type="video/mp4">
               </video>
             <?php else: ?>
               <i class="fa-solid <?php echo $content['icon']; ?>"></i>
@@ -228,32 +230,6 @@ require_once __DIR__ . '/includes/nav.php';
   <?php endforeach; ?>
 
 </main>
-
-<script>
-(function() {
-  const cards = document.querySelectorAll('.js-preview-card');
-  cards.forEach((card) => {
-    const video = card.querySelector('.js-preview-video');
-    if (!video) return;
-
-    const playFromStart = () => {
-      try { video.currentTime = 0; } catch (e) {}
-      const p = video.play();
-      if (p && typeof p.catch === 'function') p.catch(() => {});
-    };
-
-    const stop = () => {
-      video.pause();
-      try { video.currentTime = 0; } catch (e) {}
-    };
-
-    card.addEventListener('mouseenter', playFromStart);
-    card.addEventListener('focusin', playFromStart);
-    card.addEventListener('mouseleave', stop);
-    card.addEventListener('focusout', stop);
-  });
-})();
-</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 

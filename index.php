@@ -1372,11 +1372,13 @@ if (!empty($newContents)):
     <?php foreach ($newContents as $c): ?>
     <?php $previewPath = 'img/previews/' . $c['page'] . '.mp4'; ?>
     <?php $posterPath = 'img/previews/' . $c['page'] . '.jpg'; ?>
-    <a href="<?= $c['page'] ?>.php" class="new-content-card fade-in js-preview-card">
+    <?php $previewVer = file_exists(__DIR__ . '/' . $previewPath) ? filemtime(__DIR__ . '/' . $previewPath) : time(); ?>
+    <?php $posterVer = file_exists(__DIR__ . '/' . $posterPath) ? filemtime(__DIR__ . '/' . $posterPath) : $previewVer; ?>
+    <a href="<?= $c['page'] ?>.php" class="new-content-card fade-in">
       <div class="new-content-preview">
         <?php if (file_exists(__DIR__ . '/' . $previewPath)): ?>
-          <video class="js-preview-video" muted playsinline preload="none"<?php if (file_exists(__DIR__ . '/' . $posterPath)): ?> poster="<?= $posterPath ?>"<?php endif; ?> aria-label="<?= htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8') ?> preview">
-            <source src="<?= $previewPath ?>" type="video/mp4">
+          <video autoplay muted loop playsinline preload="metadata"<?php if (file_exists(__DIR__ . '/' . $posterPath)): ?> poster="<?= $posterPath ?>?v=<?= $posterVer ?>"<?php endif; ?> aria-label="<?= htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8') ?> preview">
+            <source src="<?= $previewPath ?>?v=<?= $previewVer ?>" type="video/mp4">
           </video>
         <?php else: ?>
           <i class="fa-solid <?= $c['icon'] ?>"></i>
@@ -1453,31 +1455,6 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.1 });
 document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-
-// Preview cards: play on hover/focus only
-(function() {
-  const cards = document.querySelectorAll('.js-preview-card');
-  cards.forEach((card) => {
-    const video = card.querySelector('.js-preview-video');
-    if (!video) return;
-
-    const playFromStart = () => {
-      try { video.currentTime = 0; } catch (e) {}
-      const p = video.play();
-      if (p && typeof p.catch === 'function') p.catch(() => {});
-    };
-
-    const stop = () => {
-      video.pause();
-      try { video.currentTime = 0; } catch (e) {}
-    };
-
-    card.addEventListener('mouseenter', playFromStart);
-    card.addEventListener('focusin', playFromStart);
-    card.addEventListener('mouseleave', stop);
-    card.addEventListener('focusout', stop);
-  });
-})();
 
 // Feedback form
 document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
