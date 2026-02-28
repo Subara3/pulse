@@ -476,6 +476,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ROWS = Math.max(11, ROWS);
 
     initGrid();
+    // 初期表示は迷路ベースにして、何をすればいいか分かりやすくする
+    generateMaze();
   }
 
   window.addEventListener('resize', resize);
