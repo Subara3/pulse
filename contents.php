@@ -231,20 +231,6 @@ require_once __DIR__ . '/includes/nav.php';
 
 </main>
 
-<script>
-(function() {
-  document.querySelectorAll('video[poster]').forEach((video) => {
-    const clearPoster = () => {
-      if (video.dataset.posterCleared) return;
-      video.dataset.posterCleared = '1';
-      video.removeAttribute('poster');
-    };
-    video.addEventListener('loadeddata', clearPoster, { once: true });
-    video.addEventListener('playing', clearPoster, { once: true });
-  });
-})();
-</script>
-
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>

@@ -1456,19 +1456,6 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.1 });
 document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-// Preview stability: remove poster after first decode to avoid poster flash on loop
-(function() {
-  document.querySelectorAll('video[poster]').forEach((video) => {
-    const clearPoster = () => {
-      if (video.dataset.posterCleared) return;
-      video.dataset.posterCleared = '1';
-      video.removeAttribute('poster');
-    };
-    video.addEventListener('loadeddata', clearPoster, { once: true });
-    video.addEventListener('playing', clearPoster, { once: true });
-  });
-})();
-
 // Feedback form
 document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
   e.preventDefault();
