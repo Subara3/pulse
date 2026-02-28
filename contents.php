@@ -205,7 +205,7 @@ require_once __DIR__ . '/includes/nav.php';
         <a href="<?php echo $content['page']; ?>.php" class="content-card">
           <div class="content-preview">
             <?php if (file_exists(__DIR__ . '/' . $previewPath)): ?>
-              <video class="js-preview-video" autoplay muted loop playsinline preload="metadata"<?php if (file_exists(__DIR__ . '/' . $posterPath)): ?> poster="<?php echo $posterPath; ?>?v=<?php echo $posterVer; ?>"<?php endif; ?> aria-label="<?php echo htmlspecialchars($content['title'], ENT_QUOTES, 'UTF-8'); ?> preview">
+              <video autoplay muted playsinline preload="metadata"<?php if (file_exists(__DIR__ . '/' . $posterPath)): ?> poster="<?php echo $posterPath; ?>?v=<?php echo $posterVer; ?>"<?php endif; ?> aria-label="<?php echo htmlspecialchars($content['title'], ENT_QUOTES, 'UTF-8'); ?> preview">
                 <source src="<?php echo $previewPath; ?>?v=<?php echo $previewVer; ?>" type="video/mp4">
               </video>
             <?php else: ?>
@@ -230,38 +230,6 @@ require_once __DIR__ . '/includes/nav.php';
   <?php endforeach; ?>
 
 </main>
-
-<script>
-(function() {
-  const videos = document.querySelectorAll('.js-preview-video');
-  videos.forEach((video) => {
-    const ensurePlaying = () => {
-      if (document.hidden) return;
-      const p = video.play();
-      if (p && typeof p.catch === 'function') p.catch(() => {});
-    };
-
-    video.addEventListener('pause', () => {
-      try { video.currentTime = Math.max(0, video.currentTime - 0.001); } catch (e) {}
-      ensurePlaying();
-    });
-    video.addEventListener('ended', () => {
-      try { video.currentTime = 0; } catch (e) {}
-      ensurePlaying();
-    });
-
-    ensurePlaying();
-  });
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) return;
-    videos.forEach((video) => {
-      const p = video.play();
-      if (p && typeof p.catch === 'function') p.catch(() => {});
-    });
-  });
-})();
-</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 

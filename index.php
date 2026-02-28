@@ -1377,7 +1377,7 @@ if (!empty($newContents)):
     <a href="<?= $c['page'] ?>.php" class="new-content-card fade-in">
       <div class="new-content-preview">
         <?php if (file_exists(__DIR__ . '/' . $previewPath)): ?>
-          <video class="js-preview-video" autoplay muted loop playsinline preload="metadata"<?php if (file_exists(__DIR__ . '/' . $posterPath)): ?> poster="<?= $posterPath ?>?v=<?= $posterVer ?>"<?php endif; ?> aria-label="<?= htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8') ?> preview">
+          <video autoplay muted playsinline preload="metadata"<?php if (file_exists(__DIR__ . '/' . $posterPath)): ?> poster="<?= $posterPath ?>?v=<?= $posterVer ?>"<?php endif; ?> aria-label="<?= htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8') ?> preview">
             <source src="<?= $previewPath ?>?v=<?= $previewVer ?>" type="video/mp4">
           </video>
         <?php else: ?>
@@ -1455,37 +1455,6 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.1 });
 document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-
-// Keep preview videos alive (avoid white frame on pause)
-(function() {
-  const videos = document.querySelectorAll('.js-preview-video');
-  videos.forEach((video) => {
-    const ensurePlaying = () => {
-      if (document.hidden) return;
-      const p = video.play();
-      if (p && typeof p.catch === 'function') p.catch(() => {});
-    };
-
-    video.addEventListener('pause', () => {
-      try { video.currentTime = Math.max(0, video.currentTime - 0.001); } catch (e) {}
-      ensurePlaying();
-    });
-    video.addEventListener('ended', () => {
-      try { video.currentTime = 0; } catch (e) {}
-      ensurePlaying();
-    });
-
-    ensurePlaying();
-  });
-
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) return;
-    videos.forEach((video) => {
-      const p = video.play();
-      if (p && typeof p.catch === 'function') p.catch(() => {});
-    });
-  });
-})();
 
 // Feedback form
 document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
