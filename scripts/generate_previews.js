@@ -19,6 +19,32 @@ const TMP_DIR = path.join(ROOT, '.tmp', 'previews');
 const OUT_DIR = path.join(ROOT, 'img', 'previews');
 const BASE_URL = process.env.PULSE_PREVIEW_BASE_URL || 'http://127.0.0.1:8787';
 
+const INTERACTION_PRESETS = {
+  voronoi: [
+    { kind: 'click', x: 480, y: 270 },
+    { kind: 'click', x: 320, y: 220 },
+    { kind: 'click', x: 640, y: 320 },
+  ],
+  ripple: [
+    { kind: 'click', x: 480, y: 270 },
+    { kind: 'click', x: 360, y: 220 },
+    { kind: 'click', x: 600, y: 320 },
+  ],
+  sand: [
+    { kind: 'drag', from: [360, 220], to: [620, 340], steps: 20 },
+  ],
+  physics: [
+    { kind: 'click', x: 480, y: 270 },
+    { kind: 'drag', from: [420, 260], to: [620, 300], steps: 16 },
+  ],
+  fluidveil: [
+    { kind: 'drag', from: [320, 200], to: [640, 320], steps: 24 },
+  ],
+  cloth: [
+    { kind: 'drag', from: [480, 180], to: [580, 300], steps: 20 },
+  ],
+};
+
 function run(cmd, args, opts = {}) {
   const r = spawnSync(cmd, args, { stdio: 'pipe', encoding: 'utf8', ...opts });
   if (r.status !== 0) {
@@ -30,6 +56,28 @@ function run(cmd, args, opts = {}) {
 
 function ensureDeps() {
   run('ffmpeg', ['-version']);
+}
+
+async function runInteractions(page, pageName) {
+  const preset = INTERACTION_PRESETS[pageName] || [
+    { kind: 'click', x: 480, y: 270 },
+    { kind: 'drag', from: [420, 240], to: [560, 300], steps: 12 },
+  ];
+
+  for (const act of preset) {
+    if (act.kind === 'click') {
+      await page.mouse.click(act.x, act.y, { delay: 20 });
+      await page.waitForTimeout(120);
+    } else if (act.kind === 'drag') {
+      const [sx, sy] = act.from;
+      const [ex, ey] = act.to;
+      await page.mouse.move(sx, sy);
+      await page.mouse.down();
+      await page.mouse.move(ex, ey, { steps: act.steps || 12 });
+      await page.mouse.up();
+      await page.waitForTimeout(120);
+    }
+  }
 }
 
 function pagesFromContents() {
@@ -91,7 +139,9 @@ function pagesFromContents() {
         waitUntil: 'domcontentloaded',
         timeout: 30000,
       });
-      await page.waitForTimeout(3800);
+      await page.waitForTimeout(600);
+      await runInteractions(page, pageName);
+      await page.waitForTimeout(3600);
 
       const v = page.video();
       await context.close();
