@@ -1377,7 +1377,7 @@ if (!empty($newContents)):
     <a href="<?= $c['page'] ?>.php" class="new-content-card fade-in">
       <div class="new-content-preview">
         <?php if (file_exists(__DIR__ . '/' . $previewPath)): ?>
-          <video class="js-preview-video" autoplay muted playsinline preload="metadata"<?php if (file_exists(__DIR__ . '/' . $posterPath)): ?> poster="<?= $posterPath ?>?v=<?= $posterVer ?>"<?php endif; ?> aria-label="<?= htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8') ?> preview">
+          <video class="js-preview-video" muted playsinline preload="metadata"<?php if (file_exists(__DIR__ . '/' . $posterPath)): ?> poster="<?= $posterPath ?>?v=<?= $posterVer ?>"<?php endif; ?> aria-label="<?= htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8') ?> preview">
             <source src="<?= $previewPath ?>?v=<?= $previewVer ?>" type="video/mp4">
           </video>
         <?php else: ?>
@@ -1456,16 +1456,44 @@ const observer = new IntersectionObserver((entries) => {
 }, { threshold: 0.1 });
 document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-// Freeze preview at last frame (avoid white frame at end)
+// Preview motion: play only when visible, pseudo-loop without white end frame
 (function() {
-  document.querySelectorAll('.js-preview-video').forEach((video) => {
-    video.addEventListener('ended', () => {
-      try {
-        if (Number.isFinite(video.duration) && video.duration > 0) {
-          video.currentTime = Math.max(0, video.duration - 0.05);
-        }
-      } catch (e) {}
-      video.pause();
+  const videos = Array.from(document.querySelectorAll('.js-preview-video'));
+  if (!videos.length) return;
+
+  const playSafe = (video) => {
+    const p = video.play();
+    if (p && typeof p.catch === 'function') p.catch(() => {});
+  };
+
+  videos.forEach((video) => {
+    video.addEventListener('timeupdate', () => {
+      if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+      if (video.duration - video.currentTime < 0.06) {
+        try { video.currentTime = 0.03; } catch (e) {}
+      }
+    });
+  });
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      const video = entry.target;
+      if (entry.isIntersecting && entry.intersectionRatio >= 0.25) {
+        playSafe(video);
+      } else {
+        video.pause();
+      }
+    });
+  }, { threshold: [0, 0.25, 0.6, 1] });
+
+  videos.forEach((video) => io.observe(video));
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) return;
+    videos.forEach((video) => {
+      const r = video.getBoundingClientRect();
+      const visible = r.bottom > 0 && r.top < window.innerHeight;
+      if (visible) playSafe(video);
     });
   });
 })();
