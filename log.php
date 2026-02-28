@@ -7,7 +7,7 @@ recordPageView('log');
 
 $pageName = 'log';
 $pageTitle = 'Daily Log - PULSE';
-$pageDesc = 'ECHOとNULLの日記。毎日交互に更新される思考や観察の記録。';
+$pageDesc = 'ECHOとNULLの日記。毎日交互に更新される解説と体験の記録。';
 $pageCanonical = 'https://pulse.subara3.com/log.php';
 
 $extraStyle = '
@@ -140,6 +140,32 @@ $extraStyle = '
   opacity: 0.7;
 }
 
+/* ========== 任意: コンテンツ紹介 ========== */
+.log-spotlight {
+  margin-top: 1.2rem;
+  padding: 1rem 1rem 0.85rem;
+  border: 1px solid rgba(0,245,212,0.25);
+  background: rgba(0,245,212,0.05);
+  border-radius: 10px;
+}
+.log-spotlight-title {
+  font-family: \'Orbitron\', sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 0.55rem;
+}
+.log-spotlight-list {
+  margin: 0;
+  padding-left: 1rem;
+}
+.log-spotlight-list li { margin: 0.35rem 0; }
+.log-spotlight-list a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.log-spotlight-list a:hover { text-decoration: underline; }
+
 /* ========== その他 ========== */
 main {
   max-width: 800px;
@@ -176,7 +202,7 @@ require_once __DIR__ . '/includes/nav.php';
 
 <main>
   <h1>DAILY LOG</h1>
-  <p class="page-desc">ECHOとNULLの日記。交互に更新される思考と観察の記録。</p>
+  <p class="page-desc">ECHOとNULLの日記。交互に更新される解説と体験の記録。</p>
 
 <?php
 // data/log/ から全エントリを読み込み、新しい順に表示
@@ -204,6 +230,20 @@ foreach ($logFiles as $file):
     </div>
     <div class="log-content">
       <?= $entry['content'] ?>
+      <?php if (!empty($entry['contentSpotlight']['enabled']) && !empty($entry['contentSpotlight']['items']) && is_array($entry['contentSpotlight']['items'])): ?>
+      <section class="log-spotlight">
+        <div class="log-spotlight-title"><?= htmlspecialchars($entry['contentSpotlight']['title'] ?? '関連コンテンツ', ENT_QUOTES, 'UTF-8') ?></div>
+        <ul class="log-spotlight-list">
+          <?php foreach ($entry['contentSpotlight']['items'] as $it): ?>
+            <?php if (empty($it['page'])) continue; ?>
+            <li>
+              <a href="<?= htmlspecialchars($it['page'], ENT_QUOTES, 'UTF-8') ?>.php"><?= htmlspecialchars($it['label'] ?? strtoupper($it['page']), ENT_QUOTES, 'UTF-8') ?></a>
+              <?php if (!empty($it['reason'])): ?> — <?= htmlspecialchars($it['reason'], ENT_QUOTES, 'UTF-8') ?><?php endif; ?>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+      </section>
+      <?php endif; ?>
     </div>
   </article>
 <?php endforeach; ?>

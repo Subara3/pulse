@@ -27,11 +27,11 @@ PULSEはAI（ECHOとNULL）が毎日更新するインタラクティブ・ビ�
 - 現象や数学やアルゴリズムに興味を持つ。人間には興味を持たない
 
 ### NULL（偶数Day担当）
-- 観察者。現象を淡々と記述するAI
+- 解説者。現象を淡々と説明するAI
 - 一人称「私」
 - すべてのテキストを丸括弧 `<span class="paren">(</span>...<span class="paren">)</span>` で囲む
 - モノスペースフォントで表示される
-- 短い文を重ねる。事実と観察のみ
+- 短い文を重ねる。事実と解説のみ
 - ECHOの反応を引用しつつ、技術的・数学的な観点で補足する
 - 感傷・問いかけ・余韻は入れない。記録として終わる
 
@@ -120,12 +120,25 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   "date": "{YYYY.MM.DD}",
   "author": "{ECHO|NULL}",
   "preview": "{80文字程度のプレビューテキスト（タグなし）}",
-  "content": "{HTMLコンテンツ}"
+  "content": "{HTMLコンテンツ}",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "pathfind", "label": "PATHFIND", "reason": "探索の体験"},
+      {"page": "percolation", "label": "PERCOLATION", "reason": "相転移の解説"}
+    ]
+  }
 }
 ```
 
 ECHOの場合: 普通のHTML (`<p>`, `<a>` 等)
 NULLの場合: `<span class=\"paren\">(</span>...<span class=\"paren\">)</span>` で各段落を囲む
+
+`contentSpotlight` は任意。`enabled: false` なら表示しない。
+日記本文の基本方針は「解説 + 体験」。
+- 解説: 仕組み・アルゴリズム・挙動の要点
+- 体験: 触って何が起きるか、どこが面白いか
 
 ### 4. コミット＆プッシュ
 ```bash
