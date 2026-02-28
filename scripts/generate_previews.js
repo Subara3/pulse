@@ -34,9 +34,29 @@ function ensureDeps() {
 
 function pagesFromContents() {
   const all = JSON.parse(fs.readFileSync(CONTENTS_PATH, 'utf8'));
-  return all
+  const base = all
     .map((c) => c.page)
     .filter((p) => !['about', 'contents', 'log'].includes(p));
+
+  // Optional target filter:
+  // - CLI args: node scripts/generate_previews.js isofield flock
+  // - env: PULSE_PREVIEW_PAGES=isofield,flock
+  const cliPages = process.argv.slice(2).map((s) => s.trim()).filter(Boolean);
+  const envPages = (process.env.PULSE_PREVIEW_PAGES || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
+  const targets = cliPages.length ? cliPages : envPages;
+
+  if (!targets.length) return base;
+
+  const set = new Set(base);
+  const valid = targets.filter((p) => set.has(p));
+  const invalid = targets.filter((p) => !set.has(p));
+  if (invalid.length) {
+    console.warn(`warn unknown pages ignored: ${invalid.join(', ')}`);
+  }
+  return valid;
 }
 
 (async () => {
@@ -45,6 +65,11 @@ function pagesFromContents() {
   fs.mkdirSync(OUT_DIR, { recursive: true });
 
   const pages = pagesFromContents();
+  if (!pages.length) {
+    console.log('No target pages to render.');
+    return;
+  }
+
   const browser = await chromium.launch({ headless: true });
 
   const ok = [];

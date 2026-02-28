@@ -1,4 +1,5 @@
 <?php // 共通ページ末尾: noscript + 固定バナー広告 ?>
+<?php $isPreview = isset($_GET['preview']) && $_GET['preview'] === '1'; ?>
 <noscript>
 <style>canvas{display:none!important}.ui{display:none!important}.floating-nav{display:none!important}body{overflow:auto!important}</style>
 <div style="padding:3rem 2rem;max-width:800px;margin:0 auto;text-align:center">
@@ -9,6 +10,7 @@
 </div>
 </noscript>
 
+<?php if (!$isPreview): ?>
 <!-- 固定バナー広告（下部） -->
 <style>
 #stickyAd{position:fixed;bottom:0;left:0;right:0;z-index:9000;display:none}
@@ -49,3 +51,4 @@
   });
 })();
 </script>
+<?php endif; ?>
