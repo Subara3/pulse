@@ -93,6 +93,19 @@ const INTERACTION_PRESETS = {
     { kind: 'click', x: 480, y: 270 },
     { kind: 'drag', from: [320, 220], to: [640, 320], steps: 22 },
   ],
+  tree: [
+    { kind: 'click', x: 520, y: 500 },
+    { kind: 'click', x: 420, y: 500 },
+  ],
+  sand: [
+    { kind: 'click', x: 480, y: 270 },
+    { kind: 'drag', from: [280, 180], to: [680, 340], steps: 30 },
+    { kind: 'drag', from: [680, 180], to: [280, 340], steps: 30 },
+  ],
+  pi: [
+    { kind: 'click', x: 520, y: 500 },
+    { kind: 'click', x: 420, y: 500 },
+  ],
 };
 
 function run(cmd, args, opts = {}) {

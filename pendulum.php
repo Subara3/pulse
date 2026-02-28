@@ -394,76 +394,55 @@ function handleNewtonCollisions() {
   const n = pendulums.length;
   if (n < 2) return;
 
-  // 各ペアの接触状態を確認
-  const touching = [];
-  for (let i = 0; i < n - 1; i++) {
-    const bob1 = pendulums[i].getBobPosition();
-    const bob2 = pendulums[i + 1].getBobPosition();
-    const dx = bob2.x - bob1.x;
-    const dy = bob2.y - bob1.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-    touching[i] = dist <= BOB_SIZE * 2 + 3;
+  const radius = BOB_SIZE;
+  const touching = new Array(n - 1).fill(false);
 
-    // 接触しっぱなしでも再衝突できるよう、フレームクールダウンを減らす
+  const bobPos = pendulums.map(p => p.getBobPosition());
+  const vx = pendulums.map((p, i) => p.length * p.angleVelocity * Math.cos(p.angle));
+
+  // 近接判定 + クールダウン減衰
+  for (let i = 0; i < n - 1; i++) {
+    const dx = bobPos[i + 1].x - bobPos[i].x;
+    const dy = bobPos[i + 1].y - bobPos[i].y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    touching[i] = dist <= radius * 2 + 2;
     if (newtonCooldown[i] > 0) newtonCooldown[i]--;
   }
 
-  // 左端から衝突をチェック（右方向への運動量移動）
-  for (let i = 0; i < n - 1; i++) {
-    const p1 = pendulums[i];
-    const p2 = pendulums[i + 1];
+  // 隣接球同士の弾性衝突（等質量近似: 角速度を交換）
+  // 連鎖を拾うため複数パス
+  for (let pass = 0; pass < 2; pass++) {
+    for (let i = 0; i < n - 1; i++) {
+      if (!touching[i] || newtonCooldown[i] > 0) continue;
 
-    // 近づいているか
-    if (touching[i] && p1.angleVelocity > p2.angleVelocity + 0.001 && newtonCooldown[i] === 0) {
-      // 接触しているボールの連鎖を見つける
-      let chainEnd = i + 1;
-      while (chainEnd < n - 1 && touching[chainEnd]) {
-        chainEnd++;
+      const p1 = pendulums[i];
+      const p2 = pendulums[i + 1];
+      const b1 = bobPos[i];
+      const b2 = bobPos[i + 1];
+      const relX = b2.x - b1.x;
+      const relVx = vx[i + 1] - vx[i];
+
+      // 互いに近づいているときのみ衝突
+      if (relX * relVx >= 0) continue;
+
+      const w1 = p1.angleVelocity;
+      const w2 = p2.angleVelocity;
+      p1.angleVelocity = w2 * 0.998;
+      p2.angleVelocity = w1 * 0.998;
+
+      // 食い込み軽減
+      const minSep = 0.012;
+      if (p1.angle > p2.angle) {
+        p1.angle += minSep;
+        p2.angle -= minSep;
+      } else {
+        p1.angle -= minSep;
+        p2.angle += minSep;
       }
 
-      // 左端の速度を右端に移動
-      const transferVel = p1.angleVelocity;
-      p1.angleVelocity = 0;
-      pendulums[chainEnd].angleVelocity = transferVel * 0.995;
-
-      // 連続判定防止（接触中の多重トリガーを抑止）
-      newtonCooldown[i] = 6;
-
-      // エフェクト
-      const bob1 = p1.getBobPosition();
-      const bob2 = p2.getBobPosition();
-      drawCollisionEffect((bob1.x + bob2.x) / 2, (bob1.y + bob2.y) / 2);
+      newtonCooldown[i] = 4;
+      drawCollisionEffect((b1.x + b2.x) / 2, (b1.y + b2.y) / 2, 0.8);
     }
-
-  }
-
-  // 右端から衝突をチェック（左方向への運動量移動）
-  for (let i = n - 2; i >= 0; i--) {
-    const p1 = pendulums[i + 1];
-    const p2 = pendulums[i];
-
-    // 近づいているか（右から左へ）
-    if (touching[i] && p1.angleVelocity < p2.angleVelocity - 0.001 && newtonCooldown[i] === 0) {
-      // 接触しているボールの連鎖を見つける
-      let chainStart = i;
-      while (chainStart > 0 && touching[chainStart - 1]) {
-        chainStart--;
-      }
-
-      // 右端の速度を左端に移動
-      const transferVel = p1.angleVelocity;
-      p1.angleVelocity = 0;
-      pendulums[chainStart].angleVelocity = transferVel * 0.995;
-
-      // 連続判定防止（接触中の多重トリガーを抑止）
-      newtonCooldown[i] = 6;
-
-      // エフェクト
-      const bob1 = p1.getBobPosition();
-      const bob2 = p2.getBobPosition();
-      drawCollisionEffect((bob1.x + bob2.x) / 2, (bob1.y + bob2.y) / 2);
-    }
-
   }
 }
 
@@ -479,6 +458,7 @@ function drawCollisionEffect(x, y, intensity = 1) {
 
 // 初期化
 function initSingle() {
+  DAMPING = 0.999;
   pendulums = [];
   doublePendulums = [];
   for (let i = 0; i < 5; i++) {
@@ -492,6 +472,7 @@ function initSingle() {
 }
 
 function initNewton() {
+  DAMPING = 0.9998;
   pendulums = [];
   doublePendulums = [];
   const count = 5;
@@ -519,6 +500,7 @@ function initNewton() {
 }
 
 function initDouble() {
+  DAMPING = 0.999;
   pendulums = [];
   doublePendulums = [];
   for (let i = 0; i < 3; i++) {
@@ -534,6 +516,7 @@ function initDouble() {
 }
 
 function initWave() {
+  DAMPING = 0.999;
   pendulums = [];
   doublePendulums = [];
   const count = 15;
