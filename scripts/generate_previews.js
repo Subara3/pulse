@@ -71,6 +71,28 @@ const INTERACTION_PRESETS = {
     { kind: 'click', x: 520, y: 240 },
     { kind: 'click', x: 440, y: 300 },
   ],
+  dla: [
+    { kind: 'click', x: 480, y: 270 },
+    { kind: 'drag', from: [350, 220], to: [620, 320], steps: 20 },
+  ],
+  percolation: [
+    { kind: 'click', x: 520, y: 500 },
+    { kind: 'click', x: 420, y: 500 },
+    { kind: 'click', x: 480, y: 270 },
+  ],
+  pathfind: [
+    { kind: 'click', x: 520, y: 500 },
+    { kind: 'click', x: 420, y: 500 },
+    { kind: 'drag', from: [300, 220], to: [640, 320], steps: 24 },
+  ],
+  spirograph: [
+    { kind: 'click', x: 520, y: 500 },
+    { kind: 'drag', from: [360, 260], to: [620, 260], steps: 18 },
+  ],
+  drift: [
+    { kind: 'click', x: 480, y: 270 },
+    { kind: 'drag', from: [320, 220], to: [640, 320], steps: 22 },
+  ],
 };
 
 function run(cmd, args, opts = {}) {
