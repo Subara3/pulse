@@ -246,6 +246,26 @@ $extraStyle = '
   box-shadow: 0 8px 30px rgba(0, 245, 212, 0.15);
 }
 
+.new-content-preview {
+  width: 176px;
+  height: 99px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: linear-gradient(135deg, rgba(0,245,212,0.08), rgba(123,44,191,0.14));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.45);
+  flex-shrink: 0;
+}
+.new-content-preview video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 .new-content-icon {
   font-size: 1.5rem;
   color: var(--accent);
@@ -265,14 +285,14 @@ $extraStyle = '
   color: var(--text-secondary);
   font-size: 0.78rem;
   line-height: 1.45;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 @media (max-width: 680px) {
-  .new-content-card { grid-template-columns: 1fr; }
+  .new-content-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
   .new-content-preview { width: 100%; height: 120px; }
 }
 
@@ -1353,7 +1373,7 @@ if (!empty($newContents)):
     <a href="<?= $c['page'] ?>.php" class="new-content-card fade-in">
       <div class="new-content-preview">
         <?php if (file_exists(__DIR__ . '/' . $previewPath)): ?>
-          <video autoplay muted loop playsinline preload="metadata" aria-label="<?= htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8') ?> preview">
+          <video autoplay muted playsinline preload="metadata" aria-label="<?= htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8') ?> preview">
             <source src="<?= $previewPath ?>" type="video/mp4">
           </video>
         <?php else: ?>

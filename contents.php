@@ -142,10 +142,7 @@ h1 {
   font-size: 0.88rem;
   line-height: 1.55;
   margin-bottom: 0.5rem;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 .content-meta {
@@ -204,7 +201,7 @@ require_once __DIR__ . '/includes/nav.php';
         <a href="<?php echo $content['page']; ?>.php" class="content-card">
           <div class="content-preview">
             <?php if (file_exists(__DIR__ . '/' . $previewPath)): ?>
-              <video autoplay muted loop playsinline preload="metadata" aria-label="<?php echo htmlspecialchars($content['title'], ENT_QUOTES, 'UTF-8'); ?> preview">
+              <video autoplay muted playsinline preload="metadata" aria-label="<?php echo htmlspecialchars($content['title'], ENT_QUOTES, 'UTF-8'); ?> preview">
                 <source src="<?php echo $previewPath; ?>" type="video/mp4">
               </video>
             <?php else: ?>
