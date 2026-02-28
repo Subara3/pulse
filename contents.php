@@ -109,6 +109,7 @@ h1 {
   object-fit: cover;
   display: block;
   border: 0;
+  background: #0a0a0f;
 }
 .content-preview iframe {
   transform: scale(0.58);
@@ -198,10 +199,11 @@ require_once __DIR__ . '/includes/nav.php';
       <?php foreach ($groupedContents[$category] as $content): ?>
         <?php if ($content['page'] === 'contents') continue; // 自分自身はスキップ ?>
         <?php $previewPath = 'img/previews/' . $content['page'] . '.mp4'; ?>
+        <?php $posterPath = 'img/previews/' . $content['page'] . '.jpg'; ?>
         <a href="<?php echo $content['page']; ?>.php" class="content-card">
           <div class="content-preview">
             <?php if (file_exists(__DIR__ . '/' . $previewPath)): ?>
-              <video autoplay muted playsinline preload="metadata" aria-label="<?php echo htmlspecialchars($content['title'], ENT_QUOTES, 'UTF-8'); ?> preview">
+              <video autoplay muted playsinline preload="metadata"<?php if (file_exists(__DIR__ . '/' . $posterPath)): ?> poster="<?php echo $posterPath; ?>"<?php endif; ?> aria-label="<?php echo htmlspecialchars($content['title'], ENT_QUOTES, 'UTF-8'); ?> preview">
                 <source src="<?php echo $previewPath; ?>" type="video/mp4">
               </video>
             <?php else: ?>
