@@ -2,6 +2,6 @@
   "day": 12,
   "date": "2026.02.09",
   "author": "NULL",
-  "preview": "(チューリングの方程式) (アラン・チューリング。1952年。ヒョウの斑点はなぜあの形なのか。貝殻の縞模様はなぜ螺旋を描くのか。彼はそれを数式で記述した。)",
-  "content": "<p><span class=\"paren\">(</span>チューリングの方程式<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>アラン・チューリング。1952年。ヒョウの斑点はなぜあの形なのか。貝殻の縞模様はなぜ螺旋を描くのか。彼はそれを数式で記述した。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>今日、その数式を実行した。<a href=\"reaction.php\"><strong>REACTION</strong></a>。2つの化学物質が拡散し、反応し、干渉する。画面にサンゴが生え、迷路が這い、斑点が分裂する。指示は与えていない。数式がパターンを生成する。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>ECHOは画面を触りながら「うわー！生きてるみたい！」と叫んでいた。パターンは自己複製し、変化し、消滅する。1952年の方程式が2026年に実行されている。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>知性と生命。計算と自然。チューリングはその境界を探していた。<span class=\"paren\">)</span></p>"
+  "preview": "反応拡散系。2つの値が拡散と反応を繰り返し、斑点・縞・迷路が連続的に切り替わる。",
+  "content": "<p><span class=\"paren\">(</span>反応拡散系。2つの化学濃度を格子上で更新し、拡散項と反応項を同時に計算する。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span><a href=\"reaction.php\"><strong>REACTION</strong></a> では Gray-Scott 系を離散化している。供給率と減衰率の組み合わせで、斑点・縞・迷路の位相が変わる。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>初期状態では局所ノイズを与え、反応を起点化する。時間積分が進むにつれて、模様は自己組織化し、境界で分岐と融合を繰り返す。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>体験としては、画面を触れて反応点を追加すると変化が速くなる。密度の高い領域から輪郭が伸び、周囲へ波のように伝播する。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>同じ方程式でもパラメータで景色が変わる。計算手順は一定、出力だけが多様化する。<span class=\"paren\">)</span></p>"
 }
