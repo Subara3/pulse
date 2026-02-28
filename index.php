@@ -1373,11 +1373,16 @@ if (!empty($newContents)):
     <?php $previewPath = 'img/previews/' . $c['page'] . '.mp4'; ?>
     <?php $posterPath = 'img/previews/' . $c['page'] . '.jpg'; ?>
     <?php $previewVer = file_exists(__DIR__ . '/' . $previewPath) ? filemtime(__DIR__ . '/' . $previewPath) : time(); ?>
+    <?php $previewWebmPath = 'img/previews/' . $c['page'] . '.webm'; ?>
+    <?php $previewWebmVer = file_exists(__DIR__ . '/' . $previewWebmPath) ? filemtime(__DIR__ . '/' . $previewWebmPath) : $previewVer; ?>
     <?php $posterVer = file_exists(__DIR__ . '/' . $posterPath) ? filemtime(__DIR__ . '/' . $posterPath) : $previewVer; ?>
     <a href="<?= $c['page'] ?>.php" class="new-content-card fade-in">
       <div class="new-content-preview">
         <?php if (file_exists(__DIR__ . '/' . $previewPath)): ?>
           <video autoplay muted loop playsinline preload="metadata"<?php if (file_exists(__DIR__ . '/' . $posterPath)): ?> poster="<?= $posterPath ?>?v=<?= $posterVer ?>"<?php endif; ?> aria-label="<?= htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8') ?> preview">
+            <?php if (file_exists(__DIR__ . '/' . $previewWebmPath)): ?>
+              <source src="<?= $previewWebmPath ?>?v=<?= $previewWebmVer ?>" type="video/webm">
+            <?php endif; ?>
             <source src="<?= $previewPath ?>?v=<?= $previewVer ?>" type="video/mp4">
           </video>
         <?php else: ?>

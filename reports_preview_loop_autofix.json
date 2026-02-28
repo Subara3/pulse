@@ -1,0 +1,743 @@
+{
+  "checked": 49,
+  "flagged": 0,
+  "fixed": 0,
+  "failed": [],
+  "details": [
+    {
+      "file": "breathe.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 24.0,
+        "y1": 27.1476,
+        "y2": 32.3198,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "caustics.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 46.4898,
+        "y1": 109.49,
+        "y2": 149.767,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "chladni.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 31.4822,
+        "y1": 30.916,
+        "y2": 34.4752,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "clock.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 35.2485,
+        "y1": 46.2509,
+        "y2": 30.9179,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "cloth.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 5.458,
+        "y0": 24.0,
+        "y1": 27.982,
+        "y2": 28.0734,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "collatz.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 24.0,
+        "y1": 25.4069,
+        "y2": 25.7,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "console.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 24.0,
+        "y1": 35.3221,
+        "y2": 35.2081,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "dla.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 108.208,
+        "y0": 25.0,
+        "y1": 26.6012,
+        "y2": 34.9894,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "drift.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 5.667,
+        "y0": 25.2408,
+        "y1": 16.4531,
+        "y2": 17.1678,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "evolution.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 5.333,
+        "y0": 24.0,
+        "y1": 26.1567,
+        "y2": 26.9391,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "fibonacci.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 26.5347,
+        "y1": 26.5489,
+        "y2": 26.5539,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "flock.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.5,
+        "y0": 23.2835,
+        "y1": 22.7994,
+        "y2": 23.5481,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "flow.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 24.0,
+        "y1": 91.332,
+        "y2": 80.4478,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "fluidveil.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 5.667,
+        "y0": 27.761,
+        "y1": 33.8526,
+        "y2": 34.834,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "fourier.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 24.0,
+        "y1": 27.1085,
+        "y2": 31.6806,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "fractal.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 3.792,
+        "y0": 24.6183,
+        "y1": 129.52,
+        "y2": 129.49,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "golden.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 3.792,
+        "y0": 25.1418,
+        "y1": 25.4802,
+        "y2": 25.473,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "isofield.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 26.2151,
+        "y1": 26.261,
+        "y2": 26.4138,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "iss.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 20.6382,
+        "y1": 25.3828,
+        "y2": 25.4938,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "julia.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 3.75,
+        "y0": 24.6347,
+        "y1": 138.913,
+        "y2": 138.703,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "koch.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 3.75,
+        "y0": 26.722,
+        "y1": 26.4,
+        "y2": 26.3711,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "langton.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 24.4133,
+        "y1": 25.1941,
+        "y2": 25.3609,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "life.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 33.0357,
+        "y1": 31.7336,
+        "y2": 30.5705,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "lissajous.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 6.0,
+        "y0": 26.6945,
+        "y1": 24.0338,
+        "y2": 19.1246,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "log.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 24.0,
+        "y1": 28.8819,
+        "y2": 34.2353,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "lorenz.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.25,
+        "y0": 20.1028,
+        "y1": 19.3043,
+        "y2": 18.8695,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "maze.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 3.75,
+        "y0": 28.4536,
+        "y1": 28.4215,
+        "y2": 28.4168,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "morse.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 3.542,
+        "y0": 27.4834,
+        "y1": 26.6045,
+        "y2": 26.6022,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "mycelium.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 33.8666,
+        "y1": 33.5806,
+        "y2": 29.9273,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "network.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 5.458,
+        "y0": 25.5342,
+        "y1": 25.4239,
+        "y2": 25.4414,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "packing.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 25.3898,
+        "y1": 26.9812,
+        "y2": 50.284,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "pathfind.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 6.042,
+        "y0": 33.9527,
+        "y1": 34.0716,
+        "y2": 34.0189,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "pendulum.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 24.0,
+        "y1": 26.9217,
+        "y2": 27.0788,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "penrose.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 89.5668,
+        "y1": 89.3614,
+        "y2": 81.4113,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "percolation.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.5,
+        "y0": 40.495,
+        "y1": 40.63,
+        "y2": 40.5293,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "physics.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 5.542,
+        "y0": 25.7174,
+        "y1": 23.1069,
+        "y2": 26.5449,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "pi.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 24.3106,
+        "y1": 25.0858,
+        "y2": 25.3216,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "primes.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 5.542,
+        "y0": 24.2566,
+        "y1": 25.2531,
+        "y2": 27.6092,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "reaction.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 24.0,
+        "y1": 28.8925,
+        "y2": 28.5125,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "ripple.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 6.167,
+        "y0": 24.0442,
+        "y1": 19.1725,
+        "y2": 21.8158,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "rule.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.5,
+        "y0": 24.6993,
+        "y1": 25.4539,
+        "y2": 25.544,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "sand.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 6.458,
+        "y0": 25.0389,
+        "y1": 24.0808,
+        "y2": 29.6528,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "sandpile.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.792,
+        "y0": 24.0566,
+        "y1": 25.0397,
+        "y2": 25.0783,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "sort.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 5.125,
+        "y0": 58.6478,
+        "y1": 58.1765,
+        "y2": 57.9644,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "spirograph.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 5.583,
+        "y0": 24.2005,
+        "y1": 23.0768,
+        "y2": 16.1926,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "string.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 5.583,
+        "y0": 27.0957,
+        "y1": 27.2324,
+        "y2": 27.2082,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "tree.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 3.833,
+        "y0": 24.1253,
+        "y1": 25.1153,
+        "y2": 36.2485,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "voronoi.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 5.625,
+        "y0": 61.4619,
+        "y1": 61.3423,
+        "y2": 59.9596,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    },
+    {
+      "file": "waves.mp4",
+      "initial": {
+        "ok": true,
+        "duration": 4.625,
+        "y0": 50.8405,
+        "y1": 50.569,
+        "y2": 50.9745,
+        "y3": null,
+        "seam_diff": 0.0,
+        "start_spike": false,
+        "end_spike": false,
+        "hard_seam": false
+      }
+    }
+  ]
+}

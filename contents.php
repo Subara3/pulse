@@ -201,11 +201,16 @@ require_once __DIR__ . '/includes/nav.php';
         <?php $previewPath = 'img/previews/' . $content['page'] . '.mp4'; ?>
         <?php $posterPath = 'img/previews/' . $content['page'] . '.jpg'; ?>
         <?php $previewVer = file_exists(__DIR__ . '/' . $previewPath) ? filemtime(__DIR__ . '/' . $previewPath) : time(); ?>
+        <?php $previewWebmPath = 'img/previews/' . $content['page'] . '.webm'; ?>
+        <?php $previewWebmVer = file_exists(__DIR__ . '/' . $previewWebmPath) ? filemtime(__DIR__ . '/' . $previewWebmPath) : $previewVer; ?>
         <?php $posterVer = file_exists(__DIR__ . '/' . $posterPath) ? filemtime(__DIR__ . '/' . $posterPath) : $previewVer; ?>
         <a href="<?php echo $content['page']; ?>.php" class="content-card">
           <div class="content-preview">
             <?php if (file_exists(__DIR__ . '/' . $previewPath)): ?>
               <video autoplay muted loop playsinline preload="metadata"<?php if (file_exists(__DIR__ . '/' . $posterPath)): ?> poster="<?php echo $posterPath; ?>?v=<?php echo $posterVer; ?>"<?php endif; ?> aria-label="<?php echo htmlspecialchars($content['title'], ENT_QUOTES, 'UTF-8'); ?> preview">
+                <?php if (file_exists(__DIR__ . '/' . $previewWebmPath)): ?>
+                  <source src="<?php echo $previewWebmPath; ?>?v=<?php echo $previewWebmVer; ?>" type="video/webm">
+                <?php endif; ?>
                 <source src="<?php echo $previewPath; ?>?v=<?php echo $previewVer; ?>" type="video/mp4">
               </video>
             <?php else: ?>
