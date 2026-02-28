@@ -1,0 +1,628 @@
+{
+  "checked": 49,
+  "flagged_count": 32,
+  "flagged_pages": [
+    "breathe",
+    "cloth",
+    "collatz",
+    "drift",
+    "evolution",
+    "fibonacci",
+    "flock",
+    "fourier",
+    "fractal",
+    "golden",
+    "isofield",
+    "iss",
+    "julia",
+    "koch",
+    "langton",
+    "lissajous",
+    "lorenz",
+    "maze",
+    "morse",
+    "network",
+    "pathfind",
+    "pendulum",
+    "physics",
+    "pi",
+    "primes",
+    "reaction",
+    "ripple",
+    "rule",
+    "sand",
+    "sandpile",
+    "spirograph",
+    "string"
+  ],
+  "results": [
+    {
+      "file": "breathe.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": false,
+      "luma": [
+        12.61,
+        13.04,
+        17.49
+      ],
+      "motion": 5.381
+    },
+    {
+      "file": "caustics.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        151.06,
+        161.47,
+        156.78
+      ],
+      "motion": 16.75
+    },
+    {
+      "file": "chladni.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        17.88,
+        20.47,
+        21.99
+      ],
+      "motion": 6.941
+    },
+    {
+      "file": "clock.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        27.12,
+        15.34,
+        21.4
+      ],
+      "motion": 17.367
+    },
+    {
+      "file": "cloth.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": false,
+      "luma": [
+        13.62,
+        15.12,
+        13.87
+      ],
+      "motion": 5.628
+    },
+    {
+      "file": "collatz.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": true,
+      "luma": [
+        10.68,
+        10.81,
+        10.83
+      ],
+      "motion": 0.709
+    },
+    {
+      "file": "console.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        22.46,
+        22.14,
+        22.34
+      ],
+      "motion": 7.658
+    },
+    {
+      "file": "dla.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        14.06,
+        21.95,
+        21.95
+      ],
+      "motion": 10.687
+    },
+    {
+      "file": "drift.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": true,
+      "luma": [
+        0.56,
+        0.77,
+        1.04
+      ],
+      "motion": 0.88
+    },
+    {
+      "file": "evolution.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": false,
+      "luma": [
+        12.87,
+        13.11,
+        13.08
+      ],
+      "motion": 3.266
+    },
+    {
+      "file": "fibonacci.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": true,
+      "luma": [
+        11.86,
+        11.85,
+        11.85
+      ],
+      "motion": 0.181
+    },
+    {
+      "file": "flock.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": false,
+      "luma": [
+        7.32,
+        7.32,
+        8.79
+      ],
+      "motion": 9.561
+    },
+    {
+      "file": "flow.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        87.29,
+        82.02,
+        76.12
+      ],
+      "motion": 11.192
+    },
+    {
+      "file": "fluidveil.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        21.43,
+        21.86,
+        22.26
+      ],
+      "motion": 20.242
+    },
+    {
+      "file": "fourier.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": false,
+      "luma": [
+        13.1,
+        15.88,
+        17.92
+      ],
+      "motion": 5.487
+    },
+    {
+      "file": "fractal.mp4",
+      "ok": false,
+      "too_dark": false,
+      "too_static": true,
+      "luma": [
+        132.18,
+        132.15,
+        132.15
+      ],
+      "motion": 0.399
+    },
+    {
+      "file": "golden.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": true,
+      "luma": [
+        10.58,
+        10.56,
+        10.57
+      ],
+      "motion": 0.09
+    },
+    {
+      "file": "isofield.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": false,
+      "luma": [
+        11.6,
+        11.59,
+        11.8
+      ],
+      "motion": 2.407
+    },
+    {
+      "file": "iss.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": false,
+      "luma": [
+        10.77,
+        12.06,
+        11.2
+      ],
+      "motion": 2.721
+    },
+    {
+      "file": "julia.mp4",
+      "ok": false,
+      "too_dark": false,
+      "too_static": true,
+      "luma": [
+        143.17,
+        143.16,
+        143.17
+      ],
+      "motion": 1.577
+    },
+    {
+      "file": "koch.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": true,
+      "luma": [
+        11.66,
+        11.61,
+        11.61
+      ],
+      "motion": 0.126
+    },
+    {
+      "file": "langton.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": true,
+      "luma": [
+        10.26,
+        10.34,
+        10.42
+      ],
+      "motion": 0.245
+    },
+    {
+      "file": "life.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        17.91,
+        19.05,
+        17.57
+      ],
+      "motion": 9.744
+    },
+    {
+      "file": "lissajous.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": false,
+      "luma": [
+        5.64,
+        3.52,
+        3.52
+      ],
+      "motion": 2.286
+    },
+    {
+      "file": "log.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        14.66,
+        15.34,
+        20.14
+      ],
+      "motion": 5.913
+    },
+    {
+      "file": "lorenz.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": true,
+      "luma": [
+        2.46,
+        2.75,
+        3.02
+      ],
+      "motion": 1.185
+    },
+    {
+      "file": "maze.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": true,
+      "luma": [
+        14.19,
+        14.17,
+        14.17
+      ],
+      "motion": 0.363
+    },
+    {
+      "file": "morse.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": true,
+      "luma": [
+        11.93,
+        11.9,
+        11.91
+      ],
+      "motion": 0.162
+    },
+    {
+      "file": "mycelium.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        20.25,
+        16.21,
+        16.51
+      ],
+      "motion": 4.093
+    },
+    {
+      "file": "network.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": true,
+      "luma": [
+        10.54,
+        10.57,
+        10.57
+      ],
+      "motion": 0.95
+    },
+    {
+      "file": "packing.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        16.79,
+        30.21,
+        38.91
+      ],
+      "motion": 22.729
+    },
+    {
+      "file": "pathfind.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": true,
+      "luma": [
+        12.66,
+        12.64,
+        12.64
+      ],
+      "motion": 0.311
+    },
+    {
+      "file": "pendulum.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": false,
+      "luma": [
+        12.8,
+        12.83,
+        12.54
+      ],
+      "motion": 5.839
+    },
+    {
+      "file": "penrose.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        84.87,
+        80.75,
+        77.54
+      ],
+      "motion": 10.86
+    },
+    {
+      "file": "percolation.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        29.62,
+        29.06,
+        29.15
+      ],
+      "motion": 23.364
+    },
+    {
+      "file": "physics.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": false,
+      "luma": [
+        9.2,
+        15.82,
+        12.89
+      ],
+      "motion": 10.626
+    },
+    {
+      "file": "pi.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": true,
+      "luma": [
+        10.13,
+        10.24,
+        10.37
+      ],
+      "motion": 0.284
+    },
+    {
+      "file": "primes.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": false,
+      "luma": [
+        10.49,
+        11.55,
+        12.29
+      ],
+      "motion": 2.429
+    },
+    {
+      "file": "reaction.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": false,
+      "luma": [
+        12.68,
+        13.29,
+        14.02
+      ],
+      "motion": 3.147
+    },
+    {
+      "file": "ripple.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": false,
+      "luma": [
+        2.48,
+        7.29,
+        8.99
+      ],
+      "motion": 7.227
+    },
+    {
+      "file": "rule.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": true,
+      "luma": [
+        10.55,
+        10.59,
+        10.65
+      ],
+      "motion": 0.183
+    },
+    {
+      "file": "sand.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": false,
+      "luma": [
+        10.08,
+        15.47,
+        15.44
+      ],
+      "motion": 6.404
+    },
+    {
+      "file": "sandpile.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": true,
+      "luma": [
+        10.08,
+        10.08,
+        10.08
+      ],
+      "motion": 0.008
+    },
+    {
+      "file": "sort.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        48.39,
+        48.55,
+        48.51
+      ],
+      "motion": 11.504
+    },
+    {
+      "file": "spirograph.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": false,
+      "luma": [
+        6.2,
+        2.62,
+        2.59
+      ],
+      "motion": 4.654
+    },
+    {
+      "file": "string.mp4",
+      "ok": false,
+      "too_dark": true,
+      "too_static": false,
+      "luma": [
+        12.67,
+        12.68,
+        12.68
+      ],
+      "motion": 2.992
+    },
+    {
+      "file": "tree.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        10.19,
+        22.36,
+        23.23
+      ],
+      "motion": 13.088
+    },
+    {
+      "file": "voronoi.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        53.0,
+        52.05,
+        51.85
+      ],
+      "motion": 11.62
+    },
+    {
+      "file": "waves.mp4",
+      "ok": true,
+      "too_dark": false,
+      "too_static": false,
+      "luma": [
+        40.39,
+        40.82,
+        40.82
+      ],
+      "motion": 3.546
+    }
+  ]
+}

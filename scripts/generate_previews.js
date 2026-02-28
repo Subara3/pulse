@@ -29,6 +29,7 @@ const INTERACTION_PRESETS = {
     { kind: 'click', x: 480, y: 270 },
     { kind: 'click', x: 360, y: 220 },
     { kind: 'click', x: 600, y: 320 },
+    { kind: 'drag', from: [300, 180], to: [660, 340], steps: 22 },
   ],
   sand: [
     { kind: 'click', x: 480, y: 270 },
@@ -59,6 +60,16 @@ const INTERACTION_PRESETS = {
   lissajous: [
     { kind: 'drag', from: [350, 300], to: [610, 220], steps: 20 },
     { kind: 'drag', from: [610, 220], to: [350, 300], steps: 20 },
+  ],
+  sandpile: [
+    { kind: 'click', x: 480, y: 270 },
+    { kind: 'click', x: 480, y: 270 },
+    { kind: 'drag', from: [420, 220], to: [540, 320], steps: 16 },
+  ],
+  network: [
+    { kind: 'click', x: 480, y: 270 },
+    { kind: 'click', x: 520, y: 240 },
+    { kind: 'click', x: 440, y: 300 },
   ],
 };
 
