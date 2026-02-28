@@ -91,6 +91,7 @@ h1 {
 
 
 .content-preview {
+  position: relative;
   width: 176px;
   height: 99px;
   border-radius: 10px;
@@ -109,6 +110,30 @@ h1 {
   object-fit: cover;
   display: block;
   border: 0;
+}
+.content-preview video {
+  opacity: 0;
+  transition: opacity 0.24s ease;
+  background: transparent;
+}
+.content-preview video.is-ready {
+  opacity: 1;
+}
+.content-preview .preview-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: rgba(224,224,224,0.78);
+  background: linear-gradient(135deg, rgba(0,245,212,0.08), rgba(123,44,191,0.14));
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.content-preview.is-ready .preview-loading {
+  opacity: 0;
 }
 .content-preview iframe {
   transform: scale(0.58);
@@ -201,9 +226,10 @@ require_once __DIR__ . '/includes/nav.php';
         <a href="<?php echo $content['page']; ?>.php" class="content-card">
           <div class="content-preview">
             <?php if (file_exists(__DIR__ . '/' . $previewPath)): ?>
-              <video autoplay muted playsinline preload="metadata" aria-label="<?php echo htmlspecialchars($content['title'], ENT_QUOTES, 'UTF-8'); ?> preview">
+              <video class="js-preview-video" muted playsinline preload="metadata" aria-label="<?php echo htmlspecialchars($content['title'], ENT_QUOTES, 'UTF-8'); ?> preview">
                 <source src="<?php echo $previewPath; ?>" type="video/mp4">
               </video>
+              <div class="preview-loading">読み込み中…</div>
             <?php else: ?>
               <i class="fa-solid <?php echo $content['icon']; ?>"></i>
             <?php endif; ?>
@@ -226,6 +252,41 @@ require_once __DIR__ . '/includes/nav.php';
   <?php endforeach; ?>
 
 </main>
+
+<script>
+(function() {
+  const cards = document.querySelectorAll('.content-card');
+  cards.forEach((card) => {
+    const preview = card.querySelector('.content-preview');
+    const video = card.querySelector('.js-preview-video');
+    if (!preview || !video) return;
+
+    const markReady = () => {
+      preview.classList.add('is-ready');
+      video.classList.add('is-ready');
+    };
+
+    video.addEventListener('loadeddata', markReady, { once: true });
+    video.addEventListener('canplay', markReady, { once: true });
+
+    const playFromStart = () => {
+      try { video.currentTime = 0; } catch (e) {}
+      const p = video.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    };
+
+    const stopPreview = () => {
+      video.pause();
+      try { video.currentTime = 0; } catch (e) {}
+    };
+
+    card.addEventListener('mouseenter', playFromStart);
+    card.addEventListener('focusin', playFromStart);
+    card.addEventListener('mouseleave', stopPreview);
+    card.addEventListener('focusout', stopPreview);
+  });
+})();
+</script>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
