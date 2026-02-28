@@ -50,6 +50,7 @@ require_once __DIR__ . '/includes/share.php';
     <label>Gravity <input type="range" id="gravitySlider" min="0.1" max="2" step="0.1" value="0.5"></label>
     <label>Damping <input type="range" id="dampingSlider" min="0.9" max="1" step="0.001" value="0.999"></label>
     <label>Bob Size <input type="range" id="sizeSlider" min="10" max="40" step="2" value="20"></label>
+    <label>Length <input type="range" id="lengthSlider" min="0.6" max="1.6" step="0.05" value="1.0"></label>
   </div>
   <div class="mode-group">
     <button class="control-btn active" data-mode="single">SINGLE</button>
@@ -58,7 +59,7 @@ require_once __DIR__ . '/includes/share.php';
     <button class="control-btn" data-mode="wave">WAVE</button>
   </div>
   <div class="action-group">
-    <button class="control-btn" id="collisionBtn">COLLISION</button>
+    <button class="control-btn active" id="collisionBtn">COLLISION</button>
     <button class="control-btn active" id="soundBtn">🔊 SOUND</button>
     <button class="control-btn" id="resetBtn">RESET</button>
   </div>
@@ -78,8 +79,9 @@ let draggingPart = null; // 'bob1' or 'bob2' for double pendulum
 let GRAVITY = 0.5;
 let DAMPING = 0.999;
 let BOB_SIZE = 20;
+let LENGTH_SCALE = 1.0;
 let mode = 'single';
-let collisionEnabled = false;
+let collisionEnabled = true;
 let newtonCooldown = []; // Newton衝突の多重検出防止（フレーム単位）
 
 // サウンド関連
@@ -464,7 +466,7 @@ function initSingle() {
   for (let i = 0; i < 5; i++) {
     pendulums.push(new Pendulum(
       width / 2 - 160 + i * 80,
-      250,
+      250 * LENGTH_SCALE,
       Math.PI / 6,
       COLORS[i % COLORS.length]
     ));
@@ -479,7 +481,7 @@ function initNewton() {
   const ballDiameter = BOB_SIZE * 2;
   const spacing = ballDiameter; // ボールが静止時に接触する間隔
   const startX = width / 2 - (count - 1) * spacing / 2;
-  const ropeLength = 280;
+  const ropeLength = 280 * LENGTH_SCALE;
 
   for (let i = 0; i < count; i++) {
     const p = new Pendulum(
@@ -506,8 +508,8 @@ function initDouble() {
   for (let i = 0; i < 3; i++) {
     doublePendulums.push(new DoublePendulum(
       width / 2 - 150 + i * 150,
-      120,
-      120,
+      120 * LENGTH_SCALE,
+      120 * LENGTH_SCALE,
       Math.PI / 2 + (Math.random() - 0.5) * 0.1,
       Math.PI / 2 + (Math.random() - 0.5) * 0.1,
       COLORS[i]
@@ -525,7 +527,7 @@ function initWave() {
   for (let i = 0; i < count; i++) {
     const p = new Pendulum(
       spacing * (i + 1),
-      200 + i * 8, // 少しずつ長さを変える→共振
+      (200 + i * 8) * LENGTH_SCALE, // 少しずつ長さを変える→共振
       Math.PI / 4,
       `rgba(0, ${155 + i * 6}, ${212 - i * 6}, 1)`
     );
@@ -543,6 +545,7 @@ function init() {
     case 'double': initDouble(); break;
     case 'wave': initWave(); break;
   }
+  document.getElementById('collisionBtn').classList.toggle('active', collisionEnabled);
   updateStats();
 }
 
@@ -583,7 +586,8 @@ document.querySelectorAll('[data-mode]').forEach(btn => {
     document.querySelectorAll('[data-mode]').forEach(b => b.classList.remove('active'));
     this.classList.add('active');
     mode = this.dataset.mode;
-    collisionEnabled = (mode === 'newton');
+    // DOUBLE以外は衝突ONをデフォルト
+    collisionEnabled = (mode !== 'double');
     document.getElementById('collisionBtn').classList.toggle('active', collisionEnabled);
     init();
   });
@@ -614,6 +618,11 @@ document.getElementById('dampingSlider').addEventListener('input', function() {
 
 document.getElementById('sizeSlider').addEventListener('input', function() {
   BOB_SIZE = parseInt(this.value);
+});
+
+document.getElementById('lengthSlider').addEventListener('input', function() {
+  LENGTH_SCALE = parseFloat(this.value);
+  init();
 });
 
 window.addEventListener('resize', init);
