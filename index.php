@@ -1377,7 +1377,7 @@ if (!empty($newContents)):
     <a href="<?= $c['page'] ?>.php" class="new-content-card fade-in">
       <div class="new-content-preview">
         <?php if (file_exists(__DIR__ . '/' . $previewPath)): ?>
-          <video autoplay muted playsinline preload="metadata"<?php if (file_exists(__DIR__ . '/' . $posterPath)): ?> poster="<?= $posterPath ?>?v=<?= $posterVer ?>"<?php endif; ?> aria-label="<?= htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8') ?> preview">
+          <video class="js-preview-video" autoplay muted playsinline preload="metadata"<?php if (file_exists(__DIR__ . '/' . $posterPath)): ?> poster="<?= $posterPath ?>?v=<?= $posterVer ?>"<?php endif; ?> aria-label="<?= htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8') ?> preview">
             <source src="<?= $previewPath ?>?v=<?= $previewVer ?>" type="video/mp4">
           </video>
         <?php else: ?>
@@ -1455,6 +1455,20 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.1 });
 document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Freeze preview at last frame (avoid white frame at end)
+(function() {
+  document.querySelectorAll('.js-preview-video').forEach((video) => {
+    video.addEventListener('ended', () => {
+      try {
+        if (Number.isFinite(video.duration) && video.duration > 0) {
+          video.currentTime = Math.max(0, video.duration - 0.05);
+        }
+      } catch (e) {}
+      video.pause();
+    });
+  });
+})();
 
 // Feedback form
 document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
