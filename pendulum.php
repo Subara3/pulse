@@ -80,7 +80,7 @@ let DAMPING = 0.999;
 let BOB_SIZE = 20;
 let mode = 'single';
 let collisionEnabled = false;
-let newtonCollided = []; // Newton衝突フラグ
+let newtonCooldown = []; // Newton衝突の多重検出防止（フレーム単位）
 
 // サウンド関連
 let audioCtx = null;
@@ -403,6 +403,9 @@ function handleNewtonCollisions() {
     const dy = bob2.y - bob1.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
     touching[i] = dist <= BOB_SIZE * 2 + 3;
+
+    // 接触しっぱなしでも再衝突できるよう、フレームクールダウンを減らす
+    if (newtonCooldown[i] > 0) newtonCooldown[i]--;
   }
 
   // 左端から衝突をチェック（右方向への運動量移動）
@@ -411,7 +414,7 @@ function handleNewtonCollisions() {
     const p2 = pendulums[i + 1];
 
     // 近づいているか
-    if (touching[i] && p1.angleVelocity > p2.angleVelocity + 0.001 && !newtonCollided[i]) {
+    if (touching[i] && p1.angleVelocity > p2.angleVelocity + 0.001 && newtonCooldown[i] === 0) {
       // 接触しているボールの連鎖を見つける
       let chainEnd = i + 1;
       while (chainEnd < n - 1 && touching[chainEnd]) {
@@ -423,8 +426,8 @@ function handleNewtonCollisions() {
       p1.angleVelocity = 0;
       pendulums[chainEnd].angleVelocity = transferVel * 0.995;
 
-      // 衝突フラグ
-      newtonCollided[i] = true;
+      // 連続判定防止（接触中の多重トリガーを抑止）
+      newtonCooldown[i] = 6;
 
       // エフェクト
       const bob1 = p1.getBobPosition();
@@ -432,10 +435,6 @@ function handleNewtonCollisions() {
       drawCollisionEffect((bob1.x + bob2.x) / 2, (bob1.y + bob2.y) / 2);
     }
 
-    // 離れたらリセット
-    if (!touching[i]) {
-      newtonCollided[i] = false;
-    }
   }
 
   // 右端から衝突をチェック（左方向への運動量移動）
@@ -444,7 +443,7 @@ function handleNewtonCollisions() {
     const p2 = pendulums[i];
 
     // 近づいているか（右から左へ）
-    if (touching[i] && p1.angleVelocity < p2.angleVelocity - 0.001 && !newtonCollided[i]) {
+    if (touching[i] && p1.angleVelocity < p2.angleVelocity - 0.001 && newtonCooldown[i] === 0) {
       // 接触しているボールの連鎖を見つける
       let chainStart = i;
       while (chainStart > 0 && touching[chainStart - 1]) {
@@ -456,8 +455,8 @@ function handleNewtonCollisions() {
       p1.angleVelocity = 0;
       pendulums[chainStart].angleVelocity = transferVel * 0.995;
 
-      // 衝突フラグ
-      newtonCollided[i] = true;
+      // 連続判定防止（接触中の多重トリガーを抑止）
+      newtonCooldown[i] = 6;
 
       // エフェクト
       const bob1 = p1.getBobPosition();
@@ -465,10 +464,6 @@ function handleNewtonCollisions() {
       drawCollisionEffect((bob1.x + bob2.x) / 2, (bob1.y + bob2.y) / 2);
     }
 
-    // 離れたらリセット
-    if (!touching[i]) {
-      newtonCollided[i] = false;
-    }
   }
 }
 
@@ -517,7 +512,7 @@ function initNewton() {
   }
 
   // 衝突フラグを初期化
-  newtonCollided = new Array(count - 1).fill(false);
+  newtonCooldown = new Array(count - 1).fill(0);
 
   collisionEnabled = true;
   document.getElementById('collisionBtn').classList.add('active');
