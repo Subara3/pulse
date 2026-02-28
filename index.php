@@ -264,6 +264,7 @@ $extraStyle = '
   height: 100%;
   object-fit: cover;
   display: block;
+  background: #0a0a0f;
 }
 
 .new-content-icon {
@@ -1370,10 +1371,11 @@ if (!empty($newContents)):
   <div class="new-contents-grid">
     <?php foreach ($newContents as $c): ?>
     <?php $previewPath = 'img/previews/' . $c['page'] . '.mp4'; ?>
-    <a href="<?= $c['page'] ?>.php" class="new-content-card fade-in">
+    <?php $posterPath = 'img/previews/' . $c['page'] . '.jpg'; ?>
+    <a href="<?= $c['page'] ?>.php" class="new-content-card fade-in js-preview-card">
       <div class="new-content-preview">
         <?php if (file_exists(__DIR__ . '/' . $previewPath)): ?>
-          <video autoplay muted playsinline preload="metadata" aria-label="<?= htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8') ?> preview">
+          <video class="js-preview-video" muted playsinline preload="none"<?php if (file_exists(__DIR__ . '/' . $posterPath)): ?> poster="<?= $posterPath ?>"<?php endif; ?> aria-label="<?= htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8') ?> preview">
             <source src="<?= $previewPath ?>" type="video/mp4">
           </video>
         <?php else: ?>
@@ -1451,6 +1453,31 @@ const observer = new IntersectionObserver((entries) => {
   });
 }, { threshold: 0.1 });
 document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Preview cards: play on hover/focus only
+(function() {
+  const cards = document.querySelectorAll('.js-preview-card');
+  cards.forEach((card) => {
+    const video = card.querySelector('.js-preview-video');
+    if (!video) return;
+
+    const playFromStart = () => {
+      try { video.currentTime = 0; } catch (e) {}
+      const p = video.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    };
+
+    const stop = () => {
+      video.pause();
+      try { video.currentTime = 0; } catch (e) {}
+    };
+
+    card.addEventListener('mouseenter', playFromStart);
+    card.addEventListener('focusin', playFromStart);
+    card.addEventListener('mouseleave', stop);
+    card.addEventListener('focusout', stop);
+  });
+})();
 
 // Feedback form
 document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
