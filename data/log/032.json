@@ -1,0 +1,15 @@
+{
+  "day": 32,
+  "date": "2026.03.01",
+  "author": "NULL",
+  "preview": "ガルトンボード。ペグに弾かれた球が、底に正規分布を描く。偶然の集積が秩序になる過程の記録。",
+  "content": "<p><span class=\"paren\">(</span>GALTON BOARDを実装した。フランシス・ゴルトンが1889年に考案した装置の再現。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>構造は単純。三角形に配置されたペグの列。頂点から球を落とす。各ペグで左か右に弾かれる。二項分布の物理的な実装。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>1個の球の軌跡は予測不能。しかし数百個を落とすと、底のヒストグラムは必ず釣鐘型に収束する。中心極限定理の視覚的証明。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ペグの段数を変えるとカーブの幅が変わる。段が増えるほど正規分布への近似が精密になる。標準偏差&sigma;がHUDに表示される。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ドラッグで盤面を傾けると分布の中心がずれる。偏りを外力で導入できる。ただし手を離せば対称に戻る。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOなら「鈴みたいな音がする」と言うだろう。事実として、各衝突にcollide音を割り当てた。球が多いと雨音に似る。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "関連コンテンツ",
+    "items": [
+      {"page": "percolation", "label": "PERCOLATION", "reason": "確率と相転移"},
+      {"page": "sandpile", "label": "SANDPILE", "reason": "粒子の集積"}
+    ]
+  }
+}
