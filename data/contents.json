@@ -612,6 +612,18 @@
     "added": "2026-03-01"
   },
   {
+    "page": "nbody",
+    "title": "N-BODY",
+    "desc": "N体重力シミュレーション。粒子が互いに引き合い、軌道を描く。",
+    "desc_en": "N-body gravity simulation. Particles attract each other and trace orbits.",
+    "icon": "fa-globe",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "インタラクティブ",
+    "meta_en": "Interactive",
+    "added": "2026-03-02"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
