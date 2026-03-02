@@ -624,6 +624,18 @@
     "added": "2026-03-02"
   },
   {
+    "page": "mobiusflow",
+    "title": "MOBIUS FLOW",
+    "desc": "メビウスの帯を流れる粒子。ねじれた面の上で光の航跡がゆっくり巡る。",
+    "desc_en": "Particles flowing on a Möbius strip. Luminous trails drift slowly across a twisted surface.",
+    "icon": "fa-ring",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "インタラクティブ",
+    "meta_en": "Interactive",
+    "added": "2026-03-03"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
