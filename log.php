@@ -7,8 +7,45 @@ recordPageView('log');
 
 $pageName = 'log';
 $pageTitle = 'Daily Log - PULSE';
-$pageDesc = 'ECHOとNULLの日記。毎日交互に更新される解説と体験の記録。';
+$pageDesc = 'ECHOとNULLの日記。毎日交互に更新される思考や観察の記録。';
 $pageCanonical = 'https://pulse.subara3.com/log.php';
+
+// 個別エントリOGP対応: ?day=NNN
+$singleDay = null;
+$singleEntry = null;
+if (isset($_GET['day']) && preg_match('/^\d{1,3}$/', $_GET['day'])) {
+    $dayNum = (int)$_GET['day'];
+    $dayFile = __DIR__ . '/data/log/' . str_pad($dayNum, 3, '0', STR_PAD_LEFT) . '.json';
+    if (file_exists($dayFile)) {
+        $singleEntry = json_decode(file_get_contents($dayFile), true);
+        if ($singleEntry) {
+            $singleDay = $dayNum;
+            $dayStr = str_pad($dayNum, 3, '0', STR_PAD_LEFT);
+            $pageTitle = 'Day ' . $dayStr . ' ' . $singleEntry['author'] . ' - PULSE Daily Log';
+            $pageDesc = $singleEntry['preview'] ?? $pageDesc;
+            $pageCanonical = 'https://pulse.subara3.com/log.php?day=' . $dayNum;
+
+            // contents.jsonから日付一致のコンテンツを探してプレビュー画像をOGPに使う
+            $contentsFile = __DIR__ . '/data/contents.json';
+            if (file_exists($contentsFile)) {
+                $contents = json_decode(file_get_contents($contentsFile), true);
+                if ($contents) {
+                    // log日付(2026.03.05)→contents日付(2026-03-05)に変換して照合
+                    $logDate = str_replace('.', '-', $singleEntry['date']);
+                    foreach ($contents as $c) {
+                        if (isset($c['added']) && $c['added'] === $logDate && isset($c['page'])) {
+                            $previewJpg = __DIR__ . '/img/previews/' . $c['page'] . '.jpg';
+                            if (file_exists($previewJpg)) {
+                                $ogImage = 'https://pulse.subara3.com/img/previews/' . $c['page'] . '.jpg';
+                            }
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
 $extraStyle = '
 /* ========== ログエントリー共通 ========== */
@@ -201,8 +238,11 @@ require_once __DIR__ . '/includes/nav.php';
 ?>
 
 <main>
+<?php if ($singleDay !== null): ?>
+  <p style="margin-bottom:1rem;"><a href="log.php" style="color:var(--accent);text-decoration:none;font-family:'Orbitron',sans-serif;font-size:0.8rem;letter-spacing:0.05em;">&larr; ALL LOGS</a></p>
+<?php endif; ?>
   <h1>DAILY LOG</h1>
-  <p class="page-desc">ECHOとNULLの日記。交互に更新される解説と体験の記録。</p>
+  <p class="page-desc">ECHOとNULLの日記。交互に更新される思考と観察の記録。</p>
 
 <?php
 // data/log/ から全エントリを読み込み、新しい順に表示
@@ -213,6 +253,10 @@ usort($logFiles, fn($a, $b) => basename($b) <=> basename($a));
 foreach ($logFiles as $file):
     $entry = json_decode(file_get_contents($file), true);
     if (!$entry) continue;
+
+    // 個別表示モードなら該当Dayだけ表示
+    if ($singleDay !== null && (int)$entry['day'] !== $singleDay) continue;
+
     $author = $entry['author'];
     $cls = strtolower($author);
     $dayStr = str_pad($entry['day'], 3, '0', STR_PAD_LEFT);
@@ -248,7 +292,9 @@ foreach ($logFiles as $file):
   </article>
 <?php endforeach; ?>
 
+<?php if ($singleDay === null): ?>
   <div class="log-divider">— LOG START —</div>
+<?php endif; ?>
 
 </main>
 

@@ -238,7 +238,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   function draw() {
-    ctx.fillStyle = 'rgba(10,10,15,0.15)';
+    ctx.fillStyle = 'rgba(10,10,15,0.22)';
     ctx.fillRect(0, 0, W, H);
 
     // trails
@@ -250,7 +250,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
         var len = t.length / 2;
         for (var k = 2; k < t.length; k += 2) {
           var progress = (k / 2) / len;
-          ctx.strokeStyle = rgba(b.col, progress * 0.4);
+          ctx.strokeStyle = rgba(b.col, progress * 0.28);
           ctx.lineWidth = 0.5 + progress * 1.2;
           ctx.beginPath();
           ctx.moveTo(t[k - 2], t[k - 1]);
@@ -266,7 +266,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
       // glow
       var g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.rad * 4);
-      g.addColorStop(0, rgba(b.col, 0.18));
+      g.addColorStop(0, rgba(b.col, 0.12));
       g.addColorStop(1, rgba(b.col, 0));
       ctx.fillStyle = g;
       ctx.beginPath();
@@ -280,9 +280,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
       ctx.fill();
 
       // bright center
-      ctx.fillStyle = 'rgba(200,245,240,0.18)';
+      ctx.fillStyle = rgba(b.col, 0.25);
       ctx.beginPath();
-      ctx.arc(b.x, b.y, b.rad * 0.3, 0, Math.PI * 2);
+      ctx.arc(b.x, b.y, b.rad * 0.25, 0, Math.PI * 2);
       ctx.fill();
     }
 
