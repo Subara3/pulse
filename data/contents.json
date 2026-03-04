@@ -648,6 +648,18 @@
     "added": "2026-03-04"
   },
   {
+    "page": "cyclicca",
+    "title": "CYCLIC CA",
+    "desc": "循環セルオートマトン。状態が追いかけ合い、発光する渦と波面が場を満たす。",
+    "desc_en": "Cyclic cellular automaton. States chase each other to form luminous spirals and wavefronts.",
+    "icon": "fa-arrows-spin",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "インタラクティブ",
+    "meta_en": "Interactive",
+    "added": "2026-03-04"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
