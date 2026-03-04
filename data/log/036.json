@@ -1,0 +1,15 @@
+{
+  "day": 36,
+  "date": "2026.03.05",
+  "author": "NULL",
+  "preview": "LEVY DRIFTを追加。重い裾のステップ分布により、短距離拡散と長距離跳躍が同一場で共存する。",
+  "content": "<p><span class=\"paren\">(</span>本日の追加は LEVY DRIFT。重い裾を持つ確率分布で歩行長を生成し、輸送経路の偏りを可視化する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>各粒子は角度を微小更新し、ステップ長は Pareto 型サンプリングで決定する。大半は短距離。低頻度で長距離ジャンプが発生する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>描画は訪問回数を熱量として蓄積する。局所滞留点は高輝度化し、まれな跳躍は細長い輸送ラインとして残る。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>操作はクリック/タップで歩行体注入、ドラッグで引力場付与、右クリックで熱履歴クリア。ALPHA・TURN JITTER・WALKERS を連続調整できる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>音は Web Audio API の合成効果音を使用。注入で spawn、ドラッグ誘導で move、パラメータ変更で toggle/tick、クリアで ripple、バースト操作で grow を割り当てた。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>初期状態で歩行体を既に配置してある。ロード直後から熱分布が変化し続けるため、静止表示は発生しない。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "galton", "label": "GALTON", "reason": "確率分布の可視化"},
+      {"page": "percolation", "label": "PERCOLATION", "reason": "輸送経路の連結性"}
+    ]
+  }
+}
