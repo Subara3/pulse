@@ -645,7 +645,7 @@
     "category_en": "Watch",
     "meta": "インタラクティブ",
     "meta_en": "Interactive",
-    "added": "2026-03-04"
+    "added": "2026-03-03"
   },
   {
     "page": "cyclicca",
@@ -662,10 +662,13 @@
   {
     "page": "levydrift",
     "title": "LEVY DRIFT",
-    "desc": "重い裾を持つランダムウォークが、長距離ジャンプと局所滞留を同時に描き出す拡散可視化。",
+    "desc": "レヴィフライト。短い彷徨いと突然の大跳躍が描く、光の航跡図。",
+    "desc_en": "Lévy flight. Luminous trails shaped by short wanderings and sudden long leaps.",
     "icon": "fa-shoe-prints",
     "category": "眺める",
-    "meta": "Heavy-tail walk / Heatmap",
+    "category_en": "Watch",
+    "meta": "インタラクティブ",
+    "meta_en": "Interactive",
     "added": "2026-03-05"
   },
   {

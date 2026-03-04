@@ -1,329 +1,360 @@
 <?php
 require_once __DIR__ . '/includes/config.php';
-require_once __DIR__ . '/includes/access_log.php';
 recordPageView('levydrift');
 
 $pageName = 'levydrift';
 $pageTitle = 'LEVY DRIFT - PULSE';
-$pageDesc = 'Heavy-tailed random walks carve luminous transport paths and hotspots.';
+$pageDesc = 'レヴィフライト。短い彷徨いと突然の大跳躍が描く、光の航跡図。';
 $pageCanonical = 'https://pulse.subara3.com/levydrift.php';
-$extraStyle = <<<'CSS'
-<style>
-  html, body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    background: #0a0a0f;
-    overflow: hidden;
-  }
-  #canvas {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    touch-action: none;
-  }
-  .hud {
-    position: fixed;
-    top: 12px;
-    right: 12px;
-    z-index: 20;
-    display: grid;
-    gap: 8px;
-    min-width: 190px;
-    font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
-    color: #dff;
-    background: rgba(10, 10, 15, 0.58);
-    border: 1px solid rgba(0, 245, 212, 0.35);
-    border-radius: 10px;
-    padding: 10px;
-    backdrop-filter: blur(4px);
-  }
-  .hud .row { display: flex; justify-content: space-between; gap: 10px; }
-  .controls {
-    position: fixed;
-    right: 12px;
-    bottom: 12px;
-    z-index: 20;
-    display: grid;
-    gap: 8px;
-    width: min(260px, calc(100vw - 24px));
-    font: 11px/1.2 ui-monospace, SFMono-Regular, Menlo, monospace;
-    color: #dff;
-    background: rgba(10, 10, 15, 0.62);
-    border: 1px solid rgba(123, 44, 191, 0.45);
-    border-radius: 10px;
-    padding: 10px;
-  }
-  .controls label { display: grid; gap: 3px; }
-  .controls .line { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-  .controls input[type='range'] { width: 100%; accent-color: #00f5d4; }
-  .controls button {
-    border: 1px solid rgba(0, 245, 212, 0.45);
-    background: rgba(0, 245, 212, 0.12);
-    color: #dff;
-    border-radius: 8px;
-    padding: 7px 8px;
-    cursor: pointer;
-  }
-  .controls button:hover { background: rgba(0, 245, 212, 0.2); }
-  .info {
-    position: fixed;
-    left: 12px;
-    bottom: 12px;
-    z-index: 20;
-    max-width: min(420px, calc(100vw - 24px));
-    font: 12px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace;
-    color: rgba(222, 245, 255, 0.9);
-    background: rgba(10, 10, 15, 0.5);
-    border: 1px solid rgba(123, 44, 191, 0.38);
-    border-radius: 10px;
-    padding: 10px;
-  }
-  @media (max-width: 740px) {
-    .hud { min-width: 155px; font-size: 11px; }
-    .controls { width: min(225px, calc(100vw - 24px)); }
-    .info { font-size: 11px; max-width: 56vw; }
-  }
-</style>
-CSS;
+
+$extraStyle = '
+body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
+#canvas { position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; }
+.ui { position: fixed; z-index: 100; pointer-events: none; font-family: "Orbitron", "Segoe UI", sans-serif; }
+.hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.34); font-size: 0.63rem; line-height: 1.8; text-align: right; letter-spacing: 0.05em; }
+.hud .v { color: #00f5d4; font-weight: 700; }
+.info { left: 1.2rem; bottom: 1.2rem; color: rgba(255,255,255,0.24); font-size: 0.56rem; line-height: 1.75; letter-spacing: 0.05em; max-width: min(74vw, 420px); }
+@media (max-width: 768px) {
+  .hud { top: 0.65rem; right: 0.65rem; font-size: 0.54rem; }
+  .info { left: 0.85rem; bottom: 0.9rem; font-size: 0.49rem; max-width: 72vw; }
+}
+';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
-<div class="hud" id="hud">
-  <div class="row"><span>WALKERS</span><strong id="walkerCount">0</strong></div>
-  <div class="row"><span>MEAN STEP</span><strong id="meanStep">0.0</strong></div>
-  <div class="row"><span>HOTSPOT</span><strong id="hotspot">0</strong></div>
+
+<div class="ui hud">
+  WALKERS: <span id="hudWalkers" class="v">0</span><br>
+  JUMPS: <span id="hudJumps" class="v">0</span><br>
+  MAX LEAP: <span id="hudMaxLeap" class="v">0</span>
 </div>
-<div class="controls">
-  <label>
-    <div class="line"><span>ALPHA (tail)</span><span id="alphaVal">1.45</span></div>
-    <input id="alpha" type="range" min="1.1" max="2" step="0.01" value="1.45">
-  </label>
-  <label>
-    <div class="line"><span>TURN JITTER</span><span id="jitterVal">0.25</span></div>
-    <input id="jitter" type="range" min="0" max="1" step="0.01" value="0.25">
-  </label>
-  <label>
-    <div class="line"><span>WALKERS</span><span id="densityVal">120</span></div>
-    <input id="density" type="range" min="20" max="280" step="10" value="120">
-  </label>
-  <button id="burstBtn">BURST</button>
+
+<div class="ui info">
+  TAP: SPAWN WALKERS<br>
+  DRAG: ATTRACT<br>
+  RIGHT-CLICK: CLEAR TRAILS<br>
+  HEAVY TAILS SHAPE THE PATH
 </div>
-<div class="info">Heavy-tailed steps produce occasional long jumps, then local trapping. Tap to inject walkers. Drag to attract. Right-click to clear trails.</div>
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'inject'],
-  ['type' => 'drag', 'label' => 'attract'],
-  ['type' => 'right', 'label' => 'clear'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
+
+<div id="controls" class="drawer-controls">
+  <div class="slider-wrap">
+    <label>ALPHA (tail)</label>
+    <input type="range" id="alphaSlider" min="110" max="200" value="150">
+  </div>
+  <div class="slider-wrap">
+    <label>WALKERS</label>
+    <input type="range" id="countSlider" min="20" max="200" value="80">
+  </div>
+  <div class="slider-wrap">
+    <label>TRAIL FADE</label>
+    <input type="range" id="fadeSlider" min="1" max="20" value="4">
+  </div>
+  <div class="btn-row">
+    <button class="control-btn" id="streakBtn">STREAKS: ON</button>
+    <button class="control-btn" id="burstBtn">BURST</button>
+    <button class="control-btn" id="resetBtn">RESET</button>
+  </div>
+</div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
+
 <script>
-(() => {
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d', { alpha: false });
+(function() {
+  var canvas = document.getElementById('canvas');
+  var ctx = canvas.getContext('2d', { alpha: false });
 
-  const alphaEl = document.getElementById('alpha');
-  const jitterEl = document.getElementById('jitter');
-  const densityEl = document.getElementById('density');
-  const alphaVal = document.getElementById('alphaVal');
-  const jitterVal = document.getElementById('jitterVal');
-  const densityVal = document.getElementById('densityVal');
+  var hudWalkers = document.getElementById('hudWalkers');
+  var hudJumps = document.getElementById('hudJumps');
+  var hudMaxLeap = document.getElementById('hudMaxLeap');
 
-  const walkerCountEl = document.getElementById('walkerCount');
-  const meanStepEl = document.getElementById('meanStep');
-  const hotspotEl = document.getElementById('hotspot');
+  var alphaSlider = document.getElementById('alphaSlider');
+  var countSlider = document.getElementById('countSlider');
+  var fadeSlider = document.getElementById('fadeSlider');
+  var streakBtn = document.getElementById('streakBtn');
+  var burstBtn = document.getElementById('burstBtn');
+  var resetBtn = document.getElementById('resetBtn');
 
-  let w = 0, h = 0, dpr = 1;
-  let walkers = [];
-  let heat;
-  let pointer = { x: 0, y: 0, down: false };
-  let alpha = parseFloat(alphaEl.value);
-  let jitter = parseFloat(jitterEl.value);
+  var W = 0, H = 0;
+  var walkers = [];
+  var showStreaks = true;
+  var totalJumps = 0;
+  var maxLeap = 0;
+  var pointer = { x: 0, y: 0, down: false };
+
+  var ACCENT = [0, 245, 212];
+  var SUB = [123, 44, 191];
+
+  function rgba(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; }
+  function mix(a, b, t) {
+    return [
+      (a[0] + (b[0] - a[0]) * t) | 0,
+      (a[1] + (b[1] - a[1]) * t) | 0,
+      (a[2] + (b[2] - a[2]) * t) | 0
+    ];
+  }
 
   function resize() {
-    dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-    w = Math.floor(window.innerWidth);
-    h = Math.floor(window.innerHeight);
-    canvas.width = Math.floor(w * dpr);
-    canvas.height = Math.floor(h * dpr);
-    canvas.style.width = w + 'px';
-    canvas.style.height = h + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    heat = new Float32Array(w * h);
-    seed(parseInt(densityEl.value, 10), w * 0.5, h * 0.5, Math.min(w, h) * 0.3);
-    paintBackground(true);
+    W = Math.floor(window.innerWidth);
+    H = Math.floor(window.innerHeight);
+    canvas.width = W;
+    canvas.height = H;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
   }
 
-  function rand(min, max) { return min + Math.random() * (max - min); }
-
-  function sampleLevy(a) {
-    // Pareto-like step with finite cap for stable mobile performance
-    const u = Math.max(1e-6, 1 - Math.random());
-    const step = Math.pow(u, -1 / a);
-    return Math.min(step * 2.2, 42);
+  // Levy flight step: Pareto-distributed with heavy tail
+  function levyStep(alpha) {
+    var u = Math.max(1e-8, 1 - Math.random());
+    var step = Math.pow(u, -1.0 / alpha);
+    return Math.min(step * 3, Math.min(W, H) * 0.4);
   }
 
-  function createWalker(x, y, spread = 20) {
+  function createWalker(x, y) {
+    var hue = 175 + Math.random() * 110; // teal to purple range
     return {
-      x: x + rand(-spread, spread),
-      y: y + rand(-spread, spread),
-      a: rand(0, Math.PI * 2),
-      v: rand(0.85, 1.2),
-      hue: rand(176, 286)
+      x: x, y: y,
+      angle: Math.random() * Math.PI * 2,
+      hue: hue,
+      col: mix(ACCENT, SUB, (hue - 175) / 110),
+      trail: [],
+      age: 0,
+      lastStep: 0
     };
   }
 
-  function seed(count, cx, cy, spread) {
+  function seed() {
     walkers = [];
-    for (let i = 0; i < count; i++) walkers.push(createWalker(cx, cy, spread));
-    walkerCountEl.textContent = walkers.length;
-  }
-
-  function addBurst(cx, cy, count = 24) {
-    for (let i = 0; i < count; i++) walkers.push(createWalker(cx, cy, 8));
-    const target = parseInt(densityEl.value, 10) + 130;
-    if (walkers.length > target) walkers.splice(0, walkers.length - target);
-    walkerCountEl.textContent = walkers.length;
-    if (window.SFX) SFX.play('spawn', 40);
-  }
-
-  function clearHeat() {
-    heat.fill(0);
-    paintBackground(true);
-    if (window.SFX) SFX.play('ripple');
-  }
-
-  function paintBackground(full = false) {
-    if (full) {
-      ctx.fillStyle = '#0a0a0f';
-      ctx.fillRect(0, 0, w, h);
-      return;
+    totalJumps = 0;
+    maxLeap = 0;
+    var count = parseInt(countSlider.value, 10);
+    var cx = W / 2, cy = H / 2;
+    var spread = Math.min(W, H) * 0.15;
+    for (var i = 0; i < count; i++) {
+      var a = Math.random() * Math.PI * 2;
+      var r = Math.random() * spread;
+      walkers.push(createWalker(cx + Math.cos(a) * r, cy + Math.sin(a) * r));
     }
-    ctx.fillStyle = 'rgba(10,10,15,0.06)';
-    ctx.fillRect(0, 0, w, h);
+    hudWalkers.textContent = walkers.length;
   }
 
-  function tick() {
-    paintBackground(false);
+  function addBurst(x, y, count) {
+    var n = count || 16;
+    for (var i = 0; i < n; i++) {
+      var a = Math.random() * Math.PI * 2;
+      var r = Math.random() * 30;
+      walkers.push(createWalker(x + Math.cos(a) * r, y + Math.sin(a) * r));
+    }
+    // cap total walkers
+    var max = parseInt(countSlider.value, 10) + 100;
+    if (walkers.length > max) walkers.splice(0, walkers.length - max);
+    hudWalkers.textContent = walkers.length;
+  }
 
-    const baseCount = parseInt(densityEl.value, 10);
-    while (walkers.length < baseCount) walkers.push(createWalker(rand(0, w), rand(0, h), 6));
-    if (walkers.length > baseCount + 130) walkers.length = baseCount + 130;
+  function update() {
+    var alpha = parseInt(alphaSlider.value, 10) / 100;
+    var maxTrail = 300;
+    var frameMaxLeap = 0;
 
-    let stepAcc = 0;
-    let hot = 0;
+    for (var i = 0; i < walkers.length; i++) {
+      var w = walkers[i];
+      w.age++;
 
-    for (let i = 0; i < walkers.length; i++) {
-      const p = walkers[i];
-      const step = sampleLevy(alpha) * p.v;
-      stepAcc += step;
+      // direction jitter
+      w.angle += (Math.random() - 0.5) * 0.6;
 
-      p.a += rand(-jitter, jitter);
+      // attract to pointer if dragging
       if (pointer.down) {
-        const dx = pointer.x - p.x;
-        const dy = pointer.y - p.y;
-        const ang = Math.atan2(dy, dx);
-        p.a += Math.sin(ang - p.a) * 0.18;
+        var dx = pointer.x - w.x;
+        var dy = pointer.y - w.y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > 1) {
+          var targetAngle = Math.atan2(dy, dx);
+          var diff = targetAngle - w.angle;
+          while (diff > Math.PI) diff -= Math.PI * 2;
+          while (diff < -Math.PI) diff += Math.PI * 2;
+          w.angle += diff * 0.15;
+        }
       }
 
-      p.x += Math.cos(p.a) * step;
-      p.y += Math.sin(p.a) * step;
+      var step = levyStep(alpha);
+      var oldX = w.x;
+      var oldY = w.y;
 
-      if (p.x < 0) p.x += w;
-      if (p.x >= w) p.x -= w;
-      if (p.y < 0) p.y += h;
-      if (p.y >= h) p.y -= h;
+      w.x += Math.cos(w.angle) * step;
+      w.y += Math.sin(w.angle) * step;
+      w.lastStep = step;
 
-      const xi = p.x | 0;
-      const yi = p.y | 0;
-      const idx = yi * w + xi;
-      heat[idx] = Math.min(heat[idx] + 1.8, 420);
-      const local = heat[idx];
-      if (local > hot) hot = local;
+      // wrap around
+      if (w.x < 0) w.x += W;
+      if (w.x >= W) w.x -= W;
+      if (w.y < 0) w.y += H;
+      if (w.y >= H) w.y -= H;
 
-      const sat = 66;
-      const light = Math.min(80, 34 + local * 0.18);
-      ctx.fillStyle = `hsla(${p.hue}, ${sat}%, ${light}%, ${Math.min(0.9, 0.2 + local * 0.004)})`;
-      ctx.fillRect(p.x, p.y, 1.6, 1.6);
+      // record trail
+      w.trail.push(oldX, oldY, w.x, w.y, step);
+      if (w.trail.length > maxTrail * 5) {
+        w.trail.splice(0, w.trail.length - maxTrail * 5);
+      }
 
-      if (local > 20) {
-        ctx.fillStyle = 'rgba(255,255,255,0.09)';
-        ctx.fillRect(p.x, p.y, 1, 1);
+      if (step > 15) {
+        totalJumps++;
+        if (step > frameMaxLeap) frameMaxLeap = step;
       }
     }
 
-    walkerCountEl.textContent = walkers.length;
-    meanStepEl.textContent = (stepAcc / Math.max(1, walkers.length)).toFixed(1);
-    hotspotEl.textContent = hot.toFixed(0);
+    if (frameMaxLeap > maxLeap) maxLeap = frameMaxLeap;
 
-    requestAnimationFrame(tick);
-  }
-
-  function pointerPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    if (e.touches && e.touches[0]) {
-      return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
+    // maintain walker count
+    var target = parseInt(countSlider.value, 10);
+    while (walkers.length < target) {
+      walkers.push(createWalker(Math.random() * W, Math.random() * H));
     }
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top };
   }
 
-  canvas.addEventListener('pointerdown', (e) => {
-    const p = pointerPos(e);
-    pointer.x = p.x; pointer.y = p.y; pointer.down = true;
-    addBurst(pointer.x, pointer.y, 28);
-  });
-  canvas.addEventListener('pointermove', (e) => {
-    const p = pointerPos(e);
-    pointer.x = p.x; pointer.y = p.y;
-    if (pointer.down && window.SFX) SFX.play('move', 70);
-  });
-  window.addEventListener('pointerup', () => { pointer.down = false; });
+  function draw() {
+    var fadeAmount = parseInt(fadeSlider.value, 10) / 100;
+    ctx.fillStyle = 'rgba(10,10,15,' + fadeAmount + ')';
+    ctx.fillRect(0, 0, W, H);
 
-  canvas.addEventListener('contextmenu', (e) => {
+    for (var i = 0; i < walkers.length; i++) {
+      var w = walkers[i];
+      var trail = w.trail;
+      var segments = trail.length / 5;
+
+      // draw trail segments
+      for (var k = 0; k < trail.length; k += 5) {
+        var x0 = trail[k];
+        var y0 = trail[k + 1];
+        var x1 = trail[k + 2];
+        var y1 = trail[k + 3];
+        var step = trail[k + 4];
+        var progress = (k / 5) / segments;
+
+        // skip wrap-around segments
+        var dx = Math.abs(x1 - x0);
+        var dy = Math.abs(y1 - y0);
+        if (dx > W * 0.5 || dy > H * 0.5) continue;
+
+        var isLeap = step > 15;
+
+        if (isLeap && showStreaks) {
+          // bright streak for long jumps
+          var intensity = Math.min(1, step / 60);
+          var streakCol = mix(w.col, [255, 255, 255], intensity * 0.4);
+          ctx.strokeStyle = rgba(streakCol, progress * (0.3 + intensity * 0.4));
+          ctx.lineWidth = 1 + intensity * 2.5;
+          ctx.beginPath();
+          ctx.moveTo(x0, y0);
+          ctx.lineTo(x1, y1);
+          ctx.stroke();
+        } else {
+          // normal trail
+          ctx.strokeStyle = rgba(w.col, progress * 0.25);
+          ctx.lineWidth = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(x0, y0);
+          ctx.lineTo(x1, y1);
+          ctx.stroke();
+        }
+      }
+
+      // current position: glow
+      var glowR = 6 + (w.lastStep > 15 ? Math.min(w.lastStep * 0.15, 8) : 0);
+      var g = ctx.createRadialGradient(w.x, w.y, 0, w.x, w.y, glowR);
+      g.addColorStop(0, rgba(w.col, 0.35));
+      g.addColorStop(1, rgba(w.col, 0));
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(w.x, w.y, glowR, 0, Math.PI * 2);
+      ctx.fill();
+
+      // core dot
+      ctx.fillStyle = rgba(w.col, 0.85);
+      ctx.beginPath();
+      ctx.arc(w.x, w.y, 1.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    hudWalkers.textContent = walkers.length;
+    hudJumps.textContent = totalJumps;
+    hudMaxLeap.textContent = maxLeap.toFixed(0);
+  }
+
+  // --- events ---
+  canvas.addEventListener('pointerdown', function(e) {
+    if (e.button === 2) return;
+    pointer.x = e.clientX;
+    pointer.y = e.clientY;
+    pointer.down = true;
+    addBurst(e.clientX, e.clientY, 20);
+    if (typeof SFX !== 'undefined') SFX.play('spawn');
+  });
+
+  canvas.addEventListener('pointermove', function(e) {
+    pointer.x = e.clientX;
+    pointer.y = e.clientY;
+  });
+
+  window.addEventListener('pointerup', function() {
+    pointer.down = false;
+  });
+
+  canvas.addEventListener('contextmenu', function(e) {
     e.preventDefault();
-    clearHeat();
+    // clear trails
+    for (var i = 0; i < walkers.length; i++) {
+      walkers[i].trail = [];
+    }
+    totalJumps = 0;
+    maxLeap = 0;
+    ctx.fillStyle = '#0a0a0f';
+    ctx.fillRect(0, 0, W, H);
+    if (typeof SFX !== 'undefined') SFX.play('pop');
   });
 
-  canvas.addEventListener('touchstart', (e) => {
-    const p = pointerPos(e);
-    pointer.x = p.x; pointer.y = p.y; pointer.down = true;
-    addBurst(pointer.x, pointer.y, 24);
-  }, { passive: true });
-  canvas.addEventListener('touchmove', (e) => {
-    const p = pointerPos(e);
-    pointer.x = p.x; pointer.y = p.y;
-    if (window.SFX) SFX.play('move', 80);
-  }, { passive: true });
-  canvas.addEventListener('touchend', () => { pointer.down = false; }, { passive: true });
+  alphaSlider.addEventListener('input', function() {
+    if (typeof SFX !== 'undefined') SFX.play('tick', 70);
+  });
+  countSlider.addEventListener('input', function() {
+    if (typeof SFX !== 'undefined') SFX.play('tick', 70);
+  });
+  fadeSlider.addEventListener('input', function() {
+    if (typeof SFX !== 'undefined') SFX.play('tick', 70);
+  });
 
-  alphaEl.addEventListener('input', () => {
-    alpha = parseFloat(alphaEl.value);
-    alphaVal.textContent = alpha.toFixed(2);
-    if (window.SFX) SFX.play('toggle');
+  streakBtn.addEventListener('click', function() {
+    showStreaks = !showStreaks;
+    streakBtn.textContent = 'STREAKS: ' + (showStreaks ? 'ON' : 'OFF');
+    if (typeof SFX !== 'undefined') SFX.play('toggle');
   });
-  jitterEl.addEventListener('input', () => {
-    jitter = parseFloat(jitterEl.value);
-    jitterVal.textContent = jitter.toFixed(2);
-    if (window.SFX) SFX.play('tick', 60);
+
+  burstBtn.addEventListener('click', function() {
+    addBurst(W * 0.3 + Math.random() * W * 0.4, H * 0.3 + Math.random() * H * 0.4, 30);
+    if (typeof SFX !== 'undefined') SFX.play('grow');
   });
-  densityEl.addEventListener('input', () => {
-    densityVal.textContent = densityEl.value;
-    if (window.SFX) SFX.play('tick', 50);
-  });
-  document.getElementById('burstBtn').addEventListener('click', () => {
-    addBurst(rand(w * 0.2, w * 0.8), rand(h * 0.2, h * 0.8), 36);
-    if (window.SFX) SFX.play('grow');
+
+  resetBtn.addEventListener('click', function() {
+    ctx.fillStyle = '#0a0a0f';
+    ctx.fillRect(0, 0, W, H);
+    seed();
+    if (typeof SFX !== 'undefined') SFX.play('click');
   });
 
   window.addEventListener('resize', resize);
+
+  function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+  }
+
   resize();
-  tick();
+  seed();
+  loop();
 })();
 </script>
+
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

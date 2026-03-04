@@ -280,9 +280,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
       ctx.fill();
 
       // bright center
-      ctx.fillStyle = 'rgba(255,255,255,0.4)';
+      ctx.fillStyle = 'rgba(200,245,240,0.18)';
       ctx.beginPath();
-      ctx.arc(b.x, b.y, b.rad * 0.35, 0, Math.PI * 2);
+      ctx.arc(b.x, b.y, b.rad * 0.3, 0, Math.PI * 2);
       ctx.fill();
     }
 
