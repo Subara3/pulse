@@ -672,6 +672,18 @@
     "added": "2026-03-05"
   },
   {
+    "page": "bezier",
+    "title": "BÉZIER",
+    "desc": "ベジェ曲線。補間の補間が曲線を生む、de Casteljauアルゴリズムの可視化。",
+    "desc_en": "Bézier curves. Interpolation of interpolations — visualizing the de Casteljau algorithm.",
+    "icon": "fa-bezier-curve",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "インタラクティブ",
+    "meta_en": "Interactive",
+    "added": "2026-03-06"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
