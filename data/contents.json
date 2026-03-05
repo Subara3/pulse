@@ -696,6 +696,18 @@
     "added": "2026-03-07"
   },
   {
+    "page": "epidemic",
+    "title": "EPIDEMIC",
+    "desc": "SIR疫病拡散モデル。格子上を感染の波が走る。βで広がり速度が、recoveryで波の幅が変わる。",
+    "desc_en": "SIR epidemic model. Waves of infection sweep across a grid. β controls spread speed, recovery shapes the wave.",
+    "icon": "fa-virus",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "インタラクティブ",
+    "meta_en": "Interactive",
+    "added": "2026-03-08"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
