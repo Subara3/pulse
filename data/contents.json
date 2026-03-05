@@ -684,6 +684,18 @@
     "added": "2026-03-06"
   },
   {
+    "page": "ising",
+    "title": "ISING",
+    "desc": "イジングモデル。格子上のスピンがメトロポリス法で反転し、臨界温度付近で美しいドメイン構造を作る。",
+    "desc_en": "Ising model. Spins on a lattice flip via Metropolis algorithm, forming beautiful domain structures near the critical temperature.",
+    "icon": "fa-magnet",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "相転移",
+    "meta_en": "Phase transition",
+    "added": "2026-03-07"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
