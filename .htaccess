@@ -20,16 +20,18 @@ AddDefaultCharset UTF-8
 
 # Security headers
 <IfModule mod_headers.c>
+    Header unset X-Powered-By
     Header set X-Content-Type-Options "nosniff"
     Header set X-Frame-Options "SAMEORIGIN"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header set Permissions-Policy "geolocation=(), camera=(), microphone=()"
 </IfModule>
 
-# PHPファイルのキャッシュ無効化
+# PHPファイルのキャッシュ（1時間）
 <IfModule mod_headers.c>
     <FilesMatch "\.php$">
-        Header set Cache-Control "no-cache, no-store, must-revalidate"
-        Header set Pragma "no-cache"
-        Header set Expires 0
+        Header set Cache-Control "public, max-age=3600"
     </FilesMatch>
 </IfModule>
 
