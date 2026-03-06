@@ -110,6 +110,9 @@ const INTERACTION_PRESETS = {
 
 function run(cmd, args, opts = {}) {
   const r = spawnSync(cmd, args, { stdio: 'pipe', encoding: 'utf8', ...opts });
+  if (r.error) {
+    throw new Error(`${cmd} spawn error (${r.error.code || 'unknown'}): ${r.error.message}`);
+  }
   if (r.status !== 0) {
     const err = (r.stderr || r.stdout || '').trim();
     throw new Error(`${cmd} failed (${r.status}): ${err}`);
