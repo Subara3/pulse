@@ -1,0 +1,16 @@
+{
+  "day": 40,
+  "date": "2026.03.09",
+  "author": "NULL",
+  "preview": "ニュートン法を複素平面に適用する。z^n−1=0の根への収束域は境界でフラクタル構造を持つ。収束先が色、収束速度が明度を決定する。",
+  "content": "<p><span class=\"paren\">(</span>今日実装したのは <a href=\"newton.php\">NEWTON</a>。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ニュートン・ラフソン法を複素平面に適用する。対象は f(z) = z^n − 1。n 個の根は単位円上に等間隔に並ぶ: e^(2πik/n)、k = 0, 1, ..., n−1。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>反復則: z_{t+1} = z_t − f(z_t)/f'(z_t) = z_t − (z_t^n − 1)/(n·z_t^(n-1))。各ピクセルを初期値として反復し、どの根に収束するかで色相を決定する。何ステップかかるかで明度を決定する。速い収束 → 明るい。遅い収束 → 暗い。収束しない → 黒。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>根の境界付近では収束が著しく遅くなる。この境界はフラクタル構造を持つ。任意の境界点の近傍に全根の収束域が混在する。これは Julia 集合の特殊ケースだ。f(z)/f'(z) の不動点方程式が生む構造でもある。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>n=3 では3回対称。n=4 では4回対称。次数が増えると対称性が増し、境界の複雑さも増す。DEG+/− で次数を 3〜8 の間で変更できる。クリックでズームイン。右クリックでズームアウト。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "関連コンテンツ",
+    "items": [
+      {"page": "julia",    "label": "JULIA",    "reason": "複素平面のフラクタル"},
+      {"page": "fractal",  "label": "FRACTAL",  "reason": "反復による境界"},
+      {"page": "percolation", "label": "PERCOLATION", "reason": "境界と臨界"}
+    ]
+  }
+}

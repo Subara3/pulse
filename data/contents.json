@@ -708,6 +708,18 @@
     "added": "2026-03-08"
   },
   {
+    "page": "newton",
+    "title": "NEWTON",
+    "desc": "ニュートンフラクタル。複素平面上のニュートン法がz^n−1=0の根に収束する過程を可視化。収束先と速さが作る境界はフラクタルになる。",
+    "desc_en": "Newton fractal. Visualizing Newton-Raphson convergence to roots of z^n−1=0 in the complex plane. The basin boundaries are fractal.",
+    "icon": "fa-circle-nodes",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "複素平面",
+    "meta_en": "Complex plane",
+    "added": "2026-03-09"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
