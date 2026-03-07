@@ -720,6 +720,18 @@
     "added": "2026-03-09"
   },
   {
+    "page": "clifford",
+    "title": "CLIFFORD",
+    "desc": "クリフォードアトラクター。4つのパラメータが作る2次元カオス軌道。百万点が積み重なって模様が現れる。",
+    "desc_en": "Clifford strange attractor. Two simple equations, four parameters, infinite patterns emerge as millions of points accumulate.",
+    "icon": "fa-infinity",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "カオス・アトラクター",
+    "meta_en": "Chaotic attractor",
+    "added": "2026-03-10"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
