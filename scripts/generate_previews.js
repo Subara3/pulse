@@ -19,6 +19,12 @@ const TMP_DIR = path.join(ROOT, '.tmp', 'previews');
 const OUT_DIR = path.join(ROOT, 'img', 'previews');
 const BASE_URL = process.env.PULSE_PREVIEW_BASE_URL || 'http://127.0.0.1:8787';
 
+// Per-page tone fixes to reduce highlight clipping (白飛び) on specific renders.
+const TONE_FILTERS = {
+  newton: 'eq=brightness=-0.03:contrast=0.92:saturation=0.92:gamma=1.06',
+  clifford: 'eq=brightness=-0.05:contrast=0.90:saturation=0.88:gamma=1.10',
+};
+
 const INTERACTION_PRESETS = {
   voronoi: [
     { kind: 'click', x: 480, y: 270 },
@@ -213,13 +219,18 @@ function pagesFromContents() {
       await context.close();
       const webm = await v.path();
 
+      const vf = [
+        'fps=24,scale=640:360:force_original_aspect_ratio=increase,crop=640:360',
+        TONE_FILTERS[pageName] || '',
+      ].filter(Boolean).join(',');
+
       run('ffmpeg', [
         '-y',
         '-i',
         webm,
         '-an',
         '-vf',
-        'fps=24,scale=640:360:force_original_aspect_ratio=increase,crop=640:360',
+        vf,
         '-c:v',
         'libx264',
         '-profile:v',
