@@ -732,6 +732,18 @@
     "added": "2026-03-10"
   },
   {
+    "page": "bifurcation",
+    "title": "BIFURCATION",
+    "desc": "ロジスティック写像の分岐図。rの増加とともに周期倍加が起きカオスへ至る。ズームすると自己相似構造が現れる。",
+    "desc_en": "Logistic map bifurcation diagram. Period-doubling cascade leads to chaos as r increases. Zoom reveals infinite self-similar structure.",
+    "icon": "fa-code-branch",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "カオス・分岐理論",
+    "meta_en": "Chaos, bifurcation",
+    "added": "2026-03-11"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
