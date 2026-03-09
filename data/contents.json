@@ -744,6 +744,18 @@
     "added": "2026-03-11"
   },
   {
+    "page": "apollonian",
+    "title": "APOLLONIAN",
+    "desc": "アポロニウスのガスケット。3つの接円の隙間を再帰的に埋める円充填フラクタル。デカルトの定理が全体を支配する。",
+    "desc_en": "Apollonian gasket. A circle-packing fractal where every gap between tangent circles is recursively filled. Governed by Descartes' Circle Theorem.",
+    "icon": "fa-circle-nodes",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "円充填フラクタル",
+    "meta_en": "Circle-packing fractal",
+    "added": "2026-03-12"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
