@@ -2,6 +2,14 @@ name: Generate Preview Videos
 
 on:
   workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'data/contents.json'
+      - '*.php'
+      - 'scripts/generate_previews.js'
+      - 'scripts/run_preview_pipeline.py'
+      - 'scripts/check_preview_coverage.py'
 
 permissions:
   contents: write
@@ -38,10 +46,11 @@ jobs:
           npm install playwright
           npx playwright install --with-deps chromium
 
-      - name: Generate previews
+      - name: Generate previews + QA pipeline
         run: |
           php -S 127.0.0.1:8787 >/tmp/pulse_preview_server.log 2>&1 &
-          node scripts/generate_previews.js
+          python3 scripts/run_preview_pipeline.py
+          python3 scripts/check_preview_coverage.py
 
       - name: Commit updated previews
         run: |

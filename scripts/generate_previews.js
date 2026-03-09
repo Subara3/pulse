@@ -244,6 +244,42 @@ function pagesFromContents() {
         outMp4,
       ]);
 
+      const outWebm = path.join(OUT_DIR, `${pageName}.webm`);
+      const outJpg = path.join(OUT_DIR, `${pageName}.jpg`);
+
+      run('ffmpeg', [
+        '-y',
+        '-i',
+        outMp4,
+        '-an',
+        '-vf',
+        'fps=24,scale=640:360:flags=lanczos,format=yuv420p',
+        '-c:v',
+        'libvpx-vp9',
+        '-b:v',
+        '0',
+        '-crf',
+        '36',
+        '-row-mt',
+        '1',
+        '-deadline',
+        'good',
+        outWebm,
+      ]);
+
+      run('ffmpeg', [
+        '-y',
+        '-ss',
+        '0.35',
+        '-i',
+        outMp4,
+        '-vframes',
+        '1',
+        '-q:v',
+        '3',
+        outJpg,
+      ]);
+
       ok.push(pageName);
       console.log(`ok ${pageName}`);
     } catch (e) {
