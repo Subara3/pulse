@@ -756,6 +756,15 @@
     "added": "2026-03-12"
   },
   {
+    "page": "hilbert",
+    "title": "HILBERT",
+    "desc": "空間を埋め尽くす自己回避曲線。次数が上がるほど1次元が2次元を覆い尽くす。",
+    "icon": "fa-route",
+    "category": "眺める",
+    "meta": "order 1–6",
+    "added": "2026-03-13"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
