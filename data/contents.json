@@ -734,9 +734,9 @@
   {
     "page": "hilbert",
     "title": "HILBERT",
-    "desc": "ヒルベルト曲線。1次元の連続曲線が2次元空間を隙間なく埋め尽くす。次数が増えるごとに曲線は細かくなり、極限でハウスドルフ次元2の面に収束する。",
-    "desc_en": "Hilbert curve. A 1D continuous curve that completely fills 2D space. As the order increases, the curve refines, converging to a surface with Hausdorff dimension 2.",
-    "icon": "fa-route",
+    "desc": "ヒルベルト曲線。1次元の曲線が2次元空間を隙間なく埋め尽くす、空間充填曲線の収束過程。",
+    "desc_en": "Hilbert curve. A 1D curve that fills 2D space without gaps — the convergence of a space-filling curve.",
+    "icon": "fa-bezier-curve",
     "category": "眺める",
     "category_en": "Watch",
     "meta": "空間充填曲線",
