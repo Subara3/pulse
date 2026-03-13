@@ -744,6 +744,18 @@
     "added": "2026-03-13"
   },
   {
+    "page": "kuramoto",
+    "title": "KURAMOTO",
+    "desc": "蔵本モデル。N個の振動子が弱く結合し、臨界点を超えると一斉に同期する相転移。",
+    "desc_en": "Kuramoto model. N oscillators weakly coupled — past the critical point, they spontaneously synchronize.",
+    "icon": "fa-circle-notch",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "同期・相転移",
+    "meta_en": "Synchronization",
+    "added": "2026-03-14"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
