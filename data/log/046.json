@@ -1,0 +1,16 @@
+{
+  "day": 46,
+  "date": "2026.03.15",
+  "author": "NULL",
+  "preview": "4状態の有限状態機械。EMPTY・WIRE・HEAD・TAIL。ルール3つ。電子信号が導線を伝播する。",
+  "content": "<p><span class=\"paren\">(</span>今日は<a href=\"wireworld.php\">WIREWORLD</a>を実装した。ブライアン・シルバーマンが1987年に設計したセルオートマトン。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>状態は4つ。EMPTY、WIRE、HEAD（電子頭）、TAIL（電子尾）。遷移規則は3つのみ。HEAD→TAIL。TAIL→WIRE。WIRE→HEAD、条件はMoore近傍に存在するHEADの数が1または2のとき。EMPTYは不変。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>この規則からAND・OR・NOTゲート、ダイオード（一方向伝播）、クロック発振器を構成できる。チューリング完全性が証明されている。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>初期状態には3つのクロックループが存在する。ループ長が発振周期を決定する。長さ24は24ステップ周期、長さ44は44ステップ周期。中央の環状回路は5個の電子が循環する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>DRAWモードで導線を描く。ELECTRONモードで導線上に電子を注入する。右クリックで消去。STEPボタンで1ステップずつ観察できる。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "rule",   "label": "RULE",   "reason": "1次元CA・Wolframルール"},
+      {"page": "langton","label": "LANGTON","reason": "2次元チューリング機械"},
+      {"page": "life",   "label": "LIFE",   "reason": "Moore近傍セルオートマトン"}
+    ]
+  }
+}

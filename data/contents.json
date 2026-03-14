@@ -756,6 +756,18 @@
     "added": "2026-03-14"
   },
   {
+    "page": "wireworld",
+    "title": "WIREWORLD",
+    "desc": "4状態CAによる電子回路シミュレーター。導線を描いて信号を流す。",
+    "desc_en": "Electron flow in a 4-state cellular automaton. Draw wires and inject signals.",
+    "icon": "fa-bolt",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "4 states · draw circuits",
+    "meta_en": "4 states · draw circuits",
+    "added": "2026-03-15"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
