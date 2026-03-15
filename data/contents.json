@@ -768,6 +768,18 @@
     "added": "2026-03-15"
   },
   {
+    "page": "antcolony",
+    "title": "ANTCOLONY",
+    "desc": "アリコロニー最適化。フェロモントレイルの強化によって最短経路が自然発生する。",
+    "desc_en": "Ant colony optimization. Pheromone trails reinforce over time, spontaneously revealing shortest paths.",
+    "icon": "fa-bug",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "群知能・創発",
+    "meta_en": "Swarm intelligence",
+    "added": "2026-03-16"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
