@@ -780,6 +780,18 @@
     "added": "2026-03-16"
   },
   {
+    "page": "predprey",
+    "title": "PREDPREY",
+    "desc": "捕食と被食。魚とサメが格子を舞台に繁殖・捕食・死滅を繰り返し、Lotka-Volterra振動が創発する。",
+    "desc_en": "Predator and prey. Fish breed, sharks hunt, and Lotka-Volterra oscillations emerge from three simple rules.",
+    "icon": "fa-fish",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Wa-Tor · 捕食-被食",
+    "meta_en": "Wa-Tor · predator-prey",
+    "added": "2026-03-17"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
