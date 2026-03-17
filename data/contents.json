@@ -792,6 +792,18 @@
     "added": "2026-03-17"
   },
   {
+    "page": "magnetpendulum",
+    "title": "MAGNETPENDULUM",
+    "desc": "3つの磁石が作る引力圏フラクタル。わずかな初期位置の差が全く異なる磁石へ向かう振り子を生む。",
+    "desc_en": "Basin-of-attraction fractal from a 3-magnet pendulum. Tiny differences in starting position lead to completely different outcomes.",
+    "icon": "fa-magnet",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "chaos · basin fractal",
+    "meta_en": "chaos · basin fractal",
+    "added": "2026-03-18"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
