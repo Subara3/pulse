@@ -804,6 +804,18 @@
     "added": "2026-03-18"
   },
   {
+    "page": "gametheory",
+    "title": "GAMETHEORY",
+    "desc": "空間囚人のジレンマ。格子上の協力者と裏切り者が戦略をコピーし、複雑なパターンが創発する。",
+    "desc_en": "Spatial prisoner's dilemma. Cooperators and defectors copy strategies on a grid, generating complex emergent patterns.",
+    "icon": "fa-chess",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "game theory · spatial PD",
+    "meta_en": "game theory · spatial PD",
+    "added": "2026-03-19"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
