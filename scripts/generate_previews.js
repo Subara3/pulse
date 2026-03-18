@@ -23,6 +23,7 @@ const BASE_URL = process.env.PULSE_PREVIEW_BASE_URL || 'http://127.0.0.1:8787';
 const TONE_FILTERS = {
   newton: 'eq=brightness=-0.03:contrast=0.92:saturation=0.92:gamma=1.06',
   clifford: 'eq=brightness=-0.05:contrast=0.90:saturation=0.88:gamma=1.10',
+  flock: 'eq=brightness=0.06:contrast=1.15:saturation=1.2:gamma=0.85',
 };
 
 const INTERACTION_PRESETS = {
@@ -111,6 +112,12 @@ const INTERACTION_PRESETS = {
   pi: [
     { kind: 'click', x: 520, y: 500 },
     { kind: 'click', x: 420, y: 500 },
+  ],
+  flock: [
+    { kind: 'click', x: 480, y: 270 },
+    { kind: 'drag', from: [480, 270], to: [300, 180], steps: 20 },
+    { kind: 'drag', from: [300, 180], to: [660, 320], steps: 24 },
+    { kind: 'drag', from: [660, 320], to: [480, 200], steps: 20 },
   ],
 };
 

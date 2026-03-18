@@ -113,8 +113,8 @@ class Boid {
     this.y = y || Math.random() * height;
     this.vx = (Math.random() - 0.5) * 2;
     this.vy = (Math.random() - 0.5) * 2;
-    this.hue = 175 + Math.random() * 40; // ティール〜シアン
-    this.size = 3 + Math.random() * 2;
+    this.hue = 170 + Math.random() * 50; // ティール〜シアン
+    this.size = 4 + Math.random() * 3;
   }
 
   // 近隣のBoidを取得
@@ -242,16 +242,16 @@ class Boid {
     ctx.closePath();
 
     // 速度に応じて明るさを変える
-    const brightness = 50 + speed * 10;
-    ctx.fillStyle = `hsla(${this.hue}, 70%, ${brightness}%, 0.8)`;
+    const brightness = 55 + speed * 12;
+    ctx.fillStyle = `hsla(${this.hue}, 80%, ${brightness}%, 0.9)`;
     ctx.fill();
 
     // 軌跡（尾）
     ctx.beginPath();
     ctx.moveTo(-this.size * 0.5, 0);
-    ctx.lineTo(-this.size * 2 - speed * 2, 0);
-    ctx.strokeStyle = `hsla(${this.hue}, 70%, ${brightness}%, 0.3)`;
-    ctx.lineWidth = this.size * 0.5;
+    ctx.lineTo(-this.size * 2.5 - speed * 2.5, 0);
+    ctx.strokeStyle = `hsla(${this.hue}, 80%, ${brightness}%, 0.4)`;
+    ctx.lineWidth = this.size * 0.6;
     ctx.stroke();
 
     ctx.restore();
@@ -279,7 +279,7 @@ function adjustBoidCount() {
 
 function draw() {
   // フェード効果
-  ctx.fillStyle = 'rgba(10, 10, 15, 0.15)';
+  ctx.fillStyle = 'rgba(10, 10, 15, 0.2)';
   ctx.fillRect(0, 0, width, height);
 
   // Boid更新・描画
