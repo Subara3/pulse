@@ -816,6 +816,18 @@
     "added": "2026-03-19"
   },
   {
+    "page": "pursuit",
+    "title": "PURSUIT",
+    "desc": "N点の追跡多角形。各頂点が次の頂点を等速で追い続け、対数螺旋が創発する。",
+    "desc_en": "N-point pursuit polygon. Each vertex chases the next at constant speed, and logarithmic spirals emerge.",
+    "icon": "fa-route",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "pursuit curves · logarithmic spiral",
+    "meta_en": "pursuit curves · logarithmic spiral",
+    "added": "2026-03-20"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
