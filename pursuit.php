@@ -8,7 +8,7 @@ $pageTitle = 'PURSUIT - PULSE';
 $pageDesc = 'N点の追跡多角形。各頂点が次の頂点を等速で追い続け、対数螺旋が創発する。';
 $pageCanonical = 'https://pulse.subara3.com/pursuit.php';
 $extraStyle = '
-body { background: #0a0a0f; overflow: hidden; }
+body { background: #060810; overflow: hidden; }
 #canvas { position: fixed; inset: 0; width: 100%; height: 100%; cursor: crosshair; }
 .hud { position: fixed; top: 1rem; left: 1.5rem; font-family: "JetBrains Mono", monospace; font-size: 0.7rem; color: rgba(255,255,255,0.4); text-align: left; line-height: 1.8; z-index: 10; pointer-events: none; }
 .hud .vc { color: #00f5d4; }
@@ -34,20 +34,17 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <div class="hud">
   <div><span class="vc" id="hud-shape">PENTAGON</span></div>
   <div>ACTIVE <span class="vc" id="hud-active">0</span></div>
-  <div>TOTAL <span class="vc" id="hud-total">0</span></div>
+  <div>SPIRALS <span class="vc" id="hud-total">0</span></div>
 </div>
 
 <div class="ctrl">
-  <button id="btn-reset">RESET</button>
+  <button id="btn-reset">CLEAR</button>
   <button id="btn-auto" class="active">AUTO</button>
   <label>N <span id="lbl-n">5</span>
     <input type="range" id="sl-n" min="3" max="12" step="1" value="5">
   </label>
-  <label>SPEED <span id="lbl-spd">1.5</span>
-    <input type="range" id="sl-spd" min="0.3" max="4.0" step="0.1" value="1.5">
-  </label>
-  <label>TRAIL <span id="lbl-trail">M</span>
-    <input type="range" id="sl-trail" min="1" max="5" step="1" value="2">
+  <label>SPEED <span id="lbl-spd">1.2</span>
+    <input type="range" id="sl-spd" min="0.3" max="3.0" step="0.1" value="1.2">
   </label>
 </div>
 
@@ -62,47 +59,47 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
 
 <script>
+'use strict';
 (function() {
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
 
   let W, H;
-  let pursuers = [];
+  let spirals = [];       // completed spiral trails
+  let active = [];         // currently animating pursuit sets
   let nSides = 5;
-  let spd = 1.5;
-  let fadeRate = 0.025;
+  let spd = 1.2;
   let autoMode = true;
-  let spawnTimer = null;
-  let colorIdx = 0;
+  let autoTimer = null;
   let totalSpawned = 0;
-  const MAX_ACTIVE = 8;
+  const MAX_ACTIVE = 6;
+  const MAX_SPIRALS = 30;
 
-  const NAMES = {3:'TRIANGLE',4:'QUADRILATERAL',5:'PENTAGON',6:'HEXAGON',
+  const NAMES = {3:'TRIANGLE',4:'SQUARE',5:'PENTAGON',6:'HEXAGON',
                   7:'HEPTAGON',8:'OCTAGON',9:'NONAGON',10:'DECAGON',
                   11:'HENDECAGON',12:'DODECAGON'};
 
-  // teal-purple palette (hue 165–290)
-  const PALETTE = [
-    [0, 245, 212],   // teal
-    [123, 44, 191],  // purple
-    [0, 190, 235],   // blue-teal
-    [155, 55, 215],  // light purple
-    [0, 220, 188],   // green-teal
-    [100, 50, 200],  // indigo
-  ];
+  // HSL-based palette — each pursuit set gets a base hue
+  const HUES = [172, 270, 200, 310, 145, 240, 330, 190, 285, 160];
+  let hueIdx = 0;
 
-  function rgba(c, a) { return `rgba(${c[0]},${c[1]},${c[2]},${a})`; }
+  function hsl(h, s, l, a) { return `hsla(${h},${s}%,${l}%,${a})`; }
 
-  class Pursuer {
-    constructor(cx, cy, r, n, ci) {
+  // --- Pursuit set ---
+  class PursuitSet {
+    constructor(cx, cy, n, r) {
       this.n = n;
-      this.col = PALETTE[ci % PALETTE.length];
+      this.hue = HUES[hueIdx++ % HUES.length];
       this.alive = true;
       this.age = 0;
       this.pts = [];
+      // Trail: array of arrays, one per vertex
+      this.trails = [];
       for (let i = 0; i < n; i++) {
         const a = (2 * Math.PI * i / n) - Math.PI / 2;
-        this.pts.push({ x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
+        const pt = { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+        this.pts.push(pt);
+        this.trails.push([{ x: pt.x, y: pt.y }]);
       }
     }
 
@@ -115,12 +112,24 @@ require_once __DIR__ . '/includes/interaction-hints.php';
         const t = this.pts[(i + 1) % n];
         const dx = t.x - p.x, dy = t.y - p.y;
         const d = Math.hypot(dx, dy);
-        if (d < spd * 2.5) {
+        if (d < spd * 2) {
           this.alive = false;
           SFX.play('collide', 60);
+          // Save completed spiral to spirals list
+          spirals.push({
+            trails: this.trails,
+            hue: this.hue,
+            n: this.n,
+            birth: performance.now(),
+            maxAge: 12000 + this.trails[0].length * 8,
+          });
+          if (spirals.length > MAX_SPIRALS) spirals.shift();
           return;
         }
-        next.push({ x: p.x + dx / d * spd, y: p.y + dy / d * spd });
+        const nx = p.x + dx / d * spd;
+        const ny = p.y + dy / d * spd;
+        next.push({ x: nx, y: ny });
+        this.trails[i].push({ x: nx, y: ny });
       }
       this.pts = next;
       this.age++;
@@ -128,91 +137,147 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
     draw() {
       if (!this.alive) return;
-      const fade = Math.min(1, this.age / 25) * 0.88;
       const n = this.n;
+      const fade = Math.min(1, this.age / 20);
+
+      // Draw trail paths with gradient
+      for (let v = 0; v < n; v++) {
+        const trail = this.trails[v];
+        const len = trail.length;
+        if (len < 2) continue;
+
+        // Draw trail as series of segments with fading alpha
+        const step = Math.max(1, (len / 400) | 0);
+        ctx.lineWidth = 1.5;
+        for (let i = step; i < len; i += step) {
+          const t = i / len;
+          const alpha = t * 0.5 * fade;
+          const lightness = 55 + t * 20;
+          ctx.beginPath();
+          ctx.moveTo(trail[i - step].x, trail[i - step].y);
+          ctx.lineTo(trail[i].x, trail[i].y);
+          ctx.strokeStyle = hsl(this.hue + v * (360 / n) * 0.3, 80, lightness, alpha);
+          ctx.stroke();
+        }
+      }
+
+      // Draw current polygon
       ctx.beginPath();
       ctx.moveTo(this.pts[0].x, this.pts[0].y);
       for (let i = 1; i < n; i++) ctx.lineTo(this.pts[i].x, this.pts[i].y);
       ctx.closePath();
-      ctx.strokeStyle = rgba(this.col, fade);
+      ctx.strokeStyle = hsl(this.hue, 85, 70, fade * 0.9);
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      // vertex glow
-      const dotFade = Math.min(1, this.age / 10);
-      for (const p of this.pts) {
-        const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 8);
-        glow.addColorStop(0, rgba(this.col, dotFade * 0.5));
-        glow.addColorStop(1, rgba(this.col, 0));
+      // Vertex glow + dots
+      for (let i = 0; i < n; i++) {
+        const p = this.pts[i];
+        const vh = this.hue + i * (360 / n) * 0.3;
+
+        // Glow
+        const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 10);
+        glow.addColorStop(0, hsl(vh, 90, 70, fade * 0.5));
+        glow.addColorStop(1, hsl(vh, 90, 70, 0));
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
         ctx.fillStyle = glow;
         ctx.fill();
-      }
-      // vertex dots
-      ctx.fillStyle = rgba(this.col, dotFade);
-      for (const p of this.pts) {
+
+        // Dot
         ctx.beginPath();
         ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = hsl(vh, 90, 80, fade);
         ctx.fill();
+      }
+    }
+  }
+
+  // --- Draw completed spirals (fading out) ---
+  function drawSpirals() {
+    const now = performance.now();
+    for (let si = spirals.length - 1; si >= 0; si--) {
+      const sp = spirals[si];
+      const elapsed = now - sp.birth;
+      if (elapsed > sp.maxAge) {
+        spirals.splice(si, 1);
+        continue;
+      }
+      const globalFade = 1 - elapsed / sp.maxAge;
+
+      for (let v = 0; v < sp.n; v++) {
+        const trail = sp.trails[v];
+        const len = trail.length;
+        if (len < 2) continue;
+
+        const step = Math.max(1, (len / 500) | 0);
+        ctx.lineWidth = 1.2;
+        for (let i = step; i < len; i += step) {
+          const t = i / len;
+          const alpha = t * 0.35 * globalFade;
+          if (alpha < 0.005) continue;
+          const lightness = 50 + t * 25;
+          ctx.beginPath();
+          ctx.moveTo(trail[i - step].x, trail[i - step].y);
+          ctx.lineTo(trail[i].x, trail[i].y);
+          ctx.strokeStyle = hsl(sp.hue + v * (360 / sp.n) * 0.3, 75, lightness, alpha);
+          ctx.stroke();
+        }
       }
     }
   }
 
   function spawn(cx, cy, n) {
-    if (pursuers.filter(p => p.alive).length >= MAX_ACTIVE) return;
-    const r = Math.min(W, H) * 0.27;
-    const ci = colorIdx++;
-    pursuers.push(new Pursuer(cx, cy, r, n || nSides, ci));
+    const aliveCount = active.filter(a => a.alive).length;
+    if (aliveCount >= MAX_ACTIVE) return;
+    const r = Math.min(W, H) * (0.15 + Math.random() * 0.15);
+    active.push(new PursuitSet(cx, cy, n || nSides, r));
     totalSpawned++;
     SFX.play('spawn');
     updateHUD();
-    // prune old dead pursuers
-    if (pursuers.length > MAX_ACTIVE * 4) {
-      pursuers = pursuers.filter(p => p.alive);
+    // Prune dead
+    if (active.length > MAX_ACTIVE * 3) {
+      active = active.filter(a => a.alive);
     }
   }
 
   function spawnRandom() {
-    const pad = Math.min(W, H) * 0.3;
-    const cx = pad / 2 + Math.random() * (W - pad);
-    const cy = pad / 2 + Math.random() * (H - pad);
-    const n = 3 + Math.floor(Math.random() * 9); // 3..11
+    const pad = Math.min(W, H) * 0.25;
+    const cx = pad + Math.random() * (W - pad * 2);
+    const cy = pad + Math.random() * (H - pad * 2);
+    const n = 3 + Math.floor(Math.random() * 9);
     spawn(cx, cy, n);
   }
 
   function clearAll() {
-    pursuers.forEach(p => { p.alive = false; });
+    active.forEach(a => { a.alive = false; });
+    spirals.length = 0;
     SFX.play('click');
-    setTimeout(() => {
-      ctx.fillStyle = '#0a0a0f';
-      ctx.fillRect(0, 0, W, H);
-    }, 1500);
   }
 
   function init() {
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, W, H);
-    pursuers = [];
-    colorIdx = 0;
+    active = [];
+    spirals = [];
+    hueIdx = 0;
     totalSpawned = 0;
-    spawnTimer = null;
+    ctx.fillStyle = '#060810';
+    ctx.fillRect(0, 0, W, H);
+
+    // Staggered initial spawns
     spawn(W / 2, H / 2, 5);
-    setTimeout(() => spawn(W * 0.3, H * 0.35, 7), 300);
-    setTimeout(() => spawn(W * 0.7, H * 0.65, 4), 600);
-    setTimeout(() => spawn(W * 0.5, H * 0.3, 6), 900);
-    setTimeout(() => spawn(W * 0.4, H * 0.7, 8), 1200);
+    setTimeout(() => spawn(W * 0.3, H * 0.4, 7), 400);
+    setTimeout(() => spawn(W * 0.7, H * 0.6, 4), 800);
   }
 
   function resize() {
     W = canvas.width = window.innerWidth;
     H = canvas.height = window.innerHeight;
-    ctx.fillStyle = '#0a0a0f';
+    ctx.fillStyle = '#060810';
     ctx.fillRect(0, 0, W, H);
   }
 
   function updateHUD() {
-    const alive = pursuers.filter(p => p.alive).length;
+    const alive = active.filter(a => a.alive).length;
     document.getElementById('hud-active').textContent = alive;
     document.getElementById('hud-total').textContent = totalSpawned;
     document.getElementById('hud-shape').textContent = NAMES[nSides] || nSides + '-GON';
@@ -223,28 +288,31 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     requestAnimationFrame(loop);
     frame++;
 
-    // Fade background
-    ctx.fillStyle = `rgba(10,10,15,${fadeRate})`;
+    // Subtle background fade — slow, so spirals persist
+    ctx.fillStyle = 'rgba(6,8,16,0.03)';
     ctx.fillRect(0, 0, W, H);
 
-    // Update + draw
-    for (const p of pursuers) { p.update(); p.draw(); }
+    // Draw persisted spirals
+    drawSpirals();
 
-    // Auto-spawn when all dead
+    // Update + draw active sets
+    for (const a of active) { a.update(); a.draw(); }
+
+    // Auto-spawn
     if (autoMode) {
-      const alive = pursuers.filter(p => p.alive).length;
-      if (alive < 2 && !spawnTimer) {
-        spawnTimer = setTimeout(() => {
+      const alive = active.filter(a => a.alive).length;
+      if (alive < 2 && !autoTimer) {
+        autoTimer = setTimeout(() => {
           spawnRandom();
-          spawnTimer = null;
-        }, 600);
+          autoTimer = null;
+        }, 800);
       }
     }
 
-    if (frame % 15 === 0) updateHUD();
+    if (frame % 12 === 0) updateHUD();
   }
 
-  // Events
+  // --- Events ---
   window.addEventListener('resize', resize);
 
   canvas.addEventListener('mousedown', e => {
@@ -254,6 +322,8 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   canvas.addEventListener('contextmenu', e => {
     e.preventDefault();
     clearAll();
+    ctx.fillStyle = '#060810';
+    ctx.fillRect(0, 0, W, H);
   });
 
   // Touch
@@ -274,13 +344,8 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   // Controls
   const slN = document.getElementById('sl-n');
   const slSpd = document.getElementById('sl-spd');
-  const slTrail = document.getElementById('sl-trail');
   const lblN = document.getElementById('lbl-n');
   const lblSpd = document.getElementById('lbl-spd');
-  const lblTrail = document.getElementById('lbl-trail');
-
-  const TRAIL_RATES = [0.015, 0.03, 0.05, 0.08, 0.14];
-  const TRAIL_LABELS = ['XL', 'L', 'M', 'S', 'XS'];
 
   slN.addEventListener('input', () => {
     nSides = parseInt(slN.value);
@@ -293,12 +358,6 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     lblSpd.textContent = spd.toFixed(1);
     SFX.play('click');
   });
-  slTrail.addEventListener('input', () => {
-    const v = parseInt(slTrail.value) - 1;
-    fadeRate = TRAIL_RATES[v];
-    lblTrail.textContent = TRAIL_LABELS[v];
-    SFX.play('click');
-  });
 
   document.getElementById('btn-auto').addEventListener('click', function() {
     autoMode = !autoMode;
@@ -306,7 +365,9 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     SFX.play('toggle');
   });
   document.getElementById('btn-reset').addEventListener('click', () => {
-    init();
+    clearAll();
+    ctx.fillStyle = '#060810';
+    ctx.fillRect(0, 0, W, H);
     SFX.play('click');
   });
 
