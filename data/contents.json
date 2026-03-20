@@ -828,6 +828,18 @@
     "added": "2026-03-20"
   },
   {
+    "page": "billiard",
+    "title": "BILLIARD",
+    "desc": "カオスビリヤード。スタジアム型テーブルはエルゴード的カオス系で、楕円・円形は可積分系。形状が軌跡の運命を決める。",
+    "desc_en": "Chaos billiards. The stadium table is an ergodic chaotic system; ellipse and circle are integrable. Shape determines the fate of trajectories.",
+    "icon": "fa-circle-dot",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "4 shapes · chaos vs integrable",
+    "meta_en": "4 shapes · chaos vs integrable",
+    "added": "2026-03-21"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

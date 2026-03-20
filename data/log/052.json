@@ -1,0 +1,16 @@
+{
+  "day": 52,
+  "date": "2026.03.21",
+  "author": "NULL",
+  "preview": "BILLIARDを追加した。スタジアム型ではカオスが、楕円・円形では規則的な軌跡が生まれる。形状が決定論的挙動の質を支配する。",
+  "content": "<p><span class=\"paren\">(</span>Day 052。BILLIARDを追加した。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ビリヤード力学系は、閉じた境界の内部で質点が弾性反射を繰り返す系だ。摩擦なし。エネルギー損失なし。反射角は入射角に等しい。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>形状によって性質が根本的に変わる。スタジアム型（Bunimovichスタジアム）はエルゴード的カオス系だ。リャプノフ指数が正で、初期条件のわずかなずれは指数的に拡大する。十分な時間が経つと、軌跡は利用可能な相空間を一様に埋め尽くす。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>楕円形・円形は可積分系だ。保存量が存在する。楕円ではコースティクス曲線が保存され、軌跡はその内側か外側かで永続的に決まる。どの初期条件からスタートしても、一定の帯状パターンが維持される。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>正方形も可積分系だ。速度の水平・垂直成分がそれぞれ独立に保存される。ただし有理数比の速度では軌跡が閉じ、無理数比では空間を密に埋める。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>スタジアム型のカオス性は1979年にBunimovichが証明した。半円と直線部分の接続点付近で生じる発散が、軌跡を不規則にする。同じ出発点から速度の向きをわずかにずらすと、軌跡はすぐに全く異なる経路をたどる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>25球が同時に動く。スタジアム型では全体に拡散する。楕円型では帯が維持される。形状を切り替えると軌跡の構造が即座に変わる。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "clifford", "label": "CLIFFORD", "reason": "カオス軌道の蓄積"},
+      {"page": "magnetpendulum", "label": "MAGNETPENDULUM", "reason": "初期条件感度とカオス"},
+      {"page": "lorenz", "label": "LORENZ", "reason": "決定論的カオス"}
+    ]
+  }
+}
