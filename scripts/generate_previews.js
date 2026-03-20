@@ -237,10 +237,13 @@ function pagesFromContents() {
       await context.close();
       const webm = await v.path();
 
-      const vf = [
+      const vfParts = [
         'fps=24,scale=640:360:force_original_aspect_ratio=increase,crop=640:360',
         TONE_FILTERS[pageName] || '',
-      ].filter(Boolean).join(',');
+        // Fade in/out for smooth loop (black → content → black)
+        'fade=t=in:st=0:d=0.3,fade=t=out:st=4.8:d=0.4',
+      ];
+      const vf = vfParts.filter(Boolean).join(',');
 
       run('ffmpeg', [
         '-y',
