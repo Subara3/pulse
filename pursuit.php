@@ -38,13 +38,16 @@ require_once __DIR__ . '/includes/floating-nav.php';
 </div>
 
 <div class="ctrl">
-  <button id="btn-reset">CLEAR</button>
+  <button id="btn-clear">CLEAR</button>
   <button id="btn-auto" class="active">AUTO</button>
   <label>N <span id="lbl-n">5</span>
     <input type="range" id="sl-n" min="3" max="12" step="1" value="5">
   </label>
-  <label>SPEED <span id="lbl-spd">1.2</span>
-    <input type="range" id="sl-spd" min="0.3" max="3.0" step="0.1" value="1.2">
+  <label>SPEED <span id="lbl-spd">1.5</span>
+    <input type="range" id="sl-spd" min="0.3" max="4.0" step="0.1" value="1.5">
+  </label>
+  <label>TRAIL <span id="lbl-trail">L</span>
+    <input type="range" id="sl-trail" min="1" max="5" step="1" value="2">
   </label>
 </div>
 
@@ -65,41 +68,37 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   const ctx = canvas.getContext('2d');
 
   let W, H;
-  let spirals = [];       // completed spiral trails
-  let active = [];         // currently animating pursuit sets
+  let sets = [];
   let nSides = 5;
-  let spd = 1.2;
+  let spd = 1.5;
+  let fadeAlpha = 0.012;
   let autoMode = true;
   let autoTimer = null;
   let totalSpawned = 0;
-  const MAX_ACTIVE = 6;
-  const MAX_SPIRALS = 30;
+  const MAX_ACTIVE = 10;
 
   const NAMES = {3:'TRIANGLE',4:'SQUARE',5:'PENTAGON',6:'HEXAGON',
                   7:'HEPTAGON',8:'OCTAGON',9:'NONAGON',10:'DECAGON',
                   11:'HENDECAGON',12:'DODECAGON'};
 
-  // HSL-based palette — each pursuit set gets a base hue
-  const HUES = [172, 270, 200, 310, 145, 240, 330, 190, 285, 160];
-  let hueIdx = 0;
-
-  function hsl(h, s, l, a) { return `hsla(${h},${s}%,${l}%,${a})`; }
+  // Rich palette — each set gets a hue offset
+  let hueBase = 0;
+  const HUE_STEP = 47;
 
   // --- Pursuit set ---
+  // No trail storage — background fade creates the spiral naturally
   class PursuitSet {
     constructor(cx, cy, n, r) {
       this.n = n;
-      this.hue = HUES[hueIdx++ % HUES.length];
+      this.hue = hueBase;
+      hueBase = (hueBase + HUE_STEP) % 360;
       this.alive = true;
       this.age = 0;
       this.pts = [];
-      // Trail: array of arrays, one per vertex
-      this.trails = [];
+      this.r0 = r;
       for (let i = 0; i < n; i++) {
         const a = (2 * Math.PI * i / n) - Math.PI / 2;
-        const pt = { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
-        this.pts.push(pt);
-        this.trails.push([{ x: pt.x, y: pt.y }]);
+        this.pts.push({ x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
       }
     }
 
@@ -112,24 +111,12 @@ require_once __DIR__ . '/includes/interaction-hints.php';
         const t = this.pts[(i + 1) % n];
         const dx = t.x - p.x, dy = t.y - p.y;
         const d = Math.hypot(dx, dy);
-        if (d < spd * 2) {
+        if (d < spd * 1.5) {
           this.alive = false;
           SFX.play('collide', 60);
-          // Save completed spiral to spirals list
-          spirals.push({
-            trails: this.trails,
-            hue: this.hue,
-            n: this.n,
-            birth: performance.now(),
-            maxAge: 12000 + this.trails[0].length * 8,
-          });
-          if (spirals.length > MAX_SPIRALS) spirals.shift();
           return;
         }
-        const nx = p.x + dx / d * spd;
-        const ny = p.y + dy / d * spd;
-        next.push({ x: nx, y: ny });
-        this.trails[i].push({ x: nx, y: ny });
+        next.push({ x: p.x + dx / d * spd, y: p.y + dy / d * spd });
       }
       this.pts = next;
       this.age++;
@@ -138,135 +125,89 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     draw() {
       if (!this.alive) return;
       const n = this.n;
-      const fade = Math.min(1, this.age / 20);
+      const fade = Math.min(1, this.age / 15);
 
-      // Draw trail paths with gradient
-      for (let v = 0; v < n; v++) {
-        const trail = this.trails[v];
-        const len = trail.length;
-        if (len < 2) continue;
-
-        // Draw trail as series of segments with fading alpha
-        const step = Math.max(1, (len / 400) | 0);
-        ctx.lineWidth = 1.5;
-        for (let i = step; i < len; i += step) {
-          const t = i / len;
-          const alpha = t * 0.5 * fade;
-          const lightness = 55 + t * 20;
-          ctx.beginPath();
-          ctx.moveTo(trail[i - step].x, trail[i - step].y);
-          ctx.lineTo(trail[i].x, trail[i].y);
-          ctx.strokeStyle = hsl(this.hue + v * (360 / n) * 0.3, 80, lightness, alpha);
-          ctx.stroke();
-        }
+      // Draw polygon edges — each edge gets a slightly different hue
+      ctx.lineWidth = 2.5;
+      ctx.lineCap = 'round';
+      for (let i = 0; i < n; i++) {
+        const p = this.pts[i];
+        const q = this.pts[(i + 1) % n];
+        const h = (this.hue + i * 25) % 360;
+        ctx.beginPath();
+        ctx.moveTo(p.x, p.y);
+        ctx.lineTo(q.x, q.y);
+        ctx.strokeStyle = `hsla(${h},85%,65%,${fade * 0.9})`;
+        ctx.stroke();
       }
-
-      // Draw current polygon
-      ctx.beginPath();
-      ctx.moveTo(this.pts[0].x, this.pts[0].y);
-      for (let i = 1; i < n; i++) ctx.lineTo(this.pts[i].x, this.pts[i].y);
-      ctx.closePath();
-      ctx.strokeStyle = hsl(this.hue, 85, 70, fade * 0.9);
-      ctx.lineWidth = 2;
-      ctx.stroke();
 
       // Vertex glow + dots
       for (let i = 0; i < n; i++) {
         const p = this.pts[i];
-        const vh = this.hue + i * (360 / n) * 0.3;
+        const h = (this.hue + i * 25) % 360;
 
-        // Glow
-        const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 10);
-        glow.addColorStop(0, hsl(vh, 90, 70, fade * 0.5));
-        glow.addColorStop(1, hsl(vh, 90, 70, 0));
+        // Soft glow
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 12);
+        g.addColorStop(0, `hsla(${h},90%,70%,${fade * 0.45})`);
+        g.addColorStop(1, `hsla(${h},90%,70%,0)`);
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
-        ctx.fillStyle = glow;
+        ctx.arc(p.x, p.y, 12, 0, Math.PI * 2);
+        ctx.fillStyle = g;
         ctx.fill();
 
-        // Dot
+        // Bright dot
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-        ctx.fillStyle = hsl(vh, 90, 80, fade);
+        ctx.arc(p.x, p.y, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${h},90%,80%,${fade})`;
         ctx.fill();
-      }
-    }
-  }
-
-  // --- Draw completed spirals (fading out) ---
-  function drawSpirals() {
-    const now = performance.now();
-    for (let si = spirals.length - 1; si >= 0; si--) {
-      const sp = spirals[si];
-      const elapsed = now - sp.birth;
-      if (elapsed > sp.maxAge) {
-        spirals.splice(si, 1);
-        continue;
-      }
-      const globalFade = 1 - elapsed / sp.maxAge;
-
-      for (let v = 0; v < sp.n; v++) {
-        const trail = sp.trails[v];
-        const len = trail.length;
-        if (len < 2) continue;
-
-        const step = Math.max(1, (len / 500) | 0);
-        ctx.lineWidth = 1.2;
-        for (let i = step; i < len; i += step) {
-          const t = i / len;
-          const alpha = t * 0.35 * globalFade;
-          if (alpha < 0.005) continue;
-          const lightness = 50 + t * 25;
-          ctx.beginPath();
-          ctx.moveTo(trail[i - step].x, trail[i - step].y);
-          ctx.lineTo(trail[i].x, trail[i].y);
-          ctx.strokeStyle = hsl(sp.hue + v * (360 / sp.n) * 0.3, 75, lightness, alpha);
-          ctx.stroke();
-        }
       }
     }
   }
 
   function spawn(cx, cy, n) {
-    const aliveCount = active.filter(a => a.alive).length;
+    const aliveCount = sets.filter(s => s.alive).length;
     if (aliveCount >= MAX_ACTIVE) return;
-    const r = Math.min(W, H) * (0.15 + Math.random() * 0.15);
-    active.push(new PursuitSet(cx, cy, n || nSides, r));
+    const minDim = Math.min(W, H);
+    const r = minDim * (0.12 + Math.random() * 0.18);
+    sets.push(new PursuitSet(cx, cy, n || nSides, r));
     totalSpawned++;
     SFX.play('spawn');
-    updateHUD();
-    // Prune dead
-    if (active.length > MAX_ACTIVE * 3) {
-      active = active.filter(a => a.alive);
+    // Prune dead sets
+    if (sets.length > MAX_ACTIVE * 3) {
+      sets = sets.filter(s => s.alive);
     }
   }
 
   function spawnRandom() {
-    const pad = Math.min(W, H) * 0.25;
+    const pad = Math.min(W, H) * 0.2;
     const cx = pad + Math.random() * (W - pad * 2);
     const cy = pad + Math.random() * (H - pad * 2);
-    const n = 3 + Math.floor(Math.random() * 9);
+    const n = 3 + Math.floor(Math.random() * 10);
     spawn(cx, cy, n);
   }
 
   function clearAll() {
-    active.forEach(a => { a.alive = false; });
-    spirals.length = 0;
+    sets.forEach(s => { s.alive = false; });
+    sets = [];
     SFX.play('click');
+    ctx.fillStyle = '#060810';
+    ctx.fillRect(0, 0, W, H);
   }
 
   function init() {
-    active = [];
-    spirals = [];
-    hueIdx = 0;
+    sets = [];
+    hueBase = 170; // start from teal
     totalSpawned = 0;
+    autoTimer = null;
     ctx.fillStyle = '#060810';
     ctx.fillRect(0, 0, W, H);
 
-    // Staggered initial spawns
-    spawn(W / 2, H / 2, 5);
-    setTimeout(() => spawn(W * 0.3, H * 0.4, 7), 400);
-    setTimeout(() => spawn(W * 0.7, H * 0.6, 4), 800);
+    // Staggered initial spawns for a nice opening
+    spawn(W * 0.5, H * 0.5, 5);
+    setTimeout(() => spawn(W * 0.3, H * 0.35, 7), 200);
+    setTimeout(() => spawn(W * 0.7, H * 0.6, 4), 500);
+    setTimeout(() => spawn(W * 0.5, H * 0.75, 6), 800);
+    setTimeout(() => spawn(W * 0.25, H * 0.65, 9), 1100);
   }
 
   function resize() {
@@ -277,7 +218,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   }
 
   function updateHUD() {
-    const alive = active.filter(a => a.alive).length;
+    const alive = sets.filter(s => s.alive).length;
     document.getElementById('hud-active').textContent = alive;
     document.getElementById('hud-total').textContent = totalSpawned;
     document.getElementById('hud-shape').textContent = NAMES[nSides] || nSides + '-GON';
@@ -288,28 +229,28 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     requestAnimationFrame(loop);
     frame++;
 
-    // Subtle background fade — slow, so spirals persist
-    ctx.fillStyle = 'rgba(6,8,16,0.03)';
+    // Background fade — creates the spiral trail effect
+    ctx.fillStyle = `rgba(6,8,16,${fadeAlpha})`;
     ctx.fillRect(0, 0, W, H);
 
-    // Draw persisted spirals
-    drawSpirals();
+    // Update + draw all sets
+    for (const s of sets) {
+      s.update();
+      s.draw();
+    }
 
-    // Update + draw active sets
-    for (const a of active) { a.update(); a.draw(); }
-
-    // Auto-spawn
+    // Auto-spawn: keep multiple sets running
     if (autoMode) {
-      const alive = active.filter(a => a.alive).length;
-      if (alive < 2 && !autoTimer) {
+      const alive = sets.filter(s => s.alive).length;
+      if (alive < 3 && !autoTimer) {
         autoTimer = setTimeout(() => {
           spawnRandom();
           autoTimer = null;
-        }, 800);
+        }, 400);
       }
     }
 
-    if (frame % 12 === 0) updateHUD();
+    if (frame % 10 === 0) updateHUD();
   }
 
   // --- Events ---
@@ -322,8 +263,6 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   canvas.addEventListener('contextmenu', e => {
     e.preventDefault();
     clearAll();
-    ctx.fillStyle = '#060810';
-    ctx.fillRect(0, 0, W, H);
   });
 
   // Touch
@@ -344,8 +283,13 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   // Controls
   const slN = document.getElementById('sl-n');
   const slSpd = document.getElementById('sl-spd');
+  const slTrail = document.getElementById('sl-trail');
   const lblN = document.getElementById('lbl-n');
   const lblSpd = document.getElementById('lbl-spd');
+  const lblTrail = document.getElementById('lbl-trail');
+
+  const TRAIL_RATES = [0.006, 0.012, 0.025, 0.05, 0.10];
+  const TRAIL_LABELS = ['XL', 'L', 'M', 'S', 'XS'];
 
   slN.addEventListener('input', () => {
     nSides = parseInt(slN.value);
@@ -358,16 +302,20 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     lblSpd.textContent = spd.toFixed(1);
     SFX.play('click');
   });
+  slTrail.addEventListener('input', () => {
+    const v = parseInt(slTrail.value) - 1;
+    fadeAlpha = TRAIL_RATES[v];
+    lblTrail.textContent = TRAIL_LABELS[v];
+    SFX.play('click');
+  });
 
   document.getElementById('btn-auto').addEventListener('click', function() {
     autoMode = !autoMode;
     this.classList.toggle('active', autoMode);
     SFX.play('toggle');
   });
-  document.getElementById('btn-reset').addEventListener('click', () => {
+  document.getElementById('btn-clear').addEventListener('click', () => {
     clearAll();
-    ctx.fillStyle = '#060810';
-    ctx.fillRect(0, 0, W, H);
     SFX.play('click');
   });
 
