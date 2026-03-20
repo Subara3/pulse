@@ -5,7 +5,7 @@ recordPageView('pursuit');
 
 $pageName = 'pursuit';
 $pageTitle = 'PURSUIT - PULSE';
-$pageDesc = 'N点の追跡多角形。各頂点が次の頂点を等速で追い続け、対数螺旋が創発する。';
+$pageDesc = '追跡の連鎖。粒子の鎖がカーソルを追い、動かすだけで光の対数螺旋が画面を埋める。';
 $pageCanonical = 'https://pulse.subara3.com/pursuit.php';
 $extraStyle = '
 body { background: #060810; overflow: hidden; }
@@ -15,7 +15,6 @@ body { background: #060810; overflow: hidden; }
 .ctrl { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 10; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; }
 .ctrl button { background: rgba(0,245,212,0.08); border: 1px solid rgba(0,245,212,0.3); color: #00f5d4; font-family: "JetBrains Mono", monospace; font-size: 0.65rem; padding: 0.35rem 0.8rem; cursor: pointer; letter-spacing: 0.1em; transition: background 0.2s; }
 .ctrl button:hover { background: rgba(0,245,212,0.18); }
-.ctrl button.active { background: rgba(0,245,212,0.25); border-color: #00f5d4; }
 .ctrl label { font-family: "JetBrains Mono", monospace; font-size: 0.65rem; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 0.6rem; }
 .ctrl input[type=range] { width: 90px; accent-color: #00f5d4; }
 .title { position: fixed; bottom: 1.5rem; left: 1.5rem; font-family: "Orbitron", sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.12); letter-spacing: 0.2em; z-index: 10; pointer-events: none; }
@@ -32,17 +31,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <canvas id="canvas"></canvas>
 
 <div class="hud">
-  <div>SETS <span class="vc" id="hud-sets">0</span></div>
-  <div>CYCLES <span class="vc" id="hud-cycles">0</span></div>
+  <div>CHAINS <span class="vc" id="hud-chains">0</span></div>
+  <div>NODES <span class="vc" id="hud-nodes">0</span></div>
 </div>
 
 <div class="ctrl">
   <button id="btn-clear">CLEAR</button>
-  <label>N <span id="lbl-n">5</span>
-    <input type="range" id="sl-n" min="3" max="12" step="1" value="5">
-  </label>
-  <label>SPEED <span id="lbl-spd">1.8</span>
-    <input type="range" id="sl-spd" min="0.5" max="5.0" step="0.1" value="1.8">
+  <label>SPEED <span id="lbl-spd">1.0</span>
+    <input type="range" id="sl-spd" min="0.3" max="3.0" step="0.1" value="1.0">
   </label>
   <label>TRAIL <span id="lbl-trail">L</span>
     <input type="range" id="sl-trail" min="1" max="5" step="1" value="2">
@@ -53,8 +49,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
 <?php
 $interactionHints = [
+  ['type' => 'drag',  'label' => 'paint'],
   ['type' => 'click', 'label' => 'spawn'],
-  ['type' => 'drag',  'label' => 'warp'],
   ['type' => 'right', 'label' => 'clear'],
 ];
 require_once __DIR__ . '/includes/interaction-hints.php';
@@ -67,167 +63,146 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   const ctx = canvas.getContext('2d');
 
   let W, H;
-  let sets = [];
-  let nSides = 5;
-  let spd = 1.8;
-  let fadeAlpha = 0.01;
-  let totalCycles = 0;
-  let mx = -9999, my = -9999;
-  let mouseDown = false;
-  const MAX_SETS = 12;
+  let chains = [];
+  let spdMul = 1.0;
+  let fadeAlpha = 0.008;
+  let mx, my;           // mouse position
+  let mouseActive = false;
+  let hueCounter = 170;
+  const MAX_CHAINS = 15;
+  const CHAIN_LEN = 60;
 
-  const NAMES = {3:'TRI',4:'QUAD',5:'PENT',6:'HEX',7:'HEPT',8:'OCT',
-                  9:'NON',10:'DEC',11:'HENDEC',12:'DODEC'};
-
-  let hueBase = 170;
-
-  // --- Pursuit set: perpetual, never dies ---
-  class PursuitSet {
-    constructor(cx, cy, n, r) {
-      this.n = n;
-      this.cx = cx;
-      this.cy = cy;
-      this.r = r;
-      this.hue = hueBase;
-      hueBase = (hueBase + 53) % 360;
-      this.cycles = 0;
-      this.phase = 0;       // rotation offset, increases each cycle
+  // --- Chain: a sequence of particles, each pursuing the one ahead ---
+  class Chain {
+    constructor(x, y, hue) {
+      this.hue = hue;
+      this.len = CHAIN_LEN;
+      this.headSpeed = 4 + Math.random() * 3;
+      this.stiffness = 0.06 + Math.random() * 0.04;
       this.pts = [];
-      this.expand(0);
-    }
-
-    // Reset vertices to polygon around center
-    expand(rotOffset) {
-      this.pts = [];
-      for (let i = 0; i < this.n; i++) {
-        const a = (2 * Math.PI * i / this.n) - Math.PI / 2 + rotOffset;
-        this.pts.push({
-          x: this.cx + this.r * Math.cos(a),
-          y: this.cy + this.r * Math.sin(a),
-        });
+      for (let i = 0; i < this.len; i++) {
+        this.pts.push({ x: x + (Math.random() - 0.5) * 4, y: y + (Math.random() - 0.5) * 4 });
       }
+      // Autonomous wandering state
+      this.angle = Math.random() * Math.PI * 2;
+      this.turnRate = (Math.random() - 0.5) * 0.06;
+      this.wanderSpeed = 2 + Math.random() * 2;
     }
 
     update() {
-      const n = this.n;
-      const next = [];
+      const head = this.pts[0];
+      const speed = this.headSpeed * spdMul;
+      const stiff = this.stiffness * spdMul;
 
-      // Check convergence
-      let minDist = Infinity;
-      for (let i = 0; i < n; i++) {
-        const p = this.pts[i];
-        const t = this.pts[(i + 1) % n];
-        const d = Math.hypot(t.x - p.x, t.y - p.y);
-        if (d < minDist) minDist = d;
-      }
-
-      if (minDist < spd * 2) {
-        // Converged → rebirth: expand to new polygon, rotated
-        this.cycles++;
-        totalCycles++;
-        this.phase += 0.4 + Math.random() * 0.3;
-        this.hue = (this.hue + 30 + Math.random() * 20) % 360;
-        this.expand(this.phase);
-        SFX.play('collide', 40);
-        return;
-      }
-
-      // Pursuit step: each vertex chases the next
-      for (let i = 0; i < n; i++) {
-        const p = this.pts[i];
-        const t = this.pts[(i + 1) % n];
-        const dx = t.x - p.x, dy = t.y - p.y;
+      if (mouseActive) {
+        // Head chases mouse
+        const dx = mx - head.x, dy = my - head.y;
         const d = Math.hypot(dx, dy);
-        let nx = p.x + dx / d * spd;
-        let ny = p.y + dy / d * spd;
-
-        // Mouse warp: if mouse is held, attract nearest vertices
-        if (mouseDown) {
-          const mdx = mx - p.x, mdy = my - p.y;
-          const md = Math.hypot(mdx, mdy);
-          if (md < 250 && md > 1) {
-            const pull = 0.8 * (1 - md / 250);
-            nx += mdx / md * pull;
-            ny += mdy / md * pull;
-          }
+        if (d > 2) {
+          const s = Math.min(speed, d * 0.15);
+          head.x += dx / d * s;
+          head.y += dy / d * s;
         }
+      } else {
+        // Autonomous wandering
+        this.angle += this.turnRate + (Math.random() - 0.5) * 0.04;
+        head.x += Math.cos(this.angle) * this.wanderSpeed * spdMul;
+        head.y += Math.sin(this.angle) * this.wanderSpeed * spdMul;
 
-        next.push({ x: nx, y: ny });
+        // Soft edge bounce
+        const margin = 60;
+        if (head.x < margin) this.angle += 0.08;
+        else if (head.x > W - margin) this.angle -= 0.08;
+        if (head.y < margin) this.angle = Math.abs(this.angle) < Math.PI / 2 ? this.angle : -this.angle + Math.PI;
+        else if (head.y > H - margin) this.angle = Math.abs(this.angle) < Math.PI / 2 ? this.angle : -this.angle - Math.PI;
+
+        head.x = Math.max(0, Math.min(W, head.x));
+        head.y = Math.max(0, Math.min(H, head.y));
       }
-      this.pts = next;
+
+      // Each node pursues the one ahead — THIS is the pursuit
+      for (let i = 1; i < this.len; i++) {
+        const prev = this.pts[i - 1];
+        const curr = this.pts[i];
+        curr.x += (prev.x - curr.x) * stiff;
+        curr.y += (prev.y - curr.y) * stiff;
+      }
     }
 
     draw() {
-      const n = this.n;
+      const pts = this.pts;
+      const len = this.len;
 
-      // Draw edges
-      ctx.lineWidth = 2.2;
-      ctx.lineJoin = 'round';
-      ctx.lineCap = 'round';
+      // Draw chain as segments: thick & bright at head, thin & dim at tail
+      // Batch into groups of 4 for efficiency
+      const GROUP = 4;
+      for (let i = 0; i < len - 1; i += GROUP) {
+        const end = Math.min(i + GROUP, len - 1);
+        const t = 1 - i / len;
+        const alpha = t * t * 0.85;
+        const lw = t * 3.5 + 0.5;
+        const hue = (this.hue + i * 1.5) % 360;
 
-      // Single path for polygon — efficient
-      ctx.beginPath();
-      ctx.moveTo(this.pts[0].x, this.pts[0].y);
-      for (let i = 1; i < n; i++) ctx.lineTo(this.pts[i].x, this.pts[i].y);
-      ctx.closePath();
-      ctx.strokeStyle = `hsla(${this.hue},80%,65%,0.85)`;
-      ctx.stroke();
-
-      // Vertex dots with glow
-      for (let i = 0; i < n; i++) {
-        const p = this.pts[i];
-        const h = (this.hue + i * 20) % 360;
-
-        // Glow
-        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 10);
-        g.addColorStop(0, `hsla(${h},90%,75%,0.5)`);
-        g.addColorStop(1, `hsla(${h},90%,75%,0)`);
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 10, 0, Math.PI * 2);
-        ctx.fillStyle = g;
-        ctx.fill();
-
-        // Dot
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(${h},90%,85%,0.95)`;
-        ctx.fill();
+        ctx.moveTo(pts[i].x, pts[i].y);
+        for (let j = i + 1; j <= end; j++) {
+          ctx.lineTo(pts[j].x, pts[j].y);
+        }
+        ctx.strokeStyle = `hsla(${hue},80%,${45 + t * 30}%,${alpha})`;
+        ctx.lineWidth = lw;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.stroke();
       }
+
+      // Head glow
+      const h = pts[0];
+      const g = ctx.createRadialGradient(h.x, h.y, 0, h.x, h.y, 14);
+      g.addColorStop(0, `hsla(${this.hue},90%,80%,0.6)`);
+      g.addColorStop(1, `hsla(${this.hue},90%,80%,0)`);
+      ctx.beginPath();
+      ctx.arc(h.x, h.y, 14, 0, Math.PI * 2);
+      ctx.fillStyle = g;
+      ctx.fill();
+
+      // Head dot
+      ctx.beginPath();
+      ctx.arc(h.x, h.y, 3, 0, Math.PI * 2);
+      ctx.fillStyle = `hsla(${this.hue},90%,90%,0.95)`;
+      ctx.fill();
     }
   }
 
-  function spawn(cx, cy, n) {
-    if (sets.length >= MAX_SETS) return;
-    const minDim = Math.min(W, H);
-    const r = minDim * (0.08 + Math.random() * 0.14);
-    sets.push(new PursuitSet(cx, cy, n || nSides, r));
+  function spawnChain(x, y) {
+    if (chains.length >= MAX_CHAINS) return;
+    const hue = hueCounter;
+    hueCounter = (hueCounter + 47) % 360;
+    chains.push(new Chain(x, y, hue));
     SFX.play('spawn');
   }
 
   function clearAll() {
-    sets = [];
-    totalCycles = 0;
-    hueBase = 170;
-    SFX.play('click');
+    chains = [];
+    hueCounter = 170;
     ctx.fillStyle = '#060810';
     ctx.fillRect(0, 0, W, H);
+    SFX.play('click');
   }
 
   function init() {
-    sets = [];
-    totalCycles = 0;
-    hueBase = 170;
+    chains = [];
+    hueCounter = 170;
     ctx.fillStyle = '#060810';
     ctx.fillRect(0, 0, W, H);
 
-    // Start with several sets at different positions
-    const cx = W / 2, cy = H / 2;
-    const spread = Math.min(W, H) * 0.25;
-    spawn(cx, cy, 5);
-    spawn(cx - spread * 0.7, cy - spread * 0.4, 3);
-    spawn(cx + spread * 0.7, cy + spread * 0.3, 7);
-    spawn(cx - spread * 0.3, cy + spread * 0.6, 4);
-    spawn(cx + spread * 0.5, cy - spread * 0.5, 6);
+    // Spawn initial chains spread across the screen
+    const spots = [
+      [0.5, 0.5], [0.25, 0.3], [0.75, 0.7],
+      [0.3, 0.7], [0.7, 0.3], [0.5, 0.2],
+    ];
+    for (const [rx, ry] of spots) {
+      spawnChain(W * rx, H * ry);
+    }
   }
 
   function resize() {
@@ -238,40 +213,40 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   }
 
   function updateHUD() {
-    document.getElementById('hud-sets').textContent = sets.length;
-    document.getElementById('hud-cycles').textContent = totalCycles;
+    document.getElementById('hud-chains').textContent = chains.length;
+    document.getElementById('hud-nodes').textContent = chains.length * CHAIN_LEN;
   }
 
   let frame = 0;
   function loop() {
     requestAnimationFrame(loop);
-    frame++;
 
-    // Background fade → spiral trails
+    // Background fade — the trail effect
     ctx.fillStyle = `rgba(6,8,16,${fadeAlpha})`;
     ctx.fillRect(0, 0, W, H);
 
-    for (const s of sets) {
-      s.update();
-      s.draw();
+    for (const c of chains) {
+      c.update();
+      c.draw();
     }
 
-    if (frame % 10 === 0) updateHUD();
+    if (++frame % 15 === 0) updateHUD();
   }
 
   // --- Events ---
   window.addEventListener('resize', resize);
 
-  canvas.addEventListener('mousedown', e => {
-    if (e.button === 2) return;
-    mouseDown = true;
-    mx = e.clientX; my = e.clientY;
-    spawn(e.clientX, e.clientY);
-  });
+  canvas.addEventListener('mouseenter', () => { mouseActive = true; });
+  canvas.addEventListener('mouseleave', () => { mouseActive = false; });
   canvas.addEventListener('mousemove', e => {
     mx = e.clientX; my = e.clientY;
+    mouseActive = true;
   });
-  canvas.addEventListener('mouseup', () => { mouseDown = false; });
+  canvas.addEventListener('mousedown', e => {
+    if (e.button === 2) return;
+    mx = e.clientX; my = e.clientY;
+    spawnChain(e.clientX, e.clientY);
+  });
   canvas.addEventListener('contextmenu', e => {
     e.preventDefault();
     clearAll();
@@ -282,8 +257,8 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     e.preventDefault();
     const t = e.touches[0];
     mx = t.clientX; my = t.clientY;
-    mouseDown = true;
-    spawn(t.clientX, t.clientY);
+    mouseActive = true;
+    spawnChain(t.clientX, t.clientY);
   }, { passive: false });
   canvas.addEventListener('touchmove', e => {
     e.preventDefault();
@@ -292,37 +267,26 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   }, { passive: false });
   canvas.addEventListener('touchend', e => {
     e.preventDefault();
-    mouseDown = false;
+    mouseActive = false;
   }, { passive: false });
 
   // Controls
-  const slN = document.getElementById('sl-n');
-  const slSpd = document.getElementById('sl-spd');
-  const slTrail = document.getElementById('sl-trail');
+  document.getElementById('sl-spd').addEventListener('input', e => {
+    spdMul = parseFloat(e.target.value);
+    document.getElementById('lbl-spd').textContent = spdMul.toFixed(1);
+    SFX.play('click');
+  });
 
-  const TRAIL_RATES = [0.005, 0.01, 0.02, 0.04, 0.08];
+  const TRAIL_RATES = [0.004, 0.008, 0.018, 0.04, 0.08];
   const TRAIL_LABELS = ['XL', 'L', 'M', 'S', 'XS'];
-
-  slN.addEventListener('input', () => {
-    nSides = parseInt(slN.value);
-    document.getElementById('lbl-n').textContent = nSides;
-    SFX.play('click');
-  });
-  slSpd.addEventListener('input', () => {
-    spd = parseFloat(slSpd.value);
-    document.getElementById('lbl-spd').textContent = spd.toFixed(1);
-    SFX.play('click');
-  });
-  slTrail.addEventListener('input', () => {
-    const v = parseInt(slTrail.value) - 1;
+  document.getElementById('sl-trail').addEventListener('input', e => {
+    const v = parseInt(e.target.value) - 1;
     fadeAlpha = TRAIL_RATES[v];
     document.getElementById('lbl-trail').textContent = TRAIL_LABELS[v];
     SFX.play('click');
   });
 
-  document.getElementById('btn-clear').addEventListener('click', () => {
-    clearAll();
-  });
+  document.getElementById('btn-clear').addEventListener('click', clearAll);
 
   resize();
   init();
