@@ -119,6 +119,17 @@ const INTERACTION_PRESETS = {
     { kind: 'drag', from: [300, 180], to: [660, 320], steps: 24 },
     { kind: 'drag', from: [660, 320], to: [480, 200], steps: 20 },
   ],
+  predprey: [
+    { kind: 'click', x: 480, y: 270 },
+    { kind: 'click', x: 300, y: 200 },
+    { kind: 'click', x: 600, y: 350 },
+    { kind: 'drag', from: [200, 150], to: [700, 400], steps: 30 },
+  ],
+  pursuit: [
+    { kind: 'click', x: 480, y: 270 },
+    { kind: 'click', x: 300, y: 200 },
+    { kind: 'click', x: 650, y: 350 },
+  ],
 };
 
 function run(cmd, args, opts = {}) {

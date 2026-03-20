@@ -280,6 +280,9 @@ $extraStyle = '
   color: var(--accent);
   margin-bottom: 0.3rem;
   letter-spacing: 0.1em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .new-content-desc {

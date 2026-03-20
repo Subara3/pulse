@@ -47,7 +47,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     <input type="range" id="sl-spd" min="0.3" max="4.0" step="0.1" value="1.5">
   </label>
   <label>TRAIL <span id="lbl-trail">M</span>
-    <input type="range" id="sl-trail" min="1" max="5" step="1" value="3">
+    <input type="range" id="sl-trail" min="1" max="5" step="1" value="2">
   </label>
 </div>
 
@@ -70,12 +70,12 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   let pursuers = [];
   let nSides = 5;
   let spd = 1.5;
-  let fadeRate = 0.04;
+  let fadeRate = 0.025;
   let autoMode = true;
   let spawnTimer = null;
   let colorIdx = 0;
   let totalSpawned = 0;
-  const MAX_ACTIVE = 5;
+  const MAX_ACTIVE = 8;
 
   const NAMES = {3:'TRIANGLE',4:'QUADRILATERAL',5:'PENTAGON',6:'HEXAGON',
                   7:'HEPTAGON',8:'OCTAGON',9:'NONAGON',10:'DECAGON',
@@ -135,15 +135,25 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       for (let i = 1; i < n; i++) ctx.lineTo(this.pts[i].x, this.pts[i].y);
       ctx.closePath();
       ctx.strokeStyle = rgba(this.col, fade);
-      ctx.lineWidth = 1.4;
+      ctx.lineWidth = 2;
       ctx.stroke();
 
-      // vertex dots
+      // vertex glow
       const dotFade = Math.min(1, this.age / 10);
+      for (const p of this.pts) {
+        const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, 8);
+        glow.addColorStop(0, rgba(this.col, dotFade * 0.5));
+        glow.addColorStop(1, rgba(this.col, 0));
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = glow;
+        ctx.fill();
+      }
+      // vertex dots
       ctx.fillStyle = rgba(this.col, dotFade);
       for (const p of this.pts) {
         ctx.beginPath();
-        ctx.arc(p.x, p.y, 2.2, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, 3, 0, Math.PI * 2);
         ctx.fill();
       }
     }
@@ -188,8 +198,10 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     totalSpawned = 0;
     spawnTimer = null;
     spawn(W / 2, H / 2, 5);
-    setTimeout(() => spawn(W * 0.3, H * 0.38, 7), 400);
-    setTimeout(() => spawn(W * 0.7, H * 0.62, 4), 800);
+    setTimeout(() => spawn(W * 0.3, H * 0.35, 7), 300);
+    setTimeout(() => spawn(W * 0.7, H * 0.65, 4), 600);
+    setTimeout(() => spawn(W * 0.5, H * 0.3, 6), 900);
+    setTimeout(() => spawn(W * 0.4, H * 0.7, 8), 1200);
   }
 
   function resize() {
@@ -221,11 +233,11 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     // Auto-spawn when all dead
     if (autoMode) {
       const alive = pursuers.filter(p => p.alive).length;
-      if (alive === 0 && !spawnTimer) {
+      if (alive < 2 && !spawnTimer) {
         spawnTimer = setTimeout(() => {
           spawnRandom();
           spawnTimer = null;
-        }, 1200);
+        }, 600);
       }
     }
 

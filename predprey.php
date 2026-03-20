@@ -53,7 +53,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   const ctx    = canvas.getContext('2d');
 
   // ---- simulation constants ----
-  const CELL         = 8;   // px per cell
+  const CELL         = 5;   // px per cell
   const FISH_BREED   = 4;   // chronons before fish breeds
   const SHARK_BREED  = 10;  // chronons before shark breeds
   const SHARK_INIT   = 6;   // initial shark energy
@@ -66,9 +66,9 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   const EMPTY = 0, FISH = 1, SHARK = 2;
 
   // ABGR (little-endian) packed pixel colors
-  const C_BG    = (0xFF000000 | (15  << 16) | (10  << 8) | 10)  >>> 0; // #0a0a0f
-  const C_FISH  = (0xFF000000 | (195 << 16) | (220 << 8) | 0)   >>> 0; // teal
-  const C_SHARK = (0xFF000000 | (210 << 16) | (45  << 8) | 140) >>> 0; // purple
+  const C_BG    = (0xFF000000 | (18  << 16) | (14  << 8) | 12)  >>> 0; // #0c0e12
+  const C_FISH  = (0xFF000000 | (212 << 16) | (245 << 8) | 0)   >>> 0; // bright teal #00f5d4
+  const C_SHARK = (0xFF000000 | (220 << 16) | (60  << 8) | 155) >>> 0; // bright purple #9b3cdc
 
   let W, H, COLS, ROWS, N;
   let type, fishAge, sharkEnergy, sharkAge, moved, order, nbr;
