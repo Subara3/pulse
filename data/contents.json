@@ -840,6 +840,18 @@
     "added": "2026-03-21"
   },
   {
+    "page": "superformula",
+    "title": "SUPERFORMULA",
+    "desc": "スーパーフォーミュラ。m・n1・n2・n3の4パラメータだけで花・葉・貝・雪の結晶が出現する形状生成の数式。",
+    "desc_en": "Superformula. Four parameters — m, n1, n2, n3 — generate flowers, leaves, shells, and snowflakes from a single equation.",
+    "icon": "fa-star",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Gielis (2003) · morphology",
+    "meta_en": "Gielis (2003) · morphology",
+    "added": "2026-03-22"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
