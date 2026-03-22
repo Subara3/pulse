@@ -852,6 +852,18 @@
     "added": "2026-03-22"
   },
   {
+    "page": "soliton",
+    "title": "SOLITON",
+    "desc": "KdV方程式による孤立波。衝突後も形を保って通り抜ける非線形波動現象。",
+    "desc_en": "Solitons from the KdV equation. Waves pass through each other intact after collision — a nonlinear miracle.",
+    "icon": "fa-water",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "KdV · nonlinear waves",
+    "meta_en": "KdV · nonlinear waves",
+    "added": "2026-03-23"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
