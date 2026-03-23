@@ -864,6 +864,18 @@
     "added": "2026-03-23"
   },
   {
+    "page": "marbling",
+    "title": "MARBLING",
+    "desc": "インクの滴が流体に落ちて渦を描く。マーブリングの数学的模倣。",
+    "desc_en": "Ink drops fall into fluid and spiral. Mathematical marbling simulation.",
+    "icon": "fa-droplet",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "drop · comb · fluid",
+    "meta_en": "drop · comb · fluid",
+    "added": "2026-03-24"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
