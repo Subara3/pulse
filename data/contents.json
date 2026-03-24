@@ -876,6 +876,18 @@
     "added": "2026-03-24"
   },
   {
+    "page": "pendulumwave",
+    "title": "PENDULUMWAVE",
+    "desc": "周期の異なる振り子群が織りなす集団的位相パターン。60秒で完全再同期。",
+    "desc_en": "Pendulums of different periods create collective phase patterns. Full resync every 60 seconds.",
+    "icon": "fa-wave-square",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "phase · wave · sync",
+    "meta_en": "phase · wave · sync",
+    "added": "2026-03-25"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
