@@ -888,6 +888,18 @@
     "added": "2026-03-25"
   },
   {
+    "page": "tesseract",
+    "title": "TESSERACT",
+    "desc": "4次元超立方体のリアルタイム投影。6軸回転が次元の向こう側を映し出す。",
+    "desc_en": "Real-time projection of a 4D hypercube. Six rotation axes reveal geometry beyond three dimensions.",
+    "icon": "fa-cube",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "4D · projection · rotation",
+    "meta_en": "4D · projection · rotation",
+    "added": "2026-03-26"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
