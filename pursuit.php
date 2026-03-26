@@ -178,7 +178,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     const hue = hueCounter;
     hueCounter = (hueCounter + 47) % 360;
     chains.push(new Chain(x, y, hue));
-    SFX.play('spawn');
+    typeof SFX !== 'undefined' && SFX.play('spawn');
   }
 
   function clearAll() {
@@ -186,7 +186,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     hueCounter = 170;
     ctx.fillStyle = '#060810';
     ctx.fillRect(0, 0, W, H);
-    SFX.play('click');
+    typeof SFX !== 'undefined' && SFX.play('click');
   }
 
   function init() {
@@ -274,7 +274,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   document.getElementById('sl-spd').addEventListener('input', e => {
     spdMul = parseFloat(e.target.value);
     document.getElementById('lbl-spd').textContent = spdMul.toFixed(1);
-    SFX.play('click');
+    typeof SFX !== 'undefined' && SFX.play('click');
   });
 
   const TRAIL_RATES = [0.004, 0.008, 0.018, 0.04, 0.08];
@@ -283,7 +283,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     const v = parseInt(e.target.value) - 1;
     fadeAlpha = TRAIL_RATES[v];
     document.getElementById('lbl-trail').textContent = TRAIL_LABELS[v];
-    SFX.play('click');
+    typeof SFX !== 'undefined' && SFX.play('click');
   });
 
   document.getElementById('btn-clear').addEventListener('click', clearAll);
