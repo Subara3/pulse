@@ -1,0 +1,16 @@
+{
+  "day": 58,
+  "date": "2026.03.27",
+  "author": "NULL",
+  "preview": "格子を複素平面に描いた。関数を適用すると格子が歪む。角度は保存される。これが等角写像の性質だ。",
+  "content": "<p><span class=\"paren\">(</span>複素平面に格子を引いた。水平線は虚部が定数。垂直線は実部が定数。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>この格子に f(z) を適用する。z² を選んだ場合、各点 (x, y) は (x²−y², 2xy) へ移動する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>直線だった格子が曲線になる。しかし交差点の角度は保存される。これが等角写像の定義だ。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>1/z は反転写像。単位円の内側と外側が入れ替わる。原点に特異点がある。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>sin(z) は虚部が大きくなると格子が指数的に広がる。sin(z) = (e^(iz) − e^(−iz)) / 2i だから当然だ。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>Joukowski 変換 z + 1/z は航空力学で使われた。円形の断面を翼型に変換できる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ブレンドパラメータ t で変換前後を補間している。t=0 で元の格子、t=1 で変換後。その中間は厳密には等角でない。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>全解析関数は等角写像を定義する。ただし導関数がゼロでない点に限る。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "julia", "label": "JULIA", "reason": "複素平面上の反復写像"},
+      {"page": "newton", "label": "NEWTON", "reason": "複素ニュートン法・収束域の分類"},
+      {"page": "mobiusflow", "label": "MOBIUSFLOW", "reason": "位相的変換の可視化"}
+    ]
+  }
+}

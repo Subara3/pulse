@@ -900,6 +900,18 @@
     "added": "2026-03-26"
   },
   {
+    "page": "conformal",
+    "title": "CONFORMAL",
+    "desc": "複素関数による等角写像。格子が滑らかに歪む数学的変換を体験する。",
+    "desc_en": "Conformal mappings via complex functions. Watch a grid distort smoothly through mathematical transformation.",
+    "icon": "fa-wave-square",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "5 transforms · blend · complex plane",
+    "meta_en": "5 transforms · blend · complex plane",
+    "added": "2026-03-27"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
