@@ -912,6 +912,18 @@
     "added": "2026-03-27"
   },
   {
+    "page": "quantum",
+    "title": "QUANTUM",
+    "desc": "量子波束のトンネル効果。障壁に当たると反射と透過に分かれる、シュレーディンガー方程式の体験。",
+    "desc_en": "Quantum tunneling. A wave packet splits into reflected and transmitted parts — experience the Schrödinger equation.",
+    "icon": "fa-atom",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "tunneling · wave function · 1D",
+    "meta_en": "tunneling · wave function · 1D",
+    "added": "2026-03-28"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
