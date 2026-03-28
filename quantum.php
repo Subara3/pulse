@@ -5,13 +5,19 @@ recordPageView('quantum');
 
 $pageName = 'quantum';
 $pageTitle = 'QUANTUM - PULSE';
-$pageDesc = '量子波束のトンネル効果。シュレーディンガー方程式で粒子が障壁をすり抜ける。';
+$pageDesc = '量子波動の干渉と障壁トンネル効果。クリックで波を生み、壁を描いて干渉パターンを観察する。';
 $pageCanonical = 'https://pulse.subara3.com/quantum.php';
 $extraStyle = '
-canvas { display:block; }
+body { overflow:hidden; cursor:crosshair; }
+canvas {
+  display:block; position:fixed; top:0; left:0;
+  width:100%; height:100%; z-index:0;
+  image-rendering:pixelated;
+  image-rendering:crisp-edges;
+}
 .controls {
   position:fixed; bottom:1.5rem; right:1.5rem;
-  display:flex; gap:0.5rem; flex-direction:column; align-items:flex-end;
+  display:flex; gap:0.5rem; flex-direction:column; align-items:flex-end; z-index:10;
 }
 .btn {
   background:rgba(0,245,212,0.08); border:1px solid rgba(0,245,212,0.25);
@@ -20,12 +26,6 @@ canvas { display:block; }
   font-family:inherit; transition:all 0.2s;
 }
 .btn:hover { background:rgba(0,245,212,0.18); color:#00f5d4; }
-.info {
-  position:fixed; bottom:1.5rem; left:1.5rem;
-  font-size:0.65rem; color:rgba(0,245,212,0.3);
-  letter-spacing:0.1em; pointer-events:none; line-height:1.9;
-  font-family:monospace;
-}
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -34,303 +34,307 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <canvas id="canvas"></canvas>
 
 <div class="controls">
-  <button class="btn" id="btnMomentum">MOMENTUM: MID</button>
   <button class="btn" id="btnReset">RESET</button>
-</div>
-
-<div class="info">
-  <div id="infoNorm">NORM: 1.000</div>
-  <div id="infoK">k₀: 0.40</div>
 </div>
 
 <?php
 $interactionHints = [
-  ['type' => 'click', 'label' => 'barrier'],
-  ['type' => 'drag',  'label' => 'draw'],
+  ['type' => 'click', 'label' => 'wave'],
+  ['type' => 'drag',  'label' => 'barrier'],
   ['type' => 'right', 'label' => 'erase'],
 ];
 require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
+
+<noscript><p style="color:#fff;padding:2rem;">量子波動シミュレーション。二重スリットによる干渉パターン。</p></noscript>
+
 <script>
 (function() {
 'use strict';
 
 const canvas = document.getElementById('canvas');
 const ctx    = canvas.getContext('2d');
-const btnMomentum = document.getElementById('btnMomentum');
-const btnReset    = document.getElementById('btnReset');
-const infoNorm    = document.getElementById('infoNorm');
-const infoK       = document.getElementById('infoK');
 
-// ── Simulation parameters ─────────────────────────────────────────────────
-const N  = 512;   // grid points
-const dx = 1.0;
-const dt = 0.15;  // timestep (stable for staggered leapfrog with dx=1)
-const STEPS_PER_FRAME = 3;
+// ── Grid (adaptive cell size targeting ~150k cells) ─────────────────────
+const MAX_CELLS = 150000;
+const screenW = window.innerWidth;
+const screenH = window.innerHeight;
+const CELL = Math.max(2, Math.ceil(Math.sqrt(screenW * screenH / MAX_CELLS)));
+const NX = Math.floor(screenW / CELL);
+const NY = Math.floor(screenH / CELL);
+canvas.width  = NX;
+canvas.height = NY;
 
-const MOMENTUM_PRESETS = [
-  { label: 'SLOW', k0: 0.25 },
-  { label: 'MID',  k0: 0.40 },
-  { label: 'FAST', k0: 0.72 },
-];
-let momentumIdx = 1;
+let u       = new Float32Array(NX * NY);
+let v       = new Float32Array(NX * NY);
+let barrier = new Uint8Array(NX * NY);
+const imgData = ctx.createImageData(NX, NY);
 
-const SIGMA   = 22;       // wave packet width
-const X0      = N / 4;    // starting position
+// ── Physics constants ───────────────────────────────────────────────────
+const C2           = 0.20;
+const DAMP         = 0.998;
+const BARRIER_DAMP = 0.82;
+const ABSORB       = Math.max(8, Math.floor(Math.min(NX, NY) * 0.04));
+const FREQ         = 0.15;
+const SRC_AMP      = 0.25;
+let   phase        = 0;
 
-const V_BARRIER  = 0.12;  // barrier height (> E_MID=0.08, < E_FAST=0.26)
-const BARRIER_W  = 14;    // default barrier width in grid points
+// ── Double-slit barrier ─────────────────────────────────────────────────
+function placeDoubleSlit() {
+  barrier.fill(0);
+  const wallX  = Math.floor(NX * 0.42);
+  const wallW  = Math.max(2, Math.floor(NX * 0.006));
+  const slitH  = Math.max(3, Math.floor(NY * 0.045));
+  const slitD  = Math.floor(NY * 0.18);
+  const cy     = Math.floor(NY / 2);
+  const slit1  = cy - Math.floor(slitD / 2);
+  const slit2  = cy + Math.floor(slitD / 2);
 
-// ── State arrays ──────────────────────────────────────────────────────────
-let R    = new Float64Array(N); // Re(ψ) at integer t
-let I    = new Float64Array(N); // Im(ψ) at half-integer t
-let I_tmp= new Float64Array(N);
-let V    = new Float64Array(N); // potential
-
-// ── Canvas ────────────────────────────────────────────────────────────────
-let W, H, cy, probScale, psiScale;
-
-function resize() {
-  W = canvas.width  = window.innerWidth;
-  H = canvas.height = window.innerHeight;
-  cy        = H * 0.58;
-  probScale = H * 19;    // |ψ|² peak ~ 0.016 → display at ~H*0.30 above cy
-  psiScale  = H * 2.4;   // Re/Im amplitude ~ 0.13 → display at ~H*0.31 above cy
-}
-window.addEventListener('resize', resize);
-
-// ── Init wave packet ──────────────────────────────────────────────────────
-function initWave() {
-  const k0 = MOMENTUM_PRESETS[momentumIdx].k0;
-  R.fill(0); I.fill(0); I_tmp.fill(0);
-
-  let norm = 0;
-  for (let i = 0; i < N; i++) {
-    const g = Math.exp(-(i - X0) ** 2 / (2 * SIGMA * SIGMA));
-    R[i] = g * Math.cos(k0 * i);
-    I[i] = g * Math.sin(k0 * i);
-    norm += R[i] * R[i] + I[i] * I[i];
-  }
-  const invNorm = 1 / Math.sqrt(norm * dx);
-  for (let i = 0; i < N; i++) { R[i] *= invNorm; I[i] *= invNorm; }
-
-  // Stagger I to t = -dt/2
-  for (let i = 1; i < N - 1; i++) {
-    const lapR = R[i + 1] - 2 * R[i] + R[i - 1]; // dx=1
-    I[i] -= (dt / 2) * (0.5 * lapR - V[i] * R[i]);
-  }
-  I[0] = I[N - 1] = 0;
-}
-
-// ── Place default barrier ─────────────────────────────────────────────────
-function setDefaultBarrier() {
-  V.fill(0);
-  const bx = Math.round(N * 0.62);
-  for (let i = bx; i < bx + BARRIER_W; i++) {
-    if (i < N) V[i] = V_BARRIER;
+  for (let dx = 0; dx < wallW; dx++) {
+    const x = wallX + dx;
+    if (x >= NX) continue;
+    for (let y = 0; y < NY; y++) {
+      if (Math.abs(y - slit1) > slitH / 2 && Math.abs(y - slit2) > slitH / 2) {
+        barrier[y * NX + x] = 1;
+      }
+    }
   }
 }
 
-// ── Physics step (staggered leapfrog) ─────────────────────────────────────
+function resetSim() {
+  u.fill(0);
+  v.fill(0);
+  phase = 0;
+  placeDoubleSlit();
+}
+
+// ── Physics step (2D wave equation, leapfrog) ───────────────────────────
 function step() {
-  // I(n+1/2) = I(n-1/2) + dt * ( ½∇²R - V·R )
-  for (let i = 1; i < N - 1; i++) {
-    const lapR = R[i + 1] - 2 * R[i] + R[i - 1];
-    I_tmp[i] = I[i] + dt * (0.5 * lapR - V[i] * R[i]);
-  }
-  I_tmp[0] = I_tmp[N - 1] = 0;
+  const tmp = new Float32Array(NX * NY);
 
-  // R(n+1) = R(n) + dt * ( -½∇²I(n+½) + V·I(n+½) )
-  for (let i = 1; i < N - 1; i++) {
-    const lapI = I_tmp[i + 1] - 2 * I_tmp[i] + I_tmp[i - 1];
-    R[i] = R[i] + dt * (-0.5 * lapI + V[i] * I_tmp[i]);
+  for (let y = 1; y < NY - 1; y++) {
+    for (let x = 1; x < NX - 1; x++) {
+      const i   = y * NX + x;
+      const lap = u[i - 1] + u[i + 1] + u[i - NX] + u[i + NX] - 4 * u[i];
+      const d   = barrier[i] ? BARRIER_DAMP : DAMP;
+      tmp[i]    = d * (2 * u[i] - v[i] + C2 * lap);
+    }
   }
-  R[0] = R[N - 1] = 0;
 
-  // swap I ↔ I_tmp
-  let swap = I; I = I_tmp; I_tmp = swap;
+  // Absorbing boundaries (all 4 edges)
+  for (let y = 0; y < NY; y++) {
+    for (let d = 0; d < ABSORB; d++) {
+      const f  = (d / ABSORB);
+      const f2 = f * f;
+      // left
+      tmp[y * NX + d] *= f2;
+      // right
+      tmp[y * NX + (NX - 1 - d)] *= f2;
+    }
+  }
+  for (let x = 0; x < NX; x++) {
+    for (let d = 0; d < ABSORB; d++) {
+      const f2 = (d / ABSORB) * (d / ABSORB);
+      tmp[d * NX + x]           *= f2;
+      tmp[(NY - 1 - d) * NX + x] *= f2;
+    }
+  }
+
+  // Plane-wave source (left edge, inside absorb zone)
+  phase += FREQ;
+  const a = Math.sin(phase) * SRC_AMP;
+  const srcX = ABSORB + 1;
+  for (let y = ABSORB; y < NY - ABSORB; y++) {
+    tmp[y * NX + srcX]     = a;
+    tmp[y * NX + srcX + 1] = a;
+  }
+
+  v = u;
+  u = tmp;
 }
 
-// ── Draw ──────────────────────────────────────────────────────────────────
+// ── Add circular wave pulse ─────────────────────────────────────────────
+function addPulse(gx, gy) {
+  const r   = Math.max(4, Math.floor(Math.min(NX, NY) * 0.025));
+  const amp = 2.0;
+  for (let dy = -r; dy <= r; dy++) {
+    for (let dx = -r; dx <= r; dx++) {
+      const x = gx + dx, y = gy + dy;
+      if (x < 0 || x >= NX || y < 0 || y >= NY) continue;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist > r) continue;
+      const g = Math.cos(dist / r * Math.PI * 0.5) * amp;
+      const i = y * NX + x;
+      if (!barrier[i]) u[i] += g;
+    }
+  }
+}
+
+// ── Paint / erase barrier ───────────────────────────────────────────────
+function paintBarrier(gx, gy, erase) {
+  const r = Math.max(2, Math.ceil(Math.min(NX, NY) * 0.012));
+  for (let dy = -r; dy <= r; dy++) {
+    for (let dx = -r; dx <= r; dx++) {
+      const x = gx + dx, y = gy + dy;
+      if (x < 0 || x >= NX || y < 0 || y >= NY) continue;
+      if (dx * dx + dy * dy > r * r) continue;
+      barrier[y * NX + x] = erase ? 0 : 1;
+    }
+  }
+}
+
+// ── Render ───────────────────────────────────────────────────────────────
 function draw() {
-  ctx.clearRect(0, 0, W, H);
+  const data = imgData.data;
+  const BG_R = 10, BG_G = 10, BG_B = 15;
 
-  const scx = W / N;
+  for (let i = 0; i < NX * NY; i++) {
+    const pi = i << 2;
 
-  // Potential barriers: purple vertical bands
-  for (let i = 0; i < N; i++) {
-    if (V[i] < 0.001) continue;
-    const alpha = Math.min(V[i] / V_BARRIER, 1) * 0.32;
-    ctx.fillStyle = `rgba(123,44,191,${alpha.toFixed(3)})`;
-    ctx.fillRect(i * scx, 0, scx + 1, H);
-  }
-  // Barrier outlines (bright edge)
-  let inBarrier = false;
-  for (let i = 0; i < N; i++) {
-    const here = V[i] > 0.001;
-    if (here && !inBarrier) {
-      ctx.fillStyle = 'rgba(160,80,240,0.5)';
-      ctx.fillRect(i * scx - 1, 0, 2, H);
+    if (barrier[i]) {
+      data[pi]     = 50;
+      data[pi + 1] = 25;
+      data[pi + 2] = 90;
+      data[pi + 3] = 255;
+      continue;
     }
-    if (!here && inBarrier) {
-      ctx.fillStyle = 'rgba(160,80,240,0.5)';
-      ctx.fillRect((i - 1) * scx + scx - 1, 0, 2, H);
+
+    const val = u[i];
+    const a   = Math.abs(val);
+    const t   = Math.min(a * 5.5, 1);
+    const t2  = t * t;
+
+    // Base color: teal for positive, purple for negative
+    let cr, cg, cb;
+    if (val >= 0) {
+      cr = 0; cg = 245; cb = 212;
+    } else {
+      cr = 130; cg = 50; cb = 200;
     }
-    inBarrier = here;
-  }
 
-  // Axis line
-  ctx.strokeStyle = 'rgba(255,255,255,0.07)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(0, cy); ctx.lineTo(W, cy);
-  ctx.stroke();
+    let r = BG_R + t2 * (cr - BG_R);
+    let g = BG_G + t2 * (cg - BG_G);
+    let b = BG_B + t2 * (cb - BG_B);
 
-  // Im(ψ) — thin indigo line
-  ctx.beginPath();
-  ctx.strokeStyle = 'rgba(100,80,240,0.35)';
-  ctx.lineWidth = 1;
-  for (let i = 0; i < N; i++) {
-    const x = i * scx, y = cy - I[i] * psiScale;
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  }
-  ctx.stroke();
-
-  // Re(ψ) — purple line
-  ctx.beginPath();
-  ctx.strokeStyle = 'rgba(160,70,230,0.55)';
-  ctx.lineWidth = 1.5;
-  for (let i = 0; i < N; i++) {
-    const x = i * scx, y = cy - R[i] * psiScale;
-    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-  }
-  ctx.stroke();
-
-  // |ψ|² — filled teal area
-  ctx.beginPath();
-  ctx.moveTo(0, cy);
-  for (let i = 0; i < N; i++) {
-    const prob = R[i] * R[i] + I[i] * I[i];
-    ctx.lineTo(i * scx, cy - prob * probScale);
-  }
-  ctx.lineTo(W, cy);
-  ctx.closePath();
-
-  const grad = ctx.createLinearGradient(0, cy - H * 0.42, 0, cy);
-  grad.addColorStop(0,   'rgba(0,245,212,0.85)');
-  grad.addColorStop(0.5, 'rgba(0,245,212,0.35)');
-  grad.addColorStop(1,   'rgba(0,245,212,0.02)');
-  ctx.fillStyle = grad;
-  ctx.fill();
-
-  // |ψ|² glow outline
-  ctx.beginPath();
-  ctx.moveTo(0, cy);
-  for (let i = 0; i < N; i++) {
-    const prob = R[i] * R[i] + I[i] * I[i];
-    ctx.lineTo(i * scx, cy - prob * probScale);
-  }
-  ctx.strokeStyle = 'rgba(0,245,212,0.75)';
-  ctx.lineWidth = 1.8;
-  ctx.shadowColor = '#00f5d4';
-  ctx.shadowBlur = 10;
-  ctx.stroke();
-  ctx.shadowBlur = 0;
-
-  // Barrier strength indicator label
-  for (let i = 0; i < N; i++) {
-    if (V[i] > 0.001 && (i === 0 || V[i - 1] < 0.001)) {
-      const bStart = i;
-      let bEnd = i;
-      while (bEnd < N && V[bEnd] > 0.001) bEnd++;
-      const bx = (bStart + (bEnd - bStart) / 2) * scx;
-      ctx.fillStyle = 'rgba(160,80,240,0.5)';
-      ctx.font = '0.6rem monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('V', bx, cy + 14);
+    // White glow bloom at peaks
+    if (t > 0.55) {
+      const glow = (t - 0.55) * 2.2;
+      const g2   = glow * glow;
+      r += g2 * (255 - cr);
+      g += g2 * (255 - cg);
+      b += g2 * (255 - cb);
     }
+
+    data[pi]     = Math.min(255, r) | 0;
+    data[pi + 1] = Math.min(255, g) | 0;
+    data[pi + 2] = Math.min(255, b) | 0;
+    data[pi + 3] = 255;
   }
 
-  // Norm (quality check)
-  let norm = 0;
-  for (let i = 0; i < N; i++) norm += R[i] * R[i] + I[i] * I[i];
-  infoNorm.textContent = 'NORM: ' + (norm * dx).toFixed(3);
+  ctx.putImageData(imgData, 0, 0);
 }
 
-// ── Main loop ─────────────────────────────────────────────────────────────
+// ── Main loop ───────────────────────────────────────────────────────────
 function loop() {
-  for (let s = 0; s < STEPS_PER_FRAME; s++) step();
+  step(); step(); step();
   draw();
   requestAnimationFrame(loop);
 }
 
-// ── Input helpers ─────────────────────────────────────────────────────────
-let painting = false;
-let erasing  = false;
+// ── Input: click = wave, drag = barrier, right = erase ──────────────────
+let mouseDown = false;
+let hasMoved  = false;
+let erasing   = false;
+let startX    = 0, startY = 0;
+const MOVE_THRESHOLD = 4;
 
-function gridIdx(clientX) {
-  return Math.round(clientX / W * (N - 1));
+function toGrid(cx, cy) {
+  return [Math.floor(cx / CELL), Math.floor(cy / CELL)];
 }
 
-function paintBarrier(clientX, erase) {
-  const ci  = gridIdx(clientX);
-  const rad = Math.ceil(N * 0.018); // ~9 grid points brush radius
-  for (let i = ci - rad; i <= ci + rad; i++) {
-    if (i >= 0 && i < N) V[i] = erase ? 0 : V_BARRIER;
+canvas.addEventListener('mousedown', function(e) {
+  e.preventDefault();
+  mouseDown = true;
+  hasMoved  = false;
+  startX    = e.clientX;
+  startY    = e.clientY;
+  erasing   = (e.button === 2);
+
+  if (erasing) {
+    const g = toGrid(e.clientX, e.clientY);
+    paintBarrier(g[0], g[1], true);
+    if (typeof SFX !== 'undefined') SFX.play('pop', 60);
   }
-}
-
-canvas.addEventListener('mousedown', e => {
-  e.preventDefault();
-  erasing = (e.button === 2);
-  painting = true;
-  paintBarrier(e.clientX, erasing);
-  SFX.play(erasing ? 'pop' : 'tick', 60);
 });
-canvas.addEventListener('mousemove', e => {
-  if (!painting) return;
-  paintBarrier(e.clientX, erasing);
-  SFX.play(erasing ? 'pop' : 'tick', 60);
-});
-canvas.addEventListener('mouseup',    () => { painting = false; });
-canvas.addEventListener('mouseleave', () => { painting = false; });
-canvas.addEventListener('contextmenu', e => e.preventDefault());
 
-canvas.addEventListener('touchstart', e => {
+canvas.addEventListener('mousemove', function(e) {
+  if (!mouseDown) return;
+  const dx = e.clientX - startX;
+  const dy = e.clientY - startY;
+  if (!hasMoved && Math.abs(dx) < MOVE_THRESHOLD && Math.abs(dy) < MOVE_THRESHOLD) return;
+
+  hasMoved = true;
+  const g  = toGrid(e.clientX, e.clientY);
+  paintBarrier(g[0], g[1], erasing);
+  if (typeof SFX !== 'undefined') SFX.play(erasing ? 'pop' : 'tick', 90);
+});
+
+canvas.addEventListener('mouseup', function(e) {
+  if (!hasMoved && !erasing) {
+    const g = toGrid(e.clientX, e.clientY);
+    addPulse(g[0], g[1]);
+    if (typeof SFX !== 'undefined') SFX.play('ripple');
+  }
+  mouseDown = false;
+  hasMoved  = false;
+  erasing   = false;
+});
+canvas.addEventListener('mouseleave', function() { mouseDown = false; hasMoved = false; erasing = false; });
+canvas.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+
+// ── Touch: tap = wave, drag = barrier ───────────────────────────────────
+let touchStart   = null;
+let touchMoved   = false;
+
+canvas.addEventListener('touchstart', function(e) {
   e.preventDefault();
-  painting = true; erasing = false;
-  paintBarrier(e.touches[0].clientX, false);
-  SFX.play('tick', 60);
+  if (e.touches.length === 1) {
+    touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    touchMoved = false;
+  }
 }, { passive: false });
-canvas.addEventListener('touchmove', e => {
+
+canvas.addEventListener('touchmove', function(e) {
   e.preventDefault();
-  if (!painting) return;
-  paintBarrier(e.touches[0].clientX, false);
-  SFX.play('tick', 80);
+  if (!touchStart || e.touches.length !== 1) return;
+  const dx = e.touches[0].clientX - touchStart.x;
+  const dy = e.touches[0].clientY - touchStart.y;
+  if (!touchMoved && Math.abs(dx) < MOVE_THRESHOLD && Math.abs(dy) < MOVE_THRESHOLD) return;
+
+  touchMoved = true;
+  const g = toGrid(e.touches[0].clientX, e.touches[0].clientY);
+  paintBarrier(g[0], g[1], false);
+  if (typeof SFX !== 'undefined') SFX.play('tick', 90);
 }, { passive: false });
-canvas.addEventListener('touchend', () => { painting = false; });
 
-// ── Buttons ───────────────────────────────────────────────────────────────
-btnMomentum.addEventListener('click', () => {
-  momentumIdx = (momentumIdx + 1) % MOMENTUM_PRESETS.length;
-  const p = MOMENTUM_PRESETS[momentumIdx];
-  btnMomentum.textContent = 'MOMENTUM: ' + p.label;
-  infoK.textContent = 'k₀: ' + p.k0.toFixed(2);
-  initWave();
-  SFX.play('toggle');
+canvas.addEventListener('touchend', function(e) {
+  if (touchStart && !touchMoved) {
+    const g = toGrid(touchStart.x, touchStart.y);
+    addPulse(g[0], g[1]);
+    if (typeof SFX !== 'undefined') SFX.play('ripple');
+  }
+  touchStart = null;
+  touchMoved = false;
 });
 
-btnReset.addEventListener('click', () => {
-  setDefaultBarrier();
-  initWave();
-  SFX.play('click');
+// ── Buttons ─────────────────────────────────────────────────────────────
+document.getElementById('btnReset').addEventListener('click', function() {
+  resetSim();
+  if (typeof SFX !== 'undefined') SFX.play('click');
 });
 
-// ── Boot ──────────────────────────────────────────────────────────────────
-resize();
-setDefaultBarrier();
-initWave();
-infoK.textContent = 'k₀: ' + MOMENTUM_PRESETS[momentumIdx].k0.toFixed(2);
+// ── Boot ────────────────────────────────────────────────────────────────
+resetSim();
 loop();
 
 })();

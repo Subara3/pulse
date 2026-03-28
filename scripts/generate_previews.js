@@ -125,6 +125,15 @@ const INTERACTION_PRESETS = {
     { kind: 'click', x: 600, y: 350 },
     { kind: 'drag', from: [200, 150], to: [700, 400], steps: 30 },
   ],
+  quantum: [
+    { kind: 'click', x: 300, y: 270 },
+    { kind: 'click', x: 600, y: 200 },
+    { kind: 'click', x: 450, y: 350 },
+  ],
+  conformal: [
+    { kind: 'drag', from: [320, 200], to: [640, 320], steps: 24 },
+    { kind: 'click', x: 480, y: 270 },
+  ],
   pursuit: [
     { kind: 'click', x: 480, y: 270 },
     { kind: 'click', x: 300, y: 200 },
