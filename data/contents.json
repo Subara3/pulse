@@ -924,6 +924,18 @@
     "added": "2026-03-28"
   },
   {
+    "page": "crystallize",
+    "title": "CRYSTALLIZE",
+    "desc": "結晶成長シミュレーション。拡散律速凝集に六方対称を課したデンドライト構造の生成。",
+    "desc_en": "Crystal growth simulation. Dendritic structures emerge from diffusion-limited aggregation with six-fold symmetry.",
+    "icon": "fa-snowflake",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "DLA · 六方対称 · 形態3種",
+    "meta_en": "DLA · six-fold symmetry · 3 morphologies",
+    "added": "2026-03-29"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
