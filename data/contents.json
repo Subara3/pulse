@@ -936,6 +936,18 @@
     "added": "2026-03-29"
   },
   {
+    "page": "particlelife",
+    "title": "PARTICLE LIFE",
+    "desc": "粒子種族間の引力・斥力ルールが自己組織化を生む。ルールを変えるたびに全く違う世界が現れる。",
+    "desc_en": "Attraction and repulsion rules between particle species generate self-organizing clusters, vortices, and creature-like emergent behavior.",
+    "icon": "fa-circle-nodes",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "2-6 species · emergent life",
+    "meta_en": "2-6 species · emergent life",
+    "added": "2026-03-30"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
