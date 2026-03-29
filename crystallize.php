@@ -5,14 +5,14 @@ recordPageView('crystallize');
 
 $pageName = 'crystallize';
 $pageTitle = 'CRYSTALLIZE - PULSE';
-$pageDesc = '結晶成長シミュレーション。対称性を持つ拡散律速凝集で、雪の結晶のようなデンドライトが育つ。';
+$pageDesc = '結晶成長シミュレーション。拡散律速凝集に六方対称を課したデンドライト構造の生成。';
 $pageCanonical = 'https://pulse.subara3.com/crystallize.php';
 
 $extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">';
 
 $extraStyle = '
 body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
-#canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+#canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; }
 .ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
 .hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.35); font-size: 0.65rem; text-align: right; letter-spacing: 0.05em; line-height: 1.8; }
 .hud .highlight { color: #00f5d4; font-weight: 700; }
@@ -33,22 +33,21 @@ require_once __DIR__ . '/includes/share.php';
 <canvas id="canvas"></canvas>
 
 <div class="ui info" id="infoPanel">
-  CLICK TO PLACE SEED<br>
-  DRAG TO DRAW BARRIER<br>
-  RIGHT-CLICK TO ERASE
+  CLICK TO SEED<br>
+  RIGHT-CLICK TO RESET
 </div>
 
 <div class="ui hud" id="hud">
-  CRYSTAL: <span id="hudCrystal" class="highlight">0</span><br>
+  CELLS: <span id="hudCells" class="highlight">0</span><br>
   RADIUS: <span id="hudRadius" class="highlight">0</span><br>
   SYMM: <span id="hudSymm" class="sub">6</span><br>
-  MORPH: <span id="hudMode">BRANCH</span>
+  MORPH: <span id="hudMorph">BRANCH</span>
 </div>
 
 <div id="controls" class="drawer-controls">
   <div class="slider-wrap">
     <label>SPEED</label>
-    <input type="range" id="speedSlider" min="5" max="60" value="30">
+    <input type="range" id="speedSlider" min="5" max="60" value="20">
   </div>
   <div class="btn-row">
     <button class="control-btn" id="morphBtn">MORPH</button>
@@ -67,378 +66,264 @@ require_once __DIR__ . '/includes/share.php';
 <?php
 $interactionHints = [
   ['type' => 'click', 'label' => 'seed'],
-  ['type' => 'drag',  'label' => 'barrier'],
-  ['type' => 'right', 'label' => 'erase'],
+  ['type' => 'right', 'label' => 'reset'],
 ];
 require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
 
 <script>
 (function() {
+  /* ================================================================
+     CRYSTALLIZE — DLA + rotational symmetry
+     Original rendering & physics kept intact from Day 060 commit.
+     UI upgraded to drawer-controls style.
+     ================================================================ */
+
   var canvas = document.getElementById('canvas');
   var ctx = canvas.getContext('2d');
-  var hudCrystal = document.getElementById('hudCrystal');
-  var hudRadius  = document.getElementById('hudRadius');
-  var hudSymm    = document.getElementById('hudSymm');
-  var hudMode    = document.getElementById('hudMode');
-  var speedSlider = document.getElementById('speedSlider');
 
-  var W, H, cx, cy;
-  var crystal = [];       // {x, y, depth, dist}
-  var crystalGrid = {};
-  var barriers = [];      // {x, y}
-  var barrierGrid = {};
-  var paused = false;
-  var hideUI = false;
+  // ── Grid ──────────────────────────────────────────────────────
+  var GSIZE = 340;
+  var GCX = GSIZE >> 1, GCY = GSIZE >> 1;
+
+  var frozen   = new Uint8Array(GSIZE * GSIZE);
+  var frozenT  = new Uint32Array(GSIZE * GSIZE);
+  var stepCount = 0;
+  var iceCount  = 0;
   var maxRadius = 0;
-  var stepsPerFrame = 30;
+  var growing   = true;
+  var fadeAlpha = 0;
+  var paused    = false;
+  var stepsPerFrame = 20;
 
-  // ── Modes ────────────────────────────────────────────────────────
+  // ── Morphology ───────────────────────────────────────────────
   var MORPHS = ['BRANCH', 'STELLAR', 'PLATE', 'NEEDLE'];
-  var MORPH_STICK = [0.9, 0.4, 0.12, 0.85];
-  var MORPH_MIN_N = [1, 2, 3, 1];
+  var MORPH_STICK = [1.0, 0.50, 0.12, 0.85];
   var morphIdx = 0;
 
+  // ── Symmetry ─────────────────────────────────────────────────
   var SYMMETRIES = [6, 4, 8, 5, 3];
   var symmIdx = 0;
   var symmetry = 6;
 
-  // ── Palettes ─────────────────────────────────────────────────────
+  // ── Color palettes ───────────────────────────────────────────
   var PALETTES = [
-    {
-      name: 'AURORA',
-      crystal: function(depth, dist, maxD) {
-        var t = maxD > 0 ? Math.min(1, dist / maxD) : 0;
-        return [
-          Math.floor(123 - t * 123),
-          Math.floor(44 + t * 201),
-          Math.floor(191 + t * 21)
-        ];
-      }
-    },
-    {
-      name: 'DEEP',
-      crystal: function(depth, dist, maxD) {
-        var t = maxD > 0 ? Math.min(1, dist / maxD) : 0;
-        return [
-          Math.floor(20 + t * (0 - 20)),
-          Math.floor(60 + t * (245 - 60)),
-          Math.floor(180 + t * (212 - 180))
-        ];
-      }
-    },
-    {
-      name: 'CRYSTAL',
-      crystal: function(depth, dist, maxD) {
-        var t = maxD > 0 ? Math.min(1, dist / maxD) : 0;
-        return [
-          Math.floor(80 + t * 100),
-          Math.floor(30 + t * 190),
-          Math.floor(160 + t * 95)
-        ];
-      }
-    },
-    {
-      name: 'VOID',
-      crystal: function(depth, dist, maxD) {
-        var t = maxD > 0 ? Math.min(1, dist / maxD) : 0;
-        var l = 20 + t * 40;
-        return [Math.floor(l * 1.5), Math.floor(l * 2.0), Math.floor(l * 2.55)];
-      }
-    }
+    { name: 'AURORA',  a: [123,44,191],  b: [0,245,212] },
+    { name: 'DEEP',    a: [20,60,180],   b: [0,245,212] },
+    { name: 'CRYSTAL', a: [80,30,160],   b: [180,220,255] },
+    { name: 'VOID',    a: [40,50,70],    b: [120,160,200] }
   ];
-  var paletteIdx = 0;
-  var palette = PALETTES[0];
+  var palIdx = 0;
 
-  // ── Grid helpers (10px cells) ────────────────────────────────────
-  function gridKey(x, y) { return (x / 10 | 0) + ',' + (y / 10 | 0); }
+  // ── Helpers ──────────────────────────────────────────────────
+  function idx(x, y) { return y * GSIZE + x; }
+  function valid(x, y) { return x >= 0 && x < GSIZE && y >= 0 && y < GSIZE; }
 
-  function addToCrystal(px, py, depth) {
-    var dist = Math.sqrt((px - cx) * (px - cx) + (py - cy) * (py - cy));
-    if (dist > maxRadius) maxRadius = dist;
-    var c = { x: px, y: py, depth: depth, dist: dist };
-    crystal.push(c);
-    var key = gridKey(px, py);
-    if (!crystalGrid[key]) crystalGrid[key] = [];
-    crystalGrid[key].push(c);
-  }
-
-  function countNearby(px, py, r2) {
-    var count = 0;
-    var gx = px / 10 | 0, gy = py / 10 | 0;
-    for (var dx = -1; dx <= 1; dx++) {
-      for (var dy = -1; dy <= 1; dy++) {
-        var cell = crystalGrid[(gx + dx) + ',' + (gy + dy)];
-        if (!cell) continue;
-        for (var i = 0; i < cell.length; i++) {
-          var ddx = px - cell[i].x, ddy = py - cell[i].y;
-          if (ddx * ddx + ddy * ddy < r2) count++;
-        }
+  function isAdj(x, y) {
+    for (var dy = -1; dy <= 1; dy++)
+      for (var dx = -1; dx <= 1; dx++) {
+        if (!dx && !dy) continue;
+        var nx = x + dx, ny = y + dy;
+        if (valid(nx, ny) && frozen[idx(nx, ny)]) return true;
       }
-    }
-    return count;
-  }
-
-  function hitBarrier(px, py) {
-    var gx = px / 10 | 0, gy = py / 10 | 0;
-    for (var dx = -1; dx <= 1; dx++) {
-      for (var dy = -1; dy <= 1; dy++) {
-        var cell = barrierGrid[(gx + dx) + ',' + (gy + dy)];
-        if (!cell) continue;
-        for (var i = 0; i < cell.length; i++) {
-          var ddx = px - cell[i].x, ddy = py - cell[i].y;
-          if (ddx * ddx + ddy * ddy < 100) return true;
-        }
-      }
-    }
     return false;
   }
 
-  // ── Freeze with symmetry ─────────────────────────────────────────
-  function freezeSymmetric(px, py) {
-    var dx = px - cx, dy = py - cy;
-    var depth = crystal.length;
+  // Freeze with n-fold rotational symmetry
+  function freeze(x, y) {
+    stepCount++;
+    var dx = x - GCX, dy = y - GCY;
+    var r = Math.sqrt(dx * dx + dy * dy);
+    if (r > maxRadius) maxRadius = r;
+
     for (var k = 0; k < symmetry; k++) {
       var a = k * Math.PI * 2 / symmetry;
-      var nx = cx + dx * Math.cos(a) - dy * Math.sin(a);
-      var ny = cy + dx * Math.sin(a) + dy * Math.cos(a);
-      // Also add mirror
-      addToCrystal(nx, ny, depth);
-      if (symmetry >= 4) {
-        addToCrystal(cx + dx * Math.cos(a) + dy * Math.sin(a),
-                     cy + dx * Math.sin(a) - dy * Math.cos(a), depth);
+      var ca = Math.cos(a), sa = Math.sin(a);
+      var nx = Math.round(GCX + dx * ca - dy * sa);
+      var ny = Math.round(GCY + dx * sa + dy * ca);
+      if (valid(nx, ny)) {
+        var i = idx(nx, ny);
+        if (!frozen[i]) { frozen[i] = 1; frozenT[i] = stepCount; iceCount++; }
       }
     }
   }
 
-  // ── DLA walker step ──────────────────────────────────────────────
-  function walkOnce() {
-    var spawnR = maxRadius + 20 + Math.random() * 30;
-    var killR2 = (spawnR + 80) * (spawnR + 80);
-    var angle = Math.random() * Math.PI * 2;
-    var wx = cx + Math.cos(angle) * spawnR;
-    var wy = cy + Math.sin(angle) * spawnR;
+  function reset() {
+    frozen.fill(0); frozenT.fill(0);
+    stepCount = 0; iceCount = 0; maxRadius = 0;
+    growing = true; fadeAlpha = 0;
+    freeze(GCX, GCY);
+    for (var i = 0; i < 220; i++) stepWalker();
+  }
 
-    var stickP = MORPH_STICK[morphIdx];
-    var minN   = MORPH_MIN_N[morphIdx];
-    var r2     = 36; // 6px collision radius squared
+  // ── DLA walker (unchanged from original) ─────────────────────
+  function stepWalker() {
+    if (maxRadius >= GCX - 10) { growing = false; return; }
 
-    for (var s = 0; s < 4000; s++) {
-      var ddx = wx - cx, ddy = wy - cy;
-      if (ddx * ddx + ddy * ddy > killR2) return;
+    var p   = MORPH_STICK[morphIdx];
+    var spR = maxRadius + 3 + Math.random() * 6;
+    var a0  = Math.random() * Math.PI * 2;
+    var wx  = GCX + spR * Math.cos(a0);
+    var wy  = GCY + spR * Math.sin(a0);
+    var kR2 = (spR + 40) * (spR + 40);
 
-      // Adaptive step
+    for (var s = 0; s < 5000; s++) {
+      var ddx = wx - GCX, ddy = wy - GCY;
+      if (ddx * ddx + ddy * ddy > kR2) return;
+
       var dist = Math.sqrt(ddx * ddx + ddy * ddy);
-      var gap  = dist - maxRadius;
-      if (gap > 15) {
-        var step = Math.min(gap * 0.4, 12);
-        var a2 = Math.random() * Math.PI * 2;
-        wx += Math.cos(a2) * step;
-        wy += Math.sin(a2) * step;
-        // slight inward drift
-        wx += (cx - wx) * 0.003;
-        wy += (cy - wy) * 0.003;
-        continue;
-      }
+      var step = Math.min(8, Math.max(1, (dist - maxRadius - 1.5) | 0));
+      var a    = Math.random() * Math.PI * 2;
+      wx += step * Math.cos(a);
+      wy += step * Math.sin(a);
 
-      // Small step near crystal
-      wx += (Math.random() - 0.5) * 5;
-      wy += (Math.random() - 0.5) * 5;
-
-      if (hitBarrier(wx, wy)) return;
-
-      var nearby = countNearby(wx, wy, r2);
-      if (nearby >= minN && Math.random() < stickP) {
-        freezeSymmetric(wx, wy);
-        SFX.play('tick', 40);
+      var ix = Math.round(wx), iy = Math.round(wy);
+      if (!valid(ix, iy)) return;
+      if (!frozen[idx(ix, iy)] && isAdj(ix, iy) && Math.random() < p) {
+        freeze(ix, iy);
+        SFX.play('tick', 80);
         return;
       }
     }
   }
 
-  // ── Init ─────────────────────────────────────────────────────────
-  function init() {
-    crystal = [];
-    crystalGrid = {};
-    maxRadius = 0;
-    // Center seed
-    addToCrystal(cx, cy, 0);
-    // Pre-warm: grow a visible initial shape
-    for (var i = 0; i < 400; i++) walkOnce();
-  }
+  // ── Offscreen buffer (unchanged from original) ───────────────
+  var off  = document.createElement('canvas');
+  off.width  = GSIZE;
+  off.height = GSIZE;
+  var octx = off.getContext('2d');
 
-  // ── Render ───────────────────────────────────────────────────────
+  // ── Render (original + palette support) ──────────────────────
   function render() {
+    var W  = canvas.width, H = canvas.height;
+    var sc = Math.min(W, H) / GSIZE;
+    var ox = (W - GSIZE * sc) / 2;
+    var oy = (H - GSIZE * sc) / 2;
+
+    var img = octx.createImageData(GSIZE, GSIZE);
+    var d   = img.data;
+    var mx  = stepCount || 1;
+    var pal = PALETTES[palIdx];
+
+    for (var y = 0; y < GSIZE; y++)
+      for (var x = 0; x < GSIZE; x++) {
+        var i  = idx(x, y);
+        var p4 = i * 4;
+        if (frozen[i]) {
+          var t = frozenT[i] / mx;
+          d[p4]   = Math.round(pal.a[0] + (pal.b[0] - pal.a[0]) * t);
+          d[p4+1] = Math.round(pal.a[1] + (pal.b[1] - pal.a[1]) * t);
+          d[p4+2] = Math.round(pal.a[2] + (pal.b[2] - pal.a[2]) * t);
+          d[p4+3] = 255;
+        } else {
+          d[p4] = 10; d[p4+1] = 10; d[p4+2] = 15; d[p4+3] = 255;
+        }
+      }
+    octx.putImageData(img, 0, 0);
+
     ctx.fillStyle = '#0a0a0f';
     ctx.fillRect(0, 0, W, H);
 
-    var maxD = maxRadius || 1;
+    var blurPx = Math.min(6, Math.round(sc * 2.5));
+    ctx.filter      = 'blur(' + blurPx + 'px)';
+    ctx.globalAlpha = 0.55;
+    ctx.drawImage(off, ox, oy, GSIZE * sc, GSIZE * sc);
+    ctx.filter      = 'none';
+    ctx.globalAlpha = 1.0;
+    ctx.drawImage(off, ox, oy, GSIZE * sc, GSIZE * sc);
 
-    // Draw crystal
-    for (var i = 0; i < crystal.length; i++) {
-      var c = crystal[i];
-      var col = palette.crystal(c.depth, c.dist, maxD);
-      ctx.fillStyle = 'rgb(' + col[0] + ',' + col[1] + ',' + col[2] + ')';
-      ctx.fillRect(c.x - 1.5, c.y - 1.5, 3, 3);
+    if (fadeAlpha > 0) {
+      ctx.fillStyle = 'rgba(10,10,15,' + fadeAlpha + ')';
+      ctx.fillRect(0, 0, W, H);
     }
-
-    // Glow on recent additions
-    var recentN = Math.min(80, crystal.length);
-    var start = crystal.length - recentN;
-    for (var i = start; i < crystal.length; i++) {
-      if (i < 0) continue;
-      var c = crystal[i];
-      var t = (i - start) / recentN;
-      ctx.fillStyle = 'rgba(0,245,212,' + (t * 0.25).toFixed(2) + ')';
-      ctx.beginPath();
-      ctx.arc(c.x, c.y, 5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Draw barriers
-    ctx.fillStyle = 'rgba(123,44,191,0.35)';
-    for (var i = 0; i < barriers.length; i++) {
-      ctx.beginPath();
-      ctx.arc(barriers[i].x, barriers[i].y, 5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // HUD
-    hudCrystal.textContent = crystal.length;
-    hudRadius.textContent  = Math.floor(maxRadius);
-    hudSymm.textContent    = symmetry;
-    hudMode.textContent    = MORPHS[morphIdx];
   }
 
-  // ── Loop ─────────────────────────────────────────────────────────
-  function loop() {
+  // ── Resize ───────────────────────────────────────────────────
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // ── HUD ──────────────────────────────────────────────────────
+  var elCells = document.getElementById('hudCells');
+  var elRadius = document.getElementById('hudRadius');
+  var elSymm = document.getElementById('hudSymm');
+  var elMorph = document.getElementById('hudMorph');
+  var tick = 0;
+
+  function updateHUD() {
+    if (++tick % 6 !== 0) return;
+    elCells.textContent = iceCount;
+    elRadius.textContent = maxRadius | 0;
+    elSymm.textContent = symmetry;
+    elMorph.textContent = MORPHS[morphIdx];
+  }
+
+  // ── Animation loop ───────────────────────────────────────────
+  function animate() {
     if (!paused) {
-      stepsPerFrame = parseInt(speedSlider.value);
-      for (var i = 0; i < stepsPerFrame; i++) walkOnce();
+      if (!growing) {
+        fadeAlpha = Math.min(1, fadeAlpha + 0.012);
+        if (fadeAlpha >= 1) reset();
+      } else {
+        for (var i = 0; i < stepsPerFrame; i++) stepWalker();
+      }
     }
     render();
-    requestAnimationFrame(loop);
+    updateHUD();
+    requestAnimationFrame(animate);
   }
 
-  // ── Mouse: click=seed, drag=barrier, right=erase ─────────────────
-  var mouseDown = false, hasMoved = false, erasing = false;
-  var startMX = 0, startMY = 0;
-
-  function getPos(e) {
-    var r = canvas.getBoundingClientRect();
-    return [(e.clientX - r.left) * (W / r.width), (e.clientY - r.top) * (H / r.height)];
+  // ── Coordinate helper ────────────────────────────────────────
+  function toGrid(clientX, clientY) {
+    var sc = Math.min(canvas.width, canvas.height) / GSIZE;
+    var ox = (canvas.width  - GSIZE * sc) / 2;
+    var oy = (canvas.height - GSIZE * sc) / 2;
+    return [Math.round((clientX - ox) / sc), Math.round((clientY - oy) / sc)];
   }
 
-  canvas.addEventListener('mousedown', function(e) {
-    e.preventDefault();
-    mouseDown = true; hasMoved = false;
-    startMX = e.clientX; startMY = e.clientY;
-    erasing = (e.button === 2);
-    if (erasing) {
-      var p = getPos(e);
-      eraseBarrier(p[0], p[1]);
-      SFX.play('pop', 60);
-    }
-  });
-
-  canvas.addEventListener('mousemove', function(e) {
-    if (!mouseDown) return;
-    if (!hasMoved && Math.abs(e.clientX - startMX) < 4 && Math.abs(e.clientY - startMY) < 4) return;
-    hasMoved = true;
-    var p = getPos(e);
-    if (erasing) eraseBarrier(p[0], p[1]);
-    else addBarrier(p[0], p[1]);
-  });
-
-  canvas.addEventListener('mouseup', function(e) {
-    if (!hasMoved && !erasing) {
-      var p = getPos(e);
-      freezeSymmetric(p[0], p[1]);
+  // ── Events (unchanged from original) ─────────────────────────
+  canvas.addEventListener('click', function(e) {
+    var g = toGrid(e.clientX, e.clientY);
+    if (valid(g[0], g[1]) && !frozen[idx(g[0], g[1])]) {
+      freeze(g[0], g[1]);
+      growing = true; fadeAlpha = 0;
       SFX.play('spawn');
     }
-    mouseDown = false; hasMoved = false; erasing = false;
   });
 
-  canvas.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-
-  // ── Touch ────────────────────────────────────────────────────────
-  var touchStart = null, touchMoved = false;
-
-  canvas.addEventListener('touchstart', function(e) {
+  canvas.addEventListener('contextmenu', function(e) {
     e.preventDefault();
-    if (e.touches.length === 1) {
-      touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      touchMoved = false;
-    }
-  }, { passive: false });
-
-  canvas.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    if (!touchStart || e.touches.length !== 1) return;
-    if (!touchMoved && Math.abs(e.touches[0].clientX - touchStart.x) < 4
-        && Math.abs(e.touches[0].clientY - touchStart.y) < 4) return;
-    touchMoved = true;
-    var r = canvas.getBoundingClientRect();
-    var px = (e.touches[0].clientX - r.left) * (W / r.width);
-    var py = (e.touches[0].clientY - r.top) * (H / r.height);
-    addBarrier(px, py);
-  }, { passive: false });
+    reset();
+    SFX.play('click');
+  });
 
   canvas.addEventListener('touchend', function(e) {
-    if (touchStart && !touchMoved) {
-      var r = canvas.getBoundingClientRect();
-      var px = (touchStart.x - r.left) * (W / r.width);
-      var py = (touchStart.y - r.top) * (H / r.height);
-      freezeSymmetric(px, py);
+    e.preventDefault();
+    var t = e.changedTouches[0];
+    var g = toGrid(t.clientX, t.clientY);
+    if (valid(g[0], g[1]) && !frozen[idx(g[0], g[1])]) {
+      freeze(g[0], g[1]);
+      growing = true; fadeAlpha = 0;
       SFX.play('spawn');
     }
-    touchStart = null; touchMoved = false;
-  });
+  }, { passive: false });
 
-  // ── Barrier paint/erase ──────────────────────────────────────────
-  function addBarrier(px, py) {
-    var b = { x: px, y: py };
-    barriers.push(b);
-    var key = gridKey(px, py);
-    if (!barrierGrid[key]) barrierGrid[key] = [];
-    barrierGrid[key].push(b);
-    SFX.play('tick', 90);
-  }
-
-  function eraseBarrier(px, py) {
-    var r2 = 400; // 20px radius
-    barriers = barriers.filter(function(b) {
-      var dx = b.x - px, dy = b.y - py;
-      return dx * dx + dy * dy > r2;
-    });
-    // Rebuild grid
-    barrierGrid = {};
-    for (var i = 0; i < barriers.length; i++) {
-      var key = gridKey(barriers[i].x, barriers[i].y);
-      if (!barrierGrid[key]) barrierGrid[key] = [];
-      barrierGrid[key].push(barriers[i]);
-    }
-    SFX.play('pop', 60);
-  }
-
-  // ── Controls ─────────────────────────────────────────────────────
+  // ── Control buttons ──────────────────────────────────────────
   document.getElementById('morphBtn').addEventListener('click', function() {
     morphIdx = (morphIdx + 1) % MORPHS.length;
+    reset();
     SFX.play('toggle');
   });
 
   document.getElementById('symmBtn').addEventListener('click', function() {
     symmIdx = (symmIdx + 1) % SYMMETRIES.length;
     symmetry = SYMMETRIES[symmIdx];
-    crystal = []; crystalGrid = {}; maxRadius = 0;
-    addToCrystal(cx, cy, 0);
-    for (var i = 0; i < 400; i++) walkOnce();
+    reset();
     SFX.play('toggle');
   });
 
   document.getElementById('colorBtn').addEventListener('click', function() {
-    paletteIdx = (paletteIdx + 1) % PALETTES.length;
-    palette = PALETTES[paletteIdx];
+    palIdx = (palIdx + 1) % PALETTES.length;
     SFX.play('click');
   });
 
@@ -450,16 +335,15 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   });
 
   document.getElementById('resetBtn').addEventListener('click', function() {
-    barriers = []; barrierGrid = {};
-    init();
+    reset();
     SFX.play('click');
   });
 
+  document.getElementById('speedSlider').addEventListener('input', function(e) {
+    stepsPerFrame = parseInt(e.target.value);
+  });
+
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'h' || e.key === 'H') {
-      hideUI = !hideUI;
-      document.body.classList.toggle('hide-ui', hideUI);
-    }
     if (e.key === ' ') {
       e.preventDefault();
       paused = !paused;
@@ -468,24 +352,9 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     }
   });
 
-  // ── Resize ───────────────────────────────────────────────────────
-  function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-    cx = W / 2;
-    cy = H / 2;
-    barriers = []; barrierGrid = {};
-    init();
-  }
-  window.addEventListener('resize', resize);
-
-  var style = document.createElement('style');
-  style.textContent = '.hide-ui .ui, .hide-ui .floating-nav, .hide-ui .content-controls { opacity: 0 !important; pointer-events: none; }';
-  document.head.appendChild(style);
-
-  // ── Start ────────────────────────────────────────────────────────
-  resize();
-  loop();
+  // ── Start ────────────────────────────────────────────────────
+  reset();
+  requestAnimationFrame(animate);
 })();
 </script>
 
