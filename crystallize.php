@@ -12,8 +12,6 @@ body { overflow:hidden; cursor:crosshair; }
 canvas {
   display:block; position:fixed; top:0; left:0;
   width:100%; height:100%; z-index:0;
-  image-rendering:pixelated;
-  image-rendering:crisp-edges;
 }
 .controls {
   position:fixed; bottom:1.5rem; right:1.5rem;
@@ -187,50 +185,48 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     }
   }
 
-  // ── Offscreen buffer (ORIGINAL unchanged) ────────────────────
-  var off  = document.createElement('canvas');
-  off.width  = GSIZE;
-  off.height = GSIZE;
-  var octx = off.getContext('2d');
-
-  // ── Render (ORIGINAL + palette) ──────────────────────────────
+  // ── Render (direct drawing like dla.php) ──────────────────────
   function render() {
     var W  = canvas.width, H = canvas.height;
     var sc = Math.min(W, H) / GSIZE;
     var ox = (W - GSIZE * sc) / 2;
     var oy = (H - GSIZE * sc) / 2;
-
-    var img = octx.createImageData(GSIZE, GSIZE);
-    var d   = img.data;
-    var mx  = stepCount || 1;
+    var cs = Math.max(1, Math.ceil(sc));  // cell pixel size
+    var mx = stepCount || 1;
     var pal = PALETTES[palIdx];
-
-    for (var y = 0; y < GSIZE; y++)
-      for (var x = 0; x < GSIZE; x++) {
-        var i  = idx(x, y);
-        var p4 = i * 4;
-        if (frozen[i]) {
-          var t = frozenT[i] / mx;
-          d[p4]   = Math.round(pal.a[0] + (pal.b[0] - pal.a[0]) * t);
-          d[p4+1] = Math.round(pal.a[1] + (pal.b[1] - pal.a[1]) * t);
-          d[p4+2] = Math.round(pal.a[2] + (pal.b[2] - pal.a[2]) * t);
-          d[p4+3] = 255;
-        } else {
-          d[p4] = 10; d[p4+1] = 10; d[p4+2] = 15; d[p4+3] = 255;
-        }
-      }
-    octx.putImageData(img, 0, 0);
 
     ctx.fillStyle = '#0a0a0f';
     ctx.fillRect(0, 0, W, H);
 
-    var blurPx = Math.min(6, Math.round(sc * 2.5));
-    ctx.filter      = 'blur(' + blurPx + 'px)';
-    ctx.globalAlpha = 0.55;
-    ctx.drawImage(off, ox, oy, GSIZE * sc, GSIZE * sc);
-    ctx.filter      = 'none';
-    ctx.globalAlpha = 1.0;
-    ctx.drawImage(off, ox, oy, GSIZE * sc, GSIZE * sc);
+    for (var y = 0; y < GSIZE; y++) {
+      for (var x = 0; x < GSIZE; x++) {
+        var i = idx(x, y);
+        if (!frozen[i]) continue;
+        var t = frozenT[i] / mx;
+        var r = Math.round(pal.a[0] + (pal.b[0] - pal.a[0]) * t);
+        var g = Math.round(pal.a[1] + (pal.b[1] - pal.a[1]) * t);
+        var b = Math.round(pal.a[2] + (pal.b[2] - pal.a[2]) * t);
+        ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+        ctx.fillRect(ox + x * sc, oy + y * sc, cs, cs);
+      }
+    }
+
+    // Glow on recent growth tips
+    var recentN = Math.min(60, iceCount);
+    var threshold = stepCount - recentN;
+    if (threshold > 0) {
+      for (var y = 0; y < GSIZE; y++) {
+        for (var x = 0; x < GSIZE; x++) {
+          var i = idx(x, y);
+          if (!frozen[i] || frozenT[i] < threshold) continue;
+          var glow = (frozenT[i] - threshold) / recentN;
+          ctx.fillStyle = 'rgba(0,245,212,' + (glow * 0.3).toFixed(2) + ')';
+          ctx.beginPath();
+          ctx.arc(ox + x * sc + cs / 2, oy + y * sc + cs / 2, cs * 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
 
     if (fadeAlpha > 0) {
       ctx.fillStyle = 'rgba(10,10,15,' + fadeAlpha + ')';
