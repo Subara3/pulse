@@ -80,7 +80,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     <button data-symm="8">8-FOLD</button>
     <button data-symm="5">5-FOLD</button>
   </div>
-  <label>SPEED <input type="range" id="slSpeed" min="5" max="80" step="5" value="25"></label>
+  <label>SPEED <input type="range" id="slSpeed" min="10" max="100" step="5" value="40"></label>
   <label>PALETTE <input type="range" id="slPalette" min="0" max="3" step="1" value="0"></label>
   <button id="btnPause">PAUSE</button>
   <button id="btnReset">RESET</button>
@@ -104,10 +104,8 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
-// ── Adaptive grid ──────────────────────────────────────────────────
-const TARGET_CELLS = 220000;
-const screenMin = Math.min(window.innerWidth, window.innerHeight);
-const GSIZE = Math.min(500, Math.max(280, Math.round(Math.sqrt(TARGET_CELLS))));
+// ── Grid ───────────────────────────────────────────────────────────
+const GSIZE = 340;
 const GCX = GSIZE >> 1, GCY = GSIZE >> 1;
 
 let frozen   = new Uint8Array(GSIZE * GSIZE);
@@ -129,7 +127,7 @@ const STICK = [1.0, 0.45, 0.10, 0.85];
 const STICK_NEIGHBOR = [1, 2, 3, 1];  // min neighbors to stick for each mode
 let modeIdx = 0;
 let symmetry = 6;
-let walkersPerFrame = 25;
+let walkersPerFrame = 40;
 let paletteIdx = 0;
 
 // ── Color palettes (start → end) ──────────────────────────────────
@@ -184,7 +182,7 @@ function reset() {
   growing = true; fadeAlpha = 0;
   freeze(GCX, GCY);
   // pre-warm: show initial crystal immediately
-  for (let i = 0; i < 300; i++) stepWalker();
+  for (let i = 0; i < 600; i++) stepWalker();
 }
 
 // ── DLA walker ─────────────────────────────────────────────────────
@@ -320,7 +318,7 @@ function updateHUD() {
 function animate() {
   if (!paused) {
     if (!growing) {
-      fadeAlpha = Math.min(1, fadeAlpha + 0.008);
+      fadeAlpha = Math.min(1, fadeAlpha + 0.015);
       if (fadeAlpha >= 1) reset();
     } else {
       for (var i = 0; i < walkersPerFrame; i++) stepWalker();
