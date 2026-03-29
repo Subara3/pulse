@@ -7,61 +7,66 @@ $pageName = 'crystallize';
 $pageTitle = 'CRYSTALLIZE - PULSE';
 $pageDesc = '結晶成長シミュレーション。拡散律速凝集に六方対称を課したデンドライト構造の生成。';
 $pageCanonical = 'https://pulse.subara3.com/crystallize.php';
-
-$extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">';
-
 $extraStyle = '
-body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
-#canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; }
-.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
-.hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.35); font-size: 0.65rem; text-align: right; letter-spacing: 0.05em; line-height: 1.8; }
-.hud .highlight { color: #00f5d4; font-weight: 700; }
-.hud .sub { color: #c455ff; }
-.info { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.2); font-size: 0.6rem; letter-spacing: 0.05em; line-height: 1.8; }
-
-@media (max-width: 768px) {
-  .hud { font-size: 0.55rem; top: 0.5rem; right: 0.5rem; }
-  .info { bottom: 1rem; left: 1rem; font-size: 0.5rem; }
+body { overflow:hidden; cursor:crosshair; }
+canvas {
+  display:block; position:fixed; top:0; left:0;
+  width:100%; height:100%; z-index:0;
+  image-rendering:pixelated;
+  image-rendering:crisp-edges;
+}
+.controls {
+  position:fixed; bottom:1.5rem; right:1.5rem;
+  display:flex; gap:0.5rem; flex-direction:column; align-items:flex-end; z-index:10;
+}
+.btn {
+  background:rgba(0,245,212,0.08); border:1px solid rgba(0,245,212,0.25);
+  color:rgba(0,245,212,0.7); padding:0.35rem 0.8rem;
+  font-size:0.65rem; letter-spacing:0.15em; cursor:pointer;
+  font-family:inherit; transition:all 0.2s;
+}
+.btn:hover { background:rgba(0,245,212,0.18); color:#00f5d4; }
+.btn.active { background:rgba(0,245,212,0.22); color:#00f5d4; border-color:#00f5d4; }
+.hud {
+  position:fixed; top:1rem; left:1.5rem;
+  font-family:"JetBrains Mono",monospace; font-size:0.65rem;
+  color:rgba(255,255,255,0.3); line-height:1.8; z-index:10; pointer-events:none;
+}
+.hud .va { color:#00f5d4; }
+.hud .vb { color:#c455ff; }
+.slider-wrap {
+  display:flex; align-items:center; gap:0.4rem;
+  font-family:"JetBrains Mono",monospace; font-size:0.6rem;
+  color:rgba(255,255,255,0.35);
+}
+.slider-wrap input[type=range] { width:80px; accent-color:#00f5d4; }
+@media (max-width:768px) {
+  .controls { bottom:1rem; right:1rem; }
+  .btn { font-size:0.55rem; padding:0.25rem 0.5rem; }
+  .hud { font-size:0.55rem; top:0.7rem; left:1rem; }
 }
 ';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
-require_once __DIR__ . '/includes/share.php';
 ?>
-
 <canvas id="canvas"></canvas>
 
-<div class="ui info" id="infoPanel">
-  CLICK TO SEED<br>
-  RIGHT-CLICK TO RESET
+<div class="hud">
+  <div>CELLS <span class="va" id="hudCells">0</span></div>
+  <div>RADIUS <span class="va" id="hudRadius">0</span></div>
+  <div>SYMM <span class="vb" id="hudSymm">6</span></div>
+  <div>MORPH <span id="hudMorph" style="color:rgba(255,255,255,0.5)">BRANCH</span></div>
 </div>
 
-<div class="ui hud" id="hud">
-  CELLS: <span id="hudCells" class="highlight">0</span><br>
-  RADIUS: <span id="hudRadius" class="highlight">0</span><br>
-  SYMM: <span id="hudSymm" class="sub">6</span><br>
-  MORPH: <span id="hudMorph">BRANCH</span>
+<div class="controls">
+  <button class="btn" id="btnMorph">BRANCH</button>
+  <button class="btn" id="btnSymm">6-FOLD</button>
+  <div class="slider-wrap">SPEED <input type="range" id="slSpeed" min="5" max="60" value="20"></div>
+  <button class="btn" id="btnColor">COLOR</button>
+  <button class="btn" id="btnPause">PAUSE</button>
+  <button class="btn" id="btnReset">RESET</button>
 </div>
-
-<div id="controls" class="drawer-controls">
-  <div class="slider-wrap">
-    <label>SPEED</label>
-    <input type="range" id="speedSlider" min="5" max="60" value="20">
-  </div>
-  <div class="btn-row">
-    <button class="control-btn" id="morphBtn">MORPH</button>
-    <button class="control-btn" id="symmBtn">SYMM</button>
-  </div>
-  <div class="btn-row">
-    <button class="control-btn" id="colorBtn">COLOR</button>
-    <button class="control-btn" id="pauseBtn">PAUSE</button>
-  </div>
-  <div class="btn-row">
-    <button class="control-btn" id="resetBtn">RESET</button>
-  </div>
-</div>
-<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <?php
 $interactionHints = [
@@ -73,16 +78,10 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
 <script>
 (function() {
-  /* ================================================================
-     CRYSTALLIZE — DLA + rotational symmetry
-     Original rendering & physics kept intact from Day 060 commit.
-     UI upgraded to drawer-controls style.
-     ================================================================ */
-
   var canvas = document.getElementById('canvas');
   var ctx = canvas.getContext('2d');
 
-  // ── Grid ──────────────────────────────────────────────────────
+  // ── Grid (ORIGINAL unchanged) ────────────────────────────────
   var GSIZE = 340;
   var GCX = GSIZE >> 1, GCY = GSIZE >> 1;
 
@@ -103,19 +102,20 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
   // ── Symmetry ─────────────────────────────────────────────────
   var SYMMETRIES = [6, 4, 8, 5, 3];
+  var SYMM_LABELS = ['6-FOLD','4-FOLD','8-FOLD','5-FOLD','3-FOLD'];
   var symmIdx = 0;
   var symmetry = 6;
 
-  // ── Color palettes ───────────────────────────────────────────
+  // ── Palettes ─────────────────────────────────────────────────
   var PALETTES = [
-    { name: 'AURORA',  a: [123,44,191],  b: [0,245,212] },
-    { name: 'DEEP',    a: [20,60,180],   b: [0,245,212] },
-    { name: 'CRYSTAL', a: [80,30,160],   b: [180,220,255] },
-    { name: 'VOID',    a: [40,50,70],    b: [120,160,200] }
+    { a:[123,44,191], b:[0,245,212] },
+    { a:[20,60,180],  b:[0,245,212] },
+    { a:[80,30,160],  b:[180,220,255] },
+    { a:[40,50,70],   b:[120,160,200] }
   ];
   var palIdx = 0;
 
-  // ── Helpers ──────────────────────────────────────────────────
+  // ── Helpers (ORIGINAL unchanged) ─────────────────────────────
   function idx(x, y) { return y * GSIZE + x; }
   function valid(x, y) { return x >= 0 && x < GSIZE && y >= 0 && y < GSIZE; }
 
@@ -129,7 +129,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     return false;
   }
 
-  // Freeze with n-fold rotational symmetry
+  // ── Freeze with n-fold symmetry ──────────────────────────────
   function freeze(x, y) {
     stepCount++;
     var dx = x - GCX, dy = y - GCY;
@@ -156,7 +156,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     for (var i = 0; i < 220; i++) stepWalker();
   }
 
-  // ── DLA walker (unchanged from original) ─────────────────────
+  // ── DLA walker (ORIGINAL unchanged) ──────────────────────────
   function stepWalker() {
     if (maxRadius >= GCX - 10) { growing = false; return; }
 
@@ -187,13 +187,13 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     }
   }
 
-  // ── Offscreen buffer (unchanged from original) ───────────────
+  // ── Offscreen buffer (ORIGINAL unchanged) ────────────────────
   var off  = document.createElement('canvas');
   off.width  = GSIZE;
   off.height = GSIZE;
   var octx = off.getContext('2d');
 
-  // ── Render (original + palette support) ──────────────────────
+  // ── Render (ORIGINAL + palette) ──────────────────────────────
   function render() {
     var W  = canvas.width, H = canvas.height;
     var sc = Math.min(W, H) / GSIZE;
@@ -238,27 +238,27 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     }
   }
 
-  // ── Resize ───────────────────────────────────────────────────
+  // ── Resize (ORIGINAL unchanged) ──────────────────────────────
   function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
   window.addEventListener('resize', resize);
   resize();
 
   // ── HUD ──────────────────────────────────────────────────────
-  var elCells = document.getElementById('hudCells');
+  var elCells  = document.getElementById('hudCells');
   var elRadius = document.getElementById('hudRadius');
-  var elSymm = document.getElementById('hudSymm');
-  var elMorph = document.getElementById('hudMorph');
+  var elSymm   = document.getElementById('hudSymm');
+  var elMorph  = document.getElementById('hudMorph');
   var tick = 0;
 
   function updateHUD() {
     if (++tick % 6 !== 0) return;
-    elCells.textContent = iceCount;
+    elCells.textContent  = iceCount;
     elRadius.textContent = maxRadius | 0;
-    elSymm.textContent = symmetry;
-    elMorph.textContent = MORPHS[morphIdx];
+    elSymm.textContent   = symmetry;
+    elMorph.textContent  = MORPHS[morphIdx];
   }
 
-  // ── Animation loop ───────────────────────────────────────────
+  // ── Animation loop (ORIGINAL logic) ──────────────────────────
   function animate() {
     if (!paused) {
       if (!growing) {
@@ -273,7 +273,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     requestAnimationFrame(animate);
   }
 
-  // ── Coordinate helper ────────────────────────────────────────
+  // ── Coordinate helper (ORIGINAL unchanged) ───────────────────
   function toGrid(clientX, clientY) {
     var sc = Math.min(canvas.width, canvas.height) / GSIZE;
     var ox = (canvas.width  - GSIZE * sc) / 2;
@@ -281,7 +281,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     return [Math.round((clientX - ox) / sc), Math.round((clientY - oy) / sc)];
   }
 
-  // ── Events (unchanged from original) ─────────────────────────
+  // ── Events (ORIGINAL unchanged) ──────────────────────────────
   canvas.addEventListener('click', function(e) {
     var g = toGrid(e.clientX, e.clientY);
     if (valid(g[0], g[1]) && !frozen[idx(g[0], g[1])]) {
@@ -308,58 +308,49 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     }
   }, { passive: false });
 
-  // ── Control buttons ──────────────────────────────────────────
-  document.getElementById('morphBtn').addEventListener('click', function() {
+  // ── New controls ─────────────────────────────────────────────
+  document.getElementById('btnMorph').addEventListener('click', function() {
     morphIdx = (morphIdx + 1) % MORPHS.length;
+    this.textContent = MORPHS[morphIdx];
     reset();
     SFX.play('toggle');
   });
 
-  document.getElementById('symmBtn').addEventListener('click', function() {
+  document.getElementById('btnSymm').addEventListener('click', function() {
     symmIdx = (symmIdx + 1) % SYMMETRIES.length;
     symmetry = SYMMETRIES[symmIdx];
+    this.textContent = SYMM_LABELS[symmIdx];
     reset();
     SFX.play('toggle');
   });
 
-  document.getElementById('colorBtn').addEventListener('click', function() {
+  document.getElementById('btnColor').addEventListener('click', function() {
     palIdx = (palIdx + 1) % PALETTES.length;
     SFX.play('click');
   });
 
-  document.getElementById('pauseBtn').addEventListener('click', function() {
+  document.getElementById('btnPause').addEventListener('click', function() {
     paused = !paused;
-    this.classList.toggle('active', paused);
     this.textContent = paused ? 'PLAY' : 'PAUSE';
+    this.classList.toggle('active', paused);
     SFX.play('toggle');
   });
 
-  document.getElementById('resetBtn').addEventListener('click', function() {
+  document.getElementById('btnReset').addEventListener('click', function() {
     reset();
     SFX.play('click');
   });
 
-  document.getElementById('speedSlider').addEventListener('input', function(e) {
+  document.getElementById('slSpeed').addEventListener('input', function(e) {
     stepsPerFrame = parseInt(e.target.value);
   });
 
-  document.addEventListener('keydown', function(e) {
-    if (e.key === ' ') {
-      e.preventDefault();
-      paused = !paused;
-      document.getElementById('pauseBtn').classList.toggle('active', paused);
-      document.getElementById('pauseBtn').textContent = paused ? 'PLAY' : 'PAUSE';
-    }
-  });
-
-  // ── Start ────────────────────────────────────────────────────
+  // ── Start (ORIGINAL unchanged) ───────────────────────────────
   reset();
   requestAnimationFrame(animate);
 })();
 </script>
-
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
-<?php require_once __DIR__ . '/includes/related.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>
