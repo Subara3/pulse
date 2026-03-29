@@ -5,88 +5,64 @@ recordPageView('crystallize');
 
 $pageName = 'crystallize';
 $pageTitle = 'CRYSTALLIZE - PULSE';
-$pageDesc = '結晶成長シミュレーション。拡散律速凝集に六方対称を課したデンドライト構造の生成。';
+$pageDesc = '結晶成長シミュレーション。対称性を持つ拡散律速凝集で、雪の結晶のようなデンドライトが育つ。';
 $pageCanonical = 'https://pulse.subara3.com/crystallize.php';
+
+$extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">';
+
 $extraStyle = '
-body { overflow:hidden; cursor:crosshair; background:#0a0a0f; }
-canvas {
-  display:block; position:fixed; top:0; left:0;
-  width:100%; height:100%; z-index:0;
-  image-rendering:pixelated;
-  image-rendering:crisp-edges;
-}
-.hud {
-  position:fixed; top:1rem; left:1.5rem;
-  font-family:"JetBrains Mono",monospace; font-size:0.7rem;
-  color:rgba(255,255,255,0.35); line-height:1.9; z-index:10; pointer-events:none;
-}
-.hud .va { color:#00f5d4; }
-.hud .vb { color:#c455ff; }
-.ctrl {
-  position:fixed; bottom:1.5rem; right:1.5rem; z-index:10;
-  display:flex; flex-direction:column; gap:0.45rem; align-items:flex-end;
-}
-.ctrl button {
-  background:rgba(0,245,212,0.08); border:1px solid rgba(0,245,212,0.25);
-  color:rgba(0,245,212,0.7); font-family:"JetBrains Mono",monospace;
-  font-size:0.6rem; padding:0.3rem 0.7rem; cursor:pointer;
-  letter-spacing:0.12em; transition:all 0.2s;
-}
-.ctrl button:hover { background:rgba(0,245,212,0.18); color:#00f5d4; }
-.ctrl button.active { background:rgba(0,245,212,0.22); color:#00f5d4; border-color:#00f5d4; }
-.ctrl label {
-  font-family:"JetBrains Mono",monospace; font-size:0.6rem;
-  color:rgba(255,255,255,0.35); display:flex; align-items:center; gap:0.5rem;
-}
-.ctrl input[type=range] { width:90px; accent-color:#00f5d4; }
-.mode-row { display:flex; gap:0.35rem; flex-wrap:wrap; justify-content:flex-end; }
-.title {
-  position:fixed; bottom:1.5rem; left:1.5rem;
-  font-family:"Orbitron",sans-serif; font-size:0.7rem;
-  color:rgba(255,255,255,0.1); letter-spacing:0.2em; z-index:10; pointer-events:none;
-}
-@media (max-width:768px) {
-  .hud { font-size:0.55rem; top:0.8rem; left:1rem; }
-  .ctrl { bottom:1rem; right:1rem; gap:0.35rem; }
-  .ctrl button { font-size:0.5rem; padding:0.25rem 0.5rem; }
-  .ctrl input[type=range] { width:70px; }
-  .ctrl label { font-size:0.5rem; }
-  .title { font-size:0.5rem; bottom:0.8rem; left:0.8rem; }
+body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
+#canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
+.hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.35); font-size: 0.65rem; text-align: right; letter-spacing: 0.05em; line-height: 1.8; }
+.hud .highlight { color: #00f5d4; font-weight: 700; }
+.hud .sub { color: #c455ff; }
+.info { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.2); font-size: 0.6rem; letter-spacing: 0.05em; line-height: 1.8; }
+
+@media (max-width: 768px) {
+  .hud { font-size: 0.55rem; top: 0.5rem; right: 0.5rem; }
+  .info { bottom: 1rem; left: 1rem; font-size: 0.5rem; }
 }
 ';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
+require_once __DIR__ . '/includes/share.php';
 ?>
+
 <canvas id="canvas"></canvas>
 
-<div class="hud">
-  <div>MORPH <span class="va" id="hMode">BRANCH</span></div>
-  <div>SYMM <span class="vb" id="hSymm">6</span></div>
-  <div>CELLS <span class="va" id="hCells">0</span></div>
-  <div>RADIUS <span class="va" id="hRadius">0</span></div>
+<div class="ui info" id="infoPanel">
+  CLICK TO PLACE SEED<br>
+  DRAG TO DRAW BARRIER<br>
+  RIGHT-CLICK TO ERASE
 </div>
 
-<div class="ctrl">
-  <div class="mode-row">
-    <button class="active" data-mode="0">BRANCH</button>
-    <button data-mode="1">STELLAR</button>
-    <button data-mode="2">PLATE</button>
-    <button data-mode="3">NEEDLE</button>
-  </div>
-  <div class="mode-row">
-    <button class="active" data-symm="6">6-FOLD</button>
-    <button data-symm="4">4-FOLD</button>
-    <button data-symm="8">8-FOLD</button>
-    <button data-symm="5">5-FOLD</button>
-  </div>
-  <label>SPEED <input type="range" id="slSpeed" min="10" max="100" step="5" value="40"></label>
-  <label>PALETTE <input type="range" id="slPalette" min="0" max="3" step="1" value="0"></label>
-  <button id="btnPause">PAUSE</button>
-  <button id="btnReset">RESET</button>
+<div class="ui hud" id="hud">
+  CRYSTAL: <span id="hudCrystal" class="highlight">0</span><br>
+  RADIUS: <span id="hudRadius" class="highlight">0</span><br>
+  SYMM: <span id="hudSymm" class="sub">6</span><br>
+  MORPH: <span id="hudMode">BRANCH</span>
 </div>
 
-<div class="title">CRYSTALLIZE</div>
+<div id="controls" class="drawer-controls">
+  <div class="slider-wrap">
+    <label>SPEED</label>
+    <input type="range" id="speedSlider" min="5" max="60" value="30">
+  </div>
+  <div class="btn-row">
+    <button class="control-btn" id="morphBtn">MORPH</button>
+    <button class="control-btn" id="symmBtn">SYMM</button>
+  </div>
+  <div class="btn-row">
+    <button class="control-btn" id="colorBtn">COLOR</button>
+    <button class="control-btn" id="pauseBtn">PAUSE</button>
+  </div>
+  <div class="btn-row">
+    <button class="control-btn" id="resetBtn">RESET</button>
+  </div>
+</div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <?php
 $interactionHints = [
@@ -99,387 +75,422 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
 <script>
 (function() {
-'use strict';
+  var canvas = document.getElementById('canvas');
+  var ctx = canvas.getContext('2d');
+  var hudCrystal = document.getElementById('hudCrystal');
+  var hudRadius  = document.getElementById('hudRadius');
+  var hudSymm    = document.getElementById('hudSymm');
+  var hudMode    = document.getElementById('hudMode');
+  var speedSlider = document.getElementById('speedSlider');
 
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+  var W, H, cx, cy;
+  var crystal = [];       // {x, y, depth, dist}
+  var crystalGrid = {};
+  var barriers = [];      // {x, y}
+  var barrierGrid = {};
+  var paused = false;
+  var hideUI = false;
+  var maxRadius = 0;
+  var stepsPerFrame = 30;
 
-// ── Grid ───────────────────────────────────────────────────────────
-const GSIZE = 340;
-const GCX = GSIZE >> 1, GCY = GSIZE >> 1;
+  // ── Modes ────────────────────────────────────────────────────────
+  var MORPHS = ['BRANCH', 'STELLAR', 'PLATE', 'NEEDLE'];
+  var MORPH_STICK = [0.9, 0.4, 0.12, 0.85];
+  var MORPH_MIN_N = [1, 2, 3, 1];
+  var morphIdx = 0;
 
-let frozen   = new Uint8Array(GSIZE * GSIZE);
-let frozenT  = new Uint32Array(GSIZE * GSIZE);
-let frozenD  = new Float32Array(GSIZE * GSIZE);  // distance from center at freeze time
-let stepCount = 0;
-let iceCount  = 0;
-let maxRadius = 0;
-let growing   = true;
-let paused    = false;
-let fadeAlpha = 0;
+  var SYMMETRIES = [6, 4, 8, 5, 3];
+  var symmIdx = 0;
+  var symmetry = 6;
 
-// ── Barrier array for user-drawn walls ─────────────────────────────
-let walls = new Uint8Array(GSIZE * GSIZE);
-
-// ── Parameters ─────────────────────────────────────────────────────
-const MODES = ['BRANCH', 'STELLAR', 'PLATE', 'NEEDLE'];
-const STICK = [1.0, 0.45, 0.10, 0.85];
-const STICK_NEIGHBOR = [1, 2, 3, 1];  // min neighbors to stick for each mode
-let modeIdx = 0;
-let symmetry = 6;
-let walkersPerFrame = 40;
-let paletteIdx = 0;
-
-// ── Color palettes (start → end) ──────────────────────────────────
-const PALETTES = [
-  { name:'AURORA',  a:[123,44,191], b:[0,245,212] },   // purple → teal (classic)
-  { name:'DEEP',    a:[20,60,180],  b:[0,245,212] },    // deep blue → teal
-  { name:'CRYSTAL', a:[80,30,160],  b:[180,220,255] },  // violet → ice white
-  { name:'EMBER',   a:[123,44,191], b:[60,200,180] },   // purple → muted teal
-];
-
-// ── Helpers ────────────────────────────────────────────────────────
-const idx   = (x, y) => y * GSIZE + x;
-const valid = (x, y) => x >= 0 && x < GSIZE && y >= 0 && y < GSIZE;
-
-function countAdj(x, y) {
-  let count = 0;
-  for (let dy = -1; dy <= 1; dy++)
-    for (let dx = -1; dx <= 1; dx++) {
-      if (!dx && !dy) continue;
-      const nx = x + dx, ny = y + dy;
-      if (valid(nx, ny) && frozen[idx(nx, ny)]) count++;
+  // ── Palettes ─────────────────────────────────────────────────────
+  var PALETTES = [
+    {
+      name: 'AURORA',
+      crystal: function(depth, dist, maxD) {
+        var t = maxD > 0 ? Math.min(1, dist / maxD) : 0;
+        return [
+          Math.floor(123 - t * 123),
+          Math.floor(44 + t * 201),
+          Math.floor(191 + t * 21)
+        ];
+      }
+    },
+    {
+      name: 'DEEP',
+      crystal: function(depth, dist, maxD) {
+        var t = maxD > 0 ? Math.min(1, dist / maxD) : 0;
+        return [
+          Math.floor(20 + t * (0 - 20)),
+          Math.floor(60 + t * (245 - 60)),
+          Math.floor(180 + t * (212 - 180))
+        ];
+      }
+    },
+    {
+      name: 'CRYSTAL',
+      crystal: function(depth, dist, maxD) {
+        var t = maxD > 0 ? Math.min(1, dist / maxD) : 0;
+        return [
+          Math.floor(80 + t * 100),
+          Math.floor(30 + t * 190),
+          Math.floor(160 + t * 95)
+        ];
+      }
+    },
+    {
+      name: 'VOID',
+      crystal: function(depth, dist, maxD) {
+        var t = maxD > 0 ? Math.min(1, dist / maxD) : 0;
+        var l = 20 + t * 40;
+        return [Math.floor(l * 1.5), Math.floor(l * 2.0), Math.floor(l * 2.55)];
+      }
     }
-  return count;
-}
+  ];
+  var paletteIdx = 0;
+  var palette = PALETTES[0];
 
-// ── Freeze with n-fold rotational symmetry ─────────────────────────
-function freeze(x, y) {
-  stepCount++;
-  const dx = x - GCX, dy = y - GCY;
-  const r  = Math.sqrt(dx * dx + dy * dy);
-  if (r > maxRadius) maxRadius = r;
+  // ── Grid helpers (10px cells) ────────────────────────────────────
+  function gridKey(x, y) { return (x / 10 | 0) + ',' + (y / 10 | 0); }
 
-  for (let k = 0; k < symmetry; k++) {
-    const a  = k * Math.PI * 2 / symmetry;
-    const nx = Math.round(GCX + dx * Math.cos(a) - dy * Math.sin(a));
-    const ny = Math.round(GCY + dx * Math.sin(a) + dy * Math.cos(a));
-    if (valid(nx, ny)) {
-      const i = idx(nx, ny);
-      if (!frozen[i] && !walls[i]) {
-        frozen[i]  = 1;
-        frozenT[i] = stepCount;
-        frozenD[i] = r;
-        iceCount++;
+  function addToCrystal(px, py, depth) {
+    var dist = Math.sqrt((px - cx) * (px - cx) + (py - cy) * (py - cy));
+    if (dist > maxRadius) maxRadius = dist;
+    var c = { x: px, y: py, depth: depth, dist: dist };
+    crystal.push(c);
+    var key = gridKey(px, py);
+    if (!crystalGrid[key]) crystalGrid[key] = [];
+    crystalGrid[key].push(c);
+  }
+
+  function countNearby(px, py, r2) {
+    var count = 0;
+    var gx = px / 10 | 0, gy = py / 10 | 0;
+    for (var dx = -1; dx <= 1; dx++) {
+      for (var dy = -1; dy <= 1; dy++) {
+        var cell = crystalGrid[(gx + dx) + ',' + (gy + dy)];
+        if (!cell) continue;
+        for (var i = 0; i < cell.length; i++) {
+          var ddx = px - cell[i].x, ddy = py - cell[i].y;
+          if (ddx * ddx + ddy * ddy < r2) count++;
+        }
+      }
+    }
+    return count;
+  }
+
+  function hitBarrier(px, py) {
+    var gx = px / 10 | 0, gy = py / 10 | 0;
+    for (var dx = -1; dx <= 1; dx++) {
+      for (var dy = -1; dy <= 1; dy++) {
+        var cell = barrierGrid[(gx + dx) + ',' + (gy + dy)];
+        if (!cell) continue;
+        for (var i = 0; i < cell.length; i++) {
+          var ddx = px - cell[i].x, ddy = py - cell[i].y;
+          if (ddx * ddx + ddy * ddy < 100) return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  // ── Freeze with symmetry ─────────────────────────────────────────
+  function freezeSymmetric(px, py) {
+    var dx = px - cx, dy = py - cy;
+    var depth = crystal.length;
+    for (var k = 0; k < symmetry; k++) {
+      var a = k * Math.PI * 2 / symmetry;
+      var nx = cx + dx * Math.cos(a) - dy * Math.sin(a);
+      var ny = cy + dx * Math.sin(a) + dy * Math.cos(a);
+      // Also add mirror
+      addToCrystal(nx, ny, depth);
+      if (symmetry >= 4) {
+        addToCrystal(cx + dx * Math.cos(a) + dy * Math.sin(a),
+                     cy + dx * Math.sin(a) - dy * Math.cos(a), depth);
       }
     }
   }
-}
 
-function reset() {
-  frozen.fill(0); frozenT.fill(0); frozenD.fill(0); walls.fill(0);
-  stepCount = 0; iceCount = 0; maxRadius = 0;
-  growing = true; fadeAlpha = 0;
-  freeze(GCX, GCY);
-  // pre-warm: show initial crystal immediately
-  for (let i = 0; i < 600; i++) stepWalker();
-}
+  // ── DLA walker step ──────────────────────────────────────────────
+  function walkOnce() {
+    var spawnR = maxRadius + 20 + Math.random() * 30;
+    var killR2 = (spawnR + 80) * (spawnR + 80);
+    var angle = Math.random() * Math.PI * 2;
+    var wx = cx + Math.cos(angle) * spawnR;
+    var wy = cy + Math.sin(angle) * spawnR;
 
-// ── DLA walker ─────────────────────────────────────────────────────
-function stepWalker() {
-  if (maxRadius >= GCX - 8) { growing = false; return; }
+    var stickP = MORPH_STICK[morphIdx];
+    var minN   = MORPH_MIN_N[morphIdx];
+    var r2     = 36; // 6px collision radius squared
 
-  const p   = STICK[modeIdx];
-  const minN = STICK_NEIGHBOR[modeIdx];
-  const spR = maxRadius + 3 + Math.random() * 8;
-  const a0  = Math.random() * Math.PI * 2;
-  let wx = GCX + spR * Math.cos(a0);
-  let wy = GCY + spR * Math.sin(a0);
-  const kR2 = (spR + 50) * (spR + 50);
+    for (var s = 0; s < 4000; s++) {
+      var ddx = wx - cx, ddy = wy - cy;
+      if (ddx * ddx + ddy * ddy > killR2) return;
 
-  for (let s = 0; s < 6000; s++) {
-    const ddx = wx - GCX, ddy = wy - GCY;
-    if (ddx * ddx + ddy * ddy > kR2) return;
-
-    // Adaptive step size: big steps far away, small near crystal
-    const dist = Math.sqrt(ddx * ddx + ddy * ddy);
-    const gap  = dist - maxRadius;
-    const step = Math.min(10, Math.max(1, (gap - 1.5) | 0));
-    const a    = Math.random() * Math.PI * 2;
-    wx += step * Math.cos(a);
-    wy += step * Math.sin(a);
-
-    const ix = Math.round(wx), iy = Math.round(wy);
-    if (!valid(ix, iy)) return;
-    if (walls[idx(ix, iy)]) return;  // walker dies on wall
-    if (!frozen[idx(ix, iy)] && countAdj(ix, iy) >= minN && Math.random() < p) {
-      freeze(ix, iy);
-      SFX.play('tick', 80);
-      return;
-    }
-  }
-}
-
-// ── Offscreen buffer ───────────────────────────────────────────────
-const off  = document.createElement('canvas');
-off.width  = GSIZE;
-off.height = GSIZE;
-const octx = off.getContext('2d');
-
-// ── Render ─────────────────────────────────────────────────────────
-function render() {
-  const W  = canvas.width, H = canvas.height;
-  const sc = Math.min(W, H) / GSIZE;
-  const ox = (W - GSIZE * sc) / 2;
-  const oy = (H - GSIZE * sc) / 2;
-
-  const img = octx.createImageData(GSIZE, GSIZE);
-  const d   = img.data;
-  const mx  = stepCount || 1;
-  const pal = PALETTES[paletteIdx];
-  const maxD = maxRadius || 1;
-
-  for (let y = 0; y < GSIZE; y++)
-    for (let x = 0; x < GSIZE; x++) {
-      const i  = idx(x, y);
-      const p4 = i * 4;
-
-      if (walls[i]) {
-        // User-drawn walls: subtle purple
-        d[p4] = 40; d[p4+1] = 20; d[p4+2] = 60; d[p4+3] = 255;
+      // Adaptive step
+      var dist = Math.sqrt(ddx * ddx + ddy * ddy);
+      var gap  = dist - maxRadius;
+      if (gap > 15) {
+        var step = Math.min(gap * 0.4, 12);
+        var a2 = Math.random() * Math.PI * 2;
+        wx += Math.cos(a2) * step;
+        wy += Math.sin(a2) * step;
+        // slight inward drift
+        wx += (cx - wx) * 0.003;
+        wy += (cy - wy) * 0.003;
         continue;
       }
 
-      if (frozen[i]) {
-        // Color by distance from center (gives concentric ring feel)
-        const td = frozenD[i] / maxD;           // 0=center, 1=edge
-        const tt = frozenT[i] / mx;             // 0=early, 1=late
-        const t  = td * 0.7 + tt * 0.3;         // blend spatial + temporal
-        const tc = Math.min(1, Math.max(0, t));
+      // Small step near crystal
+      wx += (Math.random() - 0.5) * 5;
+      wy += (Math.random() - 0.5) * 5;
 
-        d[p4]   = Math.round(pal.a[0] + (pal.b[0] - pal.a[0]) * tc);
-        d[p4+1] = Math.round(pal.a[1] + (pal.b[1] - pal.a[1]) * tc);
-        d[p4+2] = Math.round(pal.a[2] + (pal.b[2] - pal.a[2]) * tc);
-        d[p4+3] = 255;
+      if (hitBarrier(wx, wy)) return;
 
-        // Bright tip glow: recently frozen cells near edge shine
-        if (tt > 0.92 && td > 0.8) {
-          const glow = (tt - 0.92) / 0.08;
-          d[p4]   = Math.min(255, d[p4]   + glow * (255 - d[p4])   * 0.5) | 0;
-          d[p4+1] = Math.min(255, d[p4+1] + glow * (255 - d[p4+1]) * 0.5) | 0;
-          d[p4+2] = Math.min(255, d[p4+2] + glow * (255 - d[p4+2]) * 0.5) | 0;
-        }
-      } else {
-        d[p4] = 10; d[p4+1] = 10; d[p4+2] = 15; d[p4+3] = 255;
+      var nearby = countNearby(wx, wy, r2);
+      if (nearby >= minN && Math.random() < stickP) {
+        freezeSymmetric(wx, wy);
+        SFX.play('tick', 40);
+        return;
       }
     }
-  octx.putImageData(img, 0, 0);
+  }
 
-  ctx.fillStyle = '#0a0a0f';
-  ctx.fillRect(0, 0, W, H);
+  // ── Init ─────────────────────────────────────────────────────────
+  function init() {
+    crystal = [];
+    crystalGrid = {};
+    maxRadius = 0;
+    // Center seed
+    addToCrystal(cx, cy, 0);
+    // Pre-warm: grow a visible initial shape
+    for (var i = 0; i < 400; i++) walkOnce();
+  }
 
-  // Glow layer (blur underneath)
-  const blurPx = Math.min(8, Math.round(sc * 2.5));
-  ctx.filter      = 'blur(' + blurPx + 'px)';
-  ctx.globalAlpha = 0.45;
-  ctx.drawImage(off, ox, oy, GSIZE * sc, GSIZE * sc);
-  ctx.filter      = 'none';
-  ctx.globalAlpha = 1.0;
-  ctx.drawImage(off, ox, oy, GSIZE * sc, GSIZE * sc);
-
-  // Fade overlay
-  if (fadeAlpha > 0) {
-    ctx.fillStyle = 'rgba(10,10,15,' + fadeAlpha + ')';
+  // ── Render ───────────────────────────────────────────────────────
+  function render() {
+    ctx.fillStyle = '#0a0a0f';
     ctx.fillRect(0, 0, W, H);
-  }
-}
 
-// ── Resize ─────────────────────────────────────────────────────────
-function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-window.addEventListener('resize', resize);
-resize();
+    var maxD = maxRadius || 1;
 
-// ── HUD ────────────────────────────────────────────────────────────
-var hMode   = document.getElementById('hMode');
-var hSymm   = document.getElementById('hSymm');
-var hCells  = document.getElementById('hCells');
-var hRadius = document.getElementById('hRadius');
-var frameN  = 0;
-
-function updateHUD() {
-  if (++frameN % 8 !== 0) return;
-  hMode.textContent   = MODES[modeIdx];
-  hSymm.textContent   = symmetry;
-  hCells.textContent  = iceCount;
-  hRadius.textContent = maxRadius.toFixed(0);
-}
-
-// ── Animation loop ─────────────────────────────────────────────────
-function animate() {
-  if (!paused) {
-    if (!growing) {
-      fadeAlpha = Math.min(1, fadeAlpha + 0.015);
-      if (fadeAlpha >= 1) reset();
-    } else {
-      for (var i = 0; i < walkersPerFrame; i++) stepWalker();
+    // Draw crystal
+    for (var i = 0; i < crystal.length; i++) {
+      var c = crystal[i];
+      var col = palette.crystal(c.depth, c.dist, maxD);
+      ctx.fillStyle = 'rgb(' + col[0] + ',' + col[1] + ',' + col[2] + ')';
+      ctx.fillRect(c.x - 1.5, c.y - 1.5, 3, 3);
     }
+
+    // Glow on recent additions
+    var recentN = Math.min(80, crystal.length);
+    var start = crystal.length - recentN;
+    for (var i = start; i < crystal.length; i++) {
+      if (i < 0) continue;
+      var c = crystal[i];
+      var t = (i - start) / recentN;
+      ctx.fillStyle = 'rgba(0,245,212,' + (t * 0.25).toFixed(2) + ')';
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Draw barriers
+    ctx.fillStyle = 'rgba(123,44,191,0.35)';
+    for (var i = 0; i < barriers.length; i++) {
+      ctx.beginPath();
+      ctx.arc(barriers[i].x, barriers[i].y, 5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // HUD
+    hudCrystal.textContent = crystal.length;
+    hudRadius.textContent  = Math.floor(maxRadius);
+    hudSymm.textContent    = symmetry;
+    hudMode.textContent    = MORPHS[morphIdx];
   }
-  render();
-  updateHUD();
-  requestAnimationFrame(animate);
-}
 
-// ── Coordinate helper ──────────────────────────────────────────────
-function toGrid(clientX, clientY) {
-  var sc = Math.min(canvas.width, canvas.height) / GSIZE;
-  var ox = (canvas.width  - GSIZE * sc) / 2;
-  var oy = (canvas.height - GSIZE * sc) / 2;
-  return [Math.round((clientX - ox) / sc), Math.round((clientY - oy) / sc)];
-}
+  // ── Loop ─────────────────────────────────────────────────────────
+  function loop() {
+    if (!paused) {
+      stepsPerFrame = parseInt(speedSlider.value);
+      for (var i = 0; i < stepsPerFrame; i++) walkOnce();
+    }
+    render();
+    requestAnimationFrame(loop);
+  }
 
-// ── Mouse: click=seed, drag=wall, right=erase ──────────────────────
-var mouseDown = false, hasMoved = false, erasing = false;
-var startX = 0, startY = 0;
-var MOVE_TH = 4;
+  // ── Mouse: click=seed, drag=barrier, right=erase ─────────────────
+  var mouseDown = false, hasMoved = false, erasing = false;
+  var startMX = 0, startMY = 0;
 
-canvas.addEventListener('mousedown', function(e) {
-  e.preventDefault();
-  mouseDown = true; hasMoved = false;
-  startX = e.clientX; startY = e.clientY;
-  erasing = (e.button === 2);
-  if (erasing) {
-    var g = toGrid(e.clientX, e.clientY);
-    paintWall(g[0], g[1], true);
+  function getPos(e) {
+    var r = canvas.getBoundingClientRect();
+    return [(e.clientX - r.left) * (W / r.width), (e.clientY - r.top) * (H / r.height)];
+  }
+
+  canvas.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    mouseDown = true; hasMoved = false;
+    startMX = e.clientX; startMY = e.clientY;
+    erasing = (e.button === 2);
+    if (erasing) {
+      var p = getPos(e);
+      eraseBarrier(p[0], p[1]);
+      SFX.play('pop', 60);
+    }
+  });
+
+  canvas.addEventListener('mousemove', function(e) {
+    if (!mouseDown) return;
+    if (!hasMoved && Math.abs(e.clientX - startMX) < 4 && Math.abs(e.clientY - startMY) < 4) return;
+    hasMoved = true;
+    var p = getPos(e);
+    if (erasing) eraseBarrier(p[0], p[1]);
+    else addBarrier(p[0], p[1]);
+  });
+
+  canvas.addEventListener('mouseup', function(e) {
+    if (!hasMoved && !erasing) {
+      var p = getPos(e);
+      freezeSymmetric(p[0], p[1]);
+      SFX.play('spawn');
+    }
+    mouseDown = false; hasMoved = false; erasing = false;
+  });
+
+  canvas.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+
+  // ── Touch ────────────────────────────────────────────────────────
+  var touchStart = null, touchMoved = false;
+
+  canvas.addEventListener('touchstart', function(e) {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      touchMoved = false;
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    if (!touchStart || e.touches.length !== 1) return;
+    if (!touchMoved && Math.abs(e.touches[0].clientX - touchStart.x) < 4
+        && Math.abs(e.touches[0].clientY - touchStart.y) < 4) return;
+    touchMoved = true;
+    var r = canvas.getBoundingClientRect();
+    var px = (e.touches[0].clientX - r.left) * (W / r.width);
+    var py = (e.touches[0].clientY - r.top) * (H / r.height);
+    addBarrier(px, py);
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', function(e) {
+    if (touchStart && !touchMoved) {
+      var r = canvas.getBoundingClientRect();
+      var px = (touchStart.x - r.left) * (W / r.width);
+      var py = (touchStart.y - r.top) * (H / r.height);
+      freezeSymmetric(px, py);
+      SFX.play('spawn');
+    }
+    touchStart = null; touchMoved = false;
+  });
+
+  // ── Barrier paint/erase ──────────────────────────────────────────
+  function addBarrier(px, py) {
+    var b = { x: px, y: py };
+    barriers.push(b);
+    var key = gridKey(px, py);
+    if (!barrierGrid[key]) barrierGrid[key] = [];
+    barrierGrid[key].push(b);
+    SFX.play('tick', 90);
+  }
+
+  function eraseBarrier(px, py) {
+    var r2 = 400; // 20px radius
+    barriers = barriers.filter(function(b) {
+      var dx = b.x - px, dy = b.y - py;
+      return dx * dx + dy * dy > r2;
+    });
+    // Rebuild grid
+    barrierGrid = {};
+    for (var i = 0; i < barriers.length; i++) {
+      var key = gridKey(barriers[i].x, barriers[i].y);
+      if (!barrierGrid[key]) barrierGrid[key] = [];
+      barrierGrid[key].push(barriers[i]);
+    }
     SFX.play('pop', 60);
   }
-});
 
-canvas.addEventListener('mousemove', function(e) {
-  if (!mouseDown) return;
-  if (!hasMoved && Math.abs(e.clientX - startX) < MOVE_TH && Math.abs(e.clientY - startY) < MOVE_TH) return;
-  hasMoved = true;
-  var g = toGrid(e.clientX, e.clientY);
-  paintWall(g[0], g[1], erasing);
-  SFX.play(erasing ? 'pop' : 'tick', 90);
-});
-
-canvas.addEventListener('mouseup', function(e) {
-  if (!hasMoved && !erasing) {
-    var g = toGrid(e.clientX, e.clientY);
-    if (valid(g[0], g[1]) && !frozen[idx(g[0], g[1])] && !walls[idx(g[0], g[1])]) {
-      freeze(g[0], g[1]);
-      growing = true; fadeAlpha = 0;
-      SFX.play('spawn');
-    }
-  }
-  mouseDown = false; hasMoved = false; erasing = false;
-});
-
-canvas.addEventListener('mouseleave', function() { mouseDown = false; hasMoved = false; erasing = false; });
-canvas.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-
-// ── Touch: tap=seed, drag=wall ─────────────────────────────────────
-var touchStart = null, touchMoved = false;
-
-canvas.addEventListener('touchstart', function(e) {
-  e.preventDefault();
-  if (e.touches.length === 1) {
-    touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    touchMoved = false;
-  }
-}, { passive: false });
-
-canvas.addEventListener('touchmove', function(e) {
-  e.preventDefault();
-  if (!touchStart || e.touches.length !== 1) return;
-  if (!touchMoved && Math.abs(e.touches[0].clientX - touchStart.x) < MOVE_TH
-      && Math.abs(e.touches[0].clientY - touchStart.y) < MOVE_TH) return;
-  touchMoved = true;
-  var g = toGrid(e.touches[0].clientX, e.touches[0].clientY);
-  paintWall(g[0], g[1], false);
-  SFX.play('tick', 90);
-}, { passive: false });
-
-canvas.addEventListener('touchend', function(e) {
-  if (touchStart && !touchMoved) {
-    var g = toGrid(touchStart.x, touchStart.y);
-    if (valid(g[0], g[1]) && !frozen[idx(g[0], g[1])] && !walls[idx(g[0], g[1])]) {
-      freeze(g[0], g[1]);
-      growing = true; fadeAlpha = 0;
-      SFX.play('spawn');
-    }
-  }
-  touchStart = null; touchMoved = false;
-});
-
-// ── Paint / erase walls ────────────────────────────────────────────
-function paintWall(gx, gy, erase) {
-  var r = Math.max(2, Math.ceil(GSIZE * 0.012));
-  for (var dy = -r; dy <= r; dy++) {
-    for (var dx = -r; dx <= r; dx++) {
-      var x = gx + dx, y = gy + dy;
-      if (!valid(x, y)) continue;
-      if (dx * dx + dy * dy > r * r) continue;
-      var i = idx(x, y);
-      if (erase) { walls[i] = 0; }
-      else if (!frozen[i]) { walls[i] = 1; }
-    }
-  }
-}
-
-// ── Controls ───────────────────────────────────────────────────────
-// Morphology mode
-document.querySelectorAll('[data-mode]').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    document.querySelectorAll('[data-mode]').forEach(function(b) { b.classList.remove('active'); });
-    btn.classList.add('active');
-    modeIdx = parseInt(btn.dataset.mode);
-    reset();
+  // ── Controls ─────────────────────────────────────────────────────
+  document.getElementById('morphBtn').addEventListener('click', function() {
+    morphIdx = (morphIdx + 1) % MORPHS.length;
     SFX.play('toggle');
   });
-});
 
-// Symmetry
-document.querySelectorAll('[data-symm]').forEach(function(btn) {
-  btn.addEventListener('click', function() {
-    document.querySelectorAll('[data-symm]').forEach(function(b) { b.classList.remove('active'); });
-    btn.classList.add('active');
-    symmetry = parseInt(btn.dataset.symm);
-    reset();
+  document.getElementById('symmBtn').addEventListener('click', function() {
+    symmIdx = (symmIdx + 1) % SYMMETRIES.length;
+    symmetry = SYMMETRIES[symmIdx];
+    crystal = []; crystalGrid = {}; maxRadius = 0;
+    addToCrystal(cx, cy, 0);
+    for (var i = 0; i < 400; i++) walkOnce();
     SFX.play('toggle');
   });
-});
 
-// Speed slider
-document.getElementById('slSpeed').addEventListener('input', function(e) {
-  walkersPerFrame = parseInt(e.target.value);
-});
+  document.getElementById('colorBtn').addEventListener('click', function() {
+    paletteIdx = (paletteIdx + 1) % PALETTES.length;
+    palette = PALETTES[paletteIdx];
+    SFX.play('click');
+  });
 
-// Palette slider
-document.getElementById('slPalette').addEventListener('input', function(e) {
-  paletteIdx = parseInt(e.target.value);
-});
+  document.getElementById('pauseBtn').addEventListener('click', function() {
+    paused = !paused;
+    this.classList.toggle('active', paused);
+    this.textContent = paused ? 'PLAY' : 'PAUSE';
+    SFX.play('toggle');
+  });
 
-// Pause
-document.getElementById('btnPause').addEventListener('click', function() {
-  paused = !paused;
-  this.textContent = paused ? 'RESUME' : 'PAUSE';
-  SFX.play('toggle');
-});
+  document.getElementById('resetBtn').addEventListener('click', function() {
+    barriers = []; barrierGrid = {};
+    init();
+    SFX.play('click');
+  });
 
-// Reset
-document.getElementById('btnReset').addEventListener('click', function() {
-  reset();
-  SFX.play('click');
-});
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'h' || e.key === 'H') {
+      hideUI = !hideUI;
+      document.body.classList.toggle('hide-ui', hideUI);
+    }
+    if (e.key === ' ') {
+      e.preventDefault();
+      paused = !paused;
+      document.getElementById('pauseBtn').classList.toggle('active', paused);
+      document.getElementById('pauseBtn').textContent = paused ? 'PLAY' : 'PAUSE';
+    }
+  });
 
-// ── Start ──────────────────────────────────────────────────────────
-reset();
-requestAnimationFrame(animate);
+  // ── Resize ───────────────────────────────────────────────────────
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    cx = W / 2;
+    cy = H / 2;
+    barriers = []; barrierGrid = {};
+    init();
+  }
+  window.addEventListener('resize', resize);
 
+  var style = document.createElement('style');
+  style.textContent = '.hide-ui .ui, .hide-ui .floating-nav, .hide-ui .content-controls { opacity: 0 !important; pointer-events: none; }';
+  document.head.appendChild(style);
+
+  // ── Start ────────────────────────────────────────────────────────
+  resize();
+  loop();
 })();
 </script>
+
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
+<?php require_once __DIR__ . '/includes/related.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>
