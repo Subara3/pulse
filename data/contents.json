@@ -925,14 +925,14 @@
   },
   {
     "page": "crystallize",
-    "title": "CRYSTALLIZE",
-    "desc": "結晶成長シミュレーション。拡散律速凝集に六方対称を課したデンドライト構造の生成。",
-    "desc_en": "Crystal growth simulation. Dendritic structures emerge from diffusion-limited aggregation with six-fold symmetry.",
-    "icon": "fa-snowflake",
+    "title": "ORBIT",
+    "desc": "N体重力シミュレーション。質点を配置して軌道を描く。衝突・合体あり。",
+    "desc_en": "N-body gravity simulation. Place masses, watch orbits unfold. Collisions and mergers.",
+    "icon": "fa-globe",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "DLA · 六方対称 · 形態3種",
-    "meta_en": "DLA · six-fold symmetry · 3 morphologies",
+    "meta": "重力 · プリセット5種 · 軌跡描画",
+    "meta_en": "gravity · 5 presets · trail rendering",
     "added": "2026-03-29"
   },
   {

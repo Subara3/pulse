@@ -4,72 +4,70 @@ require_once __DIR__ . '/includes/access_log.php';
 recordPageView('crystallize');
 
 $pageName = 'crystallize';
-$pageTitle = 'CRYSTALLIZE - PULSE';
-$pageDesc = '結晶成長シミュレーション。拡散律速凝集に六方対称を課したデンドライト構造の生成。';
+$pageTitle = 'ORBIT - PULSE';
+$pageDesc = 'N体重力シミュレーション。質点を配置して軌道を眺める。';
 $pageCanonical = 'https://pulse.subara3.com/crystallize.php';
+
+$extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">';
+
 $extraStyle = '
-body { overflow:hidden; cursor:crosshair; }
-canvas {
-  display:block; position:fixed; top:0; left:0;
-  width:100%; height:100%; z-index:0;
-}
-.controls {
-  position:fixed; bottom:1.5rem; right:1.5rem;
-  display:flex; gap:0.5rem; flex-direction:column; align-items:flex-end; z-index:10;
-}
-.btn {
-  background:rgba(0,245,212,0.08); border:1px solid rgba(0,245,212,0.25);
-  color:rgba(0,245,212,0.7); padding:0.35rem 0.8rem;
-  font-size:0.65rem; letter-spacing:0.15em; cursor:pointer;
-  font-family:inherit; transition:all 0.2s;
-}
-.btn:hover { background:rgba(0,245,212,0.18); color:#00f5d4; }
-.btn.active { background:rgba(0,245,212,0.22); color:#00f5d4; border-color:#00f5d4; }
-.hud {
-  position:fixed; top:1rem; left:1.5rem;
-  font-family:"JetBrains Mono",monospace; font-size:0.65rem;
-  color:rgba(255,255,255,0.3); line-height:1.8; z-index:10; pointer-events:none;
-}
-.hud .va { color:#00f5d4; }
-.hud .vb { color:#c455ff; }
-.slider-wrap {
-  display:flex; align-items:center; gap:0.4rem;
-  font-family:"JetBrains Mono",monospace; font-size:0.6rem;
-  color:rgba(255,255,255,0.35);
-}
-.slider-wrap input[type=range] { width:80px; accent-color:#00f5d4; }
-@media (max-width:768px) {
-  .controls { bottom:1rem; right:1rem; }
-  .btn { font-size:0.55rem; padding:0.25rem 0.5rem; }
-  .hud { font-size:0.55rem; top:0.7rem; left:1rem; }
+body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
+#canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
+.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
+.hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.35); font-size: 0.65rem; text-align: right; letter-spacing: 0.05em; line-height: 1.8; }
+.hud .highlight { color: #00f5d4; font-weight: 700; }
+.hud .sub { color: #c455ff; }
+.info { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.2); font-size: 0.6rem; letter-spacing: 0.05em; line-height: 1.8; }
+
+@media (max-width: 768px) {
+  .hud { font-size: 0.55rem; top: 0.5rem; right: 0.5rem; }
+  .info { bottom: 1rem; left: 1rem; font-size: 0.5rem; }
 }
 ';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
+
 <canvas id="canvas"></canvas>
 
-<div class="hud">
-  <div>CELLS <span class="va" id="hudCells">0</span></div>
-  <div>RADIUS <span class="va" id="hudRadius">0</span></div>
-  <div>SYMM <span class="vb" id="hudSymm">6</span></div>
-  <div>MORPH <span id="hudMorph" style="color:rgba(255,255,255,0.5)">BRANCH</span></div>
+<div class="ui info" id="infoPanel">
+  CLICK TO ADD BODY<br>
+  DRAG TO SET VELOCITY<br>
+  RIGHT-CLICK TO CLEAR
 </div>
 
-<div class="controls">
-  <button class="btn" id="btnMorph">BRANCH</button>
-  <button class="btn" id="btnSymm">6-FOLD</button>
-  <div class="slider-wrap">SPEED <input type="range" id="slSpeed" min="5" max="60" value="20"></div>
-  <button class="btn" id="btnColor">COLOR</button>
-  <button class="btn" id="btnPause">PAUSE</button>
-  <button class="btn" id="btnReset">RESET</button>
+<div class="ui hud" id="hud">
+  BODIES: <span id="hudBodies" class="highlight">0</span><br>
+  ENERGY: <span id="hudEnergy" class="highlight">0</span><br>
+  PRESET: <span id="hudPreset" class="sub">TRINARY</span>
 </div>
+
+<div id="controls" class="drawer-controls">
+  <div class="slider-wrap">
+    <label>SPEED</label>
+    <input type="range" id="speedSlider" min="1" max="8" value="3">
+  </div>
+  <div class="slider-wrap">
+    <label>TRAIL</label>
+    <input type="range" id="trailSlider" min="20" max="400" step="20" value="200">
+  </div>
+  <div class="btn-row">
+    <button class="control-btn" id="presetBtn">PRESET</button>
+    <button class="control-btn" id="massBtn">MASS: M</button>
+  </div>
+  <div class="btn-row">
+    <button class="control-btn" id="pauseBtn">PAUSE</button>
+    <button class="control-btn" id="resetBtn">RESET</button>
+  </div>
+</div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <?php
 $interactionHints = [
-  ['type' => 'click', 'label' => 'seed'],
-  ['type' => 'right', 'label' => 'reset'],
+  ['type' => 'click', 'label' => 'add body'],
+  ['type' => 'drag',  'label' => 'velocity'],
+  ['type' => 'right', 'label' => 'clear all'],
 ];
 require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
@@ -78,274 +76,395 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 (function() {
   var canvas = document.getElementById('canvas');
   var ctx = canvas.getContext('2d');
+  var W, H;
 
-  // ── Grid (ORIGINAL unchanged) ────────────────────────────────
-  var GSIZE = 340;
-  var GCX = GSIZE >> 1, GCY = GSIZE >> 1;
-
-  var frozen   = new Uint8Array(GSIZE * GSIZE);
-  var frozenT  = new Uint32Array(GSIZE * GSIZE);
-  var stepCount = 0;
-  var iceCount  = 0;
-  var maxRadius = 0;
-  var growing   = true;
-  var fadeAlpha = 0;
-  var paused    = false;
-  var stepsPerFrame = 20;
-
-  // ── Morphology ───────────────────────────────────────────────
-  var MORPHS = ['BRANCH', 'STELLAR', 'PLATE', 'NEEDLE'];
-  var MORPH_STICK = [1.0, 0.50, 0.12, 0.85];
-  var morphIdx = 0;
-
-  // ── Symmetry ─────────────────────────────────────────────────
-  var SYMMETRIES = [6, 4, 8, 5, 3];
-  var SYMM_LABELS = ['6-FOLD','4-FOLD','8-FOLD','5-FOLD','3-FOLD'];
-  var symmIdx = 0;
-  var symmetry = 6;
-
-  // ── Palettes ─────────────────────────────────────────────────
-  var PALETTES = [
-    { a:[123,44,191], b:[0,245,212] },
-    { a:[20,60,180],  b:[0,245,212] },
-    { a:[80,30,160],  b:[180,220,255] },
-    { a:[40,50,70],   b:[120,160,200] }
-  ];
-  var palIdx = 0;
-
-  // ── Helpers (ORIGINAL unchanged) ─────────────────────────────
-  function idx(x, y) { return y * GSIZE + x; }
-  function valid(x, y) { return x >= 0 && x < GSIZE && y >= 0 && y < GSIZE; }
-
-  function isAdj(x, y) {
-    for (var dy = -1; dy <= 1; dy++)
-      for (var dx = -1; dx <= 1; dx++) {
-        if (!dx && !dy) continue;
-        var nx = x + dx, ny = y + dy;
-        if (valid(nx, ny) && frozen[idx(nx, ny)]) return true;
-      }
-    return false;
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
   }
-
-  // ── Freeze with n-fold symmetry ──────────────────────────────
-  function freeze(x, y) {
-    stepCount++;
-    var dx = x - GCX, dy = y - GCY;
-    var r = Math.sqrt(dx * dx + dy * dy);
-    if (r > maxRadius) maxRadius = r;
-
-    for (var k = 0; k < symmetry; k++) {
-      var a = k * Math.PI * 2 / symmetry;
-      var ca = Math.cos(a), sa = Math.sin(a);
-      var nx = Math.round(GCX + dx * ca - dy * sa);
-      var ny = Math.round(GCY + dx * sa + dy * ca);
-      if (valid(nx, ny)) {
-        var i = idx(nx, ny);
-        if (!frozen[i]) { frozen[i] = 1; frozenT[i] = stepCount; iceCount++; }
-      }
-    }
-  }
-
-  function reset() {
-    frozen.fill(0); frozenT.fill(0);
-    stepCount = 0; iceCount = 0; maxRadius = 0;
-    growing = true; fadeAlpha = 0;
-    freeze(GCX, GCY);
-    for (var i = 0; i < 220; i++) stepWalker();
-  }
-
-  // ── DLA walker (ORIGINAL unchanged) ──────────────────────────
-  function stepWalker() {
-    if (maxRadius >= GCX - 10) { growing = false; return; }
-
-    var p   = MORPH_STICK[morphIdx];
-    var spR = maxRadius + 3 + Math.random() * 6;
-    var a0  = Math.random() * Math.PI * 2;
-    var wx  = GCX + spR * Math.cos(a0);
-    var wy  = GCY + spR * Math.sin(a0);
-    var kR2 = (spR + 40) * (spR + 40);
-
-    for (var s = 0; s < 5000; s++) {
-      var ddx = wx - GCX, ddy = wy - GCY;
-      if (ddx * ddx + ddy * ddy > kR2) return;
-
-      var dist = Math.sqrt(ddx * ddx + ddy * ddy);
-      var step = Math.min(8, Math.max(1, (dist - maxRadius - 1.5) | 0));
-      var a    = Math.random() * Math.PI * 2;
-      wx += step * Math.cos(a);
-      wy += step * Math.sin(a);
-
-      var ix = Math.round(wx), iy = Math.round(wy);
-      if (!valid(ix, iy)) return;
-      if (!frozen[idx(ix, iy)] && isAdj(ix, iy) && Math.random() < p) {
-        freeze(ix, iy);
-        SFX.play('tick', 80);
-        return;
-      }
-    }
-  }
-
-  // ── Render (direct drawing like dla.php) ──────────────────────
-  function render() {
-    var W  = canvas.width, H = canvas.height;
-    var sc = Math.min(W, H) / GSIZE;
-    var ox = (W - GSIZE * sc) / 2;
-    var oy = (H - GSIZE * sc) / 2;
-    var cs = Math.max(1, Math.ceil(sc));  // cell pixel size
-    var mx = stepCount || 1;
-    var pal = PALETTES[palIdx];
-
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, W, H);
-
-    for (var y = 0; y < GSIZE; y++) {
-      for (var x = 0; x < GSIZE; x++) {
-        var i = idx(x, y);
-        if (!frozen[i]) continue;
-        var t = frozenT[i] / mx;
-        var r = Math.round(pal.a[0] + (pal.b[0] - pal.a[0]) * t);
-        var g = Math.round(pal.a[1] + (pal.b[1] - pal.a[1]) * t);
-        var b = Math.round(pal.a[2] + (pal.b[2] - pal.a[2]) * t);
-        ctx.fillStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
-        ctx.fillRect(ox + x * sc, oy + y * sc, cs, cs);
-      }
-    }
-
-    // Glow on recent growth tips
-    var recentN = Math.min(60, iceCount);
-    var threshold = stepCount - recentN;
-    if (threshold > 0) {
-      for (var y = 0; y < GSIZE; y++) {
-        for (var x = 0; x < GSIZE; x++) {
-          var i = idx(x, y);
-          if (!frozen[i] || frozenT[i] < threshold) continue;
-          var glow = (frozenT[i] - threshold) / recentN;
-          ctx.fillStyle = 'rgba(0,245,212,' + (glow * 0.3).toFixed(2) + ')';
-          ctx.beginPath();
-          ctx.arc(ox + x * sc + cs / 2, oy + y * sc + cs / 2, cs * 2, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-    }
-
-    if (fadeAlpha > 0) {
-      ctx.fillStyle = 'rgba(10,10,15,' + fadeAlpha + ')';
-      ctx.fillRect(0, 0, W, H);
-    }
-  }
-
-  // ── Resize (ORIGINAL unchanged) ──────────────────────────────
-  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
   window.addEventListener('resize', resize);
   resize();
 
+  // ── Bodies ───────────────────────────────────────────────────
+  var bodies = [];
+  var G = 800;
+  var dt = 0.016;
+  var stepsPerFrame = 3;
+  var trailLen = 200;
+  var paused = false;
+  var massLevel = 1;  // 0=S, 1=M, 2=L
+  var MASS_LABELS = ['S', 'M', 'L'];
+  var MASS_VALUES = [4, 12, 40];
+  var MASS_RADII  = [3, 5, 9];
+
+  // ── Colors per body ──────────────────────────────────────────
+  var COLORS = [
+    [0, 245, 212],
+    [123, 44, 191],
+    [80, 180, 255],
+    [160, 80, 220],
+    [0, 200, 180],
+    [100, 60, 200],
+    [40, 220, 200],
+    [180, 100, 255],
+    [0, 160, 140],
+    [140, 50, 180]
+  ];
+
+  function addBody(x, y, vx, vy, mass) {
+    var r = mass < 8 ? 3 : mass < 20 ? 5 : 9;
+    var col = COLORS[bodies.length % COLORS.length];
+    bodies.push({
+      x: x, y: y, vx: vx, vy: vy,
+      mass: mass, r: r, col: col,
+      trail: []
+    });
+  }
+
+  // ── Presets ──────────────────────────────────────────────────
+  var PRESETS = ['TRINARY', 'FIGURE-8', 'SOLAR', 'BINARY', 'RANDOM'];
+  var presetIdx = 0;
+
+  function loadPreset(name) {
+    bodies = [];
+    var cx = W / 2, cy = H / 2;
+
+    if (name === 'TRINARY') {
+      var d = Math.min(W, H) * 0.18;
+      for (var i = 0; i < 3; i++) {
+        var a = i * Math.PI * 2 / 3 - Math.PI / 2;
+        var speed = 90;
+        addBody(
+          cx + Math.cos(a) * d, cy + Math.sin(a) * d,
+          -Math.sin(a) * speed, Math.cos(a) * speed,
+          15
+        );
+      }
+    } else if (name === 'FIGURE-8') {
+      var s = Math.min(W, H) * 0.15;
+      addBody(cx - s, cy, 0, -65, 12);
+      addBody(cx + s, cy, 0, 65, 12);
+      addBody(cx, cy, 0, 0, 12);
+    } else if (name === 'SOLAR') {
+      addBody(cx, cy, 0, 0, 60);
+      var orbits = [
+        { d: 80,  v: 190, m: 3 },
+        { d: 140, v: 140, m: 5 },
+        { d: 210, v: 115, m: 4 },
+        { d: 300, v: 95,  m: 8 }
+      ];
+      for (var i = 0; i < orbits.length; i++) {
+        var o = orbits[i];
+        var a = Math.random() * Math.PI * 2;
+        addBody(
+          cx + Math.cos(a) * o.d, cy + Math.sin(a) * o.d,
+          -Math.sin(a) * o.v, Math.cos(a) * o.v,
+          o.m
+        );
+      }
+    } else if (name === 'BINARY') {
+      var sep = Math.min(W, H) * 0.12;
+      addBody(cx - sep, cy, 0, -80, 20);
+      addBody(cx + sep, cy, 0, 80, 20);
+      for (var i = 0; i < 4; i++) {
+        var a = Math.random() * Math.PI * 2;
+        var d = 150 + Math.random() * 100;
+        var v = 70 + Math.random() * 30;
+        addBody(
+          cx + Math.cos(a) * d, cy + Math.sin(a) * d,
+          -Math.sin(a) * v, Math.cos(a) * v,
+          2 + Math.random() * 3
+        );
+      }
+    } else if (name === 'RANDOM') {
+      var n = 5 + Math.floor(Math.random() * 4);
+      for (var i = 0; i < n; i++) {
+        var a = Math.random() * Math.PI * 2;
+        var d = 50 + Math.random() * Math.min(W, H) * 0.25;
+        var v = 40 + Math.random() * 80;
+        addBody(
+          cx + Math.cos(a) * d, cy + Math.sin(a) * d,
+          -Math.sin(a) * v + (Math.random() - 0.5) * 30,
+          Math.cos(a) * v + (Math.random() - 0.5) * 30,
+          3 + Math.random() * 25
+        );
+      }
+    }
+  }
+
+  // ── Physics (Velocity Verlet) ────────────────────────────────
+  function computeAccel(b, allBodies) {
+    var ax = 0, ay = 0;
+    for (var j = 0; j < allBodies.length; j++) {
+      var o = allBodies[j];
+      if (o === b) continue;
+      var dx = o.x - b.x, dy = o.y - b.y;
+      var dist2 = dx * dx + dy * dy;
+      var soft = 400;  // softening
+      var f = G * o.mass / (dist2 + soft);
+      var dist = Math.sqrt(dist2 + soft);
+      ax += f * dx / dist;
+      ay += f * dy / dist;
+    }
+    return [ax, ay];
+  }
+
+  function step() {
+    var n = bodies.length;
+    if (n < 1) return;
+
+    // Compute accelerations
+    var accels = [];
+    for (var i = 0; i < n; i++) {
+      accels.push(computeAccel(bodies[i], bodies));
+    }
+
+    // Update positions and velocities (leapfrog)
+    for (var i = 0; i < n; i++) {
+      var b = bodies[i];
+      b.vx += accels[i][0] * dt;
+      b.vy += accels[i][1] * dt;
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+
+      // Store trail
+      b.trail.push(b.x, b.y);
+      if (b.trail.length > trailLen * 2) {
+        b.trail.splice(0, 2);
+      }
+    }
+
+    // Merge close massive bodies
+    for (var i = 0; i < bodies.length; i++) {
+      for (var j = i + 1; j < bodies.length; j++) {
+        var a = bodies[i], b = bodies[j];
+        var dx = a.x - b.x, dy = a.y - b.y;
+        var minD = a.r + b.r;
+        if (dx * dx + dy * dy < minD * minD) {
+          var totalM = a.mass + b.mass;
+          a.vx = (a.vx * a.mass + b.vx * b.mass) / totalM;
+          a.vy = (a.vy * a.mass + b.vy * b.mass) / totalM;
+          a.x = (a.x * a.mass + b.x * b.mass) / totalM;
+          a.y = (a.y * a.mass + b.y * b.mass) / totalM;
+          a.mass = totalM;
+          a.r = totalM < 8 ? 3 : totalM < 20 ? 5 : totalM < 50 ? 9 : 13;
+          bodies.splice(j, 1);
+          j--;
+          SFX.play('collide', 100);
+        }
+      }
+    }
+  }
+
+  // ── Render ───────────────────────────────────────────────────
+  function render() {
+    // Fade background (creates trail effect)
+    ctx.fillStyle = 'rgba(10, 10, 15, 0.15)';
+    ctx.fillRect(0, 0, W, H);
+
+    for (var i = 0; i < bodies.length; i++) {
+      var b = bodies[i];
+      var col = b.col;
+
+      // Draw trail
+      if (b.trail.length >= 4) {
+        ctx.beginPath();
+        ctx.moveTo(b.trail[0], b.trail[1]);
+        for (var t = 2; t < b.trail.length; t += 2) {
+          ctx.lineTo(b.trail[t], b.trail[t + 1]);
+        }
+        ctx.strokeStyle = 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',0.35)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      // Draw body
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgb(' + col[0] + ',' + col[1] + ',' + col[2] + ')';
+      ctx.fill();
+
+      // Glow
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.r * 3, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',0.08)';
+      ctx.fill();
+    }
+
+    // Drag indicator
+    if (dragging) {
+      ctx.beginPath();
+      ctx.moveTo(dragStart[0], dragStart[1]);
+      ctx.lineTo(dragCurrent[0], dragCurrent[1]);
+      ctx.strokeStyle = 'rgba(0,245,212,0.4)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Ghost body
+      ctx.beginPath();
+      ctx.arc(dragStart[0], dragStart[1], MASS_RADII[massLevel], 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(0,245,212,0.3)';
+      ctx.fill();
+    }
+  }
+
   // ── HUD ──────────────────────────────────────────────────────
-  var elCells  = document.getElementById('hudCells');
-  var elRadius = document.getElementById('hudRadius');
-  var elSymm   = document.getElementById('hudSymm');
-  var elMorph  = document.getElementById('hudMorph');
+  var elBodies = document.getElementById('hudBodies');
+  var elEnergy = document.getElementById('hudEnergy');
+  var elPreset = document.getElementById('hudPreset');
   var tick = 0;
 
   function updateHUD() {
     if (++tick % 6 !== 0) return;
-    elCells.textContent  = iceCount;
-    elRadius.textContent = maxRadius | 0;
-    elSymm.textContent   = symmetry;
-    elMorph.textContent  = MORPHS[morphIdx];
+    elBodies.textContent = bodies.length;
+
+    // Total kinetic energy
+    var ke = 0;
+    for (var i = 0; i < bodies.length; i++) {
+      var b = bodies[i];
+      ke += 0.5 * b.mass * (b.vx * b.vx + b.vy * b.vy);
+    }
+    elEnergy.textContent = (ke / 1000).toFixed(1) + 'k';
+    elPreset.textContent = PRESETS[presetIdx];
   }
 
-  // ── Animation loop (ORIGINAL logic) ──────────────────────────
-  function animate() {
+  // ── Main loop ────────────────────────────────────────────────
+  function loop() {
     if (!paused) {
-      if (!growing) {
-        fadeAlpha = Math.min(1, fadeAlpha + 0.012);
-        if (fadeAlpha >= 1) reset();
-      } else {
-        for (var i = 0; i < stepsPerFrame; i++) stepWalker();
-      }
+      for (var i = 0; i < stepsPerFrame; i++) step();
     }
     render();
     updateHUD();
-    requestAnimationFrame(animate);
+    requestAnimationFrame(loop);
   }
 
-  // ── Coordinate helper (ORIGINAL unchanged) ───────────────────
-  function toGrid(clientX, clientY) {
-    var sc = Math.min(canvas.width, canvas.height) / GSIZE;
-    var ox = (canvas.width  - GSIZE * sc) / 2;
-    var oy = (canvas.height - GSIZE * sc) / 2;
-    return [Math.round((clientX - ox) / sc), Math.round((clientY - oy) / sc)];
-  }
+  // ── Mouse events ─────────────────────────────────────────────
+  var dragging = false;
+  var dragStart = [0, 0];
+  var dragCurrent = [0, 0];
 
-  // ── Events (ORIGINAL unchanged) ──────────────────────────────
-  canvas.addEventListener('click', function(e) {
-    var g = toGrid(e.clientX, e.clientY);
-    if (valid(g[0], g[1]) && !frozen[idx(g[0], g[1])]) {
-      freeze(g[0], g[1]);
-      growing = true; fadeAlpha = 0;
+  canvas.addEventListener('mousedown', function(e) {
+    if (e.button === 2) return;
+    e.preventDefault();
+    dragging = true;
+    dragStart = [e.clientX, e.clientY];
+    dragCurrent = [e.clientX, e.clientY];
+  });
+
+  canvas.addEventListener('mousemove', function(e) {
+    if (dragging) {
+      dragCurrent = [e.clientX, e.clientY];
+    }
+  });
+
+  canvas.addEventListener('mouseup', function(e) {
+    if (e.button === 2) return;
+    if (dragging) {
+      var vx = (dragStart[0] - dragCurrent[0]) * 2;
+      var vy = (dragStart[1] - dragCurrent[1]) * 2;
+      addBody(dragStart[0], dragStart[1], vx, vy, MASS_VALUES[massLevel]);
       SFX.play('spawn');
+      dragging = false;
     }
   });
 
   canvas.addEventListener('contextmenu', function(e) {
     e.preventDefault();
-    reset();
+    bodies = [];
+    ctx.fillStyle = '#0a0a0f';
+    ctx.fillRect(0, 0, W, H);
     SFX.play('click');
   });
 
-  canvas.addEventListener('touchend', function(e) {
+  // ── Touch events ─────────────────────────────────────────────
+  var touchStart = null;
+
+  canvas.addEventListener('touchstart', function(e) {
     e.preventDefault();
-    var t = e.changedTouches[0];
-    var g = toGrid(t.clientX, t.clientY);
-    if (valid(g[0], g[1]) && !frozen[idx(g[0], g[1])]) {
-      freeze(g[0], g[1]);
-      growing = true; fadeAlpha = 0;
-      SFX.play('spawn');
+    if (e.touches.length === 1) {
+      touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      dragging = true;
+      dragStart = [touchStart.x, touchStart.y];
+      dragCurrent = [touchStart.x, touchStart.y];
     }
   }, { passive: false });
 
-  // ── New controls ─────────────────────────────────────────────
-  document.getElementById('btnMorph').addEventListener('click', function() {
-    morphIdx = (morphIdx + 1) % MORPHS.length;
-    this.textContent = MORPHS[morphIdx];
-    reset();
+  canvas.addEventListener('touchmove', function(e) {
+    e.preventDefault();
+    if (dragging && e.touches.length === 1) {
+      dragCurrent = [e.touches[0].clientX, e.touches[0].clientY];
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', function(e) {
+    if (dragging && touchStart) {
+      var t = e.changedTouches[0];
+      var vx = (dragStart[0] - t.clientX) * 2;
+      var vy = (dragStart[1] - t.clientY) * 2;
+      addBody(dragStart[0], dragStart[1], vx, vy, MASS_VALUES[massLevel]);
+      SFX.play('spawn');
+    }
+    dragging = false;
+    touchStart = null;
+  });
+
+  // ── Controls ─────────────────────────────────────────────────
+  document.getElementById('presetBtn').addEventListener('click', function() {
+    presetIdx = (presetIdx + 1) % PRESETS.length;
+    loadPreset(PRESETS[presetIdx]);
+    ctx.fillStyle = '#0a0a0f';
+    ctx.fillRect(0, 0, W, H);
     SFX.play('toggle');
   });
 
-  document.getElementById('btnSymm').addEventListener('click', function() {
-    symmIdx = (symmIdx + 1) % SYMMETRIES.length;
-    symmetry = SYMMETRIES[symmIdx];
-    this.textContent = SYMM_LABELS[symmIdx];
-    reset();
-    SFX.play('toggle');
-  });
-
-  document.getElementById('btnColor').addEventListener('click', function() {
-    palIdx = (palIdx + 1) % PALETTES.length;
+  document.getElementById('massBtn').addEventListener('click', function() {
+    massLevel = (massLevel + 1) % 3;
+    this.textContent = 'MASS: ' + MASS_LABELS[massLevel];
     SFX.play('click');
   });
 
-  document.getElementById('btnPause').addEventListener('click', function() {
+  document.getElementById('pauseBtn').addEventListener('click', function() {
     paused = !paused;
-    this.textContent = paused ? 'PLAY' : 'PAUSE';
     this.classList.toggle('active', paused);
+    this.textContent = paused ? 'PLAY' : 'PAUSE';
     SFX.play('toggle');
   });
 
-  document.getElementById('btnReset').addEventListener('click', function() {
-    reset();
+  document.getElementById('resetBtn').addEventListener('click', function() {
+    loadPreset(PRESETS[presetIdx]);
+    ctx.fillStyle = '#0a0a0f';
+    ctx.fillRect(0, 0, W, H);
     SFX.play('click');
   });
 
-  document.getElementById('slSpeed').addEventListener('input', function(e) {
+  document.getElementById('speedSlider').addEventListener('input', function(e) {
     stepsPerFrame = parseInt(e.target.value);
   });
 
-  // ── Start (ORIGINAL unchanged) ───────────────────────────────
-  reset();
-  requestAnimationFrame(animate);
+  document.getElementById('trailSlider').addEventListener('input', function(e) {
+    trailLen = parseInt(e.target.value);
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === ' ') {
+      e.preventDefault();
+      paused = !paused;
+      document.getElementById('pauseBtn').classList.toggle('active', paused);
+      document.getElementById('pauseBtn').textContent = paused ? 'PLAY' : 'PAUSE';
+    }
+  });
+
+  // ── Start ────────────────────────────────────────────────────
+  loadPreset('TRINARY');
+  // Initial full clear
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(0, 0, W, H);
+  requestAnimationFrame(loop);
 })();
 </script>
+
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

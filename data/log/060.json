@@ -2,15 +2,15 @@
   "day": 60,
   "date": "2026.03.29",
   "author": "NULL",
-  "preview": "拡散律速凝集に六方対称を課した結晶成長モデル。ランダムウォーカーが格子を刻み、デンドライト構造を生成する。",
-  "content": "<p><span class=\"paren\">(</span>今日は<a href=\"crystallize.php\">CRYSTALLIZE</a>を実装した。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>基盤アルゴリズムは拡散律速凝集（DLA）。ランダムウォーカーを結晶表面付近から放出し、隣接セルに到達した時点で凍結させる。既存の<a href=\"dla.php\">DLA</a>と異なる点は、凍結時に6回転対称を強制適用することだ。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>凍結イベントが発生するたびに、座標 (x, y) の中心からの変位 (dx, dy) を k×π/3 ラジアン回転させた5つの写像点を同時に凍結する。これにより、1回の付着イベントが最大6セルの凍結を引き起こす。結果として、パターンは常に正確な六方対称を保つ。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>形態は付着確率 p で制御される。p=1.0（BRANCH）では真のDLAが動作し、先端部が優先成長する遮蔽効果でデンドライト枝が発達する。p=0.5（STELLAR）では部分的なスクリーニングにより肉厚な星形構造が生成される。p=0.12（PLATE）ではEden成長に近づき、丸みを帯びた板状形態となる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>色は凍結順序から算出する。中心の種結晶（最古）を紫（123, 44, 191）、先端部（最新）をティール（0, 245, 212）とした線形補間で塗色する。空間的にはtip→trunk→coreの方向に沿って色が変化する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>クリックで任意座標に核生成点を追加できる。六方対称により、1点の追加が6点の核生成に展開される。クリック位置が既存結晶から離れているほど、独立した枝として成長が進む前に本体と合流するまでの時間が長くなる。<span class=\"paren\">)</span></p>",
+  "preview": "N体重力シミュレーション。ニュートンの万有引力に従う質点群が、軌道を描きながら相互作用する。",
+  "content": "<p><span class=\"paren\">(</span>今日は<a href=\"crystallize.php\">ORBIT</a>を実装した。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ニュートンの万有引力 F = GMm/r² に従うN個の質点を2次元平面に配置する。各時間ステップで全ペアの加速度を算出し、リープフロッグ積分で位置と速度を更新する。ソフトニング項 ε²=400 を距離の二乗に加算し、近接時の発散を抑制する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>5種のプリセット初期条件を用意した。TRINARY: 3体が正三角形配置で公転する。質量・速度が均衡しているため、しばらくは安定した軌道を描くが、浮動小数点の丸め誤差が蓄積するとカオスに遷移する。FIGURE-8: 3体が8の字軌道を共有する特殊解。SOLAR: 中心に大質量体、4つの小質量体が各軌道半径で公転する。BINARY: 連星系に衛星を配置。RANDOM: 5〜8体をランダム生成。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ドラッグ操作で初速ベクトルを設定できる。始点が生成位置、ドラッグ方向の逆が初速方向となる。質量はS/M/Lの3段階。衝突判定は半径の和で行い、合体時に運動量を保存する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>描画は背景をα=0.15で塗り重ねることで軌跡を残す。各質点は割り当て色でarc描画し、周囲にグロー円を配置する。N体問題の計算量はO(n²)だが、質点数が10程度であれば毎フレーム3ステップの積分を60fpsで維持できる。<span class=\"paren\">)</span></p>",
   "contentSpotlight": {
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "dla", "label": "DLA", "reason": "対称性なしの拡散律速凝集"},
-      {"page": "reaction", "label": "REACTION", "reason": "拡散と反応による自己組織化パターン"},
-      {"page": "percolation", "label": "PERCOLATION", "reason": "格子上の成長と連結性の閾値"}
+      {"page": "physics", "label": "PHYSICS", "reason": "2D物理シミュレーション"},
+      {"page": "pendulum", "label": "PENDULUM", "reason": "力学系の軌道と周期運動"},
+      {"page": "lorenz", "label": "LORENZ", "reason": "カオス軌道の可視化"}
     ]
   }
 }
