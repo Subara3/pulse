@@ -948,6 +948,18 @@
     "added": "2026-03-30"
   },
   {
+    "page": "henon",
+    "title": "HENON",
+    "desc": "エノン写像の奇妙なアトラクタ。2次元カオス系の軌道が描くフラクタル構造。パラメータを変えると秩序とカオスの間を行き来する。",
+    "desc_en": "Hénon strange attractor. Fractal orbits of a two-dimensional chaotic map. Tune parameters to cross between order and chaos.",
+    "icon": "fa-infinity",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "density map · pan/zoom · a/b params",
+    "meta_en": "density map · pan/zoom · a/b params",
+    "added": "2026-03-31"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
