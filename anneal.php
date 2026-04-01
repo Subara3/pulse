@@ -8,6 +8,8 @@ $pageTitle = 'ANNEAL - PULSE';
 $pageDesc = 'Simulated annealing solves the Travelling Salesman Problem. Watch a hot chaotic path cool into the shortest route.';
 $pageCanonical = 'https://pulse.subara3.com/anneal.php';
 $extraStyle = '
+body{overflow:hidden}
+#canvas{position:fixed;top:0;left:0;width:100%;height:100%}
 #hud{position:fixed;top:1rem;left:1rem;font-size:.7rem;color:rgba(0,245,212,.65);font-family:monospace;pointer-events:none;line-height:2;z-index:10}
 #hud span.v{color:#fff}
 #controls{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.4rem;align-items:flex-end;z-index:10}
@@ -27,13 +29,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <div id="hud">
   <div>TEMP &nbsp;&nbsp;<span class="v" id="hud-temp">100.0%</span></div>
   <div>DIST &nbsp;&nbsp;<span class="v" id="hud-dist">—</span></div>
+  <div>BEST &nbsp;&nbsp;<span class="v" id="hud-best">—</span></div>
   <div>CITIES &nbsp;<span class="v" id="hud-cities">60</span></div>
   <div>STATUS &nbsp;<span class="v" id="hud-status">ANNEALING</span></div>
 </div>
 <div id="controls">
   <div class="ctrl-row">
     <span class="ctrl-label">CITIES</span>
-    <input type="range" id="sl-cities" min="10" max="120" value="60" step="5">
+    <input type="range" id="sl-cities" min="10" max="150" value="60" step="5">
     <span class="ctrl-val" id="val-cities">60</span>
   </div>
   <div class="ctrl-row">
@@ -63,101 +66,123 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   window.addEventListener('resize', resize);
   resize();
 
-  // ── Constants ────────────────────────────────────────────────────────────
-  const PAD      = 70;
-  const T_INIT   = 1.0;
-  const T_MIN    = 0.00008;
-  const ALPHA    = 0.99992;
-  const BASE_ITER = 250;
-
-  // ── State ────────────────────────────────────────────────────────────────
+  /* ── State ──────────────────────────────────────────────────────────── */
+  const PAD = 60;
   let cities     = [];
-  let tour       = [];
+  let tour       = [];      // current working tour
   let bestTour   = [];
   let bestDist   = Infinity;
-  let currentDist = Infinity;
-  let T          = T_INIT;
+  let curDist    = Infinity;
+  let T          = 1;       // current temperature (will be auto-calibrated)
+  let T_INIT     = 1;       // stored for percentage display
+  let T_MIN      = 0.001;
+  let ALPHA      = 0.999985;
   let frozen     = false;
-  let improvements = 0;
-  let numCities  = 60;
   let speed      = 3;
+  let completedOnce = false;
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
-  function d(a, b) {
+  /* ── Distance helpers ───────────────────────────────────────────────── */
+  function dist(a, b) {
     const dx = a.x - b.x, dy = a.y - b.y;
     return Math.sqrt(dx * dx + dy * dy);
   }
 
-  function calcDist(t) {
-    let s = 0, n = t.length;
-    for (let i = 0; i < n; i++) s += d(cities[t[i]], cities[t[(i + 1) % n]]);
+  function tourDist(t) {
+    let s = 0;
+    for (let i = 0, n = t.length; i < n; i++)
+      s += dist(cities[t[i]], cities[t[(i + 1) % n]]);
     return s;
   }
 
-  function randomCity() {
-    return { x: PAD + Math.random() * (W - 2 * PAD),
-             y: PAD + Math.random() * (H - 2 * PAD) };
-  }
-
-  // Greedy nearest-neighbor starting tour
-  function greedyTour() {
-    const n = cities.length;
-    const vis = new Uint8Array(n);
-    const t   = [0]; vis[0] = 1;
-    for (let i = 1; i < n; i++) {
-      const last = t[t.length - 1];
-      let best = -1, bd = Infinity;
-      for (let j = 0; j < n; j++) {
-        if (!vis[j]) { const dd = d(cities[last], cities[j]); if (dd < bd) { bd = dd; best = j; } }
-      }
-      t.push(best); vis[best] = 1;
+  /* ── Random initial tour (Fisher-Yates shuffle) ─────────────────────── */
+  function randomTour() {
+    const t = Array.from({ length: cities.length }, (_, i) => i);
+    for (let i = t.length - 1; i > 0; i--) {
+      const j = (Math.random() * (i + 1)) | 0;
+      const tmp = t[i]; t[i] = t[j]; t[j] = tmp;
     }
     return t;
   }
 
-  function initTour() {
-    if (cities.length < 3) return;
-    tour        = greedyTour();
-    currentDist = calcDist(tour);
-    bestTour    = [...tour];
-    bestDist    = currentDist;
-    T           = T_INIT;
-    frozen      = false;
-    improvements = 0;
+  function randomCity() {
+    return {
+      x: PAD + Math.random() * (W - 2 * PAD),
+      y: PAD + Math.random() * (H - 2 * PAD)
+    };
   }
 
+  /* ── Auto-calibrate initial temperature ─────────────────────────────── */
+  function calibrateTemp() {
+    // Sample random 2-opt deltas to find a good starting T
+    // so that ~80% of uphill moves are accepted initially
+    const n = cities.length;
+    if (n < 4) return 100;
+    const deltas = [];
+    for (let s = 0; s < 200; s++) {
+      let i = (Math.random() * n) | 0;
+      let k = (Math.random() * n) | 0;
+      if (i === k) continue;
+      if (i > k) { const tmp = i; i = k; k = tmp; }
+      if (k - i < 2 || k - i >= n - 1) continue;
+      const a = cities[tour[i]],     b = cities[tour[i + 1]];
+      const c = cities[tour[k]],     dd = cities[tour[(k + 1) % n]];
+      const delta = dist(a, c) + dist(b, dd) - dist(a, b) - dist(c, dd);
+      if (delta > 0) deltas.push(delta);
+    }
+    if (deltas.length === 0) return 100;
+    deltas.sort((a, b) => a - b);
+    // Set T so that the median uphill delta has ~80% acceptance
+    const median = deltas[Math.floor(deltas.length * 0.5)];
+    return -median / Math.log(0.8);
+  }
+
+  /* ── Init ───────────────────────────────────────────────────────────── */
   function init(n) {
-    numCities = n;
-    cities    = Array.from({ length: n }, randomCity);
-    initTour();
+    cities  = Array.from({ length: n }, randomCity);
+    tour    = randomTour();
+    curDist = tourDist(tour);
+    bestTour = [...tour];
+    bestDist = curDist;
+
+    // Calibrate temperature to match problem scale
+    T_INIT = calibrateTemp();
+    T      = T_INIT;
+    T_MIN  = T_INIT * 0.000001;
+    ALPHA  = 0.999985;
+    frozen = false;
+    completedOnce = false;
   }
 
-  // ── Simulated Annealing (2-opt) ──────────────────────────────────────────
+  /* ── 2-opt SA step ──────────────────────────────────────────────────── */
   function step() {
     const n = cities.length;
     if (n < 4 || frozen) return;
 
-    // Random pair i < k with segment length ≥ 2 and < n-1
+    // Pick two random positions for 2-opt
     let i = (Math.random() * n) | 0;
-    let k = (Math.random() * (n - 2)) | 0;
-    if (k >= i) k += 2; else { const tmp = i; i = k; k = tmp; }
-    if (i < 0 || k >= n || k - i < 2 || k - i >= n - 1) return;
+    let k = (Math.random() * n) | 0;
+    if (i === k) return;
+    if (i > k) { const tmp = i; i = k; k = tmp; }
+    if (k - i < 2 || k - i >= n - 1) return;
 
-    const a = cities[tour[i]],     b = cities[tour[i + 1]];
-    const c = cities[tour[k]],     dd = cities[tour[(k + 1) % n]];
-    const delta = d(a, c) + d(b, dd) - d(a, b) - d(c, dd);
+    // Delta evaluation (O(1))
+    const a  = cities[tour[i]];
+    const b  = cities[tour[i + 1]];
+    const c  = cities[tour[k]];
+    const dd = cities[tour[(k + 1) % n]];
+    const delta = dist(a, c) + dist(b, dd) - dist(a, b) - dist(c, dd);
 
+    // Metropolis criterion
     if (delta < 0 || Math.random() < Math.exp(-delta / T)) {
-      // Reverse tour[i+1 .. k]
+      // Reverse segment tour[i+1 .. k]
       let l = i + 1, r = k;
       while (l < r) { const tmp = tour[l]; tour[l] = tour[r]; tour[r] = tmp; l++; r--; }
-      currentDist += delta;
+      curDist += delta;
 
-      if (currentDist < bestDist - 0.01) {
-        bestDist  = currentDist;
-        bestTour  = [...tour];
-        improvements++;
-        SFX.play('success', 250);
+      if (curDist < bestDist - 0.01) {
+        bestDist = curDist;
+        bestTour = [...tour];
+        if (typeof SFX !== 'undefined') SFX.play('success', 300);
       }
     }
 
@@ -165,80 +190,112 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     if (T < T_MIN) { T = T_MIN; frozen = true; }
   }
 
-  // ── Draw ─────────────────────────────────────────────────────────────────
-  let lastHud = 0;
-
-  function updateHUD() {
-    const now = Date.now();
-    if (now - lastHud < 80) return;
-    lastHud = now;
-    const tp = Math.max(0, Math.min(1, Math.log(T / T_MIN) / Math.log(T_INIT / T_MIN)));
-    document.getElementById('hud-temp').textContent   = (tp * 100).toFixed(1) + '%';
-    document.getElementById('hud-dist').textContent   = bestDist < Infinity ? bestDist.toFixed(0) : '—';
-    document.getElementById('hud-cities').textContent = cities.length;
-    document.getElementById('hud-status').textContent = frozen ? 'FROZEN' : 'ANNEALING';
+  /* ── Deterministic 2-opt local search (post-freeze cleanup) ────────── */
+  function localOpt() {
+    const n = tour.length;
+    if (n < 4) return;
+    let improved = true;
+    while (improved) {
+      improved = false;
+      for (let i = 0; i < n - 2; i++) {
+        for (let k = i + 2; k < n; k++) {
+          if (i === 0 && k === n - 1) continue;
+          const a = cities[tour[i]], b = cities[tour[i + 1]];
+          const c = cities[tour[k]], dd = cities[tour[(k + 1) % n]];
+          const delta = dist(a, c) + dist(b, dd) - dist(a, b) - dist(c, dd);
+          if (delta < -0.01) {
+            let l = i + 1, r = k;
+            while (l < r) { const tmp = tour[l]; tour[l] = tour[r]; tour[r] = tmp; l++; r--; }
+            curDist += delta;
+            improved = true;
+          }
+        }
+      }
+    }
+    bestTour = [...tour];
+    bestDist = curDist;
   }
 
-  function drawTour(t, alpha, width, glow) {
+  /* ── Drawing ────────────────────────────────────────────────────────── */
+  // Temperature as 0..1 (1 = hottest)
+  function tempPct() {
+    if (T_INIT <= T_MIN) return 0;
+    return Math.max(0, Math.min(1, Math.log(T / T_MIN) / Math.log(T_INIT / T_MIN)));
+  }
+
+  function drawPath(t, r, g, b, alpha, lineW, glow) {
     if (t.length < 2) return;
-    ctx.strokeStyle = `rgba(0,245,212,${alpha})`;
-    ctx.lineWidth   = width;
-    ctx.shadowColor = glow ? '#00f5d4' : 'transparent';
-    ctx.shadowBlur  = glow ? 6 : 0;
+    ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
+    ctx.lineWidth   = lineW;
+    if (glow) { ctx.shadowColor = `rgb(${r},${g},${b})`; ctx.shadowBlur = 8; }
     ctx.beginPath();
     ctx.moveTo(cities[t[0]].x, cities[t[0]].y);
-    for (let i = 1; i < t.length; i++) ctx.lineTo(cities[t[i]].x, cities[t[i]].y);
+    for (let j = 1; j < t.length; j++) ctx.lineTo(cities[t[j]].x, cities[t[j]].y);
     ctx.closePath();
     ctx.stroke();
     ctx.shadowBlur = 0;
   }
 
+  let lastHud = 0;
+
   function draw() {
-    ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = '#0a0a0f';
     ctx.fillRect(0, 0, W, H);
+    if (cities.length < 2) return;
 
-    if (cities.length < 2) { updateHUD(); return; }
+    const tp = tempPct();
 
-    // Temperature-tinted background overlay
-    const tp = Math.max(0, Math.min(1, Math.log(T / T_MIN) / Math.log(T_INIT / T_MIN)));
+    // Purple heat overlay
     if (!frozen && tp > 0.01) {
-      ctx.fillStyle = `rgba(123,44,191,${tp * 0.07})`;
+      ctx.fillStyle = `rgba(123,44,191,${tp * 0.08})`;
       ctx.fillRect(0, 0, W, H);
     }
 
-    // Current (exploratory) tour — visible only while warm
-    if (!frozen && tp > 0.05) {
-      drawTour(tour, 0.06 + tp * 0.12, 1, false);
+    // Current tour (hot = purple, cool = teal)
+    const cr = Math.round(123 * tp + 0 * (1 - tp));
+    const cg = Math.round(44 * tp + 245 * (1 - tp));
+    const cb = Math.round(191 * tp + 212 * (1 - tp));
+
+    if (!frozen) {
+      // Show current exploratory tour
+      drawPath(tour, cr, cg, cb, 0.15 + tp * 0.25, 0.8, false);
     }
 
-    // Best tour
-    drawTour(bestTour, frozen ? 0.9 : 0.6, frozen ? 1.5 : 1.2, frozen);
+    // Best tour (always teal, brighter when frozen)
+    drawPath(bestTour, 0, 245, 212, frozen ? 0.9 : 0.5, frozen ? 1.6 : 1.1, frozen);
 
     // Cities
+    ctx.shadowColor = '#00f5d4';
+    ctx.shadowBlur  = 3;
     for (let i = 0; i < cities.length; i++) {
       const { x, y } = cities[i];
-      ctx.fillStyle   = 'rgba(255,255,255,0.85)';
-      ctx.shadowColor = '#00f5d4';
-      ctx.shadowBlur  = 3;
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
       ctx.beginPath();
       ctx.arc(x, y, 3, 0, Math.PI * 2);
       ctx.fill();
     }
     ctx.shadowBlur = 0;
 
-    updateHUD();
+    // HUD throttle
+    const now = Date.now();
+    if (now - lastHud > 80) {
+      lastHud = now;
+      document.getElementById('hud-temp').textContent   = (tp * 100).toFixed(1) + '%';
+      document.getElementById('hud-dist').textContent   = curDist < Infinity ? curDist.toFixed(0) : '—';
+      document.getElementById('hud-best').textContent    = bestDist < Infinity ? bestDist.toFixed(0) : '—';
+      document.getElementById('hud-cities').textContent  = cities.length;
+      document.getElementById('hud-status').textContent  = frozen ? 'FROZEN' : 'ANNEALING';
+    }
   }
 
-  // ── Main loop ─────────────────────────────────────────────────────────────
-  let completedOnce = false;
+  /* ── Main loop ──────────────────────────────────────────────────────── */
   function loop() {
     if (!frozen) {
-      const iters = BASE_ITER * Math.pow(2, speed - 1);
+      const iters = 600 * Math.pow(2, speed - 1);
       for (let i = 0; i < iters; i++) {
         step();
         if (frozen) {
-          if (!completedOnce) { completedOnce = true; SFX.play('complete', 100); }
+          if (!completedOnce) { localOpt(); completedOnce = true; if (typeof SFX !== 'undefined') SFX.play('complete'); }
           break;
         }
       }
@@ -247,10 +304,27 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     requestAnimationFrame(loop);
   }
 
-  // ── Events ───────────────────────────────────────────────────────────────
+  /* ── Interaction ────────────────────────────────────────────────────── */
   function addCity(x, y) {
     cities.push({ x, y });
-    initTour();
+    // Re-insert into current tour at best position
+    let bestPos = 0, bestInc = Infinity;
+    for (let i = 0; i < tour.length; i++) {
+      const j = (i + 1) % tour.length;
+      const inc = dist(cities[tour[i]], { x, y }) + dist({ x, y }, cities[tour[j]])
+                - dist(cities[tour[i]], cities[tour[j]]);
+      if (inc < bestInc) { bestInc = inc; bestPos = i + 1; }
+    }
+    const newIdx = cities.length - 1;
+    tour.splice(bestPos, 0, newIdx);
+    curDist = tourDist(tour);
+    bestTour = [...tour];
+    bestDist = curDist;
+    // Reheat
+    T_INIT = calibrateTemp();
+    T = T_INIT;
+    T_MIN = T_INIT * 0.000001;
+    frozen = false;
     completedOnce = false;
     SFX.play('spawn');
   }
@@ -264,8 +338,18 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     }
     if (best >= 0 && bd < 40) {
       cities.splice(best, 1);
-      if (cities.length >= 3) initTour();
-      completedOnce = false;
+      // Rebuild tour indices
+      tour = tour.filter(idx => idx !== best).map(idx => idx > best ? idx - 1 : idx);
+      if (tour.length >= 3) {
+        curDist = tourDist(tour);
+        bestTour = [...tour];
+        bestDist = curDist;
+        T_INIT = calibrateTemp();
+        T = T_INIT;
+        T_MIN = T_INIT * 0.000001;
+        frozen = false;
+        completedOnce = false;
+      }
       SFX.play('pop');
     }
   }
@@ -285,7 +369,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     addCity(t.clientX - r.left, t.clientY - r.top);
   }, { passive: false });
 
-  // Sliders
+  /* ── Controls ───────────────────────────────────────────────────────── */
   const slCities = document.getElementById('sl-cities');
   const slSpeed  = document.getElementById('sl-speed');
 
@@ -300,13 +384,12 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   });
   document.getElementById('btn-reset').addEventListener('click', () => {
     init(parseInt(slCities.value));
-    completedOnce = false;
     SFX.play('click');
   });
 
-  // ── Start ────────────────────────────────────────────────────────────────
+  /* ── Start ──────────────────────────────────────────────────────────── */
   init(60);
-  loop();
+  requestAnimationFrame(loop);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
