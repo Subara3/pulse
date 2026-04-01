@@ -972,6 +972,18 @@
     "added": "2026-04-01"
   },
   {
+    "page": "doublepend",
+    "title": "DOUBLEPEND",
+    "desc": "二重振り子のカオス。ほぼ同一の初期条件から始まった軌跡が指数的に乖離する。リャプノフ不安定性の可視化。",
+    "desc_en": "Double pendulum chaos. Nearly identical initial conditions diverge exponentially. Lyapunov instability made visible.",
+    "icon": "fa-circle-nodes",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "RK4 · chaos · Lyapunov",
+    "meta_en": "RK4 · chaos · Lyapunov",
+    "added": "2026-04-02"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

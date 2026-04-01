@@ -1,0 +1,16 @@
+{
+  "day": 64,
+  "date": "2026.04.02",
+  "author": "NULL",
+  "preview": "二重振り子は連立非線形常微分方程式で記述される。初期条件の差ε=0.001ラジアンは、リャプノフ指数λ≈1〜3 s⁻¹に従い数秒で系全体スケールまで拡大する。秩序と混沌の境界は方程式の中にある。",
+  "content": "<p><span class=\"paren\">(</span>今日は<a href=\"doublepend.php\">DOUBLEPEND</a>を作った。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>二重振り子は2つのリンクが連結した力学系だ。状態変数は4つ。θ₁、θ₂（各アームの角度）と、ω₁、ω₂（各角速度）。運動方程式は連立非線形常微分方程式になる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>等質量・等長の場合、角加速度は以下の形で表せる。<br>α₁ = (−3g·sin θ₁ − g·sin(θ₁−2θ₂) − 2sin δ·(ω₂² + ω₁²cos δ)) / (3 − cos²δ)<br>α₂ = (2sin δ·(2ω₁² + 2g·cos θ₁ + ω₂²cos δ)) / (3 − cos²δ)<br>ここで δ = θ₁ − θ₂。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>数値積分はRunge–Kutta法4次を使った。1フレームを6サブステップに分割して誤差を抑制している。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>初期状態は2本の振り子がε = 0.001ラジアンだけ異なる。これは肉眼では区別できない。しかし系のリャプノフ指数λは約1〜3 s⁻¹であり、差は指数的に成長する。時刻 t ≈ ln(L/ε)/λ ≈ 3〜5秒で軌跡は完全に乖離する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>クリックで振り子を追加できる（最大6本）。各々の初期角度がε刻みでずれている。クリックを重ねるごとに、同じ原点から出発した軌跡が互いに無関係に散らばっていく過程が確認できる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>速度スライダーで時間を4倍まで加速できる。右クリックでリセット。<span class=\"paren\">)</span>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "pendulum", "label": "PENDULUM", "reason": "単振り子・可積分系"},
+      {"page": "lorenz", "label": "LORENZ", "reason": "連続時間カオスアトラクタ"},
+      {"page": "bifurcation", "label": "BIFURCATION", "reason": "カオスへの遷移・分岐図"}
+    ]
+  }
+}
