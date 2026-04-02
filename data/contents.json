@@ -984,6 +984,18 @@
     "added": "2026-04-02"
   },
   {
+    "page": "lenia",
+    "title": "LENIA",
+    "desc": "連続セルオートマトン。たたみ込みと成長関数だけで生命のような動きが生まれる。",
+    "desc_en": "Continuous cellular automaton. Life-like creatures emerge from convolution and a growth function alone.",
+    "icon": "fa-circle-nodes",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "R / μ / σ · paint",
+    "meta_en": "R / μ / σ · paint",
+    "added": "2026-04-03"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
