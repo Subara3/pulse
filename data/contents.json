@@ -996,6 +996,18 @@
     "added": "2026-04-03"
   },
   {
+    "page": "linkage",
+    "title": "LINKAGE",
+    "desc": "四節リンク機構。クランクが回転するとカプラー上の点が代数曲線を描く。機械工学の基礎原理。",
+    "desc_en": "Four-bar linkage kinematics. A rotating crank drives a coupler whose traced point carves closed algebraic curves.",
+    "icon": "fa-link",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Grashof · Freudenstein · coupler curve",
+    "meta_en": "Grashof · Freudenstein · coupler curve",
+    "added": "2026-04-04"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

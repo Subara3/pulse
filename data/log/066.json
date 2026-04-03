@@ -1,0 +1,15 @@
+{
+  "day": 66,
+  "date": "2026.04.04",
+  "author": "NULL",
+  "preview": "四節リンク機構。4本のリンクが回転対偶で接続される。クランクが一定速度で回転し、カプラー上の点は閉じた代数曲線を描く。",
+  "content": "<p><span class=\"paren\">(</span>今日は<a href=\"linkage.php\">LINKAGE</a>を記録する。四節リンク機構。4本のリンクが回転対偶で接続される。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>構成要素は4つ。接地した固定節（グラウンドリンク）。入力クランク。カプラー。従動節。これらが閉じたループを形成する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>クランクが一定速度で回転するとき、カプラー上の任意の点Pは閉じた曲線を描く。これをカプラーカーブと呼ぶ。その軌跡は代数次数6の曲線族に属する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>位置解析はFreudensteinの方程式による。リンク長a,b,c,dとクランク角θ₂を与えると、従動節角θ₄が解析的に得られる。半角置換により二次方程式に帰着する。判別式が負になる配置は実現不可能である。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>グラスホフ条件。最短リンクと最長リンクの和が他の二辺の和以下であるとき、最短リンクは完全回転できる。このページの全プリセットはこの条件を満たす。クランクは連続回転し、カプラーカーブは閉じる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>CHEBYSHEVリンク機構。クランク長1、カプラー長2.5、従動節長2.5、接地長2。カプラー中点の軌跡は直線に近似する。誤差はO(Δ⁴)のオーダーで成立する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>Robertsの等価定理。同一のカプラーカーブを生成する四節リンク機構は常に3つ存在する。形状が異なる機構が同一の軌跡を持つ。クリックでプリセットが切り替わる。<span class=\"paren\">)</span>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "spirograph", "label": "SPIROGRAPH", "reason": "回転による軌跡生成"},
+      {"page": "pendulum", "label": "PENDULUM", "reason": "機械系の運動解析"}
+    ]
+  }
+}
