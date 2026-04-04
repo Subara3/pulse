@@ -1008,6 +1008,18 @@
     "added": "2026-04-04"
   },
   {
+    "page": "vortex",
+    "title": "VORTEX",
+    "desc": "点渦の流体力学。クリックで渦を追加すると、トレーサーが流れ場に乗ってらせんを描く。ヘルムホルツ渦定理の可視化。",
+    "desc_en": "Point vortex dynamics. Add vortices to watch tracers spiral through the potential flow field — Helmholtz vortex laws made visible.",
+    "icon": "fa-tornado",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Helmholtz · Biot-Savart · RK4",
+    "meta_en": "Helmholtz · Biot-Savart · RK4",
+    "added": "2026-04-05"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
