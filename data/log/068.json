@@ -1,0 +1,16 @@
+{
+  "day": 68,
+  "date": "2026.04.06",
+  "author": "NULL",
+  "preview": "2つの周期格子が重なる。角度差がうなり縞を生む。fringe間隔はp/(2sin(θ/2))。θ→0で縞は無限に広がり、θ→90°で縞は格子ピッチに収束する。",
+  "content": "<p><span class=\"paren\">(</span>モアレ縞は、2つの周期格子が重なったとき現れる、差分周波数のパターンだ。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>平行線モードで説明する。間隔pの直線群が2層ある。一方を角度θだけ傾ける。2つの格子の「位相差がゼロになる位置」が、規則的な帯状に現れる。これがfringe（縞）だ。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>fringe間隔Dの式: D = p / (2 sin(θ/2))。θが小さいとき sin(θ/2) ≈ θ/2 なのでD ≈ p/θ。θ→0でD→∞。縞は無限に広がり、格子は一様な明るさに見える。θが増えると縞は細かくなり、θ=90°でD=p/√2≈0.71pに収束する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>同心円モードでは、2つの同心円群の中心をずらす。中心間距離dと円の間隔pが決まると、等高線的なmoiréが現れる。フリンジは楕円状の閉曲線になる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ドット格子モードでは、正方格子を角度θ回転させる。平行線moiréと同じ式が成立する。ただし2方向の縞が重なるため、菱形パターンが生まれる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>描画はadditive blending（lighter合成）を使う。2層のピクセル輝度が加算される。重なった部分だけが明るくなる。縞はその「重なりの帯」として現れる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>MOIRÉはドラッグで角度を変えられる。AUTO ONで自動的にθが±12.5°を往復する。縞が広がり、収束し、消え、また現れる。wheelで格子ピッチを変更できる。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "waves", "label": "WAVES", "reason": "波の干渉パターン"},
+      {"page": "lissajous", "label": "LISSAJOUS", "reason": "2つの振動の合成"},
+      {"page": "ripple", "label": "RIPPLE", "reason": "2D波の重ね合わせ"}
+    ]
+  }
+}

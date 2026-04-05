@@ -1020,6 +1020,18 @@
     "added": "2026-04-05"
   },
   {
+    "page": "moire",
+    "title": "MOIRÉ",
+    "desc": "モアレ縞。2つの周期格子が重なるとき、角度差がうなり縞を生む。3パターンで体験する干渉の数学。",
+    "desc_en": "Moiré fringes. Two periodic grids overlap — angular difference generates beat-frequency stripes.",
+    "icon": "fa-grip-lines",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "3パターン · 干渉縞",
+    "meta_en": "3 patterns · interference",
+    "added": "2026-04-06"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
