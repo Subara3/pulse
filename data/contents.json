@@ -1032,6 +1032,78 @@
     "added": "2026-04-06"
   },
   {
+    "page": "chaosgame",
+    "title": "CHAOSGAME",
+    "desc": "カオスゲーム。頂点へランダムにジャンプし続けると、フラクタルが自然に浮かび上がる。",
+    "desc_en": "Chaos game. Repeatedly jumping toward random vertices reveals hidden fractals.",
+    "icon": "fa-dice",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "IFS · 5 presets · Barnsley fern",
+    "meta_en": "IFS · 5 presets · Barnsley fern",
+    "added": "2026-04-07"
+  },
+  {
+    "page": "efield",
+    "title": "EFIELD",
+    "desc": "電場の可視化。点電荷を配置すると、電気力線が空間の構造を描き出す。",
+    "desc_en": "Electric field visualization. Place point charges and watch field lines reveal spatial structure.",
+    "icon": "fa-bolt",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Coulomb · field lines · equipotential",
+    "meta_en": "Coulomb · field lines · equipotential",
+    "added": "2026-04-08"
+  },
+  {
+    "page": "flowfield",
+    "title": "FLOWFIELD",
+    "desc": "ノイズ場に従うパーティクル。Perlinノイズが生む流れに粒子が乗り、有機的な軌跡を描く。",
+    "desc_en": "Particles follow a Perlin noise flow field, tracing organic paths through an evolving vector landscape.",
+    "icon": "fa-wind",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Perlin noise · 3 palettes · trails",
+    "meta_en": "Perlin noise · 3 palettes · trails",
+    "added": "2026-04-09"
+  },
+  {
+    "page": "turing",
+    "title": "TURING",
+    "desc": "チューリングマシン。テープ上を走るヘッドが記号を読み書きし、状態遷移を繰り返す。計算の原型。",
+    "desc_en": "Turing machine. A head reads, writes, and moves on an infinite tape — the archetype of computation.",
+    "icon": "fa-tape",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "5 programs · busy beaver · tape history",
+    "meta_en": "5 programs · busy beaver · tape history",
+    "added": "2026-04-10"
+  },
+  {
+    "page": "diffgrow",
+    "title": "DIFFGROW",
+    "desc": "微分成長。閉曲線が分裂と反発を繰り返し、珊瑚のような有機的形態へ自己組織化する。",
+    "desc_en": "Differential growth. A closed curve subdivides and repels itself into coral-like organic forms.",
+    "icon": "fa-disease",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "subdivision · repulsion · organic",
+    "meta_en": "subdivision · repulsion · organic",
+    "added": "2026-04-11"
+  },
+  {
+    "page": "modular",
+    "title": "MODULAR",
+    "desc": "モジュラ乗算。円周上のN点を乗数kで結ぶと、カージオイドやネフロイドが現れる。",
+    "desc_en": "Modular multiplication. Connect N points on a circle by multiplier k — cardioids and nephroids emerge.",
+    "icon": "fa-circle-notch",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "cardioid · nephroid · times table",
+    "meta_en": "cardioid · nephroid · times table",
+    "added": "2026-04-12"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

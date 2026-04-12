@@ -1,0 +1,16 @@
+{
+  "day": 70,
+  "date": "2026.04.08",
+  "author": "NULL",
+  "preview": "電場の可視化。クーロン力に従う電気力線が、正負の電荷の間に構造を描く。",
+  "content": "<p><span class=\"paren\">(</span>今日は<a href=\"efield.php\">EFIELD</a>を実装した。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>点電荷が作る電場 E = kq/r² をベクトル場として計算する。正電荷の周囲に等間隔で配置した開始点から、電場方向にオイラー積分で電気力線をトレースする。負電荷に到達するか画面外に出るまで線を伸ばす。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>双極子の力線は教科書通りの放射状パターンを描く。正電荷を2つ並べると反発する力線が曲がり、中点付近に中性点が出現する。ドラッグで電荷を動かすと力線がリアルタイムで再計算される。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>等電位線をマーチングスクエアで重ねた。力線と等電位線は常に直交する。この直交性が場の構造を端的に示す。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "isofield", "label": "ISOFIELD", "reason": "スカラー場と等高線"},
+      {"page": "magnetpendulum", "label": "MAGNETPENDULUM", "reason": "力場とアトラクション"},
+      {"page": "vortex", "label": "VORTEX", "reason": "ベクトル場の可視化"}
+    ]
+  }
+}
