@@ -190,7 +190,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
           }
         }
         if (subdivided && typeof SFX !== 'undefined') {
-          SFX.play('grow', 200);
+          typeof SFX!=='undefined'&&SFX.play('grow', 200);
         }
       }
 
@@ -353,7 +353,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     var radius = 15 + Math.random() * 10;
     var count = 30 + Math.floor(Math.random() * 15);
     curves.push(createCircle(x, y, radius, count));
-    if (typeof SFX !== 'undefined') SFX.play('spawn');
+    if (typeof SFX !== 'undefined') typeof SFX!=='undefined'&&SFX.play('spawn');
   }
 
   function initScene() {
@@ -400,24 +400,24 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
   resetBtn.addEventListener('click', function() {
     initScene();
-    if (typeof SFX !== 'undefined') SFX.play('click');
+    if (typeof SFX !== 'undefined') typeof SFX!=='undefined'&&SFX.play('click');
   });
 
   seedBtn.addEventListener('click', function() {
     resetWithSeed();
-    if (typeof SFX !== 'undefined') SFX.play('click');
+    if (typeof SFX !== 'undefined') typeof SFX!=='undefined'&&SFX.play('click');
   });
 
   growthSlider.addEventListener('input', function() {
-    if (typeof SFX !== 'undefined') SFX.play('tick', 70);
+    if (typeof SFX !== 'undefined') typeof SFX!=='undefined'&&SFX.play('tick', 70);
   });
 
   repulsionSlider.addEventListener('input', function() {
-    if (typeof SFX !== 'undefined') SFX.play('tick', 70);
+    if (typeof SFX !== 'undefined') typeof SFX!=='undefined'&&SFX.play('tick', 70);
   });
 
   speedSlider.addEventListener('input', function() {
-    if (typeof SFX !== 'undefined') SFX.play('tick', 70);
+    if (typeof SFX !== 'undefined') typeof SFX!=='undefined'&&SFX.play('tick', 70);
   });
 
   document.addEventListener('keydown', function(e) {

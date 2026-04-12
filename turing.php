@@ -263,7 +263,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       // No rule defined: halt
       halted = true;
       running = false;
-      SFX.play('complete');
+      typeof SFX!=='undefined'&&SFX.play('complete');
       return false;
     }
 
@@ -285,7 +285,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       state = 'H';
       stepCount++;
       saveHistory();
-      SFX.play('complete');
+      typeof SFX!=='undefined'&&SFX.play('complete');
       return false;
     }
 
@@ -336,7 +336,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     });
 
     updateHUD();
-    SFX.play('toggle');
+    typeof SFX!=='undefined'&&SFX.play('toggle');
   }
 
   // --- HUD ---
@@ -541,7 +541,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
         }
         // Throttled tick sound
         if (now - lastSfxTime > 80) {
-          SFX.play('tick', 30);
+          typeof SFX!=='undefined'&&SFX.play('tick', 30);
           lastSfxTime = now;
         }
       }
@@ -571,7 +571,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     running = false;
     if (!halted) {
       step();
-      SFX.play('tick', 30);
+      typeof SFX!=='undefined'&&SFX.play('tick', 30);
       updateHUD();
     }
   });
@@ -580,13 +580,13 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     if (halted) return;
     running = !running;
     this.textContent = running ? 'PAUSE' : 'PLAY';
-    SFX.play('toggle');
+    typeof SFX!=='undefined'&&SFX.play('toggle');
   });
 
   document.getElementById('resetBtn').addEventListener('click', function() {
     loadPreset(currentPreset);
     document.getElementById('pauseBtn').textContent = 'PAUSE';
-    SFX.play('click');
+    typeof SFX!=='undefined'&&SFX.play('click');
   });
 
   // --- Canvas click: toggle cell ---
@@ -618,7 +618,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     } else {
       tape[pos] = 1;
     }
-    SFX.play('tick');
+    typeof SFX!=='undefined'&&SFX.play('tick');
   });
 
   // Touch support
@@ -644,7 +644,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
       var current = readTape(pos);
       tape[pos] = (current === 1) ? 0 : 1;
-      SFX.play('tick');
+      typeof SFX!=='undefined'&&SFX.play('tick');
     }
   }, { passive: true });
 
@@ -660,18 +660,18 @@ require_once __DIR__ . '/includes/interaction-hints.php';
         if (halted) return;
         running = !running;
         document.getElementById('pauseBtn').textContent = running ? 'PAUSE' : 'PLAY';
-        SFX.play('toggle');
+        typeof SFX!=='undefined'&&SFX.play('toggle');
         break;
       case 'ArrowRight':
         e.preventDefault();
         running = false;
         document.getElementById('pauseBtn').textContent = 'PLAY';
-        if (!halted) { step(); SFX.play('tick', 30); }
+        if (!halted) { step(); typeof SFX!=='undefined'&&SFX.play('tick', 30); }
         break;
       case 'r': case 'R':
         loadPreset(currentPreset);
         document.getElementById('pauseBtn').textContent = 'PAUSE';
-        SFX.play('click');
+        typeof SFX!=='undefined'&&SFX.play('click');
         break;
     }
   });

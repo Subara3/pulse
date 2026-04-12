@@ -269,7 +269,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       presetBtns.forEach(function (b) { b.classList.remove('active'); });
       this.classList.add('active');
       resetGame();
-      SFX.play('toggle');
+      typeof SFX!=='undefined'&&SFX.play('toggle');
     });
   });
 
@@ -285,7 +285,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   document.getElementById('resetBtn').addEventListener('click', function (e) {
     e.stopPropagation();
     resetGame();
-    SFX.play('click');
+    typeof SFX!=='undefined'&&SFX.play('click');
   });
 
   /* ── Canvas click: set current point ── */
@@ -300,7 +300,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       curX = (px - cx) / sc;
       curY = (H * 0.9 - py) / sc;
     }
-    SFX.play('spawn');
+    typeof SFX!=='undefined'&&SFX.play('spawn');
   }
 
   canvas.addEventListener('click', function (e) {
