@@ -1104,6 +1104,18 @@
     "added": "2026-04-12"
   },
   {
+    "page": "slit",
+    "title": "SLIT",
+    "desc": "二重スリット実験。粒子が一つずつスリットを通過し、干渉縞が浮かび上がる。",
+    "desc_en": "Double-slit experiment. Particles pass through slits one by one, and an interference pattern emerges.",
+    "icon": "fa-grip-lines-vertical",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "diffraction · N slits · theory curve",
+    "meta_en": "diffraction · N slits · theory curve",
+    "added": "2026-04-13"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
