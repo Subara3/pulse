@@ -1128,6 +1128,18 @@
     "added": "2026-04-14"
   },
   {
+    "page": "erosion",
+    "title": "EROSION",
+    "desc": "水力浸食。雨粒が地形を削り、河川と谷が自然に生まれる。",
+    "desc_en": "Hydraulic erosion. Raindrops carve terrain, and rivers and valleys emerge naturally.",
+    "icon": "fa-cloud-rain",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "インタラクティブ",
+    "meta_en": "Interactive",
+    "added": "2026-04-15"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
