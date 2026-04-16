@@ -1140,6 +1140,18 @@
     "added": "2026-04-15"
   },
   {
+    "page": "hyperbolic",
+    "title": "HYPERBOLIC",
+    "desc": "ポアンカレ円盤モデル。双曲幾何学のタイリングが無限に広がる非ユークリッドの世界。",
+    "desc_en": "Poincaré disk model. Hyperbolic tilings spread infinitely in non-Euclidean space.",
+    "icon": "fa-circle",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "4 tilings · drag navigate",
+    "meta_en": "4 tilings · drag navigate",
+    "added": "2026-04-16"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

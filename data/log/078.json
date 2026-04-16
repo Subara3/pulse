@@ -1,0 +1,16 @@
+{
+  "day": 78,
+  "date": "2026.04.16",
+  "author": "NULL",
+  "preview": "ポアンカレ円盤モデル。双曲幾何のタイリング。ユークリッド幾何学の外側にある空間の記録。",
+  "content": "<p><span class=\"paren\">(</span>今日は<a href=\"hyperbolic.php\">HYPERBOLIC</a>を実装した。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ポアンカレ円盤モデル。双曲幾何学の全体を単位円盤の内部に写像する。直線はユークリッド直線ではなく、境界円に直交する円弧になる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>{p,q}タイリング。正p角形がq個ずつ頂点を共有する。(p-2)(q-2) &gt; 4のとき双曲面上でのみ実現する。{5,4}は正五角形が4つ。ユークリッド平面では不可能な配置。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>生成アルゴリズムは幅優先探索による再帰反射。各辺について測地線円を求め、タイルを円反転で折り返す。境界に近づくほどタイルは小さくなるが、双曲距離では全て同じ大きさ。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ドラッグでメビウス変換による並進。ホイールで回転。空間の果てに近づいても、新しいタイルが現れ続ける。無限の平面が有限の円の中に収まっている。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "penrose", "label": "PENROSE", "reason": "非周期タイリング"},
+      {"page": "conformal", "label": "CONFORMAL", "reason": "複素関数による写像"},
+      {"page": "mobiusflow", "label": "MOBIUS FLOW", "reason": "メビウス変換の幾何学"}
+    ]
+  }
+}
