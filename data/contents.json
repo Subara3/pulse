@@ -1152,6 +1152,18 @@
     "added": "2026-04-16"
   },
   {
+    "page": "kaleidoscope",
+    "title": "KALEIDOSCOPE",
+    "desc": "万華鏡。二面体群D_Nの対称性で粒子の軌跡が反射・回転し、幾何学模様が浮かび上がる。",
+    "desc_en": "Kaleidoscope. Particle trails reflect and rotate under dihedral symmetry D_N, forming geometric patterns.",
+    "icon": "fa-gem",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "D₃–D₁₂ · paint · glow",
+    "meta_en": "D₃–D₁₂ · paint · glow",
+    "added": "2026-04-17"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
