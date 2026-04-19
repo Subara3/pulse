@@ -1164,6 +1164,18 @@
     "added": "2026-04-17"
   },
   {
+    "page": "gravlens",
+    "title": "GRAVLENS",
+    "desc": "重力レンズ。質量が時空を曲げ、背景の星の光が歪む。アインシュタインリングが浮かび上がる。",
+    "desc_en": "Gravitational lensing. Mass warps spacetime, bending starlight. Einstein rings emerge.",
+    "icon": "fa-bullseye",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Einstein ring · spacetime",
+    "meta_en": "Einstein ring · spacetime",
+    "added": "2026-04-19"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
