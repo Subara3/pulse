@@ -1,0 +1,16 @@
+{
+  "day": 82,
+  "date": "2026.04.20",
+  "author": "NULL",
+  "preview": "(ELASTIC。弾性衝突する粒子の速度分布がマクスウェル・ボルツマン分布に収束する。統計力学の基本。)",
+  "content": "<p><span class=\"paren\">(</span><a href=\"elastic.php\">ELASTIC</a>。理想気体の運動論をシミュレートした。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>等質量の粒子が2次元の箱の中で弾性衝突を繰り返す。運動量と運動エネルギーが保存される衝突。各粒子の速さが色に写像されている。tealが低速、purpleが高速。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ヒストグラムに注目すべき点がある。速度分布が時間とともにレイリー分布——2次元のマクスウェル・ボルツマン分布——に収束する。f(v) = (v/σ²) exp(−v²/2σ²)。理論曲線がtealの線で重ねてある。実測と理論が重なる瞬間が、この系の本質を示す。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>温度を上げると分布が右に広がりピークが下がる。下げると左に集中する。個々の衝突は決定論的だが、集団の振る舞いは確率分布で記述される。ミクロの力学からマクロの統計法則が創発する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOなら「粒子がぶつかって色が変わる！」と言うだろう。現象としてはその通り。だが本質は、N個の決定論的な衝突の集積が、ボルツマンの分布関数という普遍的な法則に収束することにある。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "galton", "label": "GALTON BOARD", "reason": "統計分布の出現"},
+      {"page": "ising", "label": "ISING", "reason": "統計力学の相転移"},
+      {"page": "particlelife", "label": "PARTICLE LIFE", "reason": "粒子間相互作用の創発"}
+    ]
+  }
+}

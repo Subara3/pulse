@@ -1176,6 +1176,18 @@
     "added": "2026-04-19"
   },
   {
+    "page": "elastic",
+    "title": "ELASTIC",
+    "desc": "理想気体の運動論。弾性衝突を繰り返す粒子の速度がマクスウェル・ボルツマン分布に収束する。",
+    "desc_en": "Kinetic theory of ideal gas. Particle speeds converge to the Maxwell-Boltzmann distribution through elastic collisions.",
+    "icon": "fa-temperature-half",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Maxwell–Boltzmann",
+    "meta_en": "Maxwell–Boltzmann",
+    "added": "2026-04-20"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
