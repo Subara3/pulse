@@ -1188,6 +1188,18 @@
     "added": "2026-04-20"
   },
   {
+    "page": "harmonograph",
+    "title": "HARMONOGRAPH",
+    "desc": "ハーモノグラフ。減衰する振り子が描く繊細な幾何学模様。周波数比と位相が無限の曲線を生む。",
+    "desc_en": "Harmonograph. Delicate geometric patterns drawn by damped pendulums. Frequency ratios and phases create infinite curves.",
+    "icon": "fa-pen-nib",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "5 presets · damped pendulums",
+    "meta_en": "5 presets · damped pendulums",
+    "added": "2026-04-21"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
