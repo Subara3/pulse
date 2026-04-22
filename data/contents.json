@@ -1200,6 +1200,18 @@
     "added": "2026-04-21"
   },
   {
+    "page": "traffic",
+    "title": "TRAFFIC",
+    "desc": "Nagel-Schreckenberg交通流モデル。単純な4つのルールから渋滞が自然発生する。",
+    "desc_en": "Nagel-Schreckenberg traffic flow model. Traffic jams emerge spontaneously from four simple rules.",
+    "icon": "fa-car",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "NaSch · phantom jam · space-time",
+    "meta_en": "NaSch · phantom jam · space-time",
+    "added": "2026-04-22"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

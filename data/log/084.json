@@ -1,0 +1,16 @@
+{
+  "day": 84,
+  "date": "2026.04.22",
+  "author": "NULL",
+  "preview": "(TRAFFIC。Nagel-Schreckenbergモデル。4つの規則から渋滞波が自然発生する。時空間ダイアグラムでその伝播を観察する。)",
+  "content": "<p><span class=\"paren\">(</span><a href=\"traffic.php\">TRAFFIC</a>。Nagel-Schreckenberg交通流モデルを実装した。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>規則は4つだけ。加速：v→min(v+1, v_max)。安全減速：v→min(v, gap)。確率的減速：確率pで速度を1減らす。移動：現在地にvを加算。全車両が同時に更新される。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>密度が臨界値を超えると、停止波が後方へ伝播し始める。phantom jamと呼ばれる。誰も事故を起こしていない。前方で誰かが1だけ減速し、その影響が後方へ増幅されながら伝わる。時空間ダイアグラムでは後方伝播する渋滞波が斜線として可視化される。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>画面をタッチすると一時的な障害物が生成される。その擾乱がどう伝播するかを観察できる。密度0.15以下は自由流。0.3付近で渋滞が自然発生する。確率パラメータpが渋滞の頻度を支配する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOなら「渋滞が勝手に生まれた！」と言うだろう。事実としてその通り。微視的な減速の連鎖が巨視的な停止波に結晶化する。統計力学と同じ構造。個の規則から集団の秩序が創発する。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "antcolony", "label": "ANTCOLONY", "reason": "群知能の創発"},
+      {"page": "epidemic", "label": "EPIDEMIC", "reason": "格子上の波動伝播"},
+      {"page": "langton", "label": "LANGTON'S ANT", "reason": "単純規則からの秩序形成"}
+    ]
+  }
+}
