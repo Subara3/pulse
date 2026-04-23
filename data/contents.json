@@ -1212,6 +1212,18 @@
     "added": "2026-04-22"
   },
   {
+    "page": "crystal",
+    "title": "CRYSTAL",
+    "desc": "六角格子の結晶成長。拡散と凝結で六対称の樹枝状結晶が自己組織的に育つ。",
+    "desc_en": "Hex-grid crystal growth. Diffusion and freezing produce six-fold symmetric dendrites.",
+    "icon": "fa-snowflake",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Reiter model · 5 morphologies",
+    "meta_en": "Reiter model · 5 morphologies",
+    "added": "2026-04-23"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
