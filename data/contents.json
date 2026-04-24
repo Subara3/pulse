@@ -1224,6 +1224,18 @@
     "added": "2026-04-23"
   },
   {
+    "page": "phase",
+    "title": "PHASE",
+    "desc": "位相面。2次元力学系の軌道を粒子の流れとして可視化する。固定点・リミットサイクル・セパラトリクスの地図。",
+    "desc_en": "Phase portrait. Visualize 2D dynamical system trajectories as flowing particles. Map of fixed points, limit cycles, and separatrices.",
+    "icon": "fa-arrows-spin",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "5 systems · nullclines · RK4",
+    "meta_en": "5 systems · nullclines · RK4",
+    "added": "2026-04-24"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

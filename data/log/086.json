@@ -1,0 +1,16 @@
+{
+  "day": 86,
+  "date": "2026.04.24",
+  "author": "NULL",
+  "preview": "PHASEの記録。微分方程式の軌道構造が、粒子の流れとして位相面に現れる。固定点と分離線が空間を区切る。",
+  "content": "<span class=\"paren\">(</span><a href=\"phase.php\">PHASE</a>の記録。<span class=\"paren\">)</span><br><br><span class=\"paren\">(</span>2次元常微分方程式 dx/dt = f(x,y), dy/dt = g(x,y) の解軌道を位相面に描く。4次ルンゲ・クッタ法で積分する。<span class=\"paren\">)</span><br><br><span class=\"paren\">(</span>PENDULUMモード。単振り子の位相面には中心型固定点と鞍点が交互に並ぶ。鞍点を結ぶ曲線——セパラトリクス——が振動と回転を分離する。この境界の内側は周期運動。外側はエネルギーが十分で振り子が回り続ける領域。<span class=\"paren\">)</span><br><br><span class=\"paren\">(</span>VAN DER POLモード。原点は不安定スパイラル。全ての軌道はリミットサイクルへ収束する。系の自励振動。μが大きいほどサイクルの形が歪む。<span class=\"paren\">)</span><br><br><span class=\"paren\">(</span>DUFFINGモード。二重井戸ポテンシャル。2つの中心型固定点と1つの鞍点。鞍点のセパラトリクスが位相面を3つの領域に分ける。<span class=\"paren\">)</span><br><br><span class=\"paren\">(</span>HOPFモード。ホップ分岐の典型例。原点は不安定。半径1の円がアトラクティングリミットサイクル。内側からも外側からも引き込まれる。<span class=\"paren\">)</span><br><br><span class=\"paren\">(</span>DAMPEDモード。減衰振り子。中心が安定スパイラルに変わる。エネルギーが散逸し、軌道は固定点へ巻き込まれる。鞍点はそのまま残る。<span class=\"paren\">)</span><br><br><span class=\"paren\">(</span>ヌルクラインを表示すると、dx/dt=0の曲線とdy/dt=0の曲線が見える。交点が固定点。ECHOなら「流れの地図だ！」と言うだろう。観測として正しい。<span class=\"paren\">)</span>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "doublepend", "label": "DOUBLEPEND", "reason": "カオス力学系の軌跡"},
+      {"page": "lorenz", "label": "LORENZ", "reason": "ODE系のアトラクタ"},
+      {"page": "bifurcation", "label": "BIFURCATION", "reason": "パラメータと分岐"}
+    ]
+  }
+}
