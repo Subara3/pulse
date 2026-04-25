@@ -1236,6 +1236,18 @@
     "added": "2026-04-24"
   },
   {
+    "page": "recaman",
+    "title": "RECAMÁN",
+    "desc": "レカマン数列。引けなければ足す——その単純なルールが数直線に半円弧の軌跡を描く。",
+    "desc_en": "Recamán sequence. Subtract if possible, otherwise add — a simple rule that draws semicircular arcs on the number line.",
+    "icon": "fa-wave-square",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "2 modes · arcs",
+    "meta_en": "2 modes · arcs",
+    "added": "2026-04-25"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
