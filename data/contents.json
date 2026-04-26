@@ -1248,6 +1248,18 @@
     "added": "2026-04-25"
   },
   {
+    "page": "ulam",
+    "title": "ULAM",
+    "desc": "ウラムの螺旋。整数を渦巻き状に並べると、素数が不思議な対角線パターンを描く。",
+    "desc_en": "Ulam spiral. Integers on a spiral — primes form mysterious diagonal patterns.",
+    "icon": "fa-compass-drafting",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "素数 · 対角線パターン",
+    "meta_en": "primes · diagonal patterns",
+    "added": "2026-04-26"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
