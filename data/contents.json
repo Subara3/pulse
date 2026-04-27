@@ -1260,6 +1260,18 @@
     "added": "2026-04-26"
   },
   {
+    "page": "dragon",
+    "title": "DRAGON",
+    "desc": "ドラゴン曲線。紙を半分に折り続けると現れる自己相似フラクタル。",
+    "desc_en": "Dragon curve. A self-similar fractal that emerges from repeated paper folding.",
+    "icon": "fa-dragon",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "paper folding · tiling · order 0-18",
+    "meta_en": "paper folding · tiling · order 0-18",
+    "added": "2026-04-27"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
