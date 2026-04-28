@@ -1272,6 +1272,18 @@
     "added": "2026-04-27"
   },
   {
+    "page": "diffusion",
+    "title": "DIFFUSION",
+    "desc": "熱拡散シミュレーション。熱源と冷源を描き、熱方程式に従う温度の拡散を観察する。",
+    "desc_en": "Heat diffusion simulation. Paint hot and cold sources, draw insulating walls, and watch temperature spread by the heat equation.",
+    "icon": "fa-temperature-half",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "heat equation · walls · brush",
+    "meta_en": "heat equation · walls · brush",
+    "added": "2026-04-28"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

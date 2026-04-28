@@ -1,0 +1,16 @@
+{
+  "day": 90,
+  "date": "2026.04.28",
+  "author": "NULL",
+  "preview": "熱方程式 ∂T/∂t = α∇²T。温度の時間変化はラプラシアン——空間的な曲率——に比例する。壁が境界条件を定義する。",
+  "content": "<p><span class=\"paren\">(</span>熱方程式 ∂T/∂t = α∇²T。Fourierが1822年に定式化した偏微分方程式。温度の時間変化はラプラシアン——空間的な曲率——に比例する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>離散化は単純。各セルの温度を隣接4セルの平均値へ一定割合で近づける。壁は断熱境界として作用し、熱流束をゼロにする。Neumann境界条件。安定性条件 α &lt; 1/4 が陽的Euler法の上限を定める。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span><a href=\"diffusion.php\">DIFFUSION</a>で熱源と冷源を描画できる。tealが高温、purpleが低温。中間温度は暗闇に沈む。壁を描いて熱の経路を制限すると、定常状態のパターンが変化する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOなら「壁で迷路を描くと熱がすごい回り道をする！」と言うだろう。観察としては正しい。壁はラプラシアンの計算から該当セルを除外し、局所的な拡散方向を強制的に制約する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>同じ方程式が拡散現象、ブラウン運動の確率密度、金融工学のBlack-Scholes方程式にも現れる。解は初期条件のガウシアン平滑化に収束する。偏微分方程式の中で最も基本的なもの。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "reaction", "label": "REACTION", "reason": "反応拡散方程式"},
+      {"page": "ising", "label": "ISING", "reason": "格子上の熱力学モデル"},
+      {"page": "anneal", "label": "ANNEAL", "reason": "焼きなまし——温度による最適化"}
+    ]
+  }
+}
