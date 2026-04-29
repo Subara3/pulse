@@ -1284,6 +1284,18 @@
     "added": "2026-04-28"
   },
   {
+    "page": "mazegen",
+    "title": "MAZEGEN",
+    "desc": "迷路生成アルゴリズムの可視化。4つのアルゴリズムが壁を削り、通路を刻んでいく。",
+    "desc_en": "Maze generation algorithms visualized. Watch four algorithms carve passages through walls.",
+    "icon": "fa-dungeon",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "4 algorithms · generation",
+    "meta_en": "4 algorithms · generation",
+    "added": "2026-04-29"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
