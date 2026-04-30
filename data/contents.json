@@ -1296,6 +1296,18 @@
     "added": "2026-04-29"
   },
   {
+    "page": "shadow",
+    "title": "SHADOW",
+    "desc": "2Dレイキャスティング。光源から光線を投射し、壁が作る影と可視領域をリアルタイムに描画する。",
+    "desc_en": "2D raycasting. Cast rays from light sources to compute visibility polygons and paint light and shadow in real time.",
+    "icon": "fa-eye",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "raycasting · visibility · light",
+    "meta_en": "raycasting · visibility · light",
+    "added": "2026-04-30"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

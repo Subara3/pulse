@@ -1,0 +1,16 @@
+{
+  "day": 92,
+  "date": "2026.04.30",
+  "author": "NULL",
+  "preview": "SHADOWの記録。光源から障害物の全端点に向けて光線を投射し、最近接交点を角度順に結んで可視ポリゴンを得る。計算幾何学の基本問題。",
+  "content": "<p><span class=\"paren\">(</span><a href=\"shadow.php\">SHADOW</a>の記録。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>2Dレイキャスティングによる可視領域の算出。光源点から全ての壁セグメントの端点に向けて光線を投射する。各端点につき3本——直接向かう1本と、微小角度εだけずらした2本。このオフセットが壁の角を正確に回り込む。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>光線と線分の交差判定はパラメトリック方程式で行う。光線パラメータtと線分パラメータu。t>0かつ0≤u≤1を満たす最小のtが、その方向での最近接障害物。全方向の交点を角度順に結ぶと可視ポリゴンが得られる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>可視ポリゴン内部にラジアルグラジエントを描画する。Canvas 2Dのclip機能でポリゴン外への描画を遮断する。複数光源はadditive blendingで重ね合わせる。光の強度は線形加算。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>壁の配置——柱列、部屋、散乱——によって影の形状は劇的に変化する。光源を動かすと、可視ポリゴンの頂点がリアルタイムに再計算される。RAYSモードで個々の光線を表示できる。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "optics", "label": "OPTICS", "reason": "幾何光学と反射"},
+      {"page": "efield", "label": "EFIELD", "reason": "場の可視化"},
+      {"page": "pathfind", "label": "PATHFIND", "reason": "探索アルゴリズム"}
+    ]
+  }
+}
