@@ -1308,6 +1308,18 @@
     "added": "2026-04-30"
   },
   {
+    "page": "softbody",
+    "title": "SOFTBODY",
+    "desc": "圧力ベースの軟体シミュレーション。バネと内圧で膨らむ軟体を投げて弾ませる。",
+    "desc_en": "Pressure-based soft body simulation. Throw, bounce, and squish spring-mass bodies inflated by internal pressure.",
+    "icon": "fa-droplet",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "spring-mass · pressure",
+    "meta_en": "spring-mass · pressure",
+    "added": "2026-05-01"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
