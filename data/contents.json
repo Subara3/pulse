@@ -1320,6 +1320,18 @@
     "added": "2026-05-01"
   },
   {
+    "page": "reach",
+    "title": "REACH",
+    "desc": "逆運動学（FABRIK）。鎖状のアームがターゲットに伸びる。前方・後方の反復で解が収束する。",
+    "desc_en": "FABRIK inverse kinematics. Articulated arms reach toward a target through forward-backward iteration.",
+    "icon": "fa-arrows-to-dot",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "FABRIK · angle constraints",
+    "meta_en": "FABRIK · angle constraints",
+    "added": "2026-05-03"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
