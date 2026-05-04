@@ -1332,6 +1332,18 @@
     "added": "2026-05-03"
   },
   {
+    "page": "collapse",
+    "title": "COLLAPSE",
+    "desc": "波動関数崩壊（WFC）。制約伝播によりタイルが一枚ずつ確定していく。エントロピー最小のセルから秩序が広がる。",
+    "desc_en": "Wave Function Collapse. Tiles resolve one by one through constraint propagation, spreading order from minimum-entropy cells.",
+    "icon": "fa-border-all",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "constraint propagation · entropy",
+    "meta_en": "constraint propagation · entropy",
+    "added": "2026-05-04"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
