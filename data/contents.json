@@ -1344,6 +1344,18 @@
     "added": "2026-05-04"
   },
   {
+    "page": "pascal",
+    "title": "PASCAL",
+    "desc": "パスカルの三角形。mod Nで色を塗ると、シェルピンスキーの三角形をはじめフラクタルが浮かび上がる。",
+    "desc_en": "Pascal's triangle. Color by mod N and fractal patterns emerge — Sierpiński triangle and beyond.",
+    "icon": "fa-shapes",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "mod 2-13 · fractal",
+    "meta_en": "mod 2-13 · fractal",
+    "added": "2026-05-05"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
