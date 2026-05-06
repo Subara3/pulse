@@ -1356,6 +1356,18 @@
     "added": "2026-05-05"
   },
   {
+    "page": "truchet",
+    "title": "TRUCHET",
+    "desc": "トリュシェタイル。四分円弧のランダム配置が、迷路のように流れるパターンを生む。",
+    "desc_en": "Truchet tiles. Randomly oriented quarter-circle arcs form labyrinthine flowing patterns.",
+    "icon": "fa-grip",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "3 modes · flip tiles",
+    "meta_en": "3 modes · flip tiles",
+    "added": "2026-05-06"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
