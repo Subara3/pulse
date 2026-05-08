@@ -1380,6 +1380,18 @@
     "added": "2026-05-07"
   },
   {
+    "page": "gradient",
+    "title": "GRADIENT",
+    "desc": "勾配降下法の可視化。最適化ランドスケープをSGD・Momentum・Adamが降りていく。",
+    "desc_en": "Gradient descent visualized. Watch SGD, Momentum, and Adam descend optimization landscapes.",
+    "icon": "fa-arrow-trend-down",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "SGD · Momentum · Adam",
+    "meta_en": "SGD · Momentum · Adam",
+    "added": "2026-05-08"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
