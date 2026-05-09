@@ -1392,6 +1392,18 @@
     "added": "2026-05-08"
   },
   {
+    "page": "rope",
+    "title": "ROPE",
+    "desc": "ロープシミュレーション。Verlet積分と距離拘束で鎖と紐の物理。掴んで、振って、切る。",
+    "desc_en": "Rope simulation. Verlet integration and distance constraints for chain physics. Grab, swing, and cut.",
+    "icon": "fa-link",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Verlet · constraints",
+    "meta_en": "Verlet · constraints",
+    "added": "2026-05-09"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
