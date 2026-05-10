@@ -10,7 +10,7 @@ $pageCanonical = 'https://pulse.subara3.com/magnetpendulum.php';
 $extraStyle = '
 body { background: #0a0a0f; overflow: hidden; }
 #canvas { position: fixed; inset: 0; display: block; }
-.hud {position:fixed;top:3.5rem;right:1rem;font-family: "JetBrains Mono", monospace;font-size: 0.7rem;color: rgba(255,255,255,0.4);text-align: left;line-height: 1.8;z-index: 10;pointer-events: none;}
+.hud { position: fixed; top: 1rem; left: 1.5rem; font-family: "JetBrains Mono", monospace; font-size: 0.7rem; color: rgba(255,255,255,0.4); text-align: left; line-height: 1.8; z-index: 10; pointer-events: none; }
 .hud .v0 { color: #00f5d4; }
 .hud .v1 { color: #8c32d2; }
 .hud .v2 { color: #4664e6; }
@@ -19,7 +19,7 @@ body { background: #0a0a0f; overflow: hidden; }
 .ctrl button:hover { background: rgba(0,245,212,0.18); }
 .title { position: fixed; bottom: 1.5rem; left: 1.5rem; font-family: "Orbitron", sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.12); letter-spacing: 0.2em; z-index: 10; pointer-events: none; }
 @media (max-width: 768px) {
-  .hud {font-size: 0.6rem;}
+  .hud { font-size: 0.6rem; }
   .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
 }
 ';

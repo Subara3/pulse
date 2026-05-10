@@ -15,7 +15,12 @@ body { background:#0a0a0f; margin:0; overflow:hidden; }
   image-rendering:pixelated; image-rendering:crisp-edges;
   cursor:crosshair;
 }
-#hud {position:fixed;top:3.5rem;right:1rem;z-index:100;pointer-events:none;font-family:"Orbitron","Segoe UI",sans-serif;font-size:0.62rem;line-height:1.9;letter-spacing:0.06em;}
+#hud {
+  position:fixed; top:1.1rem; left:1rem; z-index:100;
+  pointer-events:none;
+  font-family:"Orbitron","Segoe UI",sans-serif;
+  font-size:0.62rem; line-height:1.9; letter-spacing:0.06em;
+}
 #hud .lbl { color:rgba(255,255,255,0.3); margin-right:0.3em; }
 #hud .vs  { color:rgba(0,245,212,0.4); }
 #hud .vi  { color:#00f5d4; font-weight:700; }
@@ -45,7 +50,7 @@ body { background:#0a0a0f; margin:0; overflow:hidden; }
 }
 .cbtn:hover { border-color:rgba(0,245,212,0.55); color:#00f5d4; }
 @media(max-width:768px){
-  #hud{top:3rem;right:0.6rem;font-size:0.52rem;}
+  #hud{font-size:0.52rem;top:0.75rem;left:0.75rem;}
   #ctrl{bottom:0.9rem;right:0.9rem;}
   .crow input[type=range]{width:60px;}
 }

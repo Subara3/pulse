@@ -11,7 +11,12 @@ $pageCanonical = 'https://pulse.subara3.com/bifurcation.php';
 $extraStyle = '
 body { background:#0a0a0f; margin:0; overflow:hidden; }
 #canvas { position:fixed; inset:0; width:100%; height:100%; cursor:crosshair; }
-#hud {position:fixed;top:3.5rem;right:1rem;z-index:100;pointer-events:none;font-family:"Courier New",monospace;font-size:0.68rem;line-height:2.0;letter-spacing:0.04em;}
+#hud {
+  position:fixed; bottom:1.2rem; left:1.2rem; z-index:100;
+  pointer-events:none;
+  font-family:"Courier New",monospace;
+  font-size:0.68rem; line-height:2.0; letter-spacing:0.04em;
+}
 #hud .lbl { color:rgba(255,255,255,0.28); margin-right:0.4em; }
 #hud .val { color:#00f5d4; }
 #ctrl {

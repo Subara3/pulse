@@ -10,7 +10,7 @@ $pageCanonical = 'https://pulse.subara3.com/wireworld.php';
 $extraStyle = '
 body { background: #0a0a0f; overflow: hidden; }
 #canvas { position: fixed; inset: 0; width: 100%; height: 100%; cursor: crosshair; }
-.hud {position:fixed;top:3.5rem;right:1rem;font-family: "JetBrains Mono", monospace;font-size: 0.7rem;color: rgba(255,255,255,0.4);text-align: left;line-height: 1.8;z-index: 10;pointer-events: none;}
+.hud { position: fixed; top: 1rem; left: 1.5rem; font-family: "JetBrains Mono", monospace; font-size: 0.7rem; color: rgba(255,255,255,0.4); text-align: left; line-height: 1.8; z-index: 10; pointer-events: none; }
 .hud .v { color: #00f5d4; }
 .hud .vp { color: rgba(123,44,191,0.9); }
 .ctrl { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 10; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; }
@@ -20,7 +20,7 @@ body { background: #0a0a0f; overflow: hidden; }
 .ctrl label { font-family: "JetBrains Mono", monospace; font-size: 0.65rem; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 0.6rem; }
 .ctrl input[type=range] { width: 100px; accent-color: #00f5d4; }
 @media (max-width: 768px) {
-  .hud {font-size: 0.6rem;}
+  .hud { font-size: 0.6rem; }
   .ctrl input[type=range] { width: 80px; }
 }
 ';

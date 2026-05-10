@@ -41,7 +41,15 @@ body {
   letter-spacing: 0.2em;
 }
 
-.hud {position:fixed;top:3.5rem;right:1rem;text-align: left;color: rgba(255,255,255,0.3);font-family: "JetBrains Mono", monospace;font-size: 0.7rem;letter-spacing: 0.05em;}
+.hud {
+  top: 1.5rem;
+  left: 1.5rem;
+  text-align: left;
+  color: rgba(255,255,255,0.3);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+}
 
 .hud .preset-name {
   color: #00f5d4;
@@ -150,7 +158,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 @media (max-width: 768px) {
   .info { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
-  .hud {top:3rem;right:0.6rem;font-size: 0.55rem;}
+  .hud { top: 0.5rem; left: 0.5rem; font-size: 0.55rem; }
   .hud .preset-name { font-size: 0.7rem; }
   .hud .param-line { font-size: 0.5rem; }
   .controls { bottom: 0.8rem; right: 0.8rem; gap: 0.4rem; }

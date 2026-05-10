@@ -11,7 +11,12 @@ $pageCanonical = 'https://pulse.subara3.com/clifford.php';
 $extraStyle = '
 body { background:#0a0a0f; margin:0; overflow:hidden; }
 #canvas { position:fixed; inset:0; width:100%; height:100%; cursor:crosshair; }
-#hud {position:fixed;top:3.5rem;right:1rem;z-index:100;pointer-events:none;font-family:"Orbitron","Segoe UI",sans-serif;font-size:0.62rem;line-height:1.9;letter-spacing:0.06em;}
+#hud {
+  position:fixed; top:1.1rem; left:1rem; z-index:100;
+  pointer-events:none;
+  font-family:"Orbitron","Segoe UI",sans-serif;
+  font-size:0.62rem; line-height:1.9; letter-spacing:0.06em;
+}
 #hud .lbl { color:rgba(255,255,255,0.3); margin-right:0.3em; }
 #hud .val { color:#00f5d4; font-weight:700; }
 #hud .pts { color:rgba(0,245,212,0.45); }
@@ -38,7 +43,7 @@ body { background:#0a0a0f; margin:0; overflow:hidden; }
 .cbtn.sub:hover { border-color:rgba(123,44,191,0.7); color:#a855f7; }
 .cbtns { display:flex; gap:0.4rem; justify-content:flex-end; }
 @media(max-width:768px){
-  #hud {top:3rem;right:0.6rem;font-size:0.52rem;}
+  #hud { font-size:0.52rem; top:0.75rem; left:0.75rem; }
   #ctrl { bottom:0.9rem; right:0.9rem; }
   .crow input[type=range] { width:55px; }
   .crow label { min-width:3rem; }

@@ -32,7 +32,13 @@ canvas {
 }
 
 /* HUD */
-.hud {position:fixed;top:3.5rem;right:1rem;z-index: 100;pointer-events: none;}
+.hud {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 100;
+  pointer-events: none;
+}
 
 .hud-panel {
   background: rgba(0, 10, 15, 0.9);
@@ -391,7 +397,7 @@ input[type="range"]::-webkit-slider-thumb {
   .stage-select { top: 0.5rem; bottom: auto; left: 50%; transform: translateX(-50%); }
   .stage-btn { width: 28px; height: 28px; font-size: 0.6rem; }
   /* HUDを下部に移動してゴールが見えるようにする */
-  .hud {top:3rem;right:0.6rem;}
+  .hud { top: auto; bottom: 4rem; left: 0.5rem; }
   .hud-panel { padding: 0.4rem 0.6rem; }
   .hud-title { font-size: 0.55rem; margin-bottom: 0.3rem; }
   .hud-row { padding: 0.1rem 0; }
