@@ -294,8 +294,8 @@ h1 {
 ';
 
 require_once __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/includes/nav.php';
 ?>
-<?php $activeNav = 'about'; require __DIR__ . '/includes/topbar.php'; ?>
 
 <main>
   <h1>ABOUT PULSE</h1>
