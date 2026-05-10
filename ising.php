@@ -18,31 +18,10 @@ body { background: #0a0a0f; margin: 0; overflow: hidden; }
 .hud {position:fixed;top:3.5rem;right:1rem;z-index: 100;pointer-events: none;font-family: "Orbitron","Segoe UI",sans-serif;font-size: 0.62rem;color: rgba(255,255,255,0.3);line-height: 2;letter-spacing: 0.06em;}
 .hud .v  { color: #00f5d4; font-weight: 700; }
 .hud .v2 { color: #a855f7; font-weight: 700; }
-.ctrl-bar {
-  position: fixed; bottom: 1.2rem; right: 1.2rem; z-index: 100;
-  display: flex; gap: 0.5rem; flex-direction: column; align-items: flex-end;
-}
-.ctrl-btn {
-  background: rgba(10,10,15,0.72); border: 1px solid rgba(0,245,212,0.25);
-  color: rgba(255,255,255,0.7); font-family: "Orbitron",sans-serif;
-  font-size: 0.58rem; letter-spacing: 0.08em;
-  padding: 0.38rem 0.75rem; border-radius: 4px; cursor: pointer;
-  backdrop-filter: blur(6px); transition: border-color 0.2s, color 0.2s;
-  touch-action: manipulation;
-}
-.ctrl-btn:hover  { border-color: rgba(0,245,212,0.6); color: #00f5d4; }
-.ctrl-btn.active { border-color: #00f5d4; color: #00f5d4; }
-.t-bar {
-  display: flex; gap: 0.4rem; align-items: center;
-}
-.t-label {
-  font-family: "Orbitron",sans-serif; font-size: 0.55rem;
-  color: rgba(255,255,255,0.4); letter-spacing: 0.06em;
-}
+
 @media (max-width: 768px) {
   .hud {top:3rem;right:0.6rem;font-size: 0.52rem;}
-  .ctrl-bar { bottom: 0.9rem; right: 0.9rem; gap: 0.4rem; }
-  .ctrl-btn { font-size: 0.5rem; padding: 0.3rem 0.6rem; }
+
 }
 ';
 
@@ -58,14 +37,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
   PHASE:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="hudP"  class="v">CRITICAL</span>
 </div>
 
-<div class="ctrl-bar">
-  <div class="t-bar">
-    <button class="ctrl-btn" id="btnTm">T−</button>
-    <span class="t-label">TEMP</span>
-    <button class="ctrl-btn" id="btnTp">T+</button>
+<div id="controls" class="drawer-controls">
+  <div class="btn-row" style="align-items:center">
+    <button class="control-btn" id="btnTm">T−</button>
+    <span class="slider-label">TEMP</span>
+    <button class="control-btn" id="btnTp">T+</button>
   </div>
-  <button class="ctrl-btn" id="btnOrder">ORDERED</button>
-  <button class="ctrl-btn" id="btnReset">RESET</button>
+  <button class="control-btn" id="btnOrder">ORDERED</button>
+  <button class="control-btn" id="btnReset">RESET</button>
 </div>
 
 <?php
@@ -248,6 +227,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   loop();
 })();
 </script>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

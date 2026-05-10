@@ -9,7 +9,7 @@ $pageDesc = 'カオスビリヤード。スタジアム型テーブルではカ�
 $pageCanonical = 'https://pulse.subara3.com/billiard.php';
 $extraStyle = '
 #hud{position:fixed;top:1.2rem;right:1.2rem;font-family:monospace;font-size:.7rem;color:rgba(0,245,212,.6);text-align:right;pointer-events:none;line-height:1.7}
-#controls{position:fixed;bottom:1.2rem;right:1.2rem;display:flex;gap:.4rem;flex-wrap:wrap;justify-content:flex-end}
+
 #controls button{background:rgba(0,245,212,.07);border:1px solid rgba(0,245,212,.25);color:rgba(0,245,212,.8);font-family:monospace;font-size:.65rem;padding:.3rem .65rem;cursor:pointer;letter-spacing:.05em;transition:background .15s}
 #controls button:hover{background:rgba(0,245,212,.15)}
 #controls button.active{background:rgba(0,245,212,.18);color:#00f5d4;border-color:rgba(0,245,212,.5)}
@@ -23,7 +23,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div id="mode-label">STADIUM</div>
   <div id="ball-count">25 BALLS</div>
 </div>
-<div id="controls">
+<div id="controls" class="drawer-controls">
   <button id="btn-0" class="mode-btn active" onclick="setMode(0)">STADIUM</button>
   <button id="btn-1" class="mode-btn" onclick="setMode(1)">CIRCLE</button>
   <button id="btn-2" class="mode-btn" onclick="setMode(2)">ELLIPSE</button>
@@ -252,6 +252,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   loop();
 })();
 </script>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

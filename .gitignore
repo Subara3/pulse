@@ -1,6 +1,7 @@
 # サーバー側で書き込まれるファイル
 data/pulse.db
 data/stats.json
+logs/
 
 # IDE / エディタ
 .claude/

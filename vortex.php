@@ -11,12 +11,7 @@ $extraStyle = '
 #hud { position:fixed; top:16px; right:16px; font-family:monospace; font-size:11px;
        color:rgba(0,245,212,0.7); text-align:right; pointer-events:none; line-height:1.8; }
 #hud .val { color:#00f5d4; }
-#controls { position:fixed; bottom:20px; right:16px; display:flex; flex-direction:column;
-            align-items:flex-end; gap:6px; }
-.ctrl-btn { background:rgba(0,245,212,0.08); border:1px solid rgba(0,245,212,0.3);
-            color:#00f5d4; font-family:monospace; font-size:11px; padding:5px 10px;
-            cursor:pointer; transition:background 0.15s; }
-.ctrl-btn:hover { background:rgba(0,245,212,0.18); }
+
 canvas { display:block; cursor:crosshair; }
 ';
 
@@ -31,9 +26,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <span style="color:rgba(0,245,212,0.45)">CCW <span style="color:#00f5d4">■</span>  CW <span style="color:#7b2cbf">■</span></span>
 </div>
 
-<div id="controls">
-  <button class="ctrl-btn" id="btn-reset">RESET</button>
-  <button class="ctrl-btn" id="btn-clear">CLEAR ALL</button>
+<div id="controls" class="drawer-controls">
+  <button class="control-btn" id="btn-reset">RESET</button>
+  <button class="control-btn" id="btn-clear">CLEAR ALL</button>
 </div>
 
 <?php
@@ -330,6 +325,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   requestAnimationFrame(loop);
 })();
 </script>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

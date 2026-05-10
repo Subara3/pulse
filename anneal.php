@@ -12,7 +12,7 @@ body{overflow:hidden}
 #canvas{position:fixed;top:0;left:0;width:100%;height:100%}
 #hud{position:fixed;top:3.5rem;right:1rem;font-size:.7rem;color:rgba(0,245,212,.65);font-family:monospace;pointer-events:none;line-height:2;z-index:10;}
 #hud span.v{color:#fff}
-#controls{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.4rem;align-items:flex-end;z-index:10}
+
 .btn{background:rgba(0,245,212,.07);border:1px solid rgba(0,245,212,.28);color:#00f5d4;font-size:.66rem;padding:.28rem .62rem;cursor:pointer;font-family:monospace;letter-spacing:.07em;transition:background .15s}
 .btn:hover{background:rgba(0,245,212,.18)}
 .btn:active{background:rgba(0,245,212,.28)}
@@ -33,7 +33,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>CITIES &nbsp;<span class="v" id="hud-cities">60</span></div>
   <div>STATUS &nbsp;<span class="v" id="hud-status">ANNEALING</span></div>
 </div>
-<div id="controls">
+<div id="controls" class="drawer-controls">
   <div class="ctrl-row">
     <span class="ctrl-label">CITIES</span>
     <input type="range" id="sl-cities" min="10" max="150" value="60" step="5">
@@ -392,6 +392,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   requestAnimationFrame(loop);
 })();
 </script>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

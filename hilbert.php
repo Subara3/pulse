@@ -14,17 +14,7 @@ $extraStyle = '
   color: var(--accent); font-family: monospace; font-size: 12px;
   text-align: right; line-height: 1.8; pointer-events: none; z-index: 10;
 }
-#controls {
-  position: fixed; bottom: 16px; right: 16px;
-  display: flex; flex-direction: column; gap: 6px; z-index: 10;
-}
-.ctrl-btn {
-  background: rgba(0,245,212,0.08); border: 1px solid rgba(0,245,212,0.3);
-  color: var(--accent); font-family: monospace; font-size: 11px;
-  padding: 6px 14px; cursor: pointer; letter-spacing: 1px;
-  transition: background 0.15s; text-align: center;
-}
-.ctrl-btn:hover { background: rgba(0,245,212,0.18); }
+
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -36,10 +26,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div id="hud-order">ORDER 1</div>
   <div id="hud-pts">4 PTS</div>
 </div>
-<div id="controls">
-  <button class="ctrl-btn" id="btn-next" onclick="nextOrder()">NEXT ORDER</button>
-  <button class="ctrl-btn" id="btn-auto" onclick="toggleAuto()">AUTO: ON</button>
-  <button class="ctrl-btn" onclick="resetOrder()">RESET</button>
+<div id="controls" class="drawer-controls">
+  <button class="control-btn" id="btn-next" onclick="nextOrder()">NEXT ORDER</button>
+  <button class="control-btn" id="btn-auto" onclick="toggleAuto()">AUTO: ON</button>
+  <button class="control-btn" onclick="resetOrder()">RESET</button>
 </div>
 <?php
 $pageInfo = '<div>SPACE-FILLING CURVE';
@@ -210,6 +200,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   startOrder(1);
 })();
 </script>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

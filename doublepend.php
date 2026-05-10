@@ -10,7 +10,7 @@ $pageCanonical = 'https://pulse.subara3.com/doublepend.php';
 $extraStyle = '
 #hud{position:fixed;top:3.5rem;right:1rem;font-size:.7rem;color:rgba(0,245,212,.65);font-family:monospace;pointer-events:none;line-height:1.9;z-index:10;}
 #hud span.v{color:#fff}
-#controls{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.4rem;align-items:flex-end;z-index:10}
+
 .btn{background:rgba(0,245,212,.07);border:1px solid rgba(0,245,212,.28);color:#00f5d4;font-size:.66rem;padding:.28rem .62rem;cursor:pointer;font-family:monospace;letter-spacing:.07em;transition:background .15s}
 .btn:hover{background:rgba(0,245,212,.18)}
 .btn:active{background:rgba(0,245,212,.28)}
@@ -28,7 +28,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>t &nbsp;&nbsp;&nbsp;&nbsp;<span class="v" id="hud-t">0.00</span> s</div>
   <div>count &nbsp;<span class="v" id="hud-n">2</span></div>
 </div>
-<div id="controls">
+<div id="controls" class="drawer-controls">
   <div class="ctrl-row">
     <span class="ctrl-label">speed</span>
     <input type="range" id="slider-speed" min="0.2" max="4" step="0.1" value="1">
@@ -260,6 +260,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   loop();
 })();
 </script>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

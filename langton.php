@@ -92,33 +92,6 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; margin: 0; }
   align-items: center;
 }
 
-.ctrl-btn {
-  background: rgba(0, 10, 15, 0.85);
-  border: 1px solid rgba(0, 245, 212, 0.25);
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-  color: var(--accent);
-  font-family: "Orbitron", sans-serif;
-  font-size: 0.65rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  backdrop-filter: blur(10px);
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.ctrl-btn:hover {
-  background: rgba(0, 245, 212, 0.1);
-  border-color: var(--accent);
-  box-shadow: 0 0 15px rgba(0, 245, 212, 0.15);
-}
-
-.ctrl-btn.active {
-  background: rgba(0, 245, 212, 0.2);
-  border-color: var(--accent);
-}
-
 .speed-control {
   position: fixed;
   bottom: 1rem;
@@ -209,7 +182,7 @@ input[type="range"]::-webkit-slider-thumb {
   .hud-label { font-size: 0.6rem; }
   .hud-value { font-size: 0.75rem; }
   .controls { bottom: 0.5rem; gap: 0.4rem; }
-  .ctrl-btn { padding: 0.4rem 0.7rem; font-size: 0.6rem; }
+  
   .speed-control { bottom: 0.5rem; right: 0.5rem; padding: 0.5rem 0.8rem; }
   .hint { bottom: 3.5rem; font-size: 0.55rem; }
 }
@@ -217,6 +190,12 @@ input[type="range"]::-webkit-slider-thumb {
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
+<?php
+$interactionHints = [
+  ['type' => 'click', 'label' => 'tap'],
+];
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
 require_once __DIR__ . '/includes/share.php';
 ?>
 
@@ -241,9 +220,9 @@ require_once __DIR__ . '/includes/share.php';
 
 <!-- コントロール -->
 <div class="controls">
-  <button class="ctrl-btn" id="resetBtn"><i class="fa-solid fa-rotate"></i></button>
-  <button class="ctrl-btn" id="pauseBtn"><i class="fa-solid fa-pause"></i></button>
-  <button class="ctrl-btn" id="addAntBtn"><i class="fa-solid fa-plus"></i></button>
+  <button class="control-btn" id="resetBtn"><i class="fa-solid fa-rotate"></i></button>
+  <button class="control-btn" id="pauseBtn"><i class="fa-solid fa-pause"></i></button>
+  <button class="control-btn" id="addAntBtn"><i class="fa-solid fa-plus"></i></button>
 </div>
 
 <!-- 速度 -->
@@ -515,6 +494,7 @@ require_once __DIR__ . '/includes/share.php';
 })();
 </script>
 
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 <?php require_once __DIR__ . '/includes/related.php'; ?>

@@ -10,7 +10,7 @@ $pageCanonical = 'https://pulse.subara3.com/drift.php';
 $extraStyle = '
 #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
 #hud { position: fixed; top: 60px; right: 20px; color: var(--accent); font-family: var(--font-mono); font-size: 13px; text-align: right; z-index: 10; pointer-events: none; }
-#controls { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 10; }
+
 .control-row { display: flex; align-items: center; gap: 10px; justify-content: flex-end; color: var(--text-dim); font-size: 12px; }
 .control-row label { min-width: 60px; text-align: right; }
 .control-row input[type="range"] { width: 100px; accent-color: var(--accent); }
@@ -21,12 +21,18 @@ $extraStyle = '
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
+<?php
+$interactionHints = [
+  ['type' => 'click', 'label' => 'tap'],
+];
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
 <canvas id="canvas"></canvas>
 <div id="hud">
   <div>WALKERS: <span id="walkerCount">0</span></div>
   <div>STEPS: <span id="stepCount">0</span></div>
 </div>
-<div id="controls">
+<div id="controls" class="drawer-controls">
   <div class="control-row">
     <label>SPEED</label>
     <input type="range" id="speedSlider" min="1" max="10" value="3">
@@ -236,6 +242,7 @@ require_once __DIR__ . '/includes/info-panel.php';
   requestAnimationFrame(loop);
 })();
 </script>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
