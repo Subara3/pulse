@@ -13,9 +13,7 @@ body{background:#0a0a0f;min-height:100vh;overflow:hidden}
 #canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
 .hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Orbitron","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,0.34);font-size:0.64rem;text-align:right;letter-spacing:0.05em;line-height:1.8}
 .hud .v{color:#00f5d4;font-weight:700}
-#info{position:fixed;bottom:1.5rem;left:1.5rem;color:rgba(255,255,255,0.22);font-family:"JetBrains Mono",monospace;font-size:0.6rem;line-height:1.7;letter-spacing:0.03em;pointer-events:none;z-index:50}
-#info .v{color:rgba(0,245,212,0.5)}
-@media(max-width:768px){.hud{top:3rem;right:0.6rem;font-size:0.54rem}#info{bottom:1rem;left:1rem;font-size:0.5rem}}
+@media(max-width:768px){.hud{top:3rem;right:0.6rem;font-size:0.54rem}}
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -31,10 +29,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
   JAMMED: <span id="hudJam" class="v">0</span>
 </div>
 
-<div id="info">
-  Nagel-Schreckenberg &middot; traffic flow<br>
-  &rho; = <span class="v" id="infoRho">0.30</span> &middot; p<sub>slow</sub> = <span class="v" id="infoPslow">0.30</span>
-</div>
+<?php
+$pageInfo = 'Nagel-Schreckenberg &middot; traffic flow<br> &rho; = <span class="v" id="infoRho">0.30</span> &middot; p<sub>slow</sub> = <span class="v" id="infoPslow">0.30</span>';
+require_once __DIR__ . '/includes/info-panel.php';
+?>
 
 <?php
 $interactionHints = [

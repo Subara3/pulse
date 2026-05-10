@@ -14,7 +14,6 @@ $extraStyle = '
 .control-row { display: flex; align-items: center; gap: 10px; justify-content: flex-end; color: var(--text-dim); font-size: 12px; }
 .control-row label { min-width: 60px; text-align: right; }
 .control-row input[type="range"] { width: 100px; accent-color: var(--accent); }
-#info { position: fixed; bottom: 20px; left: 20px; color: var(--text-dim); font-size: 12px; z-index: 10; pointer-events: none; }
 .btn { background: rgba(0,245,212,0.1); border: 1px solid var(--accent); color: var(--accent); padding: 8px 16px; font-size: 12px; cursor: pointer; transition: all 0.2s; border-radius: 4px; }
 .btn:hover { background: rgba(0,245,212,0.2); }
 ';
@@ -40,7 +39,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
     <button class="btn" id="resetBtn">RESET</button>
   </div>
 </div>
-<div id="info">Click to add walkers</div>
+<?php
+$pageInfo = [
+  'Click to add walkers',
+];
+require_once __DIR__ . '/includes/info-panel.php';
+?>
 <script>
 (function() {
   const canvas = document.getElementById('canvas');

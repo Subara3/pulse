@@ -13,7 +13,6 @@ $extraStyle = '
 #controls button{background:rgba(0,245,212,.07);border:1px solid rgba(0,245,212,.25);color:rgba(0,245,212,.8);font-family:monospace;font-size:.65rem;padding:.3rem .65rem;cursor:pointer;letter-spacing:.05em;transition:background .15s}
 #controls button:hover{background:rgba(0,245,212,.15)}
 #controls button.active{background:rgba(0,245,212,.18);color:#00f5d4;border-color:rgba(0,245,212,.5)}
-#info{position:fixed;bottom:1.2rem;left:1.2rem;font-family:monospace;font-size:.62rem;color:rgba(0,245,212,.35);pointer-events:none}
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -31,7 +30,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <button id="btn-3" class="mode-btn" onclick="setMode(3)">SQUARE</button>
   <button onclick="resetBalls()">RESET</button>
 </div>
-<div id="info">billiard dynamics · chaos · ergodic theory</div>
+<?php
+$pageInfo = [
+  'billiard dynamics · chaos · ergodic theory',
+];
+require_once __DIR__ . '/includes/info-panel.php';
+?>
 <?php
 $interactionHints = [
   ['type' => 'click', 'label' => 'add ball'],

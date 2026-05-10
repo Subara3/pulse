@@ -25,11 +25,6 @@ $extraStyle = '
   transition: background 0.15s; text-align: center;
 }
 .ctrl-btn:hover { background: rgba(0,245,212,0.18); }
-#info {
-  position: fixed; bottom: 16px; left: 16px;
-  color: rgba(0,245,212,0.5); font-family: monospace; font-size: 11px;
-  z-index: 10; pointer-events: none; line-height: 1.8;
-}
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -46,8 +41,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <button class="ctrl-btn" id="btn-auto" onclick="toggleAuto()">AUTO: ON</button>
   <button class="ctrl-btn" onclick="resetOrder()">RESET</button>
 </div>
-<div id="info">
-  <div>SPACE-FILLING CURVE</div>
+<?php
+$pageInfo = '<div>SPACE-FILLING CURVE';
+require_once __DIR__ . '/includes/info-panel.php';
+?>
   <div id="info-dim">GRID: 2×2</div>
 </div>
 <?php

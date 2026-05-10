@@ -25,11 +25,6 @@ $extraStyle = '
   transition: background 0.15s; text-align: center;
 }
 .ctrl-btn:hover { background: rgba(0,245,212,0.18); }
-#info {
-  position: fixed; bottom: 16px; left: 16px;
-  color: rgba(0,245,212,0.5); font-family: monospace; font-size: 11px;
-  z-index: 10; pointer-events: none;
-}
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -46,7 +41,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <button class="ctrl-btn" onclick="adjustDepth(-1)">DEPTH -</button>
   <button class="ctrl-btn" onclick="regen()">RESET</button>
 </div>
-<div id="info">DESCARTES' CIRCLE THEOREM</div>
+<?php
+$pageInfo = [
+  'DESCARTES\' CIRCLE THEOREM',
+];
+require_once __DIR__ . '/includes/info-panel.php';
+?>
 <?php
 $interactionHints = [
   ['type' => 'click', 'label' => 'replay'],
