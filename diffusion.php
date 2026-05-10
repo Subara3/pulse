@@ -10,11 +10,14 @@ $pageCanonical = 'https://pulse.subara3.com/diffusion.php';
 $extraStyle = '
 body{background:#0a0a0f;min-height:100vh;overflow:hidden}
 #canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
-.hud{position:fixed;top:3.5rem;right:1rem;color:rgba(0,245,212,.5);font:11px/1.6 "SF Mono","Fira Code",monospace;pointer-events:none;z-index:10;text-transform:uppercase;letter-spacing:.04em;}
+.hud{position:fixed;top:60px;left:16px;color:rgba(0,245,212,.5);font:11px/1.6 "SF Mono","Fira Code",monospace;pointer-events:none;z-index:10;text-transform:uppercase;letter-spacing:.04em}
 .hud .v{color:#00f5d4}
+#info{position:fixed;bottom:16px;left:16px;color:rgba(0,245,212,.3);font:11px/1.6 "SF Mono","Fira Code",monospace;pointer-events:none;z-index:10;max-width:280px}
+#info .v{color:rgba(0,245,212,.55)}
 @media(max-width:768px){
-  .hud{top:3rem;right:0.6rem;font-size:10px;}
-  }
+  .hud{top:48px;left:10px;font-size:10px}
+  #info{bottom:10px;left:10px;font-size:10px;max-width:180px}
+}
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -26,13 +29,10 @@ MODE: <span id="hudMode" class="v">HOT</span><br>
 BRUSH: <span id="hudBrush" class="v">4</span><br>
 TEMP: <span id="hudTemp" class="v">—</span>
 </div>
-<?php
-$pageInfo = [
-  'heat equation — ∂T/∂t = α∇²T',
-  'paint sources, draw walls',
-];
-require_once __DIR__ . '/includes/info-panel.php';
-?>
+<div id="info">
+heat equation — <span class="v">∂T/∂t = α∇²T</span><br>
+paint sources, draw walls
+</div>
 <?php
 $interactionHints = [
   ['type' => 'click', 'label' => 'paint'],

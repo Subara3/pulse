@@ -13,7 +13,9 @@ body{background:#0a0a0f;min-height:100vh;overflow:hidden}
 #canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
 .hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Orbitron","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,0.34);font-size:0.64rem;text-align:right;letter-spacing:0.05em;line-height:1.8}
 .hud .v{color:#00f5d4;font-weight:700}
-@media(max-width:768px){.hud{top:3rem;right:0.6rem;font-size:0.54rem}}
+#info{position:fixed;bottom:1.5rem;left:1.5rem;color:rgba(255,255,255,0.22);font-family:"JetBrains Mono",monospace;font-size:0.6rem;line-height:1.7;letter-spacing:0.03em;pointer-events:none;z-index:50}
+#info .v{color:rgba(0,245,212,0.5)}
+@media(max-width:768px){.hud{top:3rem;right:0.6rem;font-size:0.54rem}#info{bottom:1rem;left:1rem;font-size:0.5rem}}
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -28,10 +30,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
   ARCS: <span id="hudArcs" class="v">0</span>
 </div>
 
-<?php
-$pageInfo = 'recam&aacute;n sequence<br> a(n) = <span class="v">a(n-1) &minus; n</span> if positive &amp; new<br> a(n) = <span class="v">a(n-1) + n</span> otherwise';
-require_once __DIR__ . '/includes/info-panel.php';
-?>
+<div id="info">
+  recam&aacute;n sequence<br>
+  a(n) = <span class="v">a(n-1) &minus; n</span> if positive &amp; new<br>
+  a(n) = <span class="v">a(n-1) + n</span> otherwise
+</div>
 
 <?php
 $interactionHints = [
