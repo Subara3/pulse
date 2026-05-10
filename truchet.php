@@ -369,7 +369,8 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   window.addEventListener('resize', resize);
   resize();
   fullReset();
-  tick();
+  // sfx.php は後ろの <script> タグでロードされるため、SFX 定義後の次フレームから開始する
+  requestAnimationFrame(tick);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
