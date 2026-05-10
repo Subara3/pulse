@@ -6,9 +6,28 @@
 $jsonPath = __DIR__ . '/../data/contents.json';
 $allContents = json_decode(file_get_contents($jsonPath), true) ?: [];
 
-// UI locale (no manual toggle): auto-detect from browser language
-$acceptLang = strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '');
-$useEnglish = !str_starts_with($acceptLang, 'ja');
+// UI locale: manual cookie override > query param > Accept-Language auto-detect
+// Used by: index.php / about.php / contents.php / log.php only.
+// Content pages (*.php like fractal.php) keep their per-page UI locale strategy.
+$cookieLang = $_COOKIE['pulse_lang'] ?? '';
+$queryLang = $_GET['lang'] ?? '';
+if ($queryLang === 'ja' || $queryLang === 'en') {
+    setcookie('pulse_lang', $queryLang, [
+        'expires' => time() + 60 * 60 * 24 * 365,
+        'path' => '/',
+        'samesite' => 'Lax',
+    ]);
+    $cookieLang = $queryLang;
+}
+if ($cookieLang === 'ja') {
+    $useEnglish = false;
+} elseif ($cookieLang === 'en') {
+    $useEnglish = true;
+} else {
+    $acceptLang = strtolower($_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '');
+    $useEnglish = !str_starts_with($acceptLang, 'ja');
+}
+$lang = $useEnglish ? 'en' : 'ja';
 
 foreach ($allContents as &$c) {
     if ($useEnglish) {
