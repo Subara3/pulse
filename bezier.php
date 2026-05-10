@@ -13,13 +13,7 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
   position: fixed; inset: 0; width: 100%; height: 100%;
   touch-action: none; cursor: crosshair;
 }
-.hud {
-  position: fixed; top: 1rem; left: 1rem; z-index: 100;
-  pointer-events: none;
-  font-family: "Orbitron","Segoe UI",sans-serif;
-  font-size: 0.62rem; color: rgba(255,255,255,0.3);
-  line-height: 2; letter-spacing: 0.06em;
-}
+.hud {position:fixed;top:3.5rem;right:1rem;z-index: 100;pointer-events: none;font-family: "Orbitron","Segoe UI",sans-serif;font-size: 0.62rem;color: rgba(255,255,255,0.3);line-height: 2;letter-spacing: 0.06em;}
 .hud .v { color: #00f5d4; font-weight: 700; }
 .ctrl-bar {
   position: fixed; bottom: 1.2rem; right: 1.2rem; z-index: 100;
@@ -35,7 +29,7 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 .ctrl-btn:hover { border-color: rgba(0,245,212,0.6); color: #00f5d4; }
 .ctrl-btn.active { border-color: #00f5d4; color: #00f5d4; }
 @media (max-width: 768px) {
-  .hud { font-size: 0.52rem; top: 0.7rem; left: 0.7rem; }
+  .hud {top:3rem;right:0.6rem;font-size: 0.52rem;}
   .ctrl-bar { bottom: 0.9rem; right: 0.9rem; gap: 0.4rem; }
   .ctrl-btn { font-size: 0.5rem; padding: 0.3rem 0.6rem; }
 }

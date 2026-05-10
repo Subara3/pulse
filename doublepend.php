@@ -8,7 +8,7 @@ $pageTitle = 'DOUBLEPEND - PULSE';
 $pageDesc = 'Double pendulum chaos. Nearly identical initial conditions diverge exponentially. Lyapunov instability made visible.';
 $pageCanonical = 'https://pulse.subara3.com/doublepend.php';
 $extraStyle = '
-#hud{position:fixed;top:1rem;left:1rem;font-size:.7rem;color:rgba(0,245,212,.65);font-family:monospace;pointer-events:none;line-height:1.9;z-index:10}
+#hud{position:fixed;top:3.5rem;right:1rem;font-size:.7rem;color:rgba(0,245,212,.65);font-family:monospace;pointer-events:none;line-height:1.9;z-index:10;}
 #hud span.v{color:#fff}
 #controls{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.4rem;align-items:flex-end;z-index:10}
 .btn{background:rgba(0,245,212,.07);border:1px solid rgba(0,245,212,.28);color:#00f5d4;font-size:.66rem;padding:.28rem .62rem;cursor:pointer;font-family:monospace;letter-spacing:.07em;transition:background .15s}

@@ -18,7 +18,7 @@ body{overflow:hidden;background:#0a0a0f}
 .ctrl-label{color:rgba(0,245,212,.55);font-family:monospace;font-size:.65rem;letter-spacing:.05em;min-width:2rem;text-align:right}
 .ctrl-val{color:rgba(255,255,255,.7);font-family:monospace;font-size:.62rem;min-width:3rem;text-align:right}
 input[type=range]{width:80px;accent-color:#00f5d4;cursor:pointer}
-#hud{position:fixed;top:1rem;left:1rem;font-size:.7rem;color:rgba(0,245,212,.55);font-family:monospace;pointer-events:none;line-height:1.8;z-index:10}
+#hud{position:fixed;top:3.5rem;right:1rem;font-size:.7rem;color:rgba(0,245,212,.55);font-family:monospace;pointer-events:none;line-height:1.8;z-index:10;}
 #hud span.v{color:rgba(255,255,255,.8)}
 ';
 

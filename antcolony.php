@@ -10,7 +10,7 @@ $pageCanonical = 'https://pulse.subara3.com/antcolony.php';
 $extraStyle = '
 body { background: #0a0a0f; overflow: hidden; }
 #canvas { position: fixed; inset: 0; width: 100%; height: 100%; cursor: crosshair; }
-.hud { position: fixed; top: 1rem; left: 1.5rem; font-family: "JetBrains Mono", monospace; font-size: 0.7rem; color: rgba(255,255,255,0.4); text-align: left; line-height: 1.8; z-index: 10; pointer-events: none; }
+.hud {position:fixed;top:3.5rem;right:1rem;font-family: "JetBrains Mono", monospace;font-size: 0.7rem;color: rgba(255,255,255,0.4);text-align: left;line-height: 1.8;z-index: 10;pointer-events: none;}
 .hud .v { color: #00f5d4; }
 .ctrl { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 10; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; }
 .ctrl button { background: rgba(0,245,212,0.08); border: 1px solid rgba(0,245,212,0.3); color: #00f5d4; font-family: "JetBrains Mono", monospace; font-size: 0.65rem; padding: 0.35rem 0.8rem; cursor: pointer; letter-spacing: 0.1em; transition: background 0.2s; }
@@ -19,7 +19,7 @@ body { background: #0a0a0f; overflow: hidden; }
 .ctrl input[type=range] { width: 100px; accent-color: #00f5d4; }
 .title { position: fixed; bottom: 1.5rem; left: 1.5rem; font-family: "Orbitron", sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.12); letter-spacing: 0.2em; z-index: 10; pointer-events: none; }
 @media (max-width: 768px) {
-  .hud { font-size: 0.6rem; }
+  .hud {font-size: 0.6rem;}
   .ctrl input[type=range] { width: 80px; }
   .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
 }

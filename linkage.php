@@ -10,7 +10,7 @@ $pageCanonical = 'https://pulse.subara3.com/linkage.php';
 $extraStyle = '
 body{overflow:hidden;background:#0a0a0f}
 #canvas{display:block}
-#hud{position:fixed;top:1rem;left:1rem;font-family:monospace;pointer-events:none;line-height:1.8;z-index:10}
+#hud{position:fixed;top:3.5rem;right:1rem;font-family:monospace;pointer-events:none;line-height:1.8;z-index:10;}
 #hud .title{font-size:.62rem;color:rgba(0,245,212,.4);letter-spacing:.12em}
 #hud .name{font-size:.88rem;color:#00f5d4;letter-spacing:.08em}
 #hud .desc{font-size:.6rem;color:rgba(0,245,212,.35);letter-spacing:.04em}

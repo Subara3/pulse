@@ -32,13 +32,7 @@ canvas {
 }
 
 /* HUD */
-.hud {
-  position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 100;
-  pointer-events: none;
-}
+.hud {position:fixed;top:3.5rem;right:1rem;z-index: 100;pointer-events: none;}
 
 .hud-panel {
   background: rgba(0, 10, 15, 0.9);
