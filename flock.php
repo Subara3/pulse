@@ -37,12 +37,14 @@ body { background: linear-gradient(to bottom, #0a0a0f 0%, #0a1a1a 50%, #0a0f15 1
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
+<?php
 $interactionHints = [
   ['type' => 'click', 'label' => 'tap'],
   ['type' => 'drag', 'label' => 'drag'],
   ['type' => 'right', 'label' => 'erase'],
 ];
 require_once __DIR__ . '/includes/interaction-hints.php';
+?>
 require_once __DIR__ . '/includes/share.php';
 ?>
 
