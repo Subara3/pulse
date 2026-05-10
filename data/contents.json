@@ -1344,15 +1344,15 @@
     "added": "2026-05-04"
   },
   {
-    "page": "pascal",
-    "title": "PASCAL",
-    "desc": "パスカルの三角形。mod Nで色を塗ると、シェルピンスキーの三角形をはじめフラクタルが浮かび上がる。",
-    "desc_en": "Pascal's triangle. Color by mod N and fractal patterns emerge — Sierpiński triangle and beyond.",
-    "icon": "fa-shapes",
+    "page": "schelling",
+    "title": "SCHELLING",
+    "desc": "シェリング隔離モデル。緩やかな同類選好だけで強い隔離が自然発生する。社会物理学のシミュレーション。",
+    "desc_en": "Schelling segregation model. Mild same-type preference produces strong segregation — emergent social physics.",
+    "icon": "fa-people-group",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "mod 2-13 · fractal",
-    "meta_en": "mod 2-13 · fractal",
+    "meta": "tolerance · segregation index",
+    "meta_en": "tolerance · segregation index",
     "added": "2026-05-05"
   },
   {
