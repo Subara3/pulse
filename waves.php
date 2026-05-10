@@ -64,12 +64,10 @@ body {
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
-<?php
 $interactionHints = [
   ['type' => 'click', 'label' => 'watch'],
 ];
 require_once __DIR__ . '/includes/interaction-hints.php';
-?>
 require_once __DIR__ . '/includes/share.php';
 ?>
 
