@@ -165,13 +165,91 @@ git push origin main
 - **既存と被らない**: 既存コンテンツと概念が重複しないこと
 - **Canvas 2D**: WebGLや外部ライブラリは使わない
 - **モバイル対応**: タッチイベント対応、レスポンシブUI
-- **共通UI**: HUD（右上）、コントロール（右下）、情報（左下）
+- **共通UI**: 下記「PULSE Frame（4象限レイアウト）」に厳密に従う
 - **言語方針**: UI文言は英語を標準とし、日本語説明文をページ内に追加しない
 - **操作説明方針**: 言語スイッチャーは新規実装しない。click / drag / right-click などの短いパラメータ表示で操作を伝える
-- **インタラクション凡例**: 右上に短いチップ表示を置く（例: CLICK: SPAWN / DRAG: FORCE / RIGHT: ERASE）
 - **配色統一**: 下記「配色ルール」に従うこと
 - **初期状態で何か見える**: ページロード直後に何も表示されない状態は禁止。初期オブジェクトを配置するか、自動生成を開始すること
 - **動きの速度**: 「ゆっくり」でも変化が見える程度に。完全に静止して見えるのはNG
+
+## PULSE Frame（4象限レイアウト）
+
+**思想**: 「静かな額縁の中で生きるキャンバス」。**対角は対概念。状態は右、入力は右、文脈は左、移動は左。**
+
+```
+┌─────────────────────────────────────────────┐
+│ [TL] 文脈 / 何を見ているか     [TR] 状態     │
+│  #info（淡い小テキスト）   ┌─ interaction-hints
+│                            └─ HUD（live値）  │
+│                                              │
+│              大きなキャンバス                │
+│                                              │
+│ [BL] 移動 / 離れる手段     [BR] 入力 / 変える│
+│  floating-nav                drawer-controls │
+└─────────────────────────────────────────────┘
+```
+
+各象限の役割は厳密に分離する。同じ象限に2種類の要素を入れない。
+
+| 象限 | 役割 | 要素 | 共通include |
+|---|---|---|---|
+| TL | 文脈（このページが何か） | `#info`（多行・淡色テキスト） | `includes/info-panel.php` |
+| TR | 状態（今どうなっているか） | hints（チップ）→ HUD（数値） | `includes/interaction-hints.php` + 個別HUD |
+| BL | 移動（離れる手段） | floating-nav（戻る/ランダム/メニュー） | `includes/floating-nav.php` |
+| BR | 入力（変える手段） | drawer-controls（slider/btn/preset） | `includes/drawer-controls.php` |
+
+### 各象限の固定座標
+
+```css
+/* TL: #info — info-panel.phpが提供 */
+top: 1.1rem; left: 1.1rem;
+
+/* TR: interaction-hints — interaction-hints.phpが提供 */
+top: 1.1rem; right: 1rem;
+/* TR: HUD — 各ページが定義（hintsの直下） */
+top: 3.5rem; right: 1rem;
+
+/* BL: floating-nav — floating-nav.phpが提供 */
+bottom: 2rem; left: 2rem;
+
+/* BR: drawer-controls — drawer-controls.phpが提供 */
+bottom: 1rem; right: 1rem;
+```
+
+### 必須要素の禁則
+
+- **`#info` を BL に置かない** — floating-nav と必ず重なる
+- **HUD を TL/BL に置かない** — TR 一択
+- **コントロールに独自class（`.ctrl-bar` `.ctrl-btn`）を作らない** — `drawer-controls` + `.control-btn` を使う
+- **ボタン/スライダーCSSをページ内に再定義しない** — `drawer-controls.php` のCSSが効くので、HTML class名さえ揃えれば見た目が揃う
+
+### 型のルール（タイポグラフィ）
+
+| 役割 | フォント | 例 |
+|---|---|---|
+| ラベル（枠の言語） | `Orbitron`, ALL CAPS, letter-spacing 0.05em | `MOD`, `ROWS`, `TOLERANCE` |
+| 値（中身の言語） | `JetBrains Mono`, teal `#00f5d4` | `0.35`, `42%`, `123` |
+| 本文（メタの言語） | デフォルトsans | 記事ページ・LOG本文のみ |
+
+**同一要素にラベルと値を混ぜない。** ラベル要素は Orbitron、値要素は JetBrains Mono、で必ず別span。
+
+### 透明度の3段階
+
+```css
+rgba(255,255,255,0.22)  /* muted: #info サブ行・装飾 */
+rgba(255,255,255,0.34)  /* soft: HUDラベル・hint枠 */
+rgba(255,255,255,0.5)   /* readable: 通常UIテキスト */
+```
+
+### 新ページ作成時のチェックリスト
+
+- [ ] `interaction-hints.php` を必ず include（最低1チップ）
+- [ ] `floating-nav.php` を必ず include
+- [ ] `drawer-controls.php` を必ず include。コントロールは `class="drawer-controls"` 内に置く
+- [ ] HUD は TR、`top:3.5rem; right:1rem`
+- [ ] `#info` は `info-panel.php` を使う（TL固定）。インラインで `#info{position:fixed;...}` を書かない
+- [ ] ボタン: `.control-btn`（`.ctrl-btn` 禁止）
+- [ ] スライダー: `.slider-wrap` + `.slider-row` + `.slider-label` + `.slider-value`
 
 ## 配色ルール
 
