@@ -144,6 +144,33 @@ canvas {
   pointer-events: auto;
 }
 
+.ctrl-btn {
+  background: rgba(0, 10, 15, 0.9);
+  border: 1px solid rgba(0, 245, 212, 0.3);
+  border-radius: 8px;
+  padding: 0.6rem 1.2rem;
+  color: var(--accent);
+  font-family: "Orbitron", sans-serif;
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  backdrop-filter: blur(10px);
+}
+
+.ctrl-btn:hover {
+  background: rgba(0, 245, 212, 0.1);
+  border-color: var(--accent);
+  box-shadow: 0 0 20px rgba(0, 245, 212, 0.2);
+}
+
+.ctrl-btn.active {
+  background: rgba(0, 245, 212, 0.2);
+  border-color: var(--accent);
+}
+
 /* スライダー */
 .slider-panel {
   position: fixed;
@@ -230,18 +257,12 @@ input[type="range"]::-webkit-slider-thumb {
   .shape-select { top: auto; bottom: 7rem; padding: 0 0.5rem; }
   .shape-btn { padding: 0.4rem 0.7rem; font-size: 0.6rem; }
   .controls { bottom: 0.5rem; }
-  
+  .ctrl-btn { padding: 0.5rem 0.8rem; font-size: 0.6rem; }
 }
 ';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'tap'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
 require_once __DIR__ . '/includes/share.php';
 ?>
 
@@ -284,9 +305,9 @@ require_once __DIR__ . '/includes/share.php';
 
 <!-- コントロール -->
 <div class="controls">
-  <button class="control-btn" id="pauseBtn"><i class="fa-solid fa-pause"></i> PAUSE</button>
-  <button class="control-btn" id="resetBtn"><i class="fa-solid fa-rotate"></i> RESET</button>
-  <button class="control-btn" id="circlesBtn"><i class="fa-solid fa-eye"></i> CIRCLES</button>
+  <button class="ctrl-btn" id="pauseBtn"><i class="fa-solid fa-pause"></i> PAUSE</button>
+  <button class="ctrl-btn" id="resetBtn"><i class="fa-solid fa-rotate"></i> RESET</button>
+  <button class="ctrl-btn" id="circlesBtn"><i class="fa-solid fa-eye"></i> CIRCLES</button>
 </div>
 
 <!-- スライダー -->
@@ -669,7 +690,6 @@ loop();
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
 <?php require_once __DIR__ . '/includes/related.php'; ?>
-<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

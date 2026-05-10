@@ -14,7 +14,17 @@ $extraStyle = '
   color: var(--accent); font-family: monospace; font-size: 12px;
   text-align: right; line-height: 1.8; pointer-events: none; z-index: 10;
 }
-
+#controls {
+  position: fixed; bottom: 16px; right: 16px;
+  display: flex; flex-direction: column; gap: 6px; z-index: 10;
+}
+.ctrl-btn {
+  background: rgba(0,245,212,0.08); border: 1px solid rgba(0,245,212,0.3);
+  color: var(--accent); font-family: monospace; font-size: 11px;
+  padding: 6px 14px; cursor: pointer; letter-spacing: 1px;
+  transition: background 0.15s; text-align: center;
+}
+.ctrl-btn:hover { background: rgba(0,245,212,0.18); }
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -26,10 +36,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div id="circle-count">0 circles</div>
   <div id="depth-display">depth: 7</div>
 </div>
-<div id="controls" class="drawer-controls">
-  <button class="control-btn" onclick="adjustDepth(1)">DEPTH +</button>
-  <button class="control-btn" onclick="adjustDepth(-1)">DEPTH -</button>
-  <button class="control-btn" onclick="regen()">RESET</button>
+<div id="controls">
+  <button class="ctrl-btn" onclick="adjustDepth(1)">DEPTH +</button>
+  <button class="ctrl-btn" onclick="adjustDepth(-1)">DEPTH -</button>
+  <button class="ctrl-btn" onclick="regen()">RESET</button>
 </div>
 <?php
 $pageInfo = [
@@ -241,7 +251,6 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   resize();
 })();
 </script>
-<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

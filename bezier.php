@@ -15,10 +15,23 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 }
 .hud {position:fixed;top:3.5rem;right:1rem;z-index: 100;pointer-events: none;font-family: "Orbitron","Segoe UI",sans-serif;font-size: 0.62rem;color: rgba(255,255,255,0.3);line-height: 2;letter-spacing: 0.06em;}
 .hud .v { color: #00f5d4; font-weight: 700; }
-
+.ctrl-bar {
+  position: fixed; bottom: 1.2rem; right: 1.2rem; z-index: 100;
+  display: flex; gap: 0.5rem; flex-direction: column; align-items: flex-end;
+}
+.ctrl-btn {
+  background: rgba(10,10,15,0.72); border: 1px solid rgba(0,245,212,0.25);
+  color: rgba(255,255,255,0.7); font-family: "Orbitron",sans-serif;
+  font-size: 0.58rem; letter-spacing: 0.08em;
+  padding: 0.38rem 0.75rem; border-radius: 4px; cursor: pointer;
+  backdrop-filter: blur(6px); transition: border-color 0.2s, color 0.2s;
+}
+.ctrl-btn:hover { border-color: rgba(0,245,212,0.6); color: #00f5d4; }
+.ctrl-btn.active { border-color: #00f5d4; color: #00f5d4; }
 @media (max-width: 768px) {
   .hud {top:3rem;right:0.6rem;font-size: 0.52rem;}
-
+  .ctrl-bar { bottom: 0.9rem; right: 0.9rem; gap: 0.4rem; }
+  .ctrl-btn { font-size: 0.5rem; padding: 0.3rem 0.6rem; }
 }
 ';
 
@@ -33,9 +46,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
   POINTS: <span id="hudPts" class="v">4</span>
 </div>
 
-<div id="controls" class="drawer-controls">
-  <button class="control-btn active" id="btnSteps">STEPS: ON</button>
-  <button class="control-btn" id="btnReset">RESET</button>
+<div class="ctrl-bar">
+  <button class="ctrl-btn active" id="btnSteps">STEPS: ON</button>
+  <button class="ctrl-btn" id="btnReset">RESET</button>
 </div>
 
 <?php
@@ -368,7 +381,6 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   loop();
 })();
 </script>
-<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

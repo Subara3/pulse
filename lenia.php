@@ -10,7 +10,7 @@ $pageCanonical = 'https://pulse.subara3.com/lenia.php';
 $extraStyle = '
 body{overflow:hidden;background:#0a0a0f}
 #canvas{display:block;image-rendering:pixelated;image-rendering:crisp-edges}
-
+#controls{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.4rem;align-items:flex-end;z-index:10}
 .btn{background:rgba(0,245,212,.07);border:1px solid rgba(0,245,212,.28);color:#00f5d4;font-size:.66rem;padding:.28rem .62rem;cursor:pointer;font-family:monospace;letter-spacing:.07em;transition:background .15s}
 .btn:hover{background:rgba(0,245,212,.18)}
 .btn:active{background:rgba(0,245,212,.28)}
@@ -32,7 +32,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>R&nbsp;<span class="v" id="hud-r">13</span> &nbsp;μ&nbsp;<span class="v" id="hud-mu">0.150</span> &nbsp;σ&nbsp;<span class="v" id="hud-sig">0.015</span></div>
 </div>
 
-<div id="controls" class="drawer-controls">
+<div id="controls">
   <div class="ctrl-row">
     <span class="ctrl-label">R</span>
     <input type="range" id="sl-r" min="5" max="20" value="13" step="1">
@@ -281,7 +281,6 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   loop();
 })();
 </script>
-<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
