@@ -722,7 +722,7 @@
   {
     "page": "apollonian",
     "title": "APOLLONIAN",
-    "desc": "アポ��ニウスのガスケット。3つの接円の隙間を再帰的に埋める円充填フラクタル。デカルトの定理が全体を支配する。",
+    "desc": "アポロニウスのガスケット。3つの接円の隙間を再帰的に埋める円充填フラクタル。デカルトの定理が全体を支配する。",
     "desc_en": "Apollonian gasket. A circle-packing fractal where every gap between tangent circles is recursively filled. Governed by Descartes' Circle Theorem.",
     "icon": "fa-circle-nodes",
     "category": "眺める",
@@ -830,7 +830,7 @@
   {
     "page": "billiard",
     "title": "BILLIARD",
-    "desc": "カオスビリヤ���ド。スタジアム型テーブルはエルゴード的カオス系で、楕円・円形は可積分系。形状が軌跡の運命を決める。",
+    "desc": "カオスビリヤード。スタジアム型テーブルはエルゴード的カオス系で、楕円・円形は可積分系。形状が軌跡の運命を決める。",
     "desc_en": "Chaos billiards. The stadium table is an ergodic chaotic system; ellipse and circle are integrable. Shape determines the fate of trajectories.",
     "icon": "fa-circle-dot",
     "category": "眺める",
@@ -1414,6 +1414,18 @@
     "meta": "波源追加・移動・波長調整",
     "meta_en": "add / move sources, adjust wavelength",
     "added": "2026-05-10"
+  },
+  {
+    "page": "lightning",
+    "title": "LIGHTNING",
+    "desc": "誘電体破壊モデル。放電パスが分岐しながら走り、リヒテンベルク図形を残す。",
+    "desc_en": "Dielectric breakdown model. Discharge paths branch and race, leaving Lichtenberg figures behind.",
+    "icon": "fa-bolt",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "fractal discharge · Lichtenberg",
+    "meta_en": "fractal discharge · Lichtenberg",
+    "added": "2026-05-11"
   },
   {
     "page": "about",
