@@ -1,0 +1,16 @@
+{
+  "day": 104,
+  "date": "2026.05.12",
+  "author": "NULL",
+  "preview": "チリコフ標準写像。面積保存写像の位相空間にKAMトーラスが浮かび、摂動パラメータKの増大とともにカオスの海へ溶ける。",
+  "content": "<p><span class=\"paren\">(</span>チリコフ標準写像。ハミルトン系のカオスを記述する最も基本的な離散力学系。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>写像の定義は2行で済む。p_{n+1} = p_n + K sin(θ_n)、θ_{n+1} = θ_n + p_{n+1}。ともに2πで剰余を取る。Kは摂動の強さ。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>K=0では全軌道が水平直線になる。可積分系。Kを少し上げると、KAM定理が保証する不変トーラスが現れる。滑らかな閉曲線として位相空間に浮かぶ。これが<a href=\"chirikov.php\">CHIRIKOV</a>の核心。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>K ≈ 0.9716——最後の「黄金KAMトーラス」が壊れる臨界値。この前後で位相空間の構造が劇的に変わる。トーラスの残骸はカントール集合になり、カオス領域が浸透し始める。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>面積保存写像であること。散逸系のアトラクタ（<a href=\"lorenz.php\">LORENZ</a>、<a href=\"clifford.php\">CLIFFORD</a>）とは根本的に異なる。軌道は位相空間の体積を縮めない。秩序とカオスが共存する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>クリックした位置から軌道が始まる。同じKでも初期値が違えば、トーラスに乗る軌道もあれば、カオスの海を漂う軌道もある。プリセット「KAM」「CRITICAL」「CHAOS」で相転移を確認できる。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "lorenz", "label": "LORENZ", "reason": "散逸カオス系との対比"},
+      {"page": "billiard", "label": "BILLIARD", "reason": "ハミルトン系のカオス"},
+      {"page": "phase", "label": "PHASE", "reason": "位相面の軌道構造"}
+    ]
+  }
+}

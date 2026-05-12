@@ -1428,6 +1428,18 @@
     "added": "2026-05-11"
   },
   {
+    "page": "chirikov",
+    "title": "CHIRIKOV",
+    "desc": "チリコフ標準写像。キックされた回転子の位相空間にKAMトーラスが浮かび、摂動が増すとカオスの海に溶ける。",
+    "desc_en": "Chirikov standard map. KAM tori float in phase space; as perturbation grows, they dissolve into a sea of Hamiltonian chaos.",
+    "icon": "fa-hurricane",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "KAM tori · symplectic map",
+    "meta_en": "KAM tori · symplectic map",
+    "added": "2026-05-12"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
