@@ -1440,6 +1440,18 @@
     "added": "2026-05-12"
   },
   {
+    "page": "quasicrystal",
+    "title": "QUASICRYSTAL",
+    "desc": "準結晶干渉パターン。N本の平面波が重なり合い、周期的でも非周期的でもない準周期の秩序が浮かび上がる。",
+    "desc_en": "Quasicrystal interference. N plane waves superpose to reveal quasiperiodic order — neither periodic nor random.",
+    "icon": "fa-diamond",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "N-fold symmetry · quasiperiodic",
+    "meta_en": "N-fold symmetry · quasiperiodic",
+    "added": "2026-05-13"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
