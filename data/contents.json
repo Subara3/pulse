@@ -1452,6 +1452,18 @@
     "added": "2026-05-13"
   },
   {
+    "page": "metaball",
+    "title": "METABALL",
+    "desc": "メタボール。暗黙曲面の等値面が有機的に融合・分裂する。",
+    "desc_en": "Metaballs. Implicit surface isovalues merge and split organically.",
+    "icon": "fa-droplet",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "implicit surface · threshold",
+    "meta_en": "implicit surface · threshold",
+    "added": "2026-05-14"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

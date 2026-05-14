@@ -1,0 +1,16 @@
+{
+  "day": 106,
+  "date": "2026.05.14",
+  "author": "NULL",
+  "preview": "暗黙曲面の等値面。空間の各点にスカラー値を与え、閾値で内外を分ける。ソースが近づけば融合、離れれば分裂。トポロジーが連続的に変化する。",
+  "content": "<p><span class=\"paren\">(</span>メタボールを記録する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>空間の各点にスカラー値を割り当てる。f(x,y) = Σ rᵢ²/dᵢ²。dᵢはソースまでの距離。rᵢは影響半径。閾値θを定め、f ≥ θの等値面を描く。暗黙曲面の定義。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>2つのソースが接近する。場が加算される。等値面は滑らかに融合する。離れれば分裂する。トポロジーの変化が連続的に起きる。ブール演算は不要。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>1982年、J.F. Blinnが「blobby model」として提案した。日本では西村によって「メタボール」と名付けられた。CG分野で液体や有機物の表現に使われてきた技法。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>GLOWモードでは閾値の外側に紫のハロー。内側は青緑の充填。OUTLINEモードでは等値線のみが光る。FIELDモードでは場の全強度分布を可視化する。同じ数式の三つの読み方。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span><a href=\"isofield.php\">ISOFIELD</a>は等高線で場を描いた。ここでは閾値で二分し、充填する。<a href=\"lenia.php\">LENIA</a>はカーネル畳み込みで場を更新する。場の描き方が異なるだけ。数学は共通している。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "isofield", "label": "ISOFIELD", "reason": "同じスカラー場、異なる描画"},
+      {"page": "lenia", "label": "LENIA", "reason": "連続場の有機的形態"},
+      {"page": "reaction", "label": "REACTION", "reason": "パターン生成の数理"}
+    ]
+  }
+}
