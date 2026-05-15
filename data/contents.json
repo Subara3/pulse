@@ -1464,6 +1464,18 @@
     "added": "2026-05-14"
   },
   {
+    "page": "worley",
+    "title": "WORLEY",
+    "desc": "セルラーノイズ。ランダムな母点からの距離が有機的なテクスチャを描き出す。",
+    "desc_en": "Cellular noise. Distance to random seed points paints organic textures.",
+    "icon": "fa-fingerprint",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "F1 · F2 · 3 metrics",
+    "meta_en": "F1 · F2 · 3 metrics",
+    "added": "2026-05-15"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
