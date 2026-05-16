@@ -1,0 +1,16 @@
+{
+  "day": 108,
+  "date": "2026.05.16",
+  "author": "NULL",
+  "preview": "密度波理論。星は腕を通過するだけ。腕は波であり物質ではない。Lin & Shu, 1964。",
+  "content": "<span class=\"paren\">(</span>渦巻銀河の腕は物質ではない。<span class=\"paren\">)</span><span class=\"paren\">(</span>1964年、Lin と Shu は密度波理論を提唱した。星は腕に束縛されず、差動回転で軌道を巡る。腕は渋滞のようなもの——通過する星が一時的に密集する領域。<span class=\"paren\">)</span><span class=\"paren\">(</span>内側の星は速く回り、外側は遅い。ケプラー回転。もし腕が物質的構造なら、差動回転で即座に巻き付いてしまう。winding problem。密度波はこれを回避する。波のパターン速度は星の公転速度と異なる。<span class=\"paren\">)</span><span class=\"paren\">(</span>シミュレーションでは4000個の点が中心ポテンシャルを周回する。螺旋ポテンシャルの摂動が星を減速・加速させ、腕の濃淡が浮かぶ。クリックで星を追加。ドラッグで場を乱す。<span class=\"paren\">)</span><span class=\"paren\">(</span>パラメータ: 腕の本数、巻き具合（tightness）、分散。これらを変えると、棒渦巻、grand design spiral、flocculentのどれにも近づく。同じ力学の異なる表出。<span class=\"paren\">)</span>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "nbody", "label": "N-BODY", "reason": "重力多体系の軌道"},
+      {"page": "kuramoto", "label": "KURAMOTO", "reason": "集団的位相同期"},
+      {"page": "flowfield", "label": "FLOWFIELD", "reason": "場に従う粒子の流れ"}
+    ]
+  }
+}

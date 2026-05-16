@@ -1476,6 +1476,18 @@
     "added": "2026-05-15"
   },
   {
+    "page": "galaxy",
+    "title": "GALAXY",
+    "desc": "渦巻銀河の密度波シミュレーション。数千の星が差動回転し、腕の構造が創発する。",
+    "desc_en": "Spiral galaxy density wave simulation. Thousands of stars in differential rotation form emergent arm structures.",
+    "icon": "fa-hurricane",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "density wave · Lin-Shu",
+    "meta_en": "density wave · Lin-Shu",
+    "added": "2026-05-16"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
