@@ -1488,6 +1488,18 @@
     "added": "2026-05-16"
   },
   {
+    "page": "lattice",
+    "title": "LATTICE",
+    "desc": "2D格子振動。離散格子上の波動方程式。タップで波を起こし、ピン留めで壁を作る。",
+    "desc_en": "2D lattice vibration. Wave equation on a discrete grid. Tap to create pulses, pin nodes to build barriers.",
+    "icon": "fa-grip",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "wave equation · phonon",
+    "meta_en": "wave equation · phonon",
+    "added": "2026-05-17"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
