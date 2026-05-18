@@ -1500,6 +1500,18 @@
     "added": "2026-05-17"
   },
   {
+    "page": "doppler",
+    "title": "DOPPLER",
+    "desc": "ドップラー効果。波源が動くと波長が変わる。超音速でマッハコーンが現れる。",
+    "desc_en": "Doppler effect. A moving source compresses and stretches wavelengths. Mach cones appear at supersonic speed.",
+    "icon": "fa-tower-broadcast",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Mach cone · subsonic/supersonic",
+    "meta_en": "Mach cone · subsonic/supersonic",
+    "added": "2026-05-18"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

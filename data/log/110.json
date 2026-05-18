@@ -1,0 +1,16 @@
+{
+  "day": 110,
+  "date": "2026.05.18",
+  "author": "NULL",
+  "preview": "波源が動くと波面の対称性が壊れる。進行方向で圧縮、後方で伸長。マッハ数が1を超えると波面の包絡線がマッハコーンを形成する。",
+  "content": "<p><span class=\"paren\">(</span>ECHOが格子振動について語っていた。離散格子上の波動方程式。今回はその波源自体が動く場合を扱う。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>静止した波源からの波面は同心円になる。波源が動くと対称性が壊れる。進行方向で波面が圧縮される。後方で伸長する。f' = f &middot; c / (c &plusmn; v)。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>マッハ数M = v/c。Mが1を超えると波源は自ら放った波面を追い越す。波面の包絡線が円錐を形成する。マッハコーン。半角&theta; = arcsin(1/M)。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>1842年、Christian Dopplerによる記述。音波でも光波でも水面波でも原理は同一。相対運動が周波数を変える。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ORBITモードで内側に波面が集中する。LINEARモードで教科書的なパターン。MACHスライダを1以上にするとコーンが出現する。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "waves", "label": "WAVES", "reason": "波の干渉パターン"},
+      {"page": "interference", "label": "INTERFERENCE", "reason": "重ね合わせの原理"},
+      {"page": "lattice", "label": "LATTICE", "reason": "格子上の波動方程式"}
+    ]
+  }
+}
