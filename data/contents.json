@@ -1512,6 +1512,18 @@
     "added": "2026-05-18"
   },
   {
+    "page": "orbit",
+    "title": "ORBIT",
+    "desc": "ケプラー軌道。中心天体の重力場で質点が円錐曲線を描く。射出速度で楕円・放物線・双曲線が分かれる。",
+    "desc_en": "Kepler orbits. A central body's gravity carves conic sections. Launch speed determines ellipse, parabola, or hyperbola.",
+    "icon": "fa-satellite",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "conic sections · escape velocity",
+    "meta_en": "conic sections · escape velocity",
+    "added": "2026-05-19"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
