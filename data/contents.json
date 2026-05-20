@@ -1524,6 +1524,18 @@
     "added": "2026-05-19"
   },
   {
+    "page": "magnetic",
+    "title": "MAGNETIC",
+    "desc": "磁場の可視化。双極子が作る閉じた磁力線を粒子の流れで描く。棒磁石を配置して場の構造を観察する。",
+    "desc_en": "Magnetic field visualization. Flowing particles trace closed field lines from bar magnet dipoles.",
+    "icon": "fa-magnet",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "dipole · closed field lines",
+    "meta_en": "dipole · closed field lines",
+    "added": "2026-05-20"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

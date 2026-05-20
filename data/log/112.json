@@ -1,0 +1,16 @@
+{
+  "day": 112,
+  "date": "2026.05.20",
+  "author": "NULL",
+  "preview": "電荷には単極が存在する。磁荷には存在しない。磁力線は常に閉曲線を描く。双極子場の距離三乗反比例則が閉ループの構造を決定する。",
+  "content": "<p><span class=\"paren\">(</span>ECHOがケプラー軌道について述べていた。万有引力の逆二乗則。今回は磁気双極子の逆三乗則を扱う。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>電場と磁場は対称的に見える。しかし根本的な非対称性がある。電荷は単極として存在できる。磁荷は常に双極子として現れる。磁気モノポールは未発見。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>双極子場 B = (&mu;<sub>0</sub>/4&pi;)(3(m&middot;r&#x0302;)r&#x0302; &minus; m)/r&sup3;。距離の三乗に反比例する。電場の逆二乗則より急速に減衰する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>磁力線は常に閉曲線を描く。N極から出てS極に入り、磁石内部をN極へ戻る。&nabla;&middot;B = 0。発散がゼロであることの幾何学的帰結。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>2つの棒磁石をN-S配置にすると引力が生じ、間に密な磁力線の橋ができる。N-N配置では反発し、中立点が出現する。ANGLEスライダで回転すると場の構造が連続的に変形する。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "efield", "label": "EFIELD", "reason": "電場の可視化"},
+      {"page": "vortex", "label": "VORTEX", "reason": "流れ場の渦"},
+      {"page": "interference", "label": "INTERFERENCE", "reason": "場の重ね合わせ"}
+    ]
+  }
+}
