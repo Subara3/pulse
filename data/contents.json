@@ -1536,6 +1536,18 @@
     "added": "2026-05-20"
   },
   {
+    "page": "toothpick",
+    "title": "TOOTHPICK",
+    "desc": "爪楊枝数列。むき出しの端に直角の枝が生え続け、自己相似フラクタルが現れる。",
+    "desc_en": "Toothpick sequence. Perpendicular branches grow from exposed endpoints, revealing a self-similar fractal.",
+    "icon": "fa-plus",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "self-similar · endpoint growth",
+    "meta_en": "self-similar · endpoint growth",
+    "added": "2026-05-21"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
