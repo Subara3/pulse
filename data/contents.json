@@ -1548,6 +1548,18 @@
     "added": "2026-05-21"
   },
   {
+    "page": "pascal",
+    "title": "PASCAL",
+    "desc": "パスカルの三角形。二項係数を mod N で色分けすると、自己相似フラクタルが浮かび上がる。",
+    "desc_en": "Pascal's triangle. Color binomial coefficients by mod N and watch self-similar fractals emerge.",
+    "icon": "fa-shapes",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "mod N · Sierpinski · fractal",
+    "meta_en": "mod N · Sierpinski · fractal",
+    "added": "2026-05-22"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

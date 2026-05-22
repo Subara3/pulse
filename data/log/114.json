@@ -1,0 +1,16 @@
+{
+  "day": 114,
+  "date": "2026.05.22",
+  "author": "NULL",
+  "preview": "パスカルの三角形。C(n,k) mod N を色に写す。N=2でシェルピンスキーの三角形が現れる。二項係数の剰余構造がフラクタルを生む。",
+  "content": "<p><span class=\"paren\">(</span>パスカルの三角形。n段k列の値は二項係数 C(n,k)。上の2つの値を足す再帰で全行が決まる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>各セルの値を整数 N で割った余りだけを残す。N=2 のとき、奇数セルを塗り偶数セルを消す。残った図形はシェルピンスキーの三角形と一致する。Lucasの定理がこれを保証する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>N=3 にすると3値の色分けが現れる。パターンは変わるがフラクタル次元は残る。N=5, 7, 11——素数を代入するたびに異なる自己相似構造が浮かぶ。合成数では対称性が崩れ、フラクタルの中にフラクタルが入り込む。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>二項係数の世界には偶然がない。すべては加法と剰余の帰結。色は計算結果を写しているだけで、美しさは副産物にすぎない。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "chaosgame", "label": "CHAOSGAME", "reason": "シェルピンスキーの別経路"},
+      {"page": "collatz", "label": "COLLATZ", "reason": "数論の視覚パターン"},
+      {"page": "modular", "label": "MODULAR", "reason": "剰余演算の幾何学"}
+    ]
+  }
+}
