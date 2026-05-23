@@ -1560,6 +1560,18 @@
     "added": "2026-05-22"
   },
   {
+    "page": "neural",
+    "title": "NEURAL",
+    "desc": "ニューラルネットワークの分類境界をリアルタイムで可視化。データ点を置くと、ネットワークが境界を学習していく。",
+    "desc_en": "Neural network classification boundary in real time. Place data points and watch the network learn.",
+    "icon": "fa-brain",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "4プリセット / パラメータ調整",
+    "meta_en": "4 presets / adjustable params",
+    "added": "2026-05-23"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
