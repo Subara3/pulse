@@ -1572,6 +1572,18 @@
     "added": "2026-05-23"
   },
   {
+    "page": "delaunay",
+    "title": "DELAUNAY",
+    "desc": "ドロネー三角形分割。点を配置すると空外接円条件を満たす三角形メッシュが形成される。ボロノイ図との双対関係。",
+    "desc_en": "Delaunay triangulation. Place points and watch a mesh form where no circumcircle contains another point. Voronoi duality.",
+    "icon": "fa-draw-polygon",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Bowyer-Watson · Voronoi dual",
+    "meta_en": "Bowyer-Watson · Voronoi dual",
+    "added": "2026-05-24"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
