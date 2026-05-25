@@ -185,9 +185,7 @@ function pagesFromContents() {
     .map((c) => c.page)
     .filter((p) => !['about', 'contents', 'log'].includes(p));
 
-  // Optional target filter:
-  // - CLI args: node scripts/generate_previews.js isofield flock
-  // - env: PULSE_PREVIEW_PAGES=isofield,flock
+  // Explicit targets win (CLI args > env PULSE_PREVIEW_PAGES)
   const cliPages = process.argv.slice(2).map((s) => s.trim()).filter(Boolean);
   const envPages = (process.env.PULSE_PREVIEW_PAGES || '')
     .split(',')
@@ -195,15 +193,25 @@ function pagesFromContents() {
     .filter(Boolean);
   const targets = cliPages.length ? cliPages : envPages;
 
-  if (!targets.length) return base;
-
-  const set = new Set(base);
-  const valid = targets.filter((p) => set.has(p));
-  const invalid = targets.filter((p) => !set.has(p));
-  if (invalid.length) {
-    console.warn(`warn unknown pages ignored: ${invalid.join(', ')}`);
+  if (targets.length) {
+    const set = new Set(base);
+    const valid = targets.filter((p) => set.has(p));
+    const invalid = targets.filter((p) => !set.has(p));
+    if (invalid.length) console.warn(`warn unknown pages ignored: ${invalid.join(', ')}`);
+    return valid;
   }
-  return valid;
+
+  // No explicit targets. Default: missing-only. Set PULSE_PREVIEW_ALL=1 for full regen.
+  if (process.env.PULSE_PREVIEW_ALL === '1') return base;
+
+  const missing = base.filter((p) => {
+    const mp4 = path.join(OUT_DIR, `${p}.mp4`);
+    const webm = path.join(OUT_DIR, `${p}.webm`);
+    const jpg = path.join(OUT_DIR, `${p}.jpg`);
+    return !fs.existsSync(mp4) || !fs.existsSync(webm) || !fs.existsSync(jpg);
+  });
+  console.log(`mode=missing-only. ${missing.length}/${base.length} pages need rendering.`);
+  return missing;
 }
 
 (async () => {

@@ -135,8 +135,18 @@ def build_poster(path: Path):
 
 
 def main():
-    base = Path('img/previews')
-    files = sorted(base.glob('*.mp4'))
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--dir', default='img/previews')
+    ap.add_argument('--pages', default='', help='comma-separated page slugs (default: all)')
+    args = ap.parse_args()
+
+    base = Path(args.dir)
+    targets = [p.strip() for p in args.pages.split(',') if p.strip()]
+    if targets:
+        files = sorted([base / f'{p}.mp4' for p in targets if (base / f'{p}.mp4').exists()])
+    else:
+        files = sorted(base.glob('*.mp4'))
     report = {'checked': 0, 'flagged': 0, 'fixed': 0, 'failed': [], 'details': []}
 
     for mp4 in files:

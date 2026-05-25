@@ -2,6 +2,11 @@ name: Generate Preview Videos
 
 on:
   workflow_dispatch:
+    inputs:
+      pages:
+        description: 'Comma-separated page slugs (empty = missing-only; "all" = full regen)'
+        required: false
+        default: ''
   push:
     branches: [ main ]
     paths:
@@ -11,18 +16,22 @@ on:
       - 'scripts/run_preview_pipeline.py'
       - 'scripts/check_preview_coverage.py'
 
+concurrency:
+  group: previews-${{ github.ref }}
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
 jobs:
   generate:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
 
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 2
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -46,20 +55,67 @@ jobs:
           npm install playwright
           npx playwright install --with-deps chromium
 
+      - name: Resolve target pages
+        id: targets
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            INPUT="${{ github.event.inputs.pages }}"
+            if [ "$INPUT" = "all" ]; then
+              echo "pages=" >> "$GITHUB_OUTPUT"
+              echo "all=1" >> "$GITHUB_OUTPUT"
+            else
+              echo "pages=$INPUT" >> "$GITHUB_OUTPUT"
+              echo "all=" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            # On push: changed .php (root only) UNION pages from contents.json that lack any preview file
+            CHANGED=$(git diff --name-only HEAD^ HEAD -- '*.php' 2>/dev/null \
+              | awk -F/ 'NF==1{sub(/\.php$/,""); print}' \
+              | grep -vE '^(index|log|about|contents|sitemap)$' || true)
+            MISSING=$(python3 - <<'PY'
+          import json, os
+          items = json.load(open('data/contents.json', encoding='utf-8'))
+          skip = {'about','contents','log'}
+          for c in items:
+              p = c.get('page')
+              if not p or p in skip: continue
+              if not (os.path.exists(f'img/previews/{p}.mp4')
+                      and os.path.exists(f'img/previews/{p}.webm')
+                      and os.path.exists(f'img/previews/{p}.jpg')):
+                  print(p)
+          PY
+          )
+            PAGES=$(printf '%s\n%s\n' "$CHANGED" "$MISSING" | awk 'NF' | sort -u | paste -sd,)
+            echo "pages=$PAGES" >> "$GITHUB_OUTPUT"
+            echo "all=" >> "$GITHUB_OUTPUT"
+            echo "Resolved target pages: $PAGES"
+          fi
+
       - name: Generate previews + QA pipeline
+        env:
+          PULSE_PREVIEW_ALL: ${{ steps.targets.outputs.all }}
         run: |
           php -S 127.0.0.1:8787 >/tmp/pulse_preview_server.log 2>&1 &
-          python3 scripts/run_preview_pipeline.py
+          PAGES="${{ steps.targets.outputs.pages }}"
+          if [ -n "$PAGES" ]; then
+            python3 scripts/run_preview_pipeline.py --pages "$PAGES"
+          else
+            python3 scripts/run_preview_pipeline.py
+          fi
           python3 scripts/check_preview_coverage.py
 
-      - name: Commit updated previews
+      - name: Sync CLAUDE.md inventory
+        run: |
+          python3 scripts/sync_claude_md_inventory.py || true
+
+      - name: Commit updates
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add img/previews
+          git add img/previews CLAUDE.md
           if git diff --cached --quiet; then
-            echo "No preview changes"
+            echo "No changes"
             exit 0
           fi
-          git commit -m "chore: regenerate preview videos"
+          git commit -m "chore: regenerate preview videos / sync inventory"
           git push origin main

@@ -1584,15 +1584,15 @@
     "added": "2026-05-24"
   },
   {
-    "page": "phyllotaxis",
-    "title": "PHYLLOTAXIS",
-    "desc": "葉序パターン。黄金角137.508°が生み出す螺旋配列。角度をずらすとパターンが劇的に変化する。",
-    "desc_en": "Phyllotaxis pattern. The golden angle 137.508° creates optimal spiral packing. Shift the angle to break and reshape the pattern.",
-    "icon": "fa-seedling",
+    "page": "ford",
+    "title": "FORD",
+    "desc": "フォード円。すべての既約分数 p/q が x 軸上で接する円となり、隣接円はファレイ数列の隣人と一致する。",
+    "desc_en": "Ford circles. Every reduced fraction p/q becomes a circle tangent to the x-axis. Two circles touch iff the fractions are Farey neighbors.",
+    "icon": "fa-circle-dot",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "golden angle · Fibonacci spirals",
-    "meta_en": "golden angle · Fibonacci spirals",
+    "meta": "Ford (1938) · Farey neighbors",
+    "meta_en": "Ford (1938) · Farey neighbors",
     "added": "2026-05-25"
   },
   {

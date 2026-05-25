@@ -72,12 +72,18 @@ def analyze(path: Path):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--dir', default='img/previews')
+    ap.add_argument('--pages', default='', help='comma-separated page slugs (default: all)')
     args = ap.parse_args()
 
     base = Path(args.dir)
+    targets = [p.strip() for p in args.pages.split(',') if p.strip()]
+    if targets:
+        files = sorted([base / f'{p}.mp4' for p in targets if (base / f'{p}.mp4').exists()])
+    else:
+        files = sorted(base.glob('*.mp4'))
     results = []
     flagged = []
-    for mp4 in sorted(base.glob('*.mp4')):
+    for mp4 in files:
         r = analyze(mp4)
         row = {'file': mp4.name, **r}
         results.append(row)

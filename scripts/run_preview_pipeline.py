@@ -40,10 +40,12 @@ def load_json(path: Path):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--pages", default="", help="comma-separated page names for partial generation")
+    ap.add_argument("--pages", default="", help="comma-separated page names for partial generation; also limits QA scope")
     ap.add_argument("--skip-generate", action="store_true")
     ap.add_argument("--base-url", default=os.getenv("PULSE_PREVIEW_BASE_URL", "http://127.0.0.1:8787"))
     args = ap.parse_args()
+
+    pages_arg = [args.pages] if args.pages.strip() else []
 
     summary = {
         "generatedAt": datetime.utcnow().isoformat() + "Z",
@@ -66,7 +68,9 @@ def main():
             "stderrTail": err[-2000:],
         })
 
-    rc, out, err = run(["python3", "scripts/check_and_fix_preview_flash.py", "--apply"])
+    pages_flag = (["--pages", args.pages] if args.pages.strip() else [])
+
+    rc, out, err = run(["python3", "scripts/check_and_fix_preview_flash.py", "--apply", *pages_flag])
     flash_json = None
     try:
         flash_json = json.loads(out)
@@ -74,7 +78,7 @@ def main():
         pass
     summary["steps"].append({"name": "check_and_fix_preview_flash", "ok": rc == 0, "result": flash_json})
 
-    rc, out, err = run(["python3", "scripts/check_preview_dark_static.py"])
+    rc, out, err = run(["python3", "scripts/check_preview_dark_static.py", *pages_flag])
     dark_json = None
     try:
         dark_json = json.loads(out)
@@ -82,7 +86,7 @@ def main():
         pass
     summary["steps"].append({"name": "check_preview_dark_static", "ok": rc == 0, "result": dark_json})
 
-    rc, out, err = run(["python3", "scripts/auto_fix_preview_loop.py"])
+    rc, out, err = run(["python3", "scripts/auto_fix_preview_loop.py", *pages_flag])
     loop_json = None
     try:
         loop_json = json.loads(out)

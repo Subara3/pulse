@@ -110,10 +110,15 @@ def main():
     ap.add_argument("--dir", default="img/previews", help="preview directory")
     ap.add_argument("--apply", action="store_true", help="apply fixes")
     ap.add_argument("--max-rounds", type=int, default=3)
+    ap.add_argument("--pages", default="", help="comma-separated page slugs (default: all .mp4 in dir)")
     args = ap.parse_args()
 
     pdir = Path(args.dir)
-    files = sorted(pdir.glob("*.mp4"))
+    targets = [p.strip() for p in args.pages.split(",") if p.strip()]
+    if targets:
+        files = sorted([pdir / f"{p}.mp4" for p in targets if (pdir / f"{p}.mp4").exists()])
+    else:
+        files = sorted(pdir.glob("*.mp4"))
     report = {"checked": 0, "flagged": 0, "fixed": 0, "failed": [], "details": []}
 
     for f in files:
