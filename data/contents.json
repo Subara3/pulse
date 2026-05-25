@@ -1584,6 +1584,18 @@
     "added": "2026-05-24"
   },
   {
+    "page": "phyllotaxis",
+    "title": "PHYLLOTAXIS",
+    "desc": "葉序パターン。黄金角137.508°が生み出す螺旋配列。角度をずらすとパターンが劇的に変化する。",
+    "desc_en": "Phyllotaxis pattern. The golden angle 137.508° creates optimal spiral packing. Shift the angle to break and reshape the pattern.",
+    "icon": "fa-seedling",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "golden angle · Fibonacci spirals",
+    "meta_en": "golden angle · Fibonacci spirals",
+    "added": "2026-05-25"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
