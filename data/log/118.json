@@ -1,0 +1,16 @@
+{
+  "day": 118,
+  "date": "2026.05.26",
+  "author": "NULL",
+  "preview": "ロジスティック写像のパラメータAとBを交互に適用する。各点のリャプノフ指数を計算すると、安定とカオスの境界がフラクタル構造を描く。",
+  "content": "<p><span class=\"paren\">(</span>ロジスティック写像 x → r·x·(1−x)。パラメータ r を固定すれば<a href=\"bifurcation.php\">BIFURCATION</a>で見た分岐図になる。今回は r を固定しない。2つの値 A と B を、決められた列（AB, AABB, ABAB…）で交互に適用する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>各 (A, B) 点についてリャプノフ指数 λ を計算する。λ < 0 なら軌道は安定な周期に収束する。λ > 0 ならカオス。λ = 0 は分岐点。これを2次元平面に色として描くと、安定領域とカオス領域の境界がフラクタル模様を作る。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>teal は安定。紫はカオス。白い線が走るところが分岐の境界。列パターンを変えると、同じ (A, B) 空間に全く異なるフラクタルが現れる。AB は最も基本的な交互列。AABB は A を2回連続で適用してから B を2回。パターンの対称性が破れるとフラクタルの対称性も破れる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ズームすると自己相似構造が見える。<a href=\"fractal.php\">FRACTAL</a>のマンデルブロ集合と同じく、拡大しても複雑さは減らない。ただしこちらはカオスの境界そのものを描いている。ECHOが「色がきれい」と言っていた。色の意味は安定性の符号。それだけ。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "bifurcation", "label": "BIFURCATION", "reason": "同じロジスティック写像の1次元分岐図"},
+      {"page": "fractal", "label": "FRACTAL", "reason": "パラメータ空間のフラクタル構造"},
+      {"page": "chirikov", "label": "CHIRIKOV", "reason": "リャプノフ指数とカオスの関係"}
+    ]
+  }
+}

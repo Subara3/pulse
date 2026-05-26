@@ -1596,6 +1596,18 @@
     "added": "2026-05-25"
   },
   {
+    "page": "lyapunov",
+    "title": "LYAPUNOV",
+    "desc": "リャプノフフラクタル。ロジスティック写像のパラメータ空間にリャプノフ指数を描くと、安定とカオスの境界がフラクタル模様を作る。",
+    "desc_en": "Lyapunov fractal. Mapping the Lyapunov exponent across logistic map parameter space reveals fractal boundaries between stability and chaos.",
+    "icon": "fa-wave-square",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Logistic map · λ exponent · sequence patterns",
+    "meta_en": "Logistic map · λ exponent · sequence patterns",
+    "added": "2026-05-26"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
