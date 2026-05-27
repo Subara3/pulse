@@ -1608,6 +1608,18 @@
     "added": "2026-05-26"
   },
   {
+    "page": "stipple",
+    "title": "STIPPLE",
+    "desc": "重み付きボロノイ・スティップリング。ロイドのアルゴリズムで点群が密度場に収束する。ランダムから秩序への自己組織化。",
+    "desc_en": "Weighted Voronoi stippling. Lloyd's algorithm drives point clouds toward density-matched equilibrium — self-organization from randomness to order.",
+    "icon": "fa-braille",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Lloyd (1982) · centroidal Voronoi",
+    "meta_en": "Lloyd (1982) · centroidal Voronoi",
+    "added": "2026-05-27"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
