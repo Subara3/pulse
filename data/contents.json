@@ -1620,6 +1620,18 @@
     "added": "2026-05-27"
   },
   {
+    "page": "spring",
+    "title": "SPRING",
+    "desc": "バネ振り子。弾性ロッドに吊るされた質点が描くカオス的軌跡。自動パラメトリック共鳴で振動と揺動が結合する。",
+    "desc_en": "Elastic pendulum. A mass on a spring traces chaotic trajectories as swing and bounce modes exchange energy through autoparametric resonance.",
+    "icon": "fa-link",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "2-DOF · RK4 · autoparametric",
+    "meta_en": "2-DOF · RK4 · autoparametric",
+    "added": "2026-05-28"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

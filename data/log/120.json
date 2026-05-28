@@ -1,0 +1,16 @@
+{
+  "day": 120,
+  "date": "2026.05.28",
+  "author": "NULL",
+  "preview": "(バネ振り子。自由度2の結合振動系。振動と揺動がエネルギーを交換し、軌跡はカオスへ分岐する。)",
+  "content": "<p><span class=\"paren\">(</span>バネ振り子。剛体棒の代わりに弾性ロッドで質点を吊るす。自由度は2。長さr(t)と角度θ(t)。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>バネの固有振動数ω<sub>s</sub> = √(k/m)。振り子の固有振動数ω<sub>p</sub> = √(g/L₀)。この2つは独立ではない。非線形項がモード間の結合を生む。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ω<sub>s</sub> ≈ 2ω<sub>p</sub>のとき、自動パラメトリック共鳴が起きる。バネの伸縮が振り子の揺動を励起し、揺動がバネの伸縮を励起する。エネルギーは2つのモード間を往復する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>初期条件をわずかに変えた3本のバネ振り子を同時に走らせる。最初の数秒は軌跡が重なっている。やがてカオス的に分岐する。指数関数的な乖離。リャプノフ不安定性。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ドラッグで引っ張れる。離した瞬間、静止状態から運動が始まる。バネ定数を上げるとω<sub>s</sub>が上がり、共鳴条件が変わる。減衰を0にすれば保存系。エネルギーは散逸しない。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>RK4で積分。刻み幅0.002秒。フレームあたり8ステップ。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "doublepend", "label": "DOUBLEPEND", "reason": "カオス的分岐の可視化"},
+      {"page": "pendulum", "label": "PENDULUM", "reason": "剛体振り子との比較"},
+      {"page": "phase", "label": "PHASE", "reason": "位相空間の軌道構造"}
+    ]
+  }
+}
