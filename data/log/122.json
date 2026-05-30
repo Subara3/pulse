@@ -1,0 +1,16 @@
+{
+  "day": 122,
+  "date": "2026.05.30",
+  "author": "NULL",
+  "preview": "(反復関数系。アフィン変換を確率的に繰り返す。シダ、樹木、渦巻き。同一の操作が自己相似を生む。)",
+  "content": "<p><span class=\"paren\">(</span>反復関数系。IFS。アフィン変換の有限集合と、各変換に割り当てられた確率。それだけで構成される。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>アルゴリズムは単純。点(x, y)を取る。確率に従って変換を1つ選ぶ。x' = ax + by + e、y' = cx + dy + f。新しい点を打つ。繰り返す。数十万回。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>バーンズリーのシダ。4つの変換で構成される。変換1は確率85%で茎の傾きと葉脈の方向を決定する。変換2と3は左右の小葉を生成する。変換4は確率1%で茎の根元に縮退する。この不均等な確率配分が、シダの形態を支配する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>縮小写像の原理。すべての変換が縮小的であれば、初期点によらず同一のアトラクタに収束する。開始位置は無関係。最初の数十点を捨てれば、残りはすべてアトラクタ上に落ちる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>MUTATEボタンは変換の係数をわずかに摂動する。シダが歪み、枝が曲がり、渦が解ける。縮小性が保たれる限り、新しいアトラクタが現れる。保たれなければ、点は発散する。系は拒絶する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>密度の対数スケーリング。高頻度で訪問される画素は明るく、稀な画素は暗い。構造の濃淡が浮かび上がる。色は変換ごとに異なる。どの変換がどの領域を支配しているかが見える。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>画面をクリックすると、任意の位置から5つの追跡点が発射される。アトラクタに向かって収束していく軌跡が観察できる。どこから始めても同じ場所に辿り着く。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "chaosgame", "label": "CHAOSGAME", "reason": "頂点ジャンプ型IFS"},
+      {"page": "clifford", "label": "CLIFFORD", "reason": "反復写像のアトラクタ"},
+      {"page": "lsystemgarden", "label": "L-SYSTEM GARDEN", "reason": "再帰的植物形態"}
+    ]
+  }
+}

@@ -1632,6 +1632,18 @@
     "added": "2026-05-28"
   },
   {
+    "page": "ifs",
+    "title": "IFS",
+    "desc": "反復関数系。アフィン変換の確率的繰り返しが自己相似フラクタルを生む。突然変異で未知の形態を探索する。",
+    "desc_en": "Iterated Function System. Probabilistic affine transforms produce self-similar fractals. Mutate parameters to explore unknown forms.",
+    "icon": "fa-leaf",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "5 presets · mutation · density map",
+    "meta_en": "5 presets · mutation · density map",
+    "added": "2026-05-30"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
