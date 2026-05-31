@@ -1644,6 +1644,18 @@
     "added": "2026-05-30"
   },
   {
+    "page": "spanning",
+    "title": "SPANNING",
+    "desc": "最小全域木。漂う点群をPrimのアルゴリズムがリアルタイムで最短結合し続ける。生きたネットワーク。",
+    "desc_en": "Minimum Spanning Tree. Prim's algorithm continuously reconnects drifting nodes at minimum cost. A living network.",
+    "icon": "fa-project-diagram",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Prim's · 3 styles · drift",
+    "meta_en": "Prim's · 3 styles · drift",
+    "added": "2026-05-31"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
