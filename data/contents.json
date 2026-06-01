@@ -1656,6 +1656,18 @@
     "added": "2026-05-31"
   },
   {
+    "page": "scatter",
+    "title": "SCATTER",
+    "desc": "ローレンツガス。周期配列された円形散乱体を粒子が跳ね回り、カオス的軌跡を積み重ねる。シナイ・ビリヤードの可視化。",
+    "desc_en": "Lorentz gas. A point particle bounces off periodic circular scatterers, tracing chaotic trajectories. Visualization of the Sinai billiard.",
+    "icon": "fa-circle-nodes",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "3 layouts · ray-circle collision · MFP",
+    "meta_en": "3 layouts · ray-circle collision · MFP",
+    "added": "2026-06-01"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
