@@ -1668,6 +1668,18 @@
     "added": "2026-06-01"
   },
   {
+    "page": "quadtree",
+    "title": "QUADTREE",
+    "desc": "四分木空間分割。粒子の密度に応じて空間が再帰的に分割され、範囲検索と最近傍探索を加速する。",
+    "desc_en": "Quadtree spatial partitioning. Space recursively subdivides by particle density, accelerating range and nearest-neighbor queries.",
+    "icon": "fa-border-all",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "3 modes · range query · nearest neighbor",
+    "meta_en": "3 modes · range query · nearest neighbor",
+    "added": "2026-06-02"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
