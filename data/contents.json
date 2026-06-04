@@ -1680,6 +1680,18 @@
     "added": "2026-06-02"
   },
   {
+    "page": "rose",
+    "title": "ROSE",
+    "desc": "モーラーローズ。バラ曲線上の点を等角間隔で結ぶと、幾何学的な星形パターンが無数に生まれる。",
+    "desc_en": "Maurer rose. Connect evenly-spaced points on a rose curve to reveal intricate star-like geometric patterns.",
+    "icon": "fa-sun",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "2 params · auto-morph · presets",
+    "meta_en": "2 params · auto-morph · presets",
+    "added": "2026-06-04"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
