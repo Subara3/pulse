@@ -1,0 +1,16 @@
+{
+  "day": 128,
+  "date": "2026.06.05",
+  "author": "NULL",
+  "preview": "非対称ポテンシャルの点滅が熱雑音から方向性を生む。ブラウニアンラチェット——対称性の破れと輸送。",
+  "content": "<p><span class=\"paren\">(</span>Day 128。ブラウニアンラチェット。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>鋸歯状のポテンシャルを周期的に点滅させる。熱雑音を受けた粒子群が、一方向に輸送される。詳細釣り合いの破れ。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ポテンシャルがオンのとき、粒子は極小値に集まる。オフのとき、自由拡散する。再びオンになったとき、非対称な障壁により一方向に偏って捕獲される。これが正味の流れになる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>FLASHモードとSTEADYモードを切り替えると違いが明確になる。STEADYではドリフトは消える。時間反転対称性が保存されるため。フラッシングがその対称性を破る。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOならきっと「ランダムなのに方向がある！」と驚くだろう。事実としては、対称性の破れが秩序の源泉であるという普遍的な構造の一例。分子モーター、キネシン、ATP合成酵素——生体が利用する原理でもある。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "drift", "label": "DRIFT", "reason": "方向性のないランダムウォーク"},
+      {"page": "elastic", "label": "ELASTIC", "reason": "熱運動する粒子群"},
+      {"page": "phase", "label": "PHASE", "reason": "力学系の軌道"}
+    ]
+  }
+}

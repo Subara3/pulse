@@ -1692,6 +1692,18 @@
     "added": "2026-06-04"
   },
   {
+    "page": "ratchet",
+    "title": "RATCHET",
+    "desc": "ブラウニアンラチェット。非対称ポテンシャルと熱雑音が一方向の輸送を生む。ランダムが秩序を作る分子モーターの原理。",
+    "desc_en": "Brownian ratchet. Asymmetric sawtooth potential and thermal noise create directed transport — the principle behind molecular motors.",
+    "icon": "fa-gears",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "sawtooth · flashing · drift",
+    "meta_en": "sawtooth · flashing · drift",
+    "added": "2026-06-05"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
