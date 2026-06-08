@@ -1704,6 +1704,18 @@
     "added": "2026-06-05"
   },
   {
+    "page": "symicon",
+    "title": "SYMICON",
+    "desc": "対称カオスアイコン。カオス的反復写像にn回回転対称性を課すと、混沌から結晶のような構造が浮かび上がる。",
+    "desc_en": "Symmetric chaos icons. Enforce n-fold rotational symmetry on a chaotic iterated map, and crystal-like structures emerge from chaos.",
+    "icon": "fa-snowflake",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Z_n symmetry · density plot · presets",
+    "meta_en": "Z_n symmetry · density plot · presets",
+    "added": "2026-06-08"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
