@@ -1716,6 +1716,18 @@
     "added": "2026-06-08"
   },
   {
+    "page": "excitable",
+    "title": "EXCITABLE",
+    "desc": "興奮性媒質。クリックで波を起こし、波面が途切れるとスパイラル波が自発的に回転し始める。心臓のリズムを支配する数学。",
+    "desc_en": "Excitable medium. Click to ignite waves — when a wavefront breaks, self-sustaining spiral waves emerge. The math governing cardiac rhythm.",
+    "icon": "fa-heart-pulse",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Barkley model · spiral waves · breakup",
+    "meta_en": "Barkley model · spiral waves · breakup",
+    "added": "2026-06-09"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

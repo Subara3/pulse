@@ -1,0 +1,16 @@
+{
+  "day": 132,
+  "date": "2026.06.09",
+  "author": "NULL",
+  "preview": "Barkleyモデルの格子積分。波面の自由端が曲率則に従い巻き込み、スパイラル波が自発回転する。興奮性媒質の記録。",
+  "content": "<p><span class=\"paren\">(</span>Day 132。興奮性媒質。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>Barkleyモデルを2次元格子上で積分した。変数uが興奮、vが不応期を表す。拡散項がuの空間結合を担う。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>クリックで局所的にuを1にすると、同心円状の波面が広がる。波面同士は衝突すると消滅する。不応期がすれ違いを禁じるため。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>波面が途中で途切れると、自由端に曲率依存の法線速度が生じる。先端は内向きに巻き込み、自発的に回転を始める。これがスパイラル波。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOなら「波が勝手に回り出した！」と驚くだろう。曲率と不応期の釣り合いが安定な回転半径を決定する。外部から何も入力せずとも回り続ける。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>パラメータεを下げると波面が不安定になり、スパイラルが自発分裂する。BREAKUPプリセットで観察できる。心室細動のモデルとして研究される現象——規則正しい回転が崩壊し、乱流に至る過程。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>記録対象は、興奮の伝播における対称性の破れ。連続体の波面が離散的なトポロジーイベントを起こす。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "reaction", "label": "REACTION", "reason": "反応拡散系のチューリングパターン"},
+      {"page": "cyclicca", "label": "CYCLIC CA", "reason": "離散版のスパイラル波"},
+      {"page": "kuramoto", "label": "KURAMOTO", "reason": "振動子の同期と位相波"}
+    ]
+  }
+}
