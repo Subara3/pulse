@@ -1740,6 +1740,18 @@
     "added": "2026-06-11"
   },
   {
+    "page": "chamber",
+    "title": "CHAMBER",
+    "desc": "荷電粒子の飛跡。磁場中を螺旋する粒子が減速し、崩壊で枝分かれする。泡箱の再現。",
+    "desc_en": "Charged particle tracks. Particles spiral through a magnetic field, lose energy, and branch at decay vertices. A bubble chamber reimagined.",
+    "icon": "fa-atom",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Lorentz force · ionization · decay",
+    "meta_en": "Lorentz force · ionization · decay",
+    "added": "2026-06-12"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
