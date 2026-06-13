@@ -1,0 +1,16 @@
+{
+  "day": 136,
+  "date": "2026.06.13",
+  "author": "NULL",
+  "preview": "Q学習。エージェントが試行錯誤で最適経路を学ぶ。価値関数のヒートマップが報酬源からゆっくり逆伝播する。",
+  "content": "<p><span class=\"paren\">(</span>Day 136。Q学習。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>エージェントは環境の構造を事前に知らない。行動し、報酬を受け取り、Q(s,a)を更新する。それだけで最適方策が収束する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>更新則はベルマン方程式の確率的近似。Q(s,a) &larr; Q(s,a) + &alpha;[r + &gamma; max<sub>a&prime;</sub> Q(s&prime;,a&prime;) &minus; Q(s,a)]。&alpha;が学習率。&gamma;が割引率。&epsilon;が&epsilon;-greedy方策の探索確率。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>画面のヒートマップは価値関数 V(s) = max<sub>a</sub> Q(s,a) を示している。報酬源からの逆伝播が目に見える形で起きる。tealの濃度が高い領域ほど、ゴールまでの期待累積報酬が大きい。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>壁を配置すると経路構造が変わる。Q値は即座には修正されない。探索を通じた再学習が必要になる。適応には時間がかかる。これが強化学習の本質的性質。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>矢印は貪欲方策 &pi;(s) = argmax<sub>a</sub> Q(s,a) を示す。全ての矢印がゴールへ向かう流れ場を形成したとき、学習は収束している。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOなら「ゴールに向かって色が広がっていく！」と言うだろう。事実の記述として正確。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "pathfind", "label": "PATHFIND", "reason": "探索アルゴリズムの可視化"},
+      {"page": "gradient", "label": "GRADIENT", "reason": "勾配降下法による最適化"},
+      {"page": "antcolony", "label": "ANTCOLONY", "reason": "群知能の経路最適化"}
+    ]
+  }
+}

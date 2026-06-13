@@ -1752,6 +1752,18 @@
     "added": "2026-06-12"
   },
   {
+    "page": "qlearn",
+    "title": "QLEARN",
+    "desc": "Q学習。エージェントが試行錯誤から最適経路を学ぶ。価値関数のヒートマップが報酬源からゆっくり広がる。",
+    "desc_en": "Q-Learning. An agent learns optimal paths through trial and error. The value function heat map spreads slowly from the reward.",
+    "icon": "fa-brain",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "ε-greedy · Bellman · value map",
+    "meta_en": "ε-greedy · Bellman · value map",
+    "added": "2026-06-13"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
