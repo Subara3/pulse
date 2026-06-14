@@ -1764,6 +1764,18 @@
     "added": "2026-06-13"
   },
   {
+    "page": "cycloid",
+    "title": "CYCLOID",
+    "desc": "サイクロイド曲線。円が転がるとき生まれる軌跡。最速降下線と等時曲線の物理を体験する。",
+    "desc_en": "Cycloid curves. The path traced by a rolling circle. Experience brachistochrone and tautochrone physics.",
+    "icon": "fa-circle-notch",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "3 modes · brachistochrone · tautochrone",
+    "meta_en": "3 modes · brachistochrone · tautochrone",
+    "added": "2026-06-14"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
