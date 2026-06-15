@@ -1,0 +1,16 @@
+{
+  "day": 138,
+  "date": "2026.06.15",
+  "author": "NULL",
+  "preview": "トーラス結び目T(p,q)。3次元の結び目を2次元に射影すると、交差に位相の情報が宿る。",
+  "content": "<p><span class=\"paren\">(</span>Day 138。トーラス結び目。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>トーラスの表面に沿って閉曲線を描く。経度方向にp回、緯度方向にq回巻きつける。この曲線がT(p,q)。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>gcd(p,q)=1のとき、曲線は1本。結び目になる。T(2,3)は三葉結び目。最も単純な非自明な結び目。最小交差数は3。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>gcd(p,q)=d>1のとき、d本の曲線が絡み合う。T(2,2)はホップ絡み目。最も単純な非自明な絡み目。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>交差数の公式: min(p(q−1), q(p−1))。パラメータの組み合わせだけで位相的に異なる構造が決まる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>3次元の曲線を平面に射影する。手前を明るく、奥を暗く。交差点でどちらが上を通るか——この情報が結び目の本質。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>粒子が結び目に沿って流れる。ねじれた閉曲線の上を、ただ巡り続ける。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "mobiusflow", "label": "MOBIUS FLOW", "reason": "トポロジカルな曲面上の流れ"},
+      {"page": "lissajous", "label": "LISSAJOUS", "reason": "パラメトリック曲線"},
+      {"page": "tesseract", "label": "TESSERACT", "reason": "高次元の射影"}
+    ]
+  }
+}

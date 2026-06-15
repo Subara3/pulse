@@ -1776,6 +1776,18 @@
     "added": "2026-06-14"
   },
   {
+    "page": "knot",
+    "title": "KNOT",
+    "desc": "トーラス結び目。パラメータp,qで経度・緯度の巻数を変え、3次元の結び目を回転させながら眺める。",
+    "desc_en": "Torus knots. Adjust p and q to wind a curve on a torus, projected with depth-sorted crossings.",
+    "icon": "fa-infinity",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "T(p,q) / crossing / link",
+    "meta_en": "T(p,q) / crossing / link",
+    "added": "2026-06-15"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
