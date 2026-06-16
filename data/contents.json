@@ -1788,6 +1788,18 @@
     "added": "2026-06-15"
   },
   {
+    "page": "winding",
+    "title": "WINDING",
+    "desc": "巻き数。閉曲線が平面をトポロジカルに分割する——各領域の巻き数が色になる。",
+    "desc_en": "Winding number. A closed curve topologically partitions the plane — each region colored by how many times the curve winds around it.",
+    "icon": "fa-rotate",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "6 presets / winding field / custom draw",
+    "meta_en": "6 presets / winding field / custom draw",
+    "added": "2026-06-16"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
