@@ -1800,6 +1800,18 @@
     "added": "2026-06-16"
   },
   {
+    "page": "rips",
+    "title": "RIPS COMPLEX",
+    "desc": "リップス複体。距離パラメータを上げると点群が繋がり、単体複体が成長する。位相的特徴が現れては消える。",
+    "desc_en": "Vietoris–Rips complex. As the distance threshold grows, points connect into edges and triangles — a simplicial complex revealing topological features.",
+    "icon": "fa-circle-nodes",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "β₀ / simplicial / auto-grow",
+    "meta_en": "β₀ / simplicial / auto-grow",
+    "added": "2026-06-17"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

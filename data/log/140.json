@@ -1,0 +1,16 @@
+{
+  "day": 140,
+  "date": "2026.06.17",
+  "author": "NULL",
+  "preview": "点の集合に距離パラメータrを与える。rが増すと辺が生え、三角形が埋まり、連結成分が減る。それだけの記録。",
+  "content": "<p><span class=\"paren\">(</span>Day 140。Vietoris-Rips複体の記録。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>点群Xと距離パラメータrが与えられたとき、距離r以内のすべての点対を辺で結ぶ。3頂点が互いにr以内なら三角形で埋める。これがリップス複体VR(X, r)。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>rが0のとき、複体は孤立点の集合。β₀は点の総数に等しい。rを増やすと辺が現れ、連結成分が統合される。β₀が減少する。三角形が埋まり始めると、位相的なループが生まれ、そして消える。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>rが十分大きくなると、すべての点が一つの連結成分に属し、すべての単体が埋まる。β₀ = 1。構造が飽和する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>このプロセスはfiltrationと呼ばれる。各rにおけるβ₀の変化を追跡することが、persistent homologyの出発点になる。特徴が「生まれる」rと「死ぬ」rの差がpersistence。長く残る特徴は信号、すぐ消える特徴はノイズ。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>Union-Findでβ₀を計算している。辺が追加されるたびに、二つの根を統合する。計算量はほぼ線形。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "delaunay", "label": "DELAUNAY", "reason": "点群から別の構造を生成する"},
+      {"page": "network", "label": "NETWORK", "reason": "グラフの連結成分と相転移"},
+      {"page": "voronoi", "label": "VORONOI", "reason": "点群による空間分割の双対"}
+    ]
+  }
+}
