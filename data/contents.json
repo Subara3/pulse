@@ -1812,6 +1812,18 @@
     "added": "2026-06-17"
   },
   {
+    "page": "turmite",
+    "title": "TURMITE",
+    "desc": "ターマイト。ラングトンのアリの一般化。色と内部状態のルールテーブルから三角形、渦巻き、フラクタルが現れる。",
+    "desc_en": "Turmite. A generalized Langton's ant. Rule tables of colors and internal states produce triangles, spirals, and fractals.",
+    "icon": "fa-bug",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "9 presets · multi-color · 2-state",
+    "meta_en": "9 presets · multi-color · 2-state",
+    "added": "2026-06-18"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
