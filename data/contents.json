@@ -1824,6 +1824,18 @@
     "added": "2026-06-18"
   },
   {
+    "page": "karman",
+    "title": "KÁRMÁN",
+    "desc": "カルマン渦列。格子ボルツマン法で流体中の障害物が生む交互の渦を可視化する。",
+    "desc_en": "Kármán vortex street. Lattice Boltzmann simulation of alternating vortices behind an obstacle in fluid flow.",
+    "icon": "fa-wind",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "LBM · D2Q9 · Re 30–200",
+    "meta_en": "LBM · D2Q9 · Re 30–200",
+    "added": "2026-06-19"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
