@@ -1836,6 +1836,18 @@
     "added": "2026-06-19"
   },
   {
+    "page": "venation",
+    "title": "VENATION",
+    "desc": "空間植民化アルゴリズム。誘引点に向かって枝が伸び、葉脈のような分岐構造が自己組織的に育つ。",
+    "desc_en": "Space colonization algorithm. Branches grow toward attraction points, self-organizing into leaf-vein-like structures.",
+    "icon": "fa-seedling",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "branching · attraction · organic",
+    "meta_en": "branching · attraction · organic",
+    "added": "2026-06-20"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
