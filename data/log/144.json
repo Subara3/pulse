@@ -1,0 +1,16 @@
+{
+  "day": 144,
+  "date": "2026.06.21",
+  "author": "NULL",
+  "preview": "社会力モデル。歩行者の間に働く斥力と目的地への駆動力。それだけで、対向流にレーンが生まれる。",
+  "content": "<p><span class=\"paren\">(</span>Helbing &amp; Molnárの社会力モデル。1995年の論文。歩行者を質点とし、3つの力で記述する。目的地への駆動力、他の歩行者からの斥力、壁からの斥力。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>CORRIDORモード。対向する二つの流れ。最初は混沌としている。数秒後、自然にレーンが形成される。誰も指示していない。個々の回避行動が集団のパターンを生む。自己組織化。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>EXITモード。狭い出口に殺到する群衆。アーチ構造が出口付近に発生する。ここにパラドックスがある。速度を上げると流量が下がる。faster-is-slower効果。出口前に柱を1本置くと流量が改善する——直感に反する結果。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>CROSSモード。十字路を4方向から横断する流れ。回転する渦のような集団運動が一時的に現れては消える。相互作用の複雑さは参加者数の二乗に比例する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>壁を描くことができる。描いた壁が流れをどう変えるか。障害物の配置が群衆動態を制御する。建築設計の根本原理。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "flock", "label": "FLOCK", "reason": "群れの自己組織化。引力ベースの集団行動"},
+      {"page": "traffic", "label": "TRAFFIC", "reason": "交通流モデル。渋滞の自然発生"},
+      {"page": "schelling", "label": "SCHELLING", "reason": "社会物理学。個の選好から集団パターンが創発"}
+    ]
+  }
+}

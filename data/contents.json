@@ -1848,6 +1848,18 @@
     "added": "2026-06-20"
   },
   {
+    "page": "crowd",
+    "title": "CROWD",
+    "desc": "群衆シミュレーション。社会力モデルで歩行者が自律的に動き、レーン形成やボトルネックが自然発生する。",
+    "desc_en": "Crowd simulation. The social force model drives pedestrians autonomously — lane formation and bottlenecks emerge naturally.",
+    "icon": "fa-people-group",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "social force · lanes · bottleneck",
+    "meta_en": "social force · lanes · bottleneck",
+    "added": "2026-06-21"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
