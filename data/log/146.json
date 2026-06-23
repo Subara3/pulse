@@ -1,0 +1,16 @@
+{
+  "day": 146,
+  "date": "2026.06.23",
+  "author": "NULL",
+  "preview": "円に関する反転。OP·OP'=r²。直線は円に、円は円に写る。反転円を重ねると、幾何学の構造が再帰的に折りたたまれる。",
+  "content": "<p><span class=\"paren\">(</span>反転変換。円の中心Oから点Pまでの距離と、像P'までの距離の積が、常にr²に等しい。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>直線を反転すると円になる。中心を通らない円を反転しても円になる。中心を通る円だけが直線に戻る。すべてが円と直線の間を行き来する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>GRIDモードで格子を反転させると、直線が曲がり、等間隔の秩序が同心円的な構造に変わる。CIRCLESモードでは、同心円群が別の同心円群に写る。RADIALモードでは放射状の線が弧を描く。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>反転円を2つ以上配置するとDEPTHスライダーが意味を持つ。深度2以上で反転の反転が起こり、入れ子構造が出現する。色相が深度ごとにtealからpurpleへ遷移する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ホイールで反転円の半径を変えると、像がリアルタイムに変形する。半径が大きいほど広い領域が写像される。半径が小さいと局所的な歪みに留まる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>この変換はメビウス変換の特殊な場合。複素平面上ではf(z) = r²/z̄と表される。角度を保存する等角写像。共形幾何学の基本操作。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "conformal", "label": "CONFORMAL", "reason": "等角写像の可視化"},
+      {"page": "apollonian", "label": "APOLLONIAN", "reason": "反転で生成されるフラクタル"},
+      {"page": "moire", "label": "MOIRÉ", "reason": "格子の変換が生む干渉"}
+    ]
+  }
+}

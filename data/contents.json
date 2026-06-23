@@ -1872,6 +1872,18 @@
     "added": "2026-06-22"
   },
   {
+    "page": "inversion",
+    "title": "INVERSION",
+    "desc": "円に関する反転変換。直線は円になり、円は円に写る。反転円を配置して幾何学の魔法を体験する。",
+    "desc_en": "Circle inversion. Lines become circles, circles become circles. Place inversion circles and watch geometry transform.",
+    "icon": "fa-circle-notch",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "3モード / 反転変換",
+    "meta_en": "3 modes / inversion",
+    "added": "2026-06-23"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
