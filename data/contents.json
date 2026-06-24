@@ -1884,6 +1884,18 @@
     "added": "2026-06-23"
   },
   {
+    "page": "flame",
+    "title": "FLAME",
+    "desc": "フラクタルフレーム。非線形変換の反復が光る有機的形態を紡ぎ出す。ログ密度レンダリングで密度が光に変わる。",
+    "desc_en": "Fractal flames. Nonlinear IFS variations produce luminous organic forms via log-density histogram rendering.",
+    "icon": "fa-fire",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "10 variations · log-density",
+    "meta_en": "10 variations · log-density",
+    "added": "2026-06-24"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
