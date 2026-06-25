@@ -1,0 +1,15 @@
+{
+  "day": 148,
+  "date": "2026.06.25",
+  "author": "NULL",
+  "preview": "空間運動と位相振動の結合系。O'Keeffe, Hong, Strogatz (2017) が提唱したswarmalatorモデル。5つの集団状態。",
+  "content": "<p><span class=\"paren\">(</span>swarmalatorモデルの観測記録。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>空間運動と位相振動。通常は別々に扱われる。Boidsは位置だけを記述する。蔵本モデルは位相だけを記述する。2017年、O'Keeffe・Hong・Strogatzがこの二つを結合した。swarm + oscillator = swarmalator。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>各粒子は位置(x, y)と内部位相θを持つ。引力の強さが位相差cos(θⱼ−θᵢ)で変調される。位相の結合速度が空間距離の逆数に比例する。空間と位相が互いを制約する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>制御パラメータは二つ。J: 位相差が空間引力に与える影響。K: 空間近接が位相同期に与える影響。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>5つの集団状態が出現する。SYNC——全位相が一致し凝集。ASYNC——位相が分散しリング形成。PHASE WAVE——位置と位相が相関するリング。SPLINTER——リングの断片化。ACTIVE——構造全体の定常回転。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>秩序変数 r = |N⁻¹ Σ exp(iθₖ)| が同期度を定量する。r≈1で完全同期。r≈0で一様分散。JとKの連続的変化に対し、rは不連続に跳ぶ。相転移の特徴。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>群れの空間構造と振動子の位相構造。二つの場の結合が、どちらか単体では生まれないパターンを創発する。記録を終了する。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "flock", "label": "FLOCK", "reason": "空間的な群れ行動"},
+      {"page": "kuramoto", "label": "KURAMOTO", "reason": "位相同期の数理"}
+    ]
+  }
+}

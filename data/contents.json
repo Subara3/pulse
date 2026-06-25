@@ -1896,6 +1896,18 @@
     "added": "2026-06-24"
   },
   {
+    "page": "swarmalator",
+    "title": "SWARMALATOR",
+    "desc": "スウォーマレーター。空間を泳ぎ位相を同期する粒子群。結合パラメータの変化で5つの集団パターンが相転移する。",
+    "desc_en": "Swarmalators. Particles that swarm in space and sync in phase. Five collective states emerge as coupling parameters change.",
+    "icon": "fa-hurricane",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "5 states · N-body coupling",
+    "meta_en": "5 states · N-body coupling",
+    "added": "2026-06-25"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
