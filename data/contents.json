@@ -1908,6 +1908,18 @@
     "added": "2026-06-25"
   },
   {
+    "page": "buddhabrot",
+    "title": "BUDDHABROT",
+    "desc": "ブッダブロ。マンデルブロ集合から脱出する軌跡を重ね合わせると、星雲のような光の構造が浮かび上がる。",
+    "desc_en": "Buddhabrot. Overlaying escape trajectories from the Mandelbrot iteration reveals a nebula-like luminous structure.",
+    "icon": "fa-cloud",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "log-density · 3 modes",
+    "meta_en": "log-density · 3 modes",
+    "added": "2026-06-26"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
