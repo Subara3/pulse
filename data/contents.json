@@ -1920,6 +1920,18 @@
     "added": "2026-06-26"
   },
   {
+    "page": "refraction",
+    "title": "REFRACTION",
+    "desc": "屈折の光学シミュレーション。スネルの法則に従い光線が媒質境界で曲がる。臨界角を超えると全反射が起きる。",
+    "desc_en": "Optical refraction simulation. Light rays bend at medium boundaries following Snell's law. Beyond the critical angle, total internal reflection traps the light.",
+    "icon": "fa-diamond",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Snell's law · TIR · 3 modes",
+    "meta_en": "Snell's law · TIR · 3 modes",
+    "added": "2026-06-27"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
