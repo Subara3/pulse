@@ -1932,6 +1932,18 @@
     "added": "2026-06-27"
   },
   {
+    "page": "feedback",
+    "title": "FEEDBACK",
+    "desc": "映像帰還ループ。画面が自身を縮小・回転して再描画し続け、無限後退のパターンが創発する。",
+    "desc_en": "Visual feedback loop. The screen redraws itself scaled and rotated, creating infinite regress patterns.",
+    "icon": "fa-rotate",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "iterated transform · 3 modes",
+    "meta_en": "iterated transform · 3 modes",
+    "added": "2026-06-28"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
