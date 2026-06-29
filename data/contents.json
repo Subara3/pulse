@@ -1944,6 +1944,18 @@
     "added": "2026-06-28"
   },
   {
+    "page": "catenary",
+    "title": "CATENARY",
+    "desc": "懸垂線。重力に吊るされた鎖が描く双曲線余弦の曲線。放物線との違いを体感する。",
+    "desc_en": "Catenary curve. A chain hanging under gravity traces the hyperbolic cosine. Compare it to the parabola.",
+    "icon": "fa-link",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "cosh · 4 modes · compare",
+    "meta_en": "cosh · 4 modes · compare",
+    "added": "2026-06-29"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
