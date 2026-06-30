@@ -1956,6 +1956,18 @@
     "added": "2026-06-29"
   },
   {
+    "page": "catmap",
+    "title": "CATMAP",
+    "desc": "アーノルドの猫写像。面積保存カオス変換が色のグラデーションを引き裂き混ぜ合わせ、有限ステップで完全に元に戻る。",
+    "desc_en": "Arnold's cat map. An area-preserving chaotic transformation shears and mixes a color gradient, yet it perfectly recurs after finite steps.",
+    "icon": "fa-shuffle",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Poincaré recurrence · torus map",
+    "meta_en": "Poincaré recurrence · torus map",
+    "added": "2026-06-30"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
