@@ -50,13 +50,13 @@
   {
     "page": "clock",
     "title": "CLOCK",
-    "desc": "砂鉄時計。粒子がデジタル時計を形成する。",
-    "desc_en": "Iron sand clock. Particles form a digital clock.",
+    "desc": "粒子が7セグメントの時刻へ流れ込む、Canvas粒子時計。",
+    "desc_en": "A Canvas particle clock where points flow into seven-segment time fields.",
     "icon": "fa-clock",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "",
-    "meta_en": "",
+    "meta": "粒子時計",
+    "meta_en": "Particle clock",
     "added": "2026-02-01"
   },
   {
@@ -254,13 +254,13 @@
   {
     "page": "lorenz",
     "title": "LORENZ",
-    "desc": "ローレンツアトラクタ。カオスの美しさ。",
-    "desc_en": "Lorenz attractor. The beauty of chaos.",
+    "desc": "ローレンツ方程式の複数軌道とポアンカレ断面を描く。",
+    "desc_en": "Explore multiple Lorenz trajectories and a Poincare section in Canvas.",
     "icon": "fa-infinity",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "",
-    "meta_en": "",
+    "meta": "カオス断面",
+    "meta_en": "Chaos section",
     "added": "2026-01-29"
   },
   {
@@ -278,13 +278,13 @@
   {
     "page": "waves",
     "title": "WAVES",
-    "desc": "波の干渉。2つの波源が作るパターン。",
-    "desc_en": "Wave interference. Patterns from two wave sources.",
+    "desc": "複数の波源が干渉する波動場を、Canvas上で触れて操作する。",
+    "desc_en": "Touch and shape a Canvas wave field where multiple sources interfere.",
     "icon": "fa-water",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "インタラクティブ",
-    "meta_en": "Interactive",
+    "meta": "波動干渉",
+    "meta_en": "Wave interference",
     "added": "2026-01-29"
   },
   {

@@ -1,235 +1,77 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/access_log.php';
-
 recordPageView('lorenz');
 
 $pageName = 'lorenz';
 $pageTitle = 'LORENZ - PULSE';
-$pageDesc = 'ローレンツアトラクタ。カオス理論が描く蝶の軌道。';
+$pageDesc = 'ローレンツ方程式の複数軌道とポアンカレ断面を描くCanvasカオス可視化。';
 $pageCanonical = 'https://pulse.subara3.com/lorenz.php';
 
-$extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">';
-
 $extraStyle = '
-body { background: #0a0a0f; min-height: 100vh; overflow: hidden; margin: 0; }
-#canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
-.ui { position: fixed; z-index: 1000; font-family: "Orbitron", sans-serif; }
-.back-link { top: 1rem; left: 1rem; color: rgba(255,255,255,0.3); text-decoration: none; font-size: 0.7rem; letter-spacing: 0.1em; transition: all 0.3s; }
-.back-link:hover { color: #00f5d4; }
-.info { bottom: 1rem; left: 1rem; color: rgba(255,255,255,0.3); font-size: 0.6rem; line-height: 1.8; }
-.formula { color: rgba(0,245,212,0.5); font-family: serif; font-style: italic; }
-.hide-ui .back-link, .hide-ui .info, .hide-ui .content-controls, .hide-ui .floating-nav { opacity: 0 !important; pointer-events: none; }
-
-@media (max-width: 768px) {
-  .back-link { display: none; }
-  .info { font-size: 0.5rem; bottom: 0.5rem; left: 0.5rem; }
-  .formula { font-size: 0.45rem; }
-}
+body{background:#0a0a0f;min-height:100vh;overflow:hidden}
+#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
+.hud{position:fixed;left:1rem;top:3.5rem;z-index:60;color:rgba(255,255,255,.4);font-family:"JetBrains Mono",monospace;font-size:.62rem;line-height:1.8;letter-spacing:.04em;pointer-events:none}
+.hud b{color:#00f5d4;font-weight:700}.hud .sub{color:rgba(123,44,191,.9)}
+.section-mark{position:fixed;right:1rem;bottom:1rem;z-index:55;width:72px;height:72px;border:1px solid rgba(123,44,191,.35);border-radius:50%;box-shadow:0 0 28px rgba(123,44,191,.18);pointer-events:none}
+.section-mark:after{content:"";position:absolute;left:50%;top:50%;width:7px;height:7px;border-radius:50%;background:#00f5d4;box-shadow:0 0 18px rgba(0,245,212,.8);transform:translate(-50%,-50%)}
+@media(max-width:768px){.hud{top:3rem;left:.75rem;font-size:.52rem}.section-mark{right:.75rem;bottom:4.5rem;width:52px;height:52px}}
 ';
-
-// コントロールボタン設定
-$controls = [
-  ['id' => 'resetBtn', 'icon' => 'fa-rotate-right', 'label' => 'RESET'],
-  ['id' => 'colorBtn', 'icon' => 'fa-palette', 'label' => 'COLOR'],
-  ['id' => 'trailBtn', 'icon' => 'fa-route', 'label' => 'TRAIL'],
-];
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
-require_once __DIR__ . '/includes/share.php';
-require_once __DIR__ . '/includes/content-controls.php';
 ?>
-
-<div class="ui info">
-  Press H to hide UI<br>
-  <span class="formula">dx/dt = σ(y - x)</span><br>
-  <span class="formula">dy/dt = x(ρ - z) - y</span><br>
-  <span class="formula">dz/dt = xy - βz</span>
-</div>
-
 <canvas id="canvas"></canvas>
-
-<script>
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-
-// ローレンツ方程式のパラメータ
-const sigma = 10;
-const rho = 28;
-const beta = 8 / 3;
-const dt = 0.005;
-
-// 軌道の点
-const isMobile = window.innerWidth <= 768;
-let points = [];
-const maxPoints = isMobile ? 2500 : 5000;
-let trailLength = isMobile ? 1000 : 2000;
-
-// 現在の位置
-let x, y, z;
-
-// 回転角度
-let rotateX = 0;
-let rotateZ = 0;
-
-// 色
-let colorMode = 0;
-const colors = [
-  { start: '#00f5d4', end: '#7b2cbf' },
-  { start: '#ff6b6b', end: '#feca57' },
-  { start: '#48dbfb', end: '#ff9ff3' },
-  { start: '#1dd1a1', end: '#ee5a24' },
+<div class="hud">
+  RHO <b id="h-rho">28.0</b><br>
+  ORBITS <b id="h-orbits">9</b><br>
+  TRAIL <b id="h-trail">1800</b><br>
+  <span class="sub">VIEW</span> <b id="h-view">FLOW</b>
+</div>
+<div class="section-mark"></div>
+<?php
+$interactionHints = [
+  ['type' => 'drag', 'label' => 'rotate'],
+  ['type' => 'click', 'label' => 'seed'],
 ];
-
-function resize() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-
-function init() {
-  // 初期位置（わずかにランダム）
-  x = 0.1 + Math.random() * 0.1;
-  y = 0;
-  z = 0;
-  points = [];
-}
-
-function step() {
-  // ローレンツ方程式
-  const dx = sigma * (y - x) * dt;
-  const dy = (x * (rho - z) - y) * dt;
-  const dz = (x * y - beta * z) * dt;
-  
-  x += dx;
-  y += dy;
-  z += dz;
-  
-  points.push({ x, y, z });
-  
-  if (points.length > maxPoints) {
-    points.shift();
-  }
-}
-
-function project(px, py, pz) {
-  // Y軸回転
-  const cosZ = Math.cos(rotateZ);
-  const sinZ = Math.sin(rotateZ);
-  const x1 = px * cosZ - py * sinZ;
-  const y1 = px * sinZ + py * cosZ;
-  
-  // X軸回転
-  const cosX = Math.cos(rotateX);
-  const sinX = Math.sin(rotateX);
-  const y2 = y1 * cosX - pz * sinX;
-  const z2 = y1 * sinX + pz * cosX;
-  
-  // スケーリングと中心移動
-  const scale = 10;
-  const cx = canvas.width / 2;
-  const cy = canvas.height / 2;
-  
-  return {
-    x: cx + x1 * scale,
-    y: cy - z2 * scale + y2 * 2
-  };
-}
-
-function draw() {
-  // 残像効果
-  ctx.fillStyle = 'rgba(10, 10, 15, 0.1)';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  
-  if (points.length < 2) return;
-  
-  const scheme = colors[colorMode];
-  const visible = Math.min(points.length, trailLength);
-  const startIdx = points.length - visible;
-  
-  for (let i = startIdx + 1; i < points.length; i++) {
-    const p1 = project(points[i - 1].x, points[i - 1].y, points[i - 1].z);
-    const p2 = project(points[i].x, points[i].y, points[i].z);
-    
-    const progress = (i - startIdx) / visible;
-    
-    ctx.beginPath();
-    ctx.moveTo(p1.x, p1.y);
-    ctx.lineTo(p2.x, p2.y);
-    
-    // グラデーション
-    const alpha = 0.3 + progress * 0.7;
-    ctx.strokeStyle = lerpColor(scheme.start, scheme.end, progress, alpha);
-    ctx.lineWidth = 1 + progress * 1.5;
-    ctx.stroke();
-  }
-  
-  // 現在位置のドット
-  const current = project(x, y, z);
-  ctx.beginPath();
-  ctx.arc(current.x, current.y, 4, 0, Math.PI * 2);
-  ctx.fillStyle = '#fff';
-  ctx.fill();
-}
-
-function lerpColor(c1, c2, t, alpha) {
-  const r1 = parseInt(c1.slice(1, 3), 16);
-  const g1 = parseInt(c1.slice(3, 5), 16);
-  const b1 = parseInt(c1.slice(5, 7), 16);
-  const r2 = parseInt(c2.slice(1, 3), 16);
-  const g2 = parseInt(c2.slice(3, 5), 16);
-  const b2 = parseInt(c2.slice(5, 7), 16);
-  
-  const r = Math.round(r1 + (r2 - r1) * t);
-  const g = Math.round(g1 + (g2 - g1) * t);
-  const b = Math.round(b1 + (b2 - b1) * t);
-  
-  return `rgba(${r},${g},${b},${alpha})`;
-}
-
-function animate() {
-  // ゆっくり回転
-  rotateZ += 0.002;
-  rotateX = Math.sin(Date.now() * 0.0003) * 0.3;
-  
-  // 複数ステップ進める
-  for (let i = 0; i < 5; i++) {
-    step();
-  }
-  
-  draw();
-  requestAnimationFrame(animate);
-}
-
-// イベント
-window.addEventListener('resize', resize);
-
-document.getElementById('resetBtn').addEventListener('click', () => {
-  ctx.fillStyle = '#0a0a0f';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  init();
-});
-
-document.getElementById('colorBtn').addEventListener('click', () => {
-  colorMode = (colorMode + 1) % colors.length;
-});
-
-document.getElementById('trailBtn').addEventListener('click', () => {
-  trailLength = trailLength === 2000 ? 500 : trailLength === 500 ? 5000 : 2000;
-});
-
-document.addEventListener('keydown', (e) => {
-  if (e.key === 'h' || e.key === 'H') {
-    document.body.classList.toggle('hide-ui');
-  }
-});
-
-resize();
-init();
-animate();
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
+<div id="controls" class="drawer-controls">
+  <div><div class="btn-row"><button class="control-btn active" data-view="flow">FLOW</button><button class="control-btn" data-view="section">SECTION</button><button class="control-btn" data-view="ribbon">RIBBON</button></div></div>
+  <div><div class="slider-row"><span class="slider-label">RHO</span><input type="range" id="sl-rho" min="180" max="420" value="280"><span class="slider-value" id="sv-rho">28.0</span></div></div>
+  <div><div class="slider-row"><span class="slider-label">ORBITS</span><input type="range" id="sl-orbits" min="3" max="15" value="9"><span class="slider-value" id="sv-orbits">9</span></div></div>
+  <div><div class="slider-row"><span class="slider-label">TRAIL</span><input type="range" id="sl-trail" min="500" max="4200" value="1800" step="100"><span class="slider-value" id="sv-trail">1800</span></div></div>
+  <div><div class="btn-row"><button class="control-btn" id="btn-seed">SEED</button><button class="control-btn active" id="btn-spin">SPIN</button></div></div>
+</div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
+<script>
+(function(){
+var canvas=document.getElementById('canvas'),ctx=canvas.getContext('2d');
+var W=0,H=0,DPR=1,rho=28,orbitCount=9,trail=1800,view='flow',spin=true,yaw=.25,pitch=.55,drag=false,lx=0,ly=0,orbits=[];
+var sigma=10,beta=8/3,dt=.006;
+var hRho=document.getElementById('h-rho'),hOrbits=document.getElementById('h-orbits'),hTrail=document.getElementById('h-trail'),hView=document.getElementById('h-view');
+var slRho=document.getElementById('sl-rho'),slOrbits=document.getElementById('sl-orbits'),slTrail=document.getElementById('sl-trail'),svRho=document.getElementById('sv-rho'),svOrbits=document.getElementById('sv-orbits'),svTrail=document.getElementById('sv-trail'),btnSeed=document.getElementById('btn-seed'),btnSpin=document.getElementById('btn-spin');
+function resize(){DPR=Math.min(2,devicePixelRatio||1);W=canvas.width=Math.floor(innerWidth*DPR);H=canvas.height=Math.floor(innerHeight*DPR);canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';}
+function seed(){orbits=[];for(var i=0;i<orbitCount;i++){var a=i/orbitCount*Math.PI*2;orbits.push({x:.12+Math.cos(a)*.018,y:Math.sin(a)*.018,z:.02,pts:[],section:[],phase:i/orbitCount});}if(typeof SFX!=='undefined')SFX.play('spawn',100);}
+function step(o){var dx=sigma*(o.y-o.x),dy=o.x*(rho-o.z)-o.y,dz=o.x*o.y-beta*o.z;o.x+=dx*dt;o.y+=dy*dt;o.z+=dz*dt;if(o.pts.length&&o.pts[o.pts.length-1].x<0&&o.x>=0&&o.y>0){o.section.push({y:o.y,z:o.z});if(o.section.length>420)o.section.shift();}o.pts.push({x:o.x,y:o.y,z:o.z});if(o.pts.length>trail)o.pts.shift();}
+function project(p){var cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);var x=p.x*cy-p.y*sy;var y=p.x*sy+p.y*cy;var z=p.z;var yy=y*cp-z*sp;var zz=y*sp+z*cp;var sc=Math.min(W,H)*.017;return{x:W/2+x*sc,y:H*.58-zz*sc+yy*sc*.25,d:zz};}
+function drawGrid(){ctx.strokeStyle='rgba(0,245,212,.045)';ctx.lineWidth=1*DPR;for(var i=0;i<12;i++){var x=i*W/12;ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}for(var j=0;j<8;j++){var y=j*H/8;ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke();}}
+function drawFlow(){for(var o=0;o<orbits.length;o++){var arr=orbits[o].pts;if(arr.length<2)continue;ctx.beginPath();for(var i=1;i<arr.length;i++){var a=project(arr[i-1]),b=project(arr[i]);var q=i/arr.length;ctx.strokeStyle=o%2?'rgba(123,44,191,'+(.05+q*.55)+')':'rgba(0,245,212,'+(.06+q*.62)+')';ctx.lineWidth=(.7+q*1.7)*DPR;ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();}var c=project(arr[arr.length-1]);ctx.fillStyle=o%2?'rgba(123,44,191,.9)':'rgba(0,245,212,.9)';ctx.beginPath();ctx.arc(c.x,c.y,3.5*DPR,0,Math.PI*2);ctx.fill();}}
+function drawSection(){ctx.save();ctx.translate(W/2,H/2);ctx.strokeStyle='rgba(123,44,191,.25)';ctx.strokeRect(-W*.28,-H*.28,W*.56,H*.56);ctx.globalCompositeOperation='lighter';for(var o=0;o<orbits.length;o++){var sec=orbits[o].section;for(var i=0;i<sec.length;i++){var p=sec[i],x=(p.y/30-.5)*W*.72,y=(p.z/52-.5)*H*.75,a=i/sec.length;ctx.fillStyle=o%2?'rgba(123,44,191,'+(.08+a*.55)+')':'rgba(0,245,212,'+(.08+a*.62)+')';ctx.fillRect(x,y,2*DPR,2*DPR);}}ctx.restore();}
+function drawRibbon(){ctx.globalCompositeOperation='lighter';for(var o=0;o<orbits.length;o++){var arr=orbits[o].pts;if(arr.length<4)continue;ctx.beginPath();for(var i=0;i<arr.length;i+=3){var p=project(arr[i]);if(i===0)ctx.moveTo(p.x,p.y);else ctx.lineTo(p.x,p.y);}ctx.strokeStyle=o%2?'rgba(123,44,191,.18)':'rgba(0,245,212,.2)';ctx.lineWidth=5*DPR;ctx.stroke();}ctx.globalCompositeOperation='source-over';drawFlow();}
+function draw(){for(var s=0;s<7;s++)for(var i=0;i<orbits.length;i++)step(orbits[i]);if(spin&&!drag)yaw+=.002;ctx.fillStyle='rgba(10,10,15,.18)';ctx.fillRect(0,0,W,H);drawGrid();ctx.globalCompositeOperation='lighter';if(view==='section')drawSection();else if(view==='ribbon')drawRibbon();else drawFlow();ctx.globalCompositeOperation='source-over';requestAnimationFrame(draw);}
+function updateHud(){hRho.textContent=rho.toFixed(1);hOrbits.textContent=orbitCount;hTrail.textContent=trail;hView.textContent=view.toUpperCase();svRho.textContent=rho.toFixed(1);svOrbits.textContent=orbitCount;svTrail.textContent=trail;}
+canvas.addEventListener('pointerdown',function(e){drag=true;lx=e.clientX;ly=e.clientY;if(typeof SFX!=='undefined')SFX.play('ripple',120);});
+canvas.addEventListener('pointermove',function(e){if(!drag&&!e.buttons)return;yaw+=(e.clientX-lx)*.006;pitch=Math.max(-.95,Math.min(.95,pitch+(e.clientY-ly)*.005));lx=e.clientX;ly=e.clientY;});window.addEventListener('pointerup',function(){drag=false;});
+document.querySelectorAll('[data-view]').forEach(function(b){b.addEventListener('click',function(){view=b.dataset.view;document.querySelectorAll('[data-view]').forEach(function(x){x.classList.toggle('active',x===b);});updateHud();if(typeof SFX!=='undefined')SFX.play('toggle');});});
+slRho.addEventListener('input',function(){rho=parseInt(slRho.value,10)/10;updateHud();});
+slOrbits.addEventListener('input',function(){orbitCount=parseInt(slOrbits.value,10);seed();updateHud();});
+slTrail.addEventListener('input',function(){trail=parseInt(slTrail.value,10);for(var i=0;i<orbits.length;i++)orbits[i].pts=orbits[i].pts.slice(-trail);updateHud();});
+btnSeed.addEventListener('click',function(){seed();});btnSpin.addEventListener('click',function(){spin=!spin;btnSpin.classList.toggle('active',spin);if(typeof SFX!=='undefined')SFX.play('toggle');});
+window.addEventListener('resize',resize);resize();seed();updateHud();ctx.fillStyle='#0a0a0f';ctx.fillRect(0,0,W,H);draw();
+})();
 </script>
-
-<?php require_once __DIR__ . '/includes/related.php'; ?>
+<?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>
