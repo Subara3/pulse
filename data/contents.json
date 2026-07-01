@@ -1968,6 +1968,18 @@
     "added": "2026-06-30"
   },
   {
+    "page": "tomography",
+    "title": "TOMOGRAPHY",
+    "desc": "CTスキャンのRadon変換。回転する投影からシノグラムを作り、逆投影で内部構造を浮かび上がらせる。",
+    "desc_en": "CT-scan Radon transform. Rotating projections form a sinogram, then backprojection reveals the hidden density field.",
+    "icon": "fa-circle-half-stroke",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Radon transform · backprojection",
+    "meta_en": "Radon transform · backprojection",
+    "added": "2026-07-01"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
