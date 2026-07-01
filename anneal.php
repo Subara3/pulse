@@ -33,7 +33,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>CITIES &nbsp;<span class="v" id="hud-cities">60</span></div>
   <div>STATUS &nbsp;<span class="v" id="hud-status">ANNEALING</span></div>
 </div>
-<div id="controls">
+<div id="controls" class="drawer-controls">
   <div class="ctrl-row">
     <span class="ctrl-label">CITIES</span>
     <input type="range" id="sl-cities" min="10" max="150" value="60" step="5">
@@ -53,6 +53,7 @@ $interactionHints = [
 ];
 require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <script>
 (function () {
   const canvas = document.getElementById('canvas');

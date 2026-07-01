@@ -5,15 +5,13 @@ recordPageView('diffgrow');
 
 $pageName = 'diffgrow';
 $pageTitle = 'DIFFGROW - PULSE';
-$pageDesc = '微分成長。閉曲線が分裂と反発を繰り返し、珊瑚のような有機的形態へ自己組織化する。';
+$pageDesc = json_decode('"微分成長。閉曲線が分裂と反発を繰り返し、有機的な形へ育つ。"');
 $pageCanonical = 'https://pulse.subara3.com/diffgrow.php';
-
-$extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">';
 
 $extraStyle = '
 body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 #canvas { position: fixed; inset: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
-.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
+.ui { position: fixed; z-index: 100; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; pointer-events: none; }
 .hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.35); font-size: 0.65rem; text-align: right; letter-spacing: 0.05em; line-height: 1.8; }
 .hud .highlight { color: #00f5d4; font-weight: 700; }
 

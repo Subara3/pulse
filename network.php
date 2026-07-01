@@ -7,15 +7,13 @@ recordPageView('network');
 
 $pageName = 'network';
 $pageTitle = 'NETWORK - PULSE';
-$pageDesc = 'Erdős–Rényi ランダムグラフ。接続確率を上げると、突然すべてがひとつになる。';
+$pageDesc = json_decode('"Erdos-Renyi ランダムグラフ。接続確率を上げると、突然ひとつの巨大成分が現れる。"');
 $pageCanonical = 'https://pulse.subara3.com/network.php';
-
-$extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">';
 
 $extraStyle = '
 body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
-#canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
-.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
+#canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%;  touch-action: none; cursor: crosshair; }
+.ui { position: fixed; z-index: 100; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; pointer-events: none; }
 .title { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.15); font-size: 0.7rem; letter-spacing: 0.2em; }
 .hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.35); font-size: 0.65rem; text-align: right; letter-spacing: 0.05em; line-height: 1.8; }
 .hud .highlight { color: #00f5d4; font-weight: 700; }

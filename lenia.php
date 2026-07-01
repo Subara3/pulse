@@ -32,7 +32,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>R&nbsp;<span class="v" id="hud-r">13</span> &nbsp;μ&nbsp;<span class="v" id="hud-mu">0.150</span> &nbsp;σ&nbsp;<span class="v" id="hud-sig">0.015</span></div>
 </div>
 
-<div id="controls">
+<div id="controls" class="drawer-controls">
   <div class="ctrl-row">
     <span class="ctrl-label">R</span>
     <input type="range" id="sl-r" min="5" max="20" value="13" step="1">
@@ -60,6 +60,7 @@ $interactionHints = [
 require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
 
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <script>
 (function () {
   const canvas = document.getElementById('canvas');

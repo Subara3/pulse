@@ -37,6 +37,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <span id="row-count">0</span> rows
 </div>
 
+<?php
+$interactionHints = [
+  ['type' => 'click', 'label' => 'pause'],
+  ['type' => 'tap', 'label' => 'pause'],
+];
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
 <div id="controls" class="drawer-controls">
   <div class="slider-group">
     <label>Rule (0-255)</label>
@@ -60,8 +67,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
 <div id="info">
   1D Cellular Automaton<br>
-  Rule: どの近傍パターンが生になるかを8ビットで定義<br>
-  クリック/タップで一時停止
+  Rule bits define which neighborhood patterns turn alive<br>
+  Click / tap to pause
 </div>
 
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>

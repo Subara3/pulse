@@ -5,7 +5,7 @@ recordPageView('fluidveil');
 
 $pageName = 'fluidveil';
 $pageTitle = 'FLUID VEIL - PULSE';
-$pageDesc = '流体シミュレーション。指先で流れを作り、光るインクの渦をゆっくり眺める。';
+$pageDesc = json_decode('"流体シミュレーション。指先で流れを作り、光るインクの渦を眺める。"');
 $pageCanonical = 'https://pulse.subara3.com/fluidveil.php';
 $extraStyle = '
 #canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; touch-action: none; }
@@ -35,7 +35,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>energy <span class="v" id="energyVal">0.00</span></div>
   <div>swirls <span class="v" id="swirlVal">0</span></div>
 </div>
-<div class="controls">
+<?php
+$interactionHints = [
+  ['type' => 'drag', 'label' => 'vortex'],
+  ['type' => 'click', 'label' => 'inject'],
+];
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
+<div id="controls" class="controls drawer-controls">
   <label for="force">drag force</label>
   <input id="force" type="range" min="0.3" max="3.0" value="1.4" step="0.1">
   <label for="diff">ink diffusion</label>
@@ -50,6 +57,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     Drag to inject vortices. Leave it still and viscosity slowly calms the flow.
   </p>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <script>
 (function() {
   const canvas = document.getElementById('canvas');

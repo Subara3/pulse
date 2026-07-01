@@ -28,7 +28,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>t &nbsp;&nbsp;&nbsp;&nbsp;<span class="v" id="hud-t">0.00</span> s</div>
   <div>count &nbsp;<span class="v" id="hud-n">2</span></div>
 </div>
-<div id="controls">
+<div id="controls" class="drawer-controls">
   <div class="ctrl-row">
     <span class="ctrl-label">speed</span>
     <input type="range" id="slider-speed" min="0.2" max="4" step="0.1" value="1">
@@ -44,6 +44,7 @@ $interactionHints = [
 ];
 require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <script>
 (function () {
   const canvas = document.getElementById('canvas');

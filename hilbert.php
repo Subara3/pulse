@@ -41,7 +41,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div id="hud-order">ORDER 1</div>
   <div id="hud-pts">4 PTS</div>
 </div>
-<div id="controls">
+<div id="controls" class="drawer-controls">
   <button class="ctrl-btn" id="btn-next" onclick="nextOrder()">NEXT ORDER</button>
   <button class="ctrl-btn" id="btn-auto" onclick="toggleAuto()">AUTO: ON</button>
   <button class="ctrl-btn" onclick="resetOrder()">RESET</button>
@@ -57,6 +57,7 @@ $interactionHints = [
 ];
 require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <script>
 (function() {
   const canvas = document.getElementById('canvas');

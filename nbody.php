@@ -38,6 +38,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
   GRAVITY SHAPES THE DANCE
 </div>
 
+<?php
+$interactionHints = [
+  ['type' => 'click', 'label' => 'body'],
+  ['type' => 'drag', 'label' => 'launch'],
+  ['type' => 'right', 'label' => 'remove'],
+];
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
 <div id="controls" class="drawer-controls">
   <div class="slider-wrap">
     <label>GRAVITY</label>

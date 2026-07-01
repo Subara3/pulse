@@ -41,6 +41,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
   SLOW MOTION FOR LONG WATCHING
 </div>
 
+<?php
+$interactionHints = [
+  ['type' => 'click', 'label' => 'excite'],
+  ['type' => 'drag', 'label' => 'sweep'],
+];
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
 <div id="controls" class="drawer-controls">
   <div class="slider-wrap">
     <label>MODE X</label>

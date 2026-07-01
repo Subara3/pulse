@@ -38,6 +38,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
   PROBABILITY IN MOTION
 </div>
 
+<?php
+$interactionHints = [
+  ['type' => 'click', 'label' => 'drop'],
+  ['type' => 'drag', 'label' => 'tilt'],
+  ['type' => 'right', 'label' => 'clear'],
+];
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
 <div id="controls" class="drawer-controls">
   <div class="slider-wrap">
     <label>ROWS</label>

@@ -31,7 +31,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div id="hud-param-row">OFFSET <span class="v" id="hud-param">36</span>px</div>
   <div>FREQ &nbsp;&nbsp;<span class="v" id="hud-freq">12</span></div>
 </div>
-<div id="controls">
+<div id="controls" class="drawer-controls">
   <button class="btn" id="btn-mode">MODE</button>
   <div class="ctrl-row">
     <span class="ctrl-label">FREQ</span>
@@ -48,6 +48,7 @@ $interactionHints = [
 ];
 require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <script>
 (function () {
   var canvas = document.getElementById('canvas');

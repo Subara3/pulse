@@ -39,6 +39,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
   SLOW CONTOURS FROM A HIDDEN FIELD
 </div>
 
+<?php
+$interactionHints = [
+  ['type' => 'click', 'label' => 'source'],
+  ['type' => 'drag', 'label' => 'bend'],
+  ['type' => 'right', 'label' => 'remove'],
+];
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
 <div id="controls" class="drawer-controls">
   <div class="slider-wrap">
     <label>LAYERS</label>

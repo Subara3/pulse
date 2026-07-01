@@ -5,10 +5,10 @@ recordPageView('drift');
 
 $pageName = 'drift';
 $pageTitle = 'DRIFT - PULSE';
-$pageDesc = 'ランダムウォーク。ゆっくり彷徨う点が残す、淡い軌跡。';
+$pageDesc = json_decode('"ランダムウォーク。ゆっくり影を残しながら漂う軌跡のCanvas可視化。"');
 $pageCanonical = 'https://pulse.subara3.com/drift.php';
 $extraStyle = '
-#canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+#canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;  touch-action: none; cursor: crosshair; }
 #hud { position: fixed; top: 60px; right: 20px; color: var(--accent); font-family: var(--font-mono); font-size: 13px; text-align: right; z-index: 10; pointer-events: none; }
 #controls { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 10; }
 .control-row { display: flex; align-items: center; gap: 10px; justify-content: flex-end; color: var(--text-dim); font-size: 12px; }
@@ -27,7 +27,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>WALKERS: <span id="walkerCount">0</span></div>
   <div>STEPS: <span id="stepCount">0</span></div>
 </div>
-<div id="controls">
+<?php
+$interactionHints = [
+  ['type' => 'click', 'label' => 'walker'],
+  ['type' => 'drag', 'label' => 'scatter'],
+];
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
+<div id="controls" class="drawer-controls">
   <div class="control-row">
     <label>SPEED</label>
     <input type="range" id="speedSlider" min="1" max="10" value="3">
@@ -41,6 +48,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   </div>
 </div>
 <div id="info">Click to add walkers</div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <script>
 (function() {
   const canvas = document.getElementById('canvas');

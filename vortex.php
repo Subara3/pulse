@@ -31,7 +31,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <span style="color:rgba(0,245,212,0.45)">CCW <span style="color:#00f5d4">■</span>  CW <span style="color:#7b2cbf">■</span></span>
 </div>
 
-<div id="controls">
+<div id="controls" class="drawer-controls">
   <button class="ctrl-btn" id="btn-reset">RESET</button>
   <button class="ctrl-btn" id="btn-clear">CLEAR ALL</button>
 </div>
@@ -44,6 +44,7 @@ $interactionHints = [
 require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
 
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <script>
 (function () {
   const canvas = document.getElementById('canvas');

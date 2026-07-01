@@ -40,6 +40,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
   SLOW CAUSTICS FOR LONG WATCHING
 </div>
 
+<?php
+$interactionHints = [
+  ['type' => 'click', 'label' => 'wave'],
+  ['type' => 'drag', 'label' => 'ripple'],
+];
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
 <div id="controls" class="drawer-controls">
   <div class="slider-wrap">
     <label>REFRACT</label>

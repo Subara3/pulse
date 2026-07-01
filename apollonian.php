@@ -41,7 +41,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div id="circle-count">0 circles</div>
   <div id="depth-display">depth: 7</div>
 </div>
-<div id="controls">
+<div id="controls" class="drawer-controls">
   <button class="ctrl-btn" onclick="adjustDepth(1)">DEPTH +</button>
   <button class="ctrl-btn" onclick="adjustDepth(-1)">DEPTH -</button>
   <button class="ctrl-btn" onclick="regen()">RESET</button>
@@ -54,6 +54,7 @@ $interactionHints = [
 ];
 require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <script>
 (function() {
   const canvas = document.getElementById('canvas');

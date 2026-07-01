@@ -24,7 +24,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div id="mode-label">STADIUM</div>
   <div id="ball-count">25 BALLS</div>
 </div>
-<div id="controls">
+<div id="controls" class="drawer-controls">
   <button id="btn-0" class="mode-btn active" onclick="setMode(0)">STADIUM</button>
   <button id="btn-1" class="mode-btn" onclick="setMode(1)">CIRCLE</button>
   <button id="btn-2" class="mode-btn" onclick="setMode(2)">ELLIPSE</button>
@@ -39,6 +39,7 @@ $interactionHints = [
 ];
 require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <script>
 (function() {
   const cv = document.getElementById('canvas');

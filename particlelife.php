@@ -23,7 +23,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>particles <span id="cnt" style="color:#fff">0</span></div>
   <div>species <span id="spc" style="color:#fff">4</span></div>
 </div>
-<div id="controls">
+<div id="controls" class="drawer-controls">
   <button class="btn" id="btn-shuffle">SHUFFLE RULES</button>
   <button class="btn" id="btn-reset">RESET</button>
   <button class="btn" id="btn-add">+ SPECIES</button>
@@ -37,6 +37,7 @@ $interactionHints = [
 ];
 require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <script>
 (function () {
   const canvas = document.getElementById('canvas');

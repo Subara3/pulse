@@ -38,6 +38,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
   HEAVY TAILS SHAPE THE PATH
 </div>
 
+<?php
+$interactionHints = [
+  ['type' => 'click', 'label' => 'walker'],
+  ['type' => 'drag', 'label' => 'attract'],
+  ['type' => 'right', 'label' => 'clear'],
+];
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
 <div id="controls" class="drawer-controls">
   <div class="slider-wrap">
     <label>ALPHA (tail)</label>
