@@ -16,7 +16,8 @@ import argparse
 import json
 import os
 import subprocess
-from datetime import datetime
+import sys
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,7 +34,7 @@ def load_json(path: Path):
     if not path.exists():
         return None
     try:
-        return json.loads(path.read_text())
+        return json.loads(path.read_text(encoding='utf-8'))
     except Exception:
         return None
 
@@ -48,7 +49,7 @@ def main():
     pages_arg = [args.pages] if args.pages.strip() else []
 
     summary = {
-        "generatedAt": datetime.utcnow().isoformat() + "Z",
+        "generatedAt": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z"),
         "baseUrl": args.base_url,
         "steps": [],
     }
@@ -70,7 +71,7 @@ def main():
 
     pages_flag = (["--pages", args.pages] if args.pages.strip() else [])
 
-    rc, out, err = run(["python3", "scripts/check_and_fix_preview_flash.py", "--apply", *pages_flag])
+    rc, out, err = run([sys.executable, "scripts/check_and_fix_preview_flash.py", "--apply", *pages_flag])
     flash_json = None
     try:
         flash_json = json.loads(out)
@@ -78,7 +79,7 @@ def main():
         pass
     summary["steps"].append({"name": "check_and_fix_preview_flash", "ok": rc == 0, "result": flash_json})
 
-    rc, out, err = run(["python3", "scripts/check_preview_dark_static.py", *pages_flag])
+    rc, out, err = run([sys.executable, "scripts/check_preview_dark_static.py", *pages_flag])
     dark_json = None
     try:
         dark_json = json.loads(out)
@@ -86,7 +87,7 @@ def main():
         pass
     summary["steps"].append({"name": "check_preview_dark_static", "ok": rc == 0, "result": dark_json})
 
-    rc, out, err = run(["python3", "scripts/auto_fix_preview_loop.py", *pages_flag])
+    rc, out, err = run([sys.executable, "scripts/auto_fix_preview_loop.py", *pages_flag])
     loop_json = None
     try:
         loop_json = json.loads(out)
@@ -95,7 +96,7 @@ def main():
     summary["steps"].append({"name": "auto_fix_preview_loop", "ok": rc == 0, "result": loop_json})
 
     out_path = REPORTS_DIR / "preview-health.json"
-    out_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2))
+    out_path.write_text(json.dumps(summary, ensure_ascii=False, indent=2), encoding='utf-8')
 
     print(json.dumps({
         "ok": all(s.get("ok") for s in summary["steps"]),

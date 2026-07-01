@@ -8,11 +8,11 @@ PREVIEWS = ROOT / 'img' / 'previews'
 
 
 def main():
-    items = json.loads(CONTENTS.read_text())
+    items = json.loads(CONTENTS.read_text(encoding='utf-8'))
     missing = []
     for c in items:
         page = c.get('page')
-        if not page or page in ('about', 'contents'):
+        if not page or page in ('about', 'contents', 'log'):
             continue
         mp4 = PREVIEWS / f'{page}.mp4'
         webm = PREVIEWS / f'{page}.webm'
@@ -27,7 +27,7 @@ def main():
 
     report = {
         'ok': len(missing) == 0,
-        'checked': sum(1 for c in items if c.get('page') not in ('about', 'contents')),
+        'checked': sum(1 for c in items if c.get('page') and c.get('page') not in ('about', 'contents', 'log')),
         'missingCount': len(missing),
         'missing': missing,
     }
