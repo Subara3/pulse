@@ -21,6 +21,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div id="hud-t">t = 0.0</div>
 </div>
 <div id="eq">u<sub>t</sub> − 6uu<sub>x</sub> + u<sub>xxx</sub> = 0</div>
+<div id="controls" class="drawer-controls">
+  <button id="btnReset" type="button">RESET</button>
+  <label class="slider-row">SPEED <span id="speedVal" class="ctrl-val">0.7</span>
+    <input type="range" id="speedSlider" min="0.2" max="1.8" step="0.1" value="0.7">
+  </label>
+</div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <?php
 $interactionHints = [
   ['type' => 'click', 'label' => 'add'],
@@ -37,6 +44,9 @@ const canvas = document.getElementById('canvas');
 const ctx    = canvas.getContext('2d');
 const hudN   = document.getElementById('hud-n');
 const hudT   = document.getElementById('hud-t');
+const btnReset = document.getElementById('btnReset');
+const speedSlider = document.getElementById('speedSlider');
+const speedVal = document.getElementById('speedVal');
 
 let W, H;
 function resize() {
@@ -53,7 +63,7 @@ resize();
 
 const DOMAIN    = 60;   // [0, DOMAIN] 周期空間
 const MAX_SOL   = 6;
-const TS        = 0.7;  // 時間スケール係数
+let timeScale = 0.7;  // time scale
 const AMP       = 0.14; // 振幅→ピクセル変換 (u=1 → H*AMP px)
 const SAMPLES   = 750;
 
@@ -105,7 +115,7 @@ function loop(ts) {
   if (lastTs === null) lastTs = ts;
   const dt = Math.min((ts - lastTs) / 1000, 0.05);
   lastTs = ts;
-  simTime += dt * TS;
+  simTime += dt * timeScale;
 
   ctx.fillStyle = '#0a0a0f';
   ctx.fillRect(0, 0, W, H);
@@ -194,6 +204,15 @@ function loop(ts) {
 
 requestAnimationFrame(loop);
 
+function resetSolitons() {
+  solitons = [
+    { k: 1.2, x0: 1.2 * 10 },
+    { k: 0.6, x0: 0.6 * 34 },
+  ];
+  simTime = 0;
+  lastTs = null;
+}
+
 // === インタラクション ===
 canvas.addEventListener('mousedown', (e) => {
   if (e.button !== 0) return;
@@ -224,13 +243,18 @@ canvas.addEventListener('mouseup', (e) => {
 
 canvas.addEventListener('contextmenu', (e) => {
   e.preventDefault();
-  solitons = [
-    { k: 1.2, x0: 1.2 * 10 },
-    { k: 0.6, x0: 0.6 * 34 },
-  ];
-  simTime = 0;
-  lastTs  = null;
+  resetSolitons();
   SFX.play('toggle');
+});
+
+btnReset.addEventListener('click', () => {
+  resetSolitons();
+  SFX.play('click');
+});
+
+speedSlider.addEventListener('input', () => {
+  timeScale = parseFloat(speedSlider.value);
+  speedVal.textContent = timeScale.toFixed(1);
 });
 
 // タッチ
