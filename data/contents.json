@@ -134,25 +134,25 @@
   {
     "page": "koch",
     "title": "KOCH SNOWFLAKE",
-    "desc": "コッホ雪片。再帰的に成長するフラクタル。",
-    "desc_en": "Koch snowflake. A fractal that grows recursively.",
+    "desc": "コッホ曲線の再帰生成を、角度と深度を変えながら観察する。",
+    "desc_en": "Explore recursive Koch curve generation with adjustable angle and depth.",
     "icon": "fa-snowflake",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "深度0-7",
-    "meta_en": "Depth 0-7",
+    "meta": "再帰曲線",
+    "meta_en": "Recursive curve",
     "added": "2026-01-29"
   },
   {
     "page": "tree",
     "title": "TREE",
-    "desc": "フラクタルの木。風に揺れる。",
-    "desc_en": "Fractal tree. Swaying in the wind.",
+    "desc": "分岐角と揺らぎから成長する再帰樹を描く。",
+    "desc_en": "Grow recursive trees from branch angle and wind-like variation.",
     "icon": "fa-tree",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "季節変更可",
-    "meta_en": "Seasons",
+    "meta": "再帰樹",
+    "meta_en": "Recursive tree",
     "added": "2026-01-29"
   },
   {
@@ -266,13 +266,13 @@
   {
     "page": "penrose",
     "title": "PENROSE",
-    "desc": "ペンローズタイル。非周期的な敷き詰め。",
-    "desc_en": "Penrose tiles. Aperiodic tiling.",
+    "desc": "非周期タイルの向きと階層を観察するPenrose風可視化。",
+    "desc_en": "Explore Penrose-style aperiodic tile orientation and layered patches.",
     "icon": "fa-shapes",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "",
-    "meta_en": "",
+    "meta": "非周期タイル",
+    "meta_en": "Aperiodic tiles",
     "added": "2026-01-29"
   },
   {
