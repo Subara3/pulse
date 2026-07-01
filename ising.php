@@ -5,7 +5,7 @@ recordPageView('ising');
 
 $pageName      = 'ising';
 $pageTitle     = 'ISING - PULSE';
-$pageDesc      = 'イジングモデル。2次元格子上のスピンがメトロポリス法で反転する。臨界温度付近で美しいドメイン構造が現れる。';
+$pageDesc      = 'Two-dimensional Ising model. Paint spin noise into the lattice and tune temperature around the critical point.';
 $pageCanonical = 'https://pulse.subara3.com/ising.php';
 
 $extraStyle = '
@@ -64,15 +64,16 @@ require_once __DIR__ . '/includes/floating-nav.php';
   PHASE:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="hudP"  class="v">CRITICAL</span>
 </div>
 
-<div class="ctrl-bar">
+<div id="controls" class="drawer-controls">
   <div class="t-bar">
-    <button class="ctrl-btn" id="btnTm">T−</button>
+    <button class="ctrl-btn" id="btnTm">T-</button>
     <span class="t-label">TEMP</span>
     <button class="ctrl-btn" id="btnTp">T+</button>
   </div>
   <button class="ctrl-btn" id="btnOrder">ORDERED</button>
   <button class="ctrl-btn" id="btnReset">RESET</button>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <?php
 $interactionHints = [

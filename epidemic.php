@@ -5,7 +5,7 @@ recordPageView('epidemic');
 
 $pageName      = 'epidemic';
 $pageTitle     = 'EPIDEMIC - PULSE';
-$pageDesc      = 'SIR疫病拡散モデル。格子上の感染波。βで広がり方が変わる。';
+$pageDesc      = 'SIR epidemic diffusion on a grid. Infect cells by painting, then tune infection and recovery rates.';
 $pageCanonical = 'https://pulse.subara3.com/epidemic.php';
 
 $extraStyle = '
@@ -62,16 +62,16 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <canvas id="canvas"></canvas>
 
 <div id="hud">
-  <div><span class="lbl">S</span><span class="vs" id="sv">—</span></div>
-  <div><span class="lbl">I</span><span class="vi" id="iv">—</span></div>
-  <div><span class="lbl">R</span><span class="vr" id="rv">—</span></div>
+  <div><span class="lbl">S</span><span class="vs" id="sv">0%</span></div>
+  <div><span class="lbl">I</span><span class="vi" id="iv">0%</span></div>
+  <div><span class="lbl">R</span><span class="vr" id="rv">0%</span></div>
 </div>
 
 <canvas id="graph" width="160" height="56"></canvas>
 
-<div id="ctrl">
+<div id="controls" class="drawer-controls">
   <div class="crow">
-    <label>β <span id="bv">0.25</span></label>
+    <label>BETA <span id="bv">0.25</span></label>
     <input type="range" id="betaR" min="5" max="50" step="5" value="25">
   </div>
   <div class="crow">
@@ -80,6 +80,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   </div>
   <button class="cbtn" id="resetBtn">RESET</button>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <?php
 $interactionHints = [

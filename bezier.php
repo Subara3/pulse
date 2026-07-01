@@ -1,10 +1,11 @@
 <?php
 require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/access_log.php';
 recordPageView('bezier');
 
 $pageName     = 'bezier';
-$pageTitle    = 'BÉZIER - PULSE';
-$pageDesc     = 'ベジェ曲線。補間の補間が曲線を生む、de Casteljauアルゴリズムの可視化。';
+$pageTitle    = 'BEZIER - PULSE';
+$pageDesc     = 'Interactive de Casteljau construction for Bezier curves. Add, drag, and remove control points to shape the curve.';
 $pageCanonical = 'https://pulse.subara3.com/bezier.php';
 
 $extraStyle = '
@@ -52,10 +53,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
   POINTS: <span id="hudPts" class="v">4</span>
 </div>
 
-<div class="ctrl-bar">
+<div id="controls" class="drawer-controls">
   <button class="ctrl-btn active" id="btnSteps">STEPS: ON</button>
   <button class="ctrl-btn" id="btnReset">RESET</button>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <?php
 $interactionHints = [
