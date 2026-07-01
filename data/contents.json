@@ -74,13 +74,13 @@
   {
     "page": "primes",
     "title": "PRIMES",
-    "desc": "素数の並びをUlam spiralとして描き、密度と双子素数の筋を探索する。",
-    "desc_en": "Explore prime density and twin-prime streaks through an interactive Ulam spiral.",
-    "icon": "fa-infinity",
+    "desc": "素数の間隔が伸びる様子を、リングと記録線で描くCanvas可視化。",
+    "desc_en": "Explore prime gaps as luminous rings, record-gap traces, and residue-wheel classes.",
+    "icon": "fa-chart-simple",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "Ulam spiral",
-    "meta_en": "Ulam spiral",
+    "meta": "Prime gaps",
+    "meta_en": "Prime gaps / records / residues",
     "added": "2026-01-29"
   },
   {
@@ -926,13 +926,13 @@
   {
     "page": "crystallize",
     "title": "SPINODAL",
-    "desc": "???????????????????????????????????????",
+    "desc": "Cahn-Hilliard phase separation forms coarsening labyrinth domains.",
     "desc_en": "Spinodal decomposition. A conserved field separates into phases and coarsens into labyrinthine domains.",
     "icon": "fa-circle-half-stroke",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "Cahn-Hilliard ? phase separation",
-    "meta_en": "Cahn-Hilliard ? phase separation",
+    "meta": "Cahn-Hilliard / phase separation",
+    "meta_en": "Cahn-Hilliard / phase separation",
     "added": "2026-03-29"
   },
   {

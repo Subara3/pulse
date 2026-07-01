@@ -5,7 +5,7 @@ recordPageView('excitable');
 
 $pageName = 'excitable';
 $pageTitle = 'EXCITABLE - PULSE';
-$pageDesc = '興奮性媒質。クリックで波を起こし、波面が途切れるとスパイラル波が自発的に回転し始める。心臓のリズムを支配する数学。';
+$pageDesc = 'Excitable medium using the Barkley model. Click or drag to ignite waves and watch spiral fronts emerge.';
 $pageCanonical = 'https://pulse.subara3.com/excitable.php';
 
 $extraStyle = '
@@ -138,17 +138,16 @@ function initGrid(){
 function initSpiral(){
   var sz=GW*GH;
   for(var i=0;i<sz;i++){u0[i]=0;v0[i]=0;}
-  var cx=GW>>1,cy=GH>>1;
-  for(var y=0;y<GH;y++){
-    for(var x=0;x<cx;x++){
-      v0[y*GW+x]=0.9;
+  var cx=GW*0.5,cy=GH*0.52,sc=Math.min(GW,GH);
+  for(var y=1;y<GH-1;y++){
+    for(var x=1;x<GW-1;x++){
+      var dx=x-cx,dy=y-cy,r=Math.sqrt(dx*dx+dy*dy),a=Math.atan2(dy,dx),idx=y*GW+x;
+      if(Math.abs(r-sc*0.24)<2.2&&a>-2.7&&a<0.45)u0[idx]=1;
+      if(Math.abs(r-sc*0.34)<2.4&&a>-0.2&&a<2.85)v0[idx]=0.82;
+      if(Math.abs(dy-dx*0.28)<1.6&&dx<0&&dy>0&&r<sc*0.34)v0[idx]=0.9;
     }
   }
-  for(var y=cy;y<GH;y++){
-    for(var x=cx;x<GW;x++){
-      u0[y*GW+x]=1;
-    }
-  }
+  exciteAt((GW*0.48)|0,(GH*0.48)|0,5);
 }
 
 function simulate(){
@@ -191,8 +190,8 @@ function render(){
   var sz=GW*GH;
   for(var i=0;i<sz;i++){
     var uc=u0[i],vc=v0[i];
-    var eu=uc*3;if(eu>1)eu=1;
-    var ev=vc*2.5;if(ev>1)ev=1;
+    var eu=uc*4.2;if(eu>1)eu=1;
+    var ev=vc*3.6;if(ev>1)ev=1;
     var rv=ev*(1-eu*0.8);
     var p=i<<2;
     offPix[p]  =(10+eu*(-10)+rv*113)|0;
@@ -217,6 +216,7 @@ function fmtK(v){return v<1e3?''+v:v<1e6?(v/1e3).toFixed(1)+'K':(v/1e6).toFixed(
 var fc=0;
 function loop(){
   if(!paused){
+    if(step % 360 < substeps){var ax=(GW*.5+Math.cos(step*.013)*GW*.16)|0,ay=(GH*.5+Math.sin(step*.017)*GH*.16)|0;exciteAt(ax,ay,3);}
     simulate();
     render();
     fc++;

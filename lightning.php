@@ -5,7 +5,7 @@ recordPageView('lightning');
 
 $pageName = 'lightning';
 $pageTitle = 'LIGHTNING - PULSE';
-$pageDesc = '誘電体破壊モデル。放電パスが分岐しながら走り、リヒテンベルク図形を残す。';
+$pageDesc = 'Dielectric breakdown model. Branching discharges race across the canvas and leave Lichtenberg-like traces.';
 $pageCanonical = 'https://pulse.subara3.com/lightning.php';
 
 $extraStyle = '
@@ -96,7 +96,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   var branchProb = 0.45;
   var maxDepth = 7;
   var autoMode = true;
-  var autoInterval = 2500;
+  var autoInterval = 900;
   var lastAuto = 0;
   var totalStrikes = 0;
   var flashIntensity = 0;
@@ -167,7 +167,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
     bolts.push(genBolt(x, y, tx, ty));
     totalStrikes++;
-    flashIntensity = Math.min(flashIntensity + 0.12, 0.25);
+    flashIntensity = Math.min(flashIntensity + 0.18, 0.32);
     if (typeof SFX !== 'undefined') SFX.play('spawn');
   }
 
@@ -368,7 +368,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     if (typeof SFX !== 'undefined') SFX.play('click');
   });
 
-  lastAuto = Date.now() - autoInterval + 500;
+  lastAuto = Date.now() - autoInterval;
   loop();
 })();
 </script>

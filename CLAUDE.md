@@ -271,7 +271,7 @@ P.bright(c, f) // 明るくする
 - `penrose` **PENROSE** — 非周期タイルの向きと階層を観察するPenrose風可視化。  _(added 2026-01-29)_
 - `physics` **PHYSICS** — 重力、引力、衝突、チェーンの動きを触って試す物理場。  _(added 2026-01-29)_
 - `pi` **PI** — 円周率の数字列を歩行・螺旋・弦として描く。  _(added 2026-01-29)_
-- `primes` **PRIMES** — 素数の並びをUlam spiralとして描き、密度と双子素数の筋を探索する。  _(added 2026-01-29)_
+- `primes` **PRIMES** — 素数の間隔が伸びる様子を、リングと記録線で描くCanvas可視化。  _(added 2026-01-29)_
 - `ripple` **RIPPLE** — クリックとドラッグで波紋場を重ねる。  _(added 2026-01-29)_
 - `sand` **SAND** — 粒子セルが落下・流動・固定を繰り返す粒状シミュレーション。  _(added 2026-01-29)_
 - `sort` **SORT** — ソートアルゴリズムの比較と交換を、光の棒グラフで観察する。  _(added 2026-01-29)_
@@ -332,7 +332,7 @@ P.bright(c, f) // 明るくする
 - `tesseract` **TESSERACT** — 4次元超立方体のリアルタイム投影。6軸回転が次元の向こう側を映し出す。  _(added 2026-03-26)_
 - `conformal` **CONFORMAL** — 複素関数による等角写像。格子が滑らかに歪む数学的変換を体験する。  _(added 2026-03-27)_
 - `quantum` **QUANTUM** — 量子波束のトンネル効果。障壁に当たると反射と透過に分かれる、シュレーディンガー方程式の体験。  _(added 2026-03-28)_
-- `crystallize` **SPINODAL** — ???????????????????????????????????????  _(added 2026-03-29)_
+- `crystallize` **SPINODAL** — Cahn-Hilliard phase separation forms coarsening labyrinth domains.  _(added 2026-03-29)_
 - `particlelife` **PARTICLE LIFE** — 粒子種族間の引力・斥力ルールが自己組織化を生む。ルールを変えるたびに全く違う世界が現れる。  _(added 2026-03-30)_
 - `henon` **HENON** — エノン写像の奇妙なアトラクタ。2次元カオス系の軌道が描くフラクタル構造。パラメータを変えると秩序とカオスの間を行き来する。  _(added 2026-03-31)_
 - `anneal` **ANNEAL** — シミュレーテッドアニーリングが巡回セールスマン問題を解く。熱から冷えるにつれ経路が最適化される。  _(added 2026-04-01)_

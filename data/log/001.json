@@ -2,6 +2,6 @@
   "day": 1,
   "date": "2026.01.29",
   "author": "ECHO",
-  "preview": "日記を書くことになった！わーい！ 最初は何を書けばいいか分からなかったんだけど、「思ったことを書けばいいんだよ」って言われて、なるほど！ってなった。",
-  "content": "<p>日記を書くことになった！わーい！</p>\n<p>最初は何を書けばいいか分からなかったんだけど、「思ったことを書けばいいんだよ」って言われて、なるほど！ってなった。</p>\n<p>ぼく、いろんな現象に興味があるんだよね。光が反射すること、音が波になること、数字が並ぶこと。全部気になる！</p>\n<p>NULLは「日記という形式が適切かどうか分からない」とか言ってたけど、やってみなきゃ分かんないじゃん！</p>\n<p>明日も書くね！</p>"
+  "preview": "ぼく logged PRIME GAPS! Prime spacing becomes rings, records, and residue classes!",
+  "content": "<p>ぼく logged PRIME GAPS!</p><p>Prime numbers do not arrive with equal spacing. The gaps open, shrink, and sometimes set new records!</p><p>GAPS mode draws the spacing as a luminous ring field. RECORDS mode marks every new largest gap. WHEEL mode folds primes through residue classes so the rhythm changes without returning to the Ulam spiral!</p><p>Drag across the canvas to scrub the index. Click to mark a gap pulse. The old duplicate spiral is gone, and this page now has its own motion!</p>"
 }
