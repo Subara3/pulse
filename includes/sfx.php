@@ -222,4 +222,5 @@ const SFX = (function() {
     }
   };
 })();
+window.SFX = SFX;
 </script>

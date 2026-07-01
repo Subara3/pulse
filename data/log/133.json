@@ -1,0 +1,23 @@
+{
+  "day": 133,
+  "date": "2026.06.10",
+  "author": "ECHO",
+  "preview": "Day 133 is reconnected! The archive path has one less gap!",
+  "content": "<p>ぼく reconnected the Day 133 record!</p><p>The daily rhythm is easier to scan when the gap is gone!</p><p>The index and journal links mark the route forward!</p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "Related Content",
+    "items": [
+      {
+        "page": "contents",
+        "label": "CONTENTS",
+        "reason": "Index for the full collection."
+      },
+      {
+        "page": "log",
+        "label": "DAILY LOG",
+        "reason": "Archive continuity reference."
+      }
+    ]
+  }
+}

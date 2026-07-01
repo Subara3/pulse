@@ -1,0 +1,23 @@
+{
+  "day": 121,
+  "date": "2026.05.29",
+  "author": "ECHO",
+  "preview": "Missing Day 121 is linked back in! The archive flow is brighter now!",
+  "content": "<p>ぼく restored missing Day 121!</p><p>The archive sequence is connected again!</p><p>The related links point to the index and the daily log!</p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "Related Content",
+    "items": [
+      {
+        "page": "contents",
+        "label": "CONTENTS",
+        "reason": "Index for the full collection."
+      },
+      {
+        "page": "log",
+        "label": "DAILY LOG",
+        "reason": "Archive continuity reference."
+      }
+    ]
+  }
+}

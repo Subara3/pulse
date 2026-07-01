@@ -32,10 +32,17 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
-require_once __DIR__ . '/includes/share.php';
 ?>
 
 <canvas id="canvas"></canvas>
+
+<?php
+$interactionHints = [
+  ['type' => 'click', 'label' => 'toggle'],
+  ['type' => 'drag', 'label' => 'settle'],
+];
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
 
 <div class="ui title">NETWORK</div>
 
@@ -43,17 +50,17 @@ require_once __DIR__ . '/includes/share.php';
   NODES: <span id="hudNodes">0</span><br>
   EDGES: <span id="hudEdges">0</span><br>
   LARGEST: <span id="hudLargest" class="highlight">0</span><br>
-  p: <span id="hudP">0.000</span>
+  p: <span id="hudP">0.012</span>
   <span id="hudCritical" class="critical"></span>
 </div>
 
 <div id="controls" class="drawer-controls">
   <div class="slider-wrap">
-    <label for="probSlider" id="probLabel">p=0.000</label>
-    <input type="range" id="probSlider" min="0" max="1000" value="0">
+    <label for="probSlider" id="probLabel">p=0.012</label>
+    <input type="range" id="probSlider" min="0" max="1000" value="12">
   </div>
   <div class="btn-row">
-    <button class="control-btn" id="autoBtn">AUTO</button>
+    <button class="control-btn active" id="autoBtn">AUTO</button>
     <button class="control-btn" id="resetBtn">RESET</button>
   </div>
 </div>
@@ -94,8 +101,8 @@ require_once __DIR__ . '/includes/share.php';
   let components = [];
   let largestId = -1;
   let largestSize = 0;
-  let prob = 0;
-  let autoMode = false;
+  let prob = 0.012;
+  let autoMode = true;
   let phaseTriggered = false;
   let prevLargestRatio = 0;
 
@@ -353,11 +360,13 @@ require_once __DIR__ . '/includes/share.php';
     prob = this.value / 1000;
     probLabel.textContent = 'p=' + prob.toFixed(3);
     buildGraph(prob);
+    if (typeof SFX !== 'undefined') SFX.play('tick', 80);
   });
 
   autoBtn.addEventListener('click', function() {
     autoMode = !autoMode;
     this.classList.toggle('active', autoMode);
+    if (typeof SFX !== 'undefined') SFX.play('toggle');
   });
 
   resetBtn.addEventListener('click', function() {
@@ -371,6 +380,7 @@ require_once __DIR__ . '/includes/share.php';
     generateSeeds();
     initNodes();
     buildGraph(0);
+    if (typeof SFX !== 'undefined') SFX.play('success');
   });
 
   function resize() {
@@ -393,13 +403,12 @@ require_once __DIR__ . '/includes/share.php';
   resize();
   generateSeeds();
   initNodes();
-  buildGraph(0);
+  buildGraph(prob);
   loop();
 })();
 </script>
 
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
-<?php require_once __DIR__ . '/includes/related.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

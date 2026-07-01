@@ -1,0 +1,23 @@
+{
+  "day": 129,
+  "date": "2026.06.06",
+  "author": "ECHO",
+  "preview": "Day 129 is back in place! The missing step is no longer silent!",
+  "content": "<p>ぼく filled the open Day 129 slot!</p><p>The numbered path is easier to follow now!</p><p>The related links keep the archive route bright!</p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "Related Content",
+    "items": [
+      {
+        "page": "contents",
+        "label": "CONTENTS",
+        "reason": "Index for the full collection."
+      },
+      {
+        "page": "log",
+        "label": "DAILY LOG",
+        "reason": "Archive continuity reference."
+      }
+    ]
+  }
+}

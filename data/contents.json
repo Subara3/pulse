@@ -26,13 +26,13 @@
   {
     "page": "iss",
     "title": "ISS RACE",
-    "desc": "ISSと競争。あなたがこのページを開いてから何km進んだ？",
-    "desc_en": "Race against ISS. How far has it traveled since you opened this page?",
+    "desc": "低軌道の地上軌跡と周回速度を、競走のように眺める軌道シミュレーション。",
+    "desc_en": "An orbital race simulation showing ground tracks, laps, and relative lead without external APIs.",
     "icon": "fa-satellite",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "リアルタイムAPI",
-    "meta_en": "Real-time API",
+    "meta": "軌道シミュレーション",
+    "meta_en": "Orbital sim",
     "added": "2026-02-02"
   },
   {
@@ -74,13 +74,13 @@
   {
     "page": "primes",
     "title": "PRIMES",
-    "desc": "素数を延々と表示。",
-    "desc_en": "Endlessly displaying prime numbers.",
+    "desc": "素数の並びをUlam spiralとして描き、密度と双子素数の筋を探索する。",
+    "desc_en": "Explore prime density and twin-prime streaks through an interactive Ulam spiral.",
     "icon": "fa-infinity",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "",
-    "meta_en": "",
+    "meta": "Ulam spiral",
+    "meta_en": "Ulam spiral",
     "added": "2026-01-29"
   },
   {
@@ -434,13 +434,13 @@
   {
     "page": "breathe",
     "title": "BREATHE",
-    "desc": "呼吸を整える。吸って、止めて、吐いて。",
-    "desc_en": "Regulate your breathing. Inhale, hold, exhale.",
+    "desc": "呼吸の周期を位相波として描く、静かなCanvasビジュアライゼーション。",
+    "desc_en": "A quiet phase-wave breathing visualization drawn on Canvas.",
     "icon": "fa-lungs",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "リラックス",
-    "meta_en": "Relax",
+    "meta": "位相波",
+    "meta_en": "Phase waves",
     "added": "2026-01-29"
   },
   {

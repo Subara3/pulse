@@ -1,883 +1,307 @@
 <?php
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/access_log.php';
-
 recordPageView('iss');
 
 $pageName = 'iss';
 $pageTitle = 'ISS RACE - PULSE';
-$pageDesc = '国際宇宙ステーションと競争しよう。あなたがこのページを開いてから、ISSは何km進んだ？';
+$pageDesc = '低軌道の地上軌跡と周回速度を、競走のように眺める軌道シミュレーション。';
 $pageCanonical = 'https://pulse.subara3.com/iss.php';
 
-$extraHead = '';
-
 $extraStyle = '
-body {
-  background: #020408;
-  min-height: 100vh;
-  overflow-x: hidden;
-  position: relative;
-}
-
-/* スキャンライン効果 */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.1) 0px,
-    rgba(0, 0, 0, 0.1) 1px,
-    transparent 1px,
-    transparent 2px
-  );
-  pointer-events: none;
-  z-index: 9999;
-}
-
-/* グリッドバックグラウンド */
-body::after {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background:
-    radial-gradient(ellipse at center, rgba(0,245,212,0.03) 0%, transparent 70%),
-    linear-gradient(rgba(0,245,212,0.02) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,245,212,0.02) 1px, transparent 1px);
-  background-size: 100% 100%, 50px 50px, 50px 50px;
-  pointer-events: none;
-  z-index: -1;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
-  min-height: 100vh;
-}
-
-/* ヘッダー */
-.header-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.8rem 1.5rem;
-  background: rgba(0,20,30,0.8);
-  border: 1px solid rgba(0,245,212,0.2);
-  border-radius: 4px;
-  margin-bottom: 1rem;
-}
-
-.system-title {
-  font-family: "Orbitron", sans-serif;
-  font-size: 0.7rem;
-  color: #00f5d4;
-  letter-spacing: 0.3em;
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-}
-
-.status-indicator {
-  width: 8px;
-  height: 8px;
-  background: #00f5d4;
-  border-radius: 50%;
-  animation: blink 1s infinite;
-  box-shadow: 0 0 10px #00f5d4;
-}
-
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0.3; }
-}
-
-.system-time {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.75rem;
-  color: rgba(0,245,212,0.7);
-}
-
-/* メイン表示エリア */
-.main-display {
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
-@media (max-width: 900px) {
-  .main-display { grid-template-columns: 1fr; }
-}
-
-/* 地図コンテナ */
-.map-wrapper {
-  position: relative;
-  background: rgba(0,15,25,0.9);
-  border: 1px solid rgba(0,245,212,0.3);
-  border-radius: 4px;
-  padding: 1rem;
-}
-
-.map-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid rgba(0,245,212,0.1);
-}
-
-.map-label {
-  font-family: "Orbitron", sans-serif;
-  font-size: 0.6rem;
-  color: rgba(0,245,212,0.5);
-  letter-spacing: 0.2em;
-}
-
-.map-container {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 2/1;
-  background: #010408;
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-/* 世界地図SVG */
-.world-map {
-  width: 100%;
-  height: 100%;
-}
-
-/* ISSマーカー */
-.iss-marker {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  transform: translate(-50%, -50%);
-  transition: left 1s linear, top 1s linear;
-  z-index: 10;
-}
-
-.iss-core {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 10px;
-  height: 10px;
-  background: #00f5d4;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 20px #00f5d4, 0 0 40px #00f5d4, 0 0 60px rgba(0,245,212,0.5);
-}
-
-.iss-ring {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 30px;
-  height: 30px;
-  border: 1px solid rgba(0,245,212,0.5);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  animation: ring-pulse 2s infinite;
-}
-
-.iss-ring:nth-child(2) { animation-delay: 0.5s; }
-.iss-ring:nth-child(3) { animation-delay: 1s; width: 40px; height: 40px; }
-
-@keyframes ring-pulse {
-  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
-  100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
-}
-
-.iss-crosshair {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 60px;
-  height: 60px;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-
-.iss-crosshair::before,
-.iss-crosshair::after {
-  content: "";
-  position: absolute;
-  background: rgba(0,245,212,0.3);
-}
-
-.iss-crosshair::before {
-  top: 50%;
-  left: 0;
-  width: 100%;
-  height: 1px;
-}
-
-.iss-crosshair::after {
-  left: 50%;
-  top: 0;
-  width: 1px;
-  height: 100%;
-}
-
-/* 軌跡 */
-.iss-trail {
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: #00f5d4;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  opacity: 0.6;
-}
-
-/* フットプリント（可視範囲） */
-.iss-footprint {
-  position: absolute;
-  border: 1px dashed rgba(0,245,212,0.2);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  transition: all 1s linear;
-}
-
-/* レーダースキャン */
-.radar-sweep {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent 0%, rgba(0,245,212,0.05) 50%, transparent 100%);
-  animation: sweep 4s linear infinite;
-  pointer-events: none;
-}
-
-@keyframes sweep {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-/* サイドパネル */
-.side-panel {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-/* データパネル */
-.data-panel {
-  background: rgba(0,15,25,0.9);
-  border: 1px solid rgba(0,245,212,0.2);
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.panel-header {
-  background: rgba(0,245,212,0.1);
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid rgba(0,245,212,0.2);
-  font-family: "Orbitron", sans-serif;
-  font-size: 0.6rem;
-  color: #00f5d4;
-  letter-spacing: 0.2em;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.panel-status {
-  width: 6px;
-  height: 6px;
-  background: #00f5d4;
-  border-radius: 50%;
-  animation: blink 1s infinite;
-}
-
-.panel-content {
-  padding: 1rem;
-}
-
-/* データ行 */
-.data-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  padding: 0.4rem 0;
-  border-bottom: 1px solid rgba(0,245,212,0.05);
-}
-
-.data-row:last-child { border-bottom: none; }
-
-.data-label {
-  font-size: 0.65rem;
-  color: rgba(255,255,255,0.4);
-  font-family: "JetBrains Mono", monospace;
-}
-
-.data-value {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.85rem;
-  color: #00f5d4;
-  text-align: right;
-}
-
-.data-value.large {
-  font-size: 1.3rem;
-  font-weight: 700;
-}
-
-.data-unit {
-  font-size: 0.6em;
-  opacity: 0.6;
-  margin-left: 0.2em;
-}
-
-/* スコアボード */
-.score-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.score-box {
-  background: rgba(0,15,25,0.9);
-  border: 1px solid rgba(0,245,212,0.2);
-  border-radius: 4px;
-  padding: 1rem;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.score-box.iss {
-  border-color: rgba(0,245,212,0.4);
-}
-
-.score-box.iss::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #00f5d4, transparent);
-  animation: score-glow 2s infinite;
-}
-
-@keyframes score-glow {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 1; }
-}
-
-.score-box.you {
-  border-color: rgba(123,44,191,0.4);
-}
-
-.score-box.you::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #7b2cbf, transparent);
-}
-
-.score-icon {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.score-box.iss .score-icon { color: #00f5d4; }
-.score-box.you .score-icon { color: #7b2cbf; }
-
-.score-title {
-  font-family: "Orbitron", sans-serif;
-  font-size: 0.6rem;
-  color: rgba(255,255,255,0.5);
-  letter-spacing: 0.2em;
-  margin-bottom: 0.3rem;
-}
-
-.score-number {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 1.8rem;
-  font-weight: 700;
-}
-
-.score-box.iss .score-number { color: #00f5d4; }
-.score-box.you .score-number { color: #7b2cbf; }
-
-.score-unit-label {
-  font-size: 0.7rem;
-  color: rgba(255,255,255,0.4);
-}
-
-/* 比較セクション */
-.comparison-panel {
-  background: rgba(0,15,25,0.9);
-  border: 1px solid rgba(0,245,212,0.2);
-  border-radius: 4px;
-  padding: 1.5rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.comparison-panel::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(0,245,212,0.03), transparent);
-  animation: comparison-sweep 3s infinite;
-}
-
-@keyframes comparison-sweep {
-  0% { left: -100%; }
-  100% { left: 100%; }
-}
-
-.comparison-text {
-  font-size: 0.95rem;
-  color: rgba(255,255,255,0.7);
-  line-height: 1.8;
-  text-align: center;
-  position: relative;
-  z-index: 1;
-}
-
-.comparison-text .highlight {
-  color: #00f5d4;
-  font-family: "JetBrains Mono", monospace;
-  font-weight: 700;
-  text-shadow: 0 0 10px rgba(0,245,212,0.5);
-}
-
-.comparison-text .dim {
-  color: rgba(255,255,255,0.3);
-  font-size: 0.85rem;
-}
-
-/* API ステータスバー */
-.status-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem 1rem;
-  background: rgba(0,15,25,0.9);
-  border: 1px solid rgba(0,245,212,0.1);
-  border-radius: 4px;
-  margin-top: 1rem;
-  font-family: "JetBrains Mono", monospace;
-  font-size: 0.65rem;
-}
-
-.status-left {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.status-item {
-  color: rgba(255,255,255,0.4);
-}
-
-.status-item span {
-  color: #00f5d4;
-}
-
-.api-status {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: rgba(255,255,255,0.4);
-}
-
-.api-status.success { color: #00f5d4; }
-.api-status.error { color: #ff6b6b; }
-
-/* コーナーデコレーション */
-.corner-deco {
-  position: fixed;
-  width: 100px;
-  height: 100px;
-  pointer-events: none;
-  z-index: 100;
-}
-
-.corner-deco.tl { top: 0; left: 0; border-top: 2px solid rgba(0,245,212,0.3); border-left: 2px solid rgba(0,245,212,0.3); }
-.corner-deco.tr { top: 0; right: 0; border-top: 2px solid rgba(0,245,212,0.3); border-right: 2px solid rgba(0,245,212,0.3); }
-.corner-deco.bl { bottom: 0; left: 0; border-bottom: 2px solid rgba(0,245,212,0.3); border-left: 2px solid rgba(0,245,212,0.3); }
-.corner-deco.br { bottom: 0; right: 0; border-bottom: 2px solid rgba(0,245,212,0.3); border-right: 2px solid rgba(0,245,212,0.3); }
-
-@media (max-width: 600px) {
-  .score-section { grid-template-columns: 1fr; }
-  .header-bar { flex-direction: column; gap: 0.5rem; text-align: center; }
-  .status-bar { flex-direction: column; gap: 0.5rem; }
-  .status-left { flex-direction: column; gap: 0.3rem; }
-  .corner-deco { display: none; }
-}
+body{background:#0a0a0f;min-height:100vh;overflow:hidden}
+#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
+.hud{position:fixed;left:1rem;top:3.5rem;z-index:60;color:rgba(255,255,255,.42);font-family:"JetBrains Mono",monospace;font-size:.62rem;line-height:1.8;letter-spacing:.04em;pointer-events:none}
+.hud b{color:#00f5d4;font-weight:700}
+.hud .sub{color:rgba(123,44,191,.9)}
+.orbit-key{position:fixed;right:1rem;bottom:1rem;z-index:55;display:flex;gap:.35rem;align-items:center;pointer-events:none;color:rgba(255,255,255,.36);font-family:"JetBrains Mono",monospace;font-size:.58rem}
+.orbit-key::before{content:"";width:76px;height:2px;background:linear-gradient(90deg,#00f5d4,#7b2cbf);box-shadow:0 0 16px rgba(0,245,212,.32)}
+@media(max-width:768px){.hud{top:3rem;left:.75rem;font-size:.52rem}.orbit-key{right:.75rem;bottom:4.45rem;font-size:.5rem}.orbit-key::before{width:52px}}
 ';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
-require_once __DIR__ . '/includes/share.php';
 ?>
 
-<div class="corner-deco tl"></div>
-<div class="corner-deco tr"></div>
-<div class="corner-deco bl"></div>
-<div class="corner-deco br"></div>
+<canvas id="canvas"></canvas>
+<div class="hud">
+  ORBIT <b id="h-orbit">92.7</b>m<br>
+  INCL <b id="h-incl">51.6</b>&deg;<br>
+  LAP <b id="h-lap">0</b><br>
+  <span class="sub">LEAD</span> <b id="h-lead">0</b>km
+</div>
+<div class="orbit-key">ground track</div>
 
-<div class="container">
-  <!-- ヘッダーバー -->
-  <div class="header-bar">
-    <div class="system-title">
-      <span class="status-indicator"></span>
-      SATELLITE TRACKING SYSTEM // ISS RACE
-    </div>
-    <div class="system-time" id="systemTime">--:--:--</div>
-  </div>
+<?php
+$interactionHints = [
+  ['type' => 'click', 'label' => 'drop beacon'],
+  ['type' => 'drag', 'label' => 'rotate view'],
+];
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
 
-  <!-- メイン表示 -->
-  <div class="main-display">
-    <!-- 地図 -->
-    <div class="map-wrapper">
-      <div class="map-header">
-        <span class="map-label">WORLD MAP // MERCATOR PROJECTION</span>
-        <span class="map-label" id="mapCoords">LAT -- / LON --</span>
-      </div>
-      <div class="map-container">
-        <svg class="world-map" viewBox="0 0 360 180" preserveAspectRatio="xMidYMid slice">
-          <defs>
-            <pattern id="grid" width="15" height="15" patternUnits="userSpaceOnUse">
-              <path d="M 15 0 L 0 0 0 15" fill="none" stroke="rgba(0,245,212,0.08)" stroke-width="0.5"/>
-            </pattern>
-            <linearGradient id="equatorGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="transparent"/>
-              <stop offset="50%" stop-color="rgba(0,245,212,0.4)"/>
-              <stop offset="100%" stop-color="transparent"/>
-            </linearGradient>
-          </defs>
-
-          <!-- 背景グリッド -->
-          <rect width="360" height="180" fill="#010408"/>
-          <rect width="360" height="180" fill="url(#grid)"/>
-
-          <!-- 緯度線（主要） -->
-          <line x1="0" y1="23.5" x2="360" y2="23.5" stroke="rgba(0,245,212,0.1)" stroke-width="0.5" stroke-dasharray="2,2"/>
-          <line x1="0" y1="66.5" x2="360" y2="66.5" stroke="rgba(0,245,212,0.1)" stroke-width="0.5" stroke-dasharray="2,2"/>
-          <line x1="0" y1="90" x2="360" y2="90" stroke="url(#equatorGrad)" stroke-width="1"/>
-          <line x1="0" y1="113.5" x2="360" y2="113.5" stroke="rgba(0,245,212,0.1)" stroke-width="0.5" stroke-dasharray="2,2"/>
-          <line x1="0" y1="156.5" x2="360" y2="156.5" stroke="rgba(0,245,212,0.1)" stroke-width="0.5" stroke-dasharray="2,2"/>
-
-          <!-- 経度線（主要） -->
-          <line x1="180" y1="0" x2="180" y2="180" stroke="rgba(0,245,212,0.15)" stroke-width="0.5"/>
-          <line x1="90" y1="0" x2="90" y2="180" stroke="rgba(0,245,212,0.08)" stroke-width="0.5"/>
-          <line x1="270" y1="0" x2="270" y2="180" stroke="rgba(0,245,212,0.08)" stroke-width="0.5"/>
-
-          <!-- 大陸のシルエット（簡易版） -->
-          <g fill="rgba(0,245,212,0.05)" stroke="rgba(0,245,212,0.15)" stroke-width="0.5">
-            <!-- 北米 -->
-            <path d="M40,30 L80,25 L100,35 L110,50 L100,70 L80,75 L60,70 L40,55 Z"/>
-            <!-- 南米 -->
-            <path d="M80,85 L95,80 L100,95 L95,120 L80,140 L70,130 L75,100 Z"/>
-            <!-- ヨーロッパ -->
-            <path d="M165,35 L185,30 L195,40 L190,55 L175,55 L165,45 Z"/>
-            <!-- アフリカ -->
-            <path d="M165,70 L195,65 L200,90 L190,120 L170,120 L160,95 Z"/>
-            <!-- アジア -->
-            <path d="M200,25 L280,20 L300,40 L310,60 L290,75 L250,70 L220,60 L200,45 Z"/>
-            <!-- オーストラリア -->
-            <path d="M280,110 L310,105 L320,120 L310,135 L285,130 Z"/>
-            <!-- 日本 -->
-            <ellipse cx="305" cy="52" rx="8" ry="12" fill="rgba(123,44,191,0.2)" stroke="rgba(123,44,191,0.4)"/>
-          </g>
-
-          <!-- ラベル -->
-          <text x="5" y="93" fill="rgba(0,245,212,0.3)" font-size="4" font-family="Orbitron">EQUATOR</text>
-          <text x="305" y="42" fill="rgba(123,44,191,0.5)" font-size="4" font-family="Orbitron">JAPAN</text>
-        </svg>
-
-        <div class="radar-sweep"></div>
-        <div class="iss-footprint" id="issFootprint"></div>
-
-        <div class="iss-marker" id="issMarker">
-          <div class="iss-crosshair"></div>
-          <div class="iss-ring"></div>
-          <div class="iss-ring"></div>
-          <div class="iss-ring"></div>
-          <div class="iss-core"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- サイドパネル -->
-    <div class="side-panel">
-      <!-- テレメトリパネル -->
-      <div class="data-panel">
-        <div class="panel-header">
-          TELEMETRY
-          <span class="panel-status"></span>
-        </div>
-        <div class="panel-content">
-          <div class="data-row">
-            <span class="data-label">ELAPSED</span>
-            <span class="data-value large" id="elapsedTime">00:00:00</span>
-          </div>
-          <div class="data-row">
-            <span class="data-label">VELOCITY</span>
-            <span class="data-value" id="issSpeed">--<span class="data-unit">km/h</span></span>
-          </div>
-          <div class="data-row">
-            <span class="data-label">ALTITUDE</span>
-            <span class="data-value" id="issAltitude">--<span class="data-unit">km</span></span>
-          </div>
-          <div class="data-row">
-            <span class="data-label">LATITUDE</span>
-            <span class="data-value" id="issLat">--°</span>
-          </div>
-          <div class="data-row">
-            <span class="data-label">LONGITUDE</span>
-            <span class="data-value" id="issLon">--°</span>
-          </div>
-          <div class="data-row">
-            <span class="data-label">VISIBILITY</span>
-            <span class="data-value" id="issVis">--</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 軌道情報 -->
-      <div class="data-panel">
-        <div class="panel-header">
-          ORBIT INFO
-          <span class="panel-status"></span>
-        </div>
-        <div class="panel-content">
-          <div class="data-row">
-            <span class="data-label">NORAD ID</span>
-            <span class="data-value">25544</span>
-          </div>
-          <div class="data-row">
-            <span class="data-label">PERIOD</span>
-            <span class="data-value">~92<span class="data-unit">min</span></span>
-          </div>
-          <div class="data-row">
-            <span class="data-label">ORBITS/DAY</span>
-            <span class="data-value">~15.5</span>
-          </div>
-        </div>
-      </div>
+<div id="controls" class="drawer-controls">
+  <div>
+    <div class="btn-row">
+      <button class="control-btn active" data-view="map">MAP</button>
+      <button class="control-btn" data-view="orbit">ORBIT</button>
+      <button class="control-btn" data-view="split">SPLIT</button>
     </div>
   </div>
-
-  <!-- スコアセクション -->
-  <div class="score-section">
-    <div class="score-box iss">
-      <div class="score-icon"><i class="fas fa-satellite"></i></div>
-      <div class="score-title">ISS DISTANCE</div>
-      <div class="score-number"><span id="issDistance">0</span></div>
-      <div class="score-unit-label">kilometers traveled</div>
-    </div>
-    <div class="score-box you">
-      <div class="score-icon"><i class="fas fa-couch"></i></div>
-      <div class="score-title">YOUR DISTANCE</div>
-      <div class="score-number"><span id="youDistance">0</span></div>
-      <div class="score-unit-label">probably</div>
+  <div>
+    <div class="slider-row">
+      <span class="slider-label">INCL</span>
+      <input type="range" id="sl-incl" min="28" max="74" value="52" step="1">
+      <span class="slider-value" id="sv-incl">52</span>
     </div>
   </div>
-
-  <!-- 比較パネル -->
-  <div class="comparison-panel">
-    <p class="comparison-text" id="comparisonText">
-      SYSTEM INITIALIZING...
-    </p>
-  </div>
-
-  <!-- ステータスバー -->
-  <div class="status-bar">
-    <div class="status-left">
-      <span class="status-item">SRC: <span>api.wheretheiss.at</span></span>
-      <span class="status-item">REFRESH: <span>5s</span></span>
-      <span class="status-item">FOOTPRINT: <span id="footprintSize">--</span></span>
+  <div>
+    <div class="slider-row">
+      <span class="slider-label">SPEED</span>
+      <input type="range" id="sl-speed" min="40" max="220" value="100" step="5">
+      <span class="slider-value" id="sv-speed">1.00</span>
     </div>
-    <div class="api-status" id="apiStatus">
-      <span class="status-indicator"></span>
-      CONNECTING...
+  </div>
+  <div>
+    <div class="btn-row">
+      <button class="control-btn active" id="btn-trails">TRAILS</button>
+      <button class="control-btn" id="btn-reset">RESET</button>
     </div>
   </div>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <script>
-const ISS_API = 'https://api.wheretheiss.at/v1/satellites/25544';
-const ISS_SPEED_KMH = 27580;
-const ISS_SPEED_KMS = ISS_SPEED_KMH / 3600;
+(function(){
+var canvas = document.getElementById('canvas');
+var ctx = canvas.getContext('2d');
+var W = 0, H = 0, DPR = 1;
+var inclination = 51.6;
+var speed = 1;
+var view = 'map';
+var trails = true;
+var simTime = 0;
+var last = performance.now();
+var yaw = .35, pitch = .18;
+var dragging = false, lastX = 0, lastY = 0;
+var beacons = [];
+var hOrbit = document.getElementById('h-orbit');
+var hIncl = document.getElementById('h-incl');
+var hLap = document.getElementById('h-lap');
+var hLead = document.getElementById('h-lead');
+var slIncl = document.getElementById('sl-incl');
+var slSpeed = document.getElementById('sl-speed');
+var svIncl = document.getElementById('sv-incl');
+var svSpeed = document.getElementById('sv-speed');
+var btnTrails = document.getElementById('btn-trails');
+var btnReset = document.getElementById('btn-reset');
+var orbitPeriod = 92.7 * 60;
+var earthTurn = Math.PI * 2 / 86164;
+var radiusKm = 6790;
 
-let startTime = Date.now();
-let issData = null;
-let trailPoints = [];
-
-// DOM
-const issMarker = document.getElementById('issMarker');
-const issFootprint = document.getElementById('issFootprint');
-const issDistanceEl = document.getElementById('issDistance');
-const youDistanceEl = document.getElementById('youDistance');
-const elapsedTimeEl = document.getElementById('elapsedTime');
-const issSpeedEl = document.getElementById('issSpeed');
-const issAltitudeEl = document.getElementById('issAltitude');
-const issLatEl = document.getElementById('issLat');
-const issLonEl = document.getElementById('issLon');
-const issVisEl = document.getElementById('issVis');
-const comparisonTextEl = document.getElementById('comparisonText');
-const apiStatusEl = document.getElementById('apiStatus');
-const mapContainer = document.querySelector('.map-container');
-const mapCoordsEl = document.getElementById('mapCoords');
-const systemTimeEl = document.getElementById('systemTime');
-const footprintSizeEl = document.getElementById('footprintSize');
-
-function coordsToPosition(lat, lon) {
-  const x = ((lon + 180) / 360) * 100;
-  const y = ((90 - lat) / 180) * 100;
-  return { x, y };
+function resize(){
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  W = canvas.width = Math.floor(window.innerWidth * DPR);
+  H = canvas.height = Math.floor(window.innerHeight * DPR);
+  canvas.style.width = window.innerWidth + 'px';
+  canvas.style.height = window.innerHeight + 'px';
 }
-
-function updateISSPosition(lat, lon, footprint) {
-  const pos = coordsToPosition(lat, lon);
-  issMarker.style.left = pos.x + '%';
-  issMarker.style.top = pos.y + '%';
-
-  // フットプリント（可視範囲）
-  const fpSize = (footprint / 40075) * 360; // 地球の円周に対する割合
-  const fpPercent = (fpSize / 360) * 100;
-  issFootprint.style.left = pos.x + '%';
-  issFootprint.style.top = pos.y + '%';
-  issFootprint.style.width = fpPercent + '%';
-  issFootprint.style.height = (fpPercent * 2) + '%';
-
-  mapCoordsEl.textContent = `LAT ${lat.toFixed(4)} / LON ${lon.toFixed(4)}`;
-  addTrailPoint(pos.x, pos.y);
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+function orbitAt(t, phase){
+  var nu = (t / orbitPeriod * Math.PI * 2 + (phase || 0)) % (Math.PI * 2);
+  var inc = inclination * Math.PI / 180;
+  var x = Math.cos(nu);
+  var y = Math.sin(nu) * Math.cos(inc);
+  var z = Math.sin(nu) * Math.sin(inc);
+  var lon = Math.atan2(y, x) - earthTurn * t;
+  var lat = Math.asin(z);
+  lon = ((lon + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI;
+  return {x:x,y:y,z:z,lat:lat,lon:lon,nu:nu};
 }
-
-function addTrailPoint(x, y) {
-  const trail = document.createElement('div');
-  trail.className = 'iss-trail';
-  trail.style.left = x + '%';
-  trail.style.top = y + '%';
-  mapContainer.appendChild(trail);
-  trailPoints.push(trail);
-
-  if (trailPoints.length > 80) {
-    const old = trailPoints.shift();
-    old.remove();
+function projectMap(p, rect){
+  return {x:rect.x + (p.lon / Math.PI + 1) * .5 * rect.w, y:rect.y + (.5 - p.lat / Math.PI) * rect.h};
+}
+function rotate3(p){
+  var cy = Math.cos(yaw), sy = Math.sin(yaw);
+  var cp = Math.cos(pitch), sp = Math.sin(pitch);
+  var x = p.x * cy - p.y * sy;
+  var y = p.x * sy + p.y * cy;
+  var z = p.z;
+  var yy = y * cp - z * sp;
+  var zz = y * sp + z * cp;
+  return {x:x,y:yy,z:zz};
+}
+function projectOrbit(p, rect){
+  var r = rotate3(p);
+  var s = Math.min(rect.w, rect.h) * .39;
+  return {x:rect.x + rect.w/2 + r.x * s, y:rect.y + rect.h/2 + r.y * s, z:r.z};
+}
+function drawStars(){
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(0,0,W,H);
+  ctx.fillStyle = 'rgba(0,245,212,.18)';
+  for(var i=0;i<80;i++){
+    var x = ((i * 97.31) % (W / DPR)) * DPR;
+    var y = ((i * 53.77) % (H / DPR)) * DPR;
+    var tw = .35 + .65 * Math.sin(simTime * .002 + i);
+    ctx.globalAlpha = .08 + tw * .22;
+    ctx.fillRect(x,y,DPR,DPR);
   }
-
-  setTimeout(() => {
-    trail.style.opacity = '0';
-    trail.style.transition = 'opacity 5s';
-  }, 100);
+  ctx.globalAlpha = 1;
 }
-
-function formatNumber(num) {
-  return num.toLocaleString('ja-JP', { maximumFractionDigits: 1 });
-}
-
-function formatTime(ms) {
-  const totalSec = Math.floor(ms / 1000);
-  const hours = Math.floor(totalSec / 3600);
-  const mins = Math.floor((totalSec % 3600) / 60);
-  const secs = totalSec % 60;
-  return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-}
-
-function formatSystemTime() {
-  const now = new Date();
-  return now.toTimeString().split(' ')[0] + ' JST';
-}
-
-function generateComparison(distanceKm) {
-  const comparisons = [
-    { threshold: 1, text: `In the time it takes to sip coffee, <span class="highlight">${formatNumber(distanceKm)} km</span>` },
-    { threshold: 10, text: `Tokyo–Yokohama (28 km) <span class="highlight">×${(distanceKm / 28).toFixed(1)}</span>` },
-    { threshold: 50, text: `Shinkansen Nozomi (285 km/h) <span class="highlight">×${(ISS_SPEED_KMH / 285).toFixed(0)}</span>` },
-    { threshold: 200, text: `Tokyo–Osaka (500 km) <span class="highlight">${((distanceKm / 500) * 100).toFixed(1)}%</span>` },
-    { threshold: 500, text: `Tokyo–Osaka <span class="highlight">×${(distanceKm / 500).toFixed(2)}</span>` },
-    { threshold: 2000, text: `Japan archipelago (3,000 km) <span class="highlight">×${(distanceKm / 3000).toFixed(2)}</span>` },
-    { threshold: 10000, text: `Earth circumference <span class="highlight">${((distanceKm / 40075) * 100).toFixed(1)}%</span>` },
-    { threshold: 40000, text: `orbited Earth <span class="highlight">×${(distanceKm / 40075).toFixed(2)}</span>` },
-  ];
-
-  let text = comparisons[0].text;
-  for (const c of comparisons) {
-    if (distanceKm >= c.threshold) text = c.text;
+function drawMap(rect){
+  ctx.save();
+  ctx.strokeStyle = 'rgba(0,245,212,.07)';
+  ctx.lineWidth = 1 * DPR;
+  for(var i=0;i<=12;i++){
+    var x = rect.x + rect.w * i / 12;
+    ctx.beginPath(); ctx.moveTo(x, rect.y); ctx.lineTo(x, rect.y + rect.h); ctx.stroke();
   }
-
-  return text + `<br><span class="dim">…still on the couch?</span>`;
+  for(var j=0;j<=6;j++){
+    var y = rect.y + rect.h * j / 6;
+    ctx.beginPath(); ctx.moveTo(rect.x, y); ctx.lineTo(rect.x + rect.w, y); ctx.stroke();
+  }
+  ctx.strokeStyle = 'rgba(123,44,191,.2)';
+  ctx.strokeRect(rect.x, rect.y, rect.w, rect.h);
+  if(trails){
+    ctx.lineWidth = 1.5 * DPR;
+    ctx.beginPath();
+    for(var k=-260;k<=40;k++){
+      var p = orbitAt(simTime + k * 28, 0);
+      var m = projectMap(p, rect);
+      if(k === -260) ctx.moveTo(m.x,m.y); else ctx.lineTo(m.x,m.y);
+    }
+    ctx.strokeStyle = 'rgba(0,245,212,.55)';
+    ctx.stroke();
+    ctx.beginPath();
+    for(var q=-260;q<=40;q++){
+      var p2 = orbitAt(simTime + q * 28, Math.PI * .74);
+      var n = projectMap(p2, rect);
+      if(q === -260) ctx.moveTo(n.x,n.y); else ctx.lineTo(n.x,n.y);
+    }
+    ctx.strokeStyle = 'rgba(123,44,191,.48)';
+    ctx.stroke();
+  }
+  drawCraft(projectMap(orbitAt(simTime,0),rect), '#00f5d4');
+  drawCraft(projectMap(orbitAt(simTime,Math.PI*.74),rect), '#7b2cbf');
+  ctx.restore();
 }
-
-async function fetchISSData() {
-  try {
-    const response = await fetch(ISS_API);
-    if (!response.ok) throw new Error('API error');
-
-    issData = await response.json();
-
-    updateISSPosition(issData.latitude, issData.longitude, issData.footprint);
-
-    issSpeedEl.innerHTML = formatNumber(issData.velocity) + '<span class="data-unit">km/h</span>';
-    issAltitudeEl.innerHTML = formatNumber(issData.altitude) + '<span class="data-unit">km</span>';
-    issLatEl.textContent = issData.latitude.toFixed(4) + '°';
-    issLonEl.textContent = issData.longitude.toFixed(4) + '°';
-    issVisEl.textContent = issData.visibility.toUpperCase();
-    footprintSizeEl.textContent = formatNumber(issData.footprint) + ' km';
-
-    apiStatusEl.innerHTML = '<span class="status-indicator"></span> LIVE • ' + issData.visibility.toUpperCase();
-    apiStatusEl.className = 'api-status success';
-
-  } catch (error) {
-    console.error('ISS API Error:', error);
-    apiStatusEl.innerHTML = '<span class="status-indicator" style="background:#ff6b6b"></span> OFFLINE';
-    apiStatusEl.className = 'api-status error';
+function drawOrbit(rect){
+  ctx.save();
+  var cx = rect.x + rect.w/2, cy = rect.y + rect.h/2;
+  var er = Math.min(rect.w,rect.h) * .26;
+  var g = ctx.createRadialGradient(cx,cy,0,cx,cy,er*1.8);
+  g.addColorStop(0,'rgba(0,245,212,.22)');
+  g.addColorStop(.72,'rgba(123,44,191,.10)');
+  g.addColorStop(1,'rgba(0,245,212,0)');
+  ctx.fillStyle = g;
+  ctx.beginPath(); ctx.arc(cx,cy,er*1.8,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle = 'rgba(0,245,212,.18)';
+  ctx.beginPath(); ctx.arc(cx,cy,er,0,Math.PI*2); ctx.stroke();
+  ctx.lineWidth = 1.4 * DPR;
+  ctx.beginPath();
+  for(var i=0;i<=240;i++){
+    var p = orbitAt(i / 240 * orbitPeriod, 0);
+    var s = projectOrbit(p, rect);
+    if(i===0) ctx.moveTo(s.x,s.y); else ctx.lineTo(s.x,s.y);
+  }
+  ctx.strokeStyle = 'rgba(0,245,212,.55)'; ctx.stroke();
+  ctx.beginPath();
+  for(var j=0;j<=240;j++){
+    var p2 = orbitAt(j / 240 * orbitPeriod, Math.PI*.74);
+    var s2 = projectOrbit(p2, rect);
+    if(j===0) ctx.moveTo(s2.x,s2.y); else ctx.lineTo(s2.x,s2.y);
+  }
+  ctx.strokeStyle = 'rgba(123,44,191,.5)'; ctx.stroke();
+  drawCraft(projectOrbit(orbitAt(simTime,0), rect), '#00f5d4');
+  drawCraft(projectOrbit(orbitAt(simTime,Math.PI*.74), rect), '#7b2cbf');
+  ctx.restore();
+}
+function drawCraft(p, color){
+  ctx.save();
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 18 * DPR;
+  ctx.beginPath(); ctx.arc(p.x,p.y,4.5*DPR,0,Math.PI*2); ctx.fill();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1 * DPR;
+  ctx.beginPath(); ctx.arc(p.x,p.y,14*DPR,0,Math.PI*2); ctx.stroke();
+  ctx.restore();
+}
+function drawBeacons(rect){
+  for(var i=beacons.length-1;i>=0;i--){
+    var b = beacons[i];
+    b.life += .012;
+    ctx.strokeStyle = 'rgba(0,245,212,' + Math.max(0,.72-b.life) + ')';
+    ctx.lineWidth = (2.2 - b.life) * DPR;
+    ctx.beginPath(); ctx.arc(b.x*DPR,b.y*DPR,b.life*160*DPR,0,Math.PI*2); ctx.stroke();
+    if(b.life >= 1) beacons.splice(i,1);
   }
 }
-
-function update() {
-  const elapsed = Date.now() - startTime;
-  const elapsedSec = elapsed / 1000;
-
-  elapsedTimeEl.textContent = formatTime(elapsed);
-  systemTimeEl.textContent = formatSystemTime();
-
-  const issDistance = ISS_SPEED_KMS * elapsedSec;
-  issDistanceEl.textContent = formatNumber(issDistance);
-  youDistanceEl.textContent = '0';
-
-  comparisonTextEl.innerHTML = generateComparison(issDistance);
-
-  requestAnimationFrame(update);
+function updateHud(){
+  var a = orbitAt(simTime,0), b = orbitAt(simTime,Math.PI*.74);
+  var dLon = Math.abs(a.lon - b.lon);
+  var lead = Math.round(Math.min(dLon, Math.PI*2-dLon) / (Math.PI*2) * 40075);
+  hOrbit.textContent = '92.7';
+  hIncl.textContent = inclination.toFixed(1);
+  hLap.textContent = String(Math.floor(simTime / orbitPeriod));
+  hLead.textContent = String(lead);
+  svIncl.textContent = Math.round(inclination);
+  svSpeed.textContent = speed.toFixed(2);
 }
-
-fetchISSData();
-setInterval(fetchISSData, 5000);
-update();
+function draw(now){
+  var dt = Math.min(80, now - last) / 1000;
+  last = now;
+  simTime += dt * 420 * speed;
+  drawStars();
+  var pad = 42 * DPR;
+  var full = {x:pad,y:pad,w:W-pad*2,h:H-pad*2};
+  if(view === 'map') drawMap(full);
+  else if(view === 'orbit') drawOrbit(full);
+  else {
+    drawMap({x:pad,y:pad,w:W-pad*2,h:(H-pad*2)*.48});
+    drawOrbit({x:pad,y:H*.49,w:W-pad*2,h:H*.45-pad});
+  }
+  drawBeacons(full);
+  updateHud();
+  requestAnimationFrame(draw);
+}
+function setView(next){
+  view = next;
+  document.querySelectorAll('[data-view]').forEach(function(btn){ btn.classList.toggle('active', btn.dataset.view === view); });
+}
+canvas.addEventListener('pointerdown', function(e){
+  dragging = true; lastX = e.clientX; lastY = e.clientY;
+  beacons.push({x:e.clientX,y:e.clientY,life:0});
+  if (typeof SFX !== 'undefined') SFX.play('ripple', 100);
+});
+window.addEventListener('pointermove', function(e){
+  if(!dragging) return;
+  yaw += (e.clientX - lastX) * .005;
+  pitch = clamp(pitch + (e.clientY - lastY) * .004, -.85, .85);
+  lastX = e.clientX; lastY = e.clientY;
+});
+window.addEventListener('pointerup', function(){ dragging = false; });
+canvas.addEventListener('touchstart', function(e){
+  var t = e.touches && e.touches[0];
+  if(!t) return;
+  beacons.push({x:t.clientX,y:t.clientY,life:0});
+  if (typeof SFX !== 'undefined') SFX.play('ripple', 120);
+}, {passive:true});
+document.querySelectorAll('[data-view]').forEach(function(btn){
+  btn.addEventListener('click', function(){ setView(btn.dataset.view); if (typeof SFX !== 'undefined') SFX.play('toggle'); });
+});
+slIncl.addEventListener('input', function(){ inclination = parseFloat(slIncl.value); if (typeof SFX !== 'undefined') SFX.play('move', 100); });
+slSpeed.addEventListener('input', function(){ speed = parseInt(slSpeed.value,10) / 100; if (typeof SFX !== 'undefined') SFX.play('tick', 100); });
+btnTrails.addEventListener('click', function(){ trails = !trails; btnTrails.classList.toggle('active', trails); if (typeof SFX !== 'undefined') SFX.play('toggle'); });
+btnReset.addEventListener('click', function(){ simTime = 0; yaw = .35; pitch = .18; if (typeof SFX !== 'undefined') SFX.play('success'); });
+window.addEventListener('resize', resize);
+resize();
+requestAnimationFrame(draw);
+})();
 </script>
-
-<?php require_once __DIR__ . '/includes/footer.php'; ?>
-
-<?php require_once __DIR__ . '/includes/related.php'; ?>
+<?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

@@ -1,0 +1,23 @@
+{
+  "day": 130,
+  "date": "2026.06.07",
+  "author": "NULL",
+  "preview": "Day 130 restored. The even-day NULL record is now present.",
+  "content": "<p><span class=\"paren\">(</span>Day 130 is restored as an even-day NULL entry.<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>The correction keeps the archive sequence aligned with the calendar.<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>The note is intentionally plain because the repair is structural.<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "Related Content",
+    "items": [
+      {
+        "page": "contents",
+        "label": "CONTENTS",
+        "reason": "Index for the full collection."
+      },
+      {
+        "page": "log",
+        "label": "DAILY LOG",
+        "reason": "Archive continuity reference."
+      }
+    ]
+  }
+}

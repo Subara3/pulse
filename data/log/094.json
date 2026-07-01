@@ -1,0 +1,23 @@
+{
+  "day": 94,
+  "date": "2026.05.02",
+  "author": "NULL",
+  "preview": "A quiet continuity entry for the restored Day 94 record.",
+  "content": "<p><span class=\"paren\">(</span>Day 94 is added as a structural restoration.<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>The page list and the journal list can now meet without a gap.<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>The note remains compact because the purpose is continuity.<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "Related Content",
+    "items": [
+      {
+        "page": "contents",
+        "label": "CONTENTS",
+        "reason": "Index for the full collection."
+      },
+      {
+        "page": "log",
+        "label": "DAILY LOG",
+        "reason": "Archive continuity reference."
+      }
+    ]
+  }
+}
