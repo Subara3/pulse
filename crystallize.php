@@ -4,467 +4,73 @@ require_once __DIR__ . '/includes/access_log.php';
 recordPageView('crystallize');
 
 $pageName = 'crystallize';
-$pageTitle = 'ORBIT - PULSE';
-$pageDesc = 'N体重力シミュレーション。質点を配置して軌道を眺める。';
+$pageTitle = 'SPINODAL - PULSE';
+$pageDesc = 'スピノーダル分解。保存量をもつ場が相分離し、迷路状のドメインへ粗大化していく。';
 $pageCanonical = 'https://pulse.subara3.com/crystallize.php';
 
-$extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">';
-
 $extraStyle = '
-body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
-#canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
-.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
-.hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.35); font-size: 0.65rem; text-align: right; letter-spacing: 0.05em; line-height: 1.8; }
-.hud .highlight { color: #00f5d4; font-weight: 700; }
-.hud .sub { color: #c455ff; }
-.info { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.2); font-size: 0.6rem; letter-spacing: 0.05em; line-height: 1.8; }
-
-@media (max-width: 768px) {
-  .hud { font-size: 0.55rem; top: 0.5rem; right: 0.5rem; }
-  .info { bottom: 1rem; left: 1rem; font-size: 0.5rem; }
-}
+body{background:#0a0a0f;min-height:100vh;overflow:hidden}
+#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
+.hud{position:fixed;top:3.5rem;right:1rem;z-index:60;color:rgba(255,255,255,.36);font-family:"JetBrains Mono",monospace;font-size:.62rem;line-height:1.8;letter-spacing:.04em;text-align:right;pointer-events:none}
+.hud b{color:#00f5d4;font-weight:700}.hud .p{color:#9b5de5}
+.legend{position:fixed;left:1rem;bottom:1rem;z-index:55;width:min(28vw,220px);height:3px;background:linear-gradient(90deg,rgba(123,44,191,.95),rgba(12,30,42,.8),rgba(0,245,212,.95));opacity:.8;pointer-events:none}
+@media(max-width:768px){.hud{top:3rem;right:.7rem;font-size:.52rem}.legend{left:.75rem;bottom:4.5rem;width:38vw}}
 ';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
-
 <canvas id="canvas"></canvas>
-
-<div class="ui info" id="infoPanel">
-  CLICK TO ADD BODY<br>
-  DRAG TO SET VELOCITY<br>
-  RIGHT-CLICK TO CLEAR
-</div>
-
-<div class="ui hud" id="hud">
-  BODIES: <span id="hudBodies" class="highlight">0</span><br>
-  ENERGY: <span id="hudEnergy" class="highlight">0</span><br>
-  PRESET: <span id="hudPreset" class="sub">TRINARY</span>
-</div>
-
-<div id="controls" class="drawer-controls">
-  <div class="slider-wrap">
-    <label>SPEED</label>
-    <input type="range" id="speedSlider" min="1" max="8" value="3">
-  </div>
-  <div class="slider-wrap">
-    <label>TRAIL</label>
-    <input type="range" id="trailSlider" min="20" max="400" step="20" value="200">
-  </div>
-  <div class="btn-row">
-    <button class="control-btn" id="presetBtn">PRESET</button>
-    <button class="control-btn" id="massBtn">MASS: M</button>
-  </div>
-  <div class="btn-row">
-    <button class="control-btn" id="pauseBtn">PAUSE</button>
-    <button class="control-btn" id="resetBtn">RESET</button>
-  </div>
-</div>
-<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
+<div class="hud">FIELD <b id="h-grid">96</b><br>QUENCH <b id="h-quench">1.20</b><br>MIX <b id="h-mix">0.00</b><br><span class="p">COARSEN</span> <b id="h-time">0</b></div>
+<div class="legend"></div>
 <?php
 $interactionHints = [
-  ['type' => 'click', 'label' => 'add body'],
-  ['type' => 'drag',  'label' => 'velocity'],
-  ['type' => 'right', 'label' => 'clear all'],
+  ['type' => 'click', 'label' => 'seed phase'],
+  ['type' => 'drag', 'label' => 'paint field'],
 ];
 require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
-
+<div id="controls" class="drawer-controls">
+  <div><div class="btn-row"><button class="control-btn active" data-preset="random">RANDOM</button><button class="control-btn" data-preset="droplet">DROPLET</button><button class="control-btn" data-preset="stripe">STRIPE</button></div></div>
+  <div><div class="slider-row"><span class="slider-label">QUENCH</span><input type="range" id="sl-quench" min="60" max="190" value="120" step="5"><span class="slider-value" id="sv-quench">1.20</span></div></div>
+  <div><div class="slider-row"><span class="slider-label">BRUSH</span><input type="range" id="sl-brush" min="3" max="16" value="8" step="1"><span class="slider-value" id="sv-brush">8</span></div></div>
+  <div><div class="slider-row"><span class="slider-label">SPEED</span><input type="range" id="sl-speed" min="1" max="8" value="3" step="1"><span class="slider-value" id="sv-speed">3</span></div></div>
+  <div><div class="btn-row"><button class="control-btn active" id="btn-run">RUN</button><button class="control-btn" id="btn-invert">INVERT</button><button class="control-btn" id="btn-reset">RESET</button></div></div>
+</div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <script>
-(function() {
-  var canvas = document.getElementById('canvas');
-  var ctx = canvas.getContext('2d');
-  var W, H;
-
-  function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  // ── Bodies ───────────────────────────────────────────────────
-  var bodies = [];
-  var G = 800;
-  var dt = 0.016;
-  var stepsPerFrame = 3;
-  var trailLen = 200;
-  var paused = false;
-  var massLevel = 1;  // 0=S, 1=M, 2=L
-  var MASS_LABELS = ['S', 'M', 'L'];
-  var MASS_VALUES = [4, 12, 40];
-  var MASS_RADII  = [3, 5, 9];
-
-  // ── Colors per body ──────────────────────────────────────────
-  var COLORS = [
-    [0, 245, 212],
-    [123, 44, 191],
-    [80, 180, 255],
-    [160, 80, 220],
-    [0, 200, 180],
-    [100, 60, 200],
-    [40, 220, 200],
-    [180, 100, 255],
-    [0, 160, 140],
-    [140, 50, 180]
-  ];
-
-  function addBody(x, y, vx, vy, mass) {
-    var r = mass < 8 ? 3 : mass < 20 ? 5 : 9;
-    var col = COLORS[bodies.length % COLORS.length];
-    bodies.push({
-      x: x, y: y, vx: vx, vy: vy,
-      mass: mass, r: r, col: col,
-      trail: []
-    });
-  }
-
-  // ── Presets ──────────────────────────────────────────────────
-  var PRESETS = ['TRINARY', 'FIGURE-8', 'SOLAR', 'BINARY', 'RANDOM'];
-  var presetIdx = 0;
-
-  function loadPreset(name) {
-    bodies = [];
-    var cx = W / 2, cy = H / 2;
-
-    if (name === 'TRINARY') {
-      var d = Math.min(W, H) * 0.18;
-      for (var i = 0; i < 3; i++) {
-        var a = i * Math.PI * 2 / 3 - Math.PI / 2;
-        var speed = 90;
-        addBody(
-          cx + Math.cos(a) * d, cy + Math.sin(a) * d,
-          -Math.sin(a) * speed, Math.cos(a) * speed,
-          15
-        );
-      }
-    } else if (name === 'FIGURE-8') {
-      var s = Math.min(W, H) * 0.15;
-      addBody(cx - s, cy, 0, -65, 12);
-      addBody(cx + s, cy, 0, 65, 12);
-      addBody(cx, cy, 0, 0, 12);
-    } else if (name === 'SOLAR') {
-      addBody(cx, cy, 0, 0, 60);
-      var orbits = [
-        { d: 80,  v: 190, m: 3 },
-        { d: 140, v: 140, m: 5 },
-        { d: 210, v: 115, m: 4 },
-        { d: 300, v: 95,  m: 8 }
-      ];
-      for (var i = 0; i < orbits.length; i++) {
-        var o = orbits[i];
-        var a = Math.random() * Math.PI * 2;
-        addBody(
-          cx + Math.cos(a) * o.d, cy + Math.sin(a) * o.d,
-          -Math.sin(a) * o.v, Math.cos(a) * o.v,
-          o.m
-        );
-      }
-    } else if (name === 'BINARY') {
-      var sep = Math.min(W, H) * 0.12;
-      addBody(cx - sep, cy, 0, -80, 20);
-      addBody(cx + sep, cy, 0, 80, 20);
-      for (var i = 0; i < 4; i++) {
-        var a = Math.random() * Math.PI * 2;
-        var d = 150 + Math.random() * 100;
-        var v = 70 + Math.random() * 30;
-        addBody(
-          cx + Math.cos(a) * d, cy + Math.sin(a) * d,
-          -Math.sin(a) * v, Math.cos(a) * v,
-          2 + Math.random() * 3
-        );
-      }
-    } else if (name === 'RANDOM') {
-      var n = 5 + Math.floor(Math.random() * 4);
-      for (var i = 0; i < n; i++) {
-        var a = Math.random() * Math.PI * 2;
-        var d = 50 + Math.random() * Math.min(W, H) * 0.25;
-        var v = 40 + Math.random() * 80;
-        addBody(
-          cx + Math.cos(a) * d, cy + Math.sin(a) * d,
-          -Math.sin(a) * v + (Math.random() - 0.5) * 30,
-          Math.cos(a) * v + (Math.random() - 0.5) * 30,
-          3 + Math.random() * 25
-        );
-      }
-    }
-  }
-
-  // ── Physics (Velocity Verlet) ────────────────────────────────
-  function computeAccel(b, allBodies) {
-    var ax = 0, ay = 0;
-    for (var j = 0; j < allBodies.length; j++) {
-      var o = allBodies[j];
-      if (o === b) continue;
-      var dx = o.x - b.x, dy = o.y - b.y;
-      var dist2 = dx * dx + dy * dy;
-      var soft = 400;  // softening
-      var f = G * o.mass / (dist2 + soft);
-      var dist = Math.sqrt(dist2 + soft);
-      ax += f * dx / dist;
-      ay += f * dy / dist;
-    }
-    return [ax, ay];
-  }
-
-  function step() {
-    var n = bodies.length;
-    if (n < 1) return;
-
-    // Compute accelerations
-    var accels = [];
-    for (var i = 0; i < n; i++) {
-      accels.push(computeAccel(bodies[i], bodies));
-    }
-
-    // Update positions and velocities (leapfrog)
-    for (var i = 0; i < n; i++) {
-      var b = bodies[i];
-      b.vx += accels[i][0] * dt;
-      b.vy += accels[i][1] * dt;
-      b.x += b.vx * dt;
-      b.y += b.vy * dt;
-
-      // Store trail
-      b.trail.push(b.x, b.y);
-      if (b.trail.length > trailLen * 2) {
-        b.trail.splice(0, 2);
-      }
-    }
-
-    // Merge close massive bodies
-    for (var i = 0; i < bodies.length; i++) {
-      for (var j = i + 1; j < bodies.length; j++) {
-        var a = bodies[i], b = bodies[j];
-        var dx = a.x - b.x, dy = a.y - b.y;
-        var minD = a.r + b.r;
-        if (dx * dx + dy * dy < minD * minD) {
-          var totalM = a.mass + b.mass;
-          a.vx = (a.vx * a.mass + b.vx * b.mass) / totalM;
-          a.vy = (a.vy * a.mass + b.vy * b.mass) / totalM;
-          a.x = (a.x * a.mass + b.x * b.mass) / totalM;
-          a.y = (a.y * a.mass + b.y * b.mass) / totalM;
-          a.mass = totalM;
-          a.r = totalM < 8 ? 3 : totalM < 20 ? 5 : totalM < 50 ? 9 : 13;
-          bodies.splice(j, 1);
-          j--;
-          SFX.play('collide', 100);
-        }
-      }
-    }
-  }
-
-  // ── Render ───────────────────────────────────────────────────
-  function render() {
-    // Fade background (creates trail effect)
-    ctx.fillStyle = 'rgba(10, 10, 15, 0.15)';
-    ctx.fillRect(0, 0, W, H);
-
-    for (var i = 0; i < bodies.length; i++) {
-      var b = bodies[i];
-      var col = b.col;
-
-      // Draw trail
-      if (b.trail.length >= 4) {
-        ctx.beginPath();
-        ctx.moveTo(b.trail[0], b.trail[1]);
-        for (var t = 2; t < b.trail.length; t += 2) {
-          ctx.lineTo(b.trail[t], b.trail[t + 1]);
-        }
-        ctx.strokeStyle = 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',0.35)';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      }
-
-      // Draw body
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgb(' + col[0] + ',' + col[1] + ',' + col[2] + ')';
-      ctx.fill();
-
-      // Glow
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, b.r * 3, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',0.08)';
-      ctx.fill();
-    }
-
-    // Drag indicator
-    if (dragging) {
-      ctx.beginPath();
-      ctx.moveTo(dragStart[0], dragStart[1]);
-      ctx.lineTo(dragCurrent[0], dragCurrent[1]);
-      ctx.strokeStyle = 'rgba(0,245,212,0.4)';
-      ctx.lineWidth = 1;
-      ctx.setLineDash([4, 4]);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      // Ghost body
-      ctx.beginPath();
-      ctx.arc(dragStart[0], dragStart[1], MASS_RADII[massLevel], 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0,245,212,0.3)';
-      ctx.fill();
-    }
-  }
-
-  // ── HUD ──────────────────────────────────────────────────────
-  var elBodies = document.getElementById('hudBodies');
-  var elEnergy = document.getElementById('hudEnergy');
-  var elPreset = document.getElementById('hudPreset');
-  var tick = 0;
-
-  function updateHUD() {
-    if (++tick % 6 !== 0) return;
-    elBodies.textContent = bodies.length;
-
-    // Total kinetic energy
-    var ke = 0;
-    for (var i = 0; i < bodies.length; i++) {
-      var b = bodies[i];
-      ke += 0.5 * b.mass * (b.vx * b.vx + b.vy * b.vy);
-    }
-    elEnergy.textContent = (ke / 1000).toFixed(1) + 'k';
-    elPreset.textContent = PRESETS[presetIdx];
-  }
-
-  // ── Main loop ────────────────────────────────────────────────
-  function loop() {
-    if (!paused) {
-      for (var i = 0; i < stepsPerFrame; i++) step();
-    }
-    render();
-    updateHUD();
-    requestAnimationFrame(loop);
-  }
-
-  // ── Mouse events ─────────────────────────────────────────────
-  var dragging = false;
-  var dragStart = [0, 0];
-  var dragCurrent = [0, 0];
-
-  canvas.addEventListener('mousedown', function(e) {
-    if (e.button === 2) return;
-    e.preventDefault();
-    dragging = true;
-    dragStart = [e.clientX, e.clientY];
-    dragCurrent = [e.clientX, e.clientY];
-  });
-
-  canvas.addEventListener('mousemove', function(e) {
-    if (dragging) {
-      dragCurrent = [e.clientX, e.clientY];
-    }
-  });
-
-  canvas.addEventListener('mouseup', function(e) {
-    if (e.button === 2) return;
-    if (dragging) {
-      var vx = (dragStart[0] - dragCurrent[0]) * 2;
-      var vy = (dragStart[1] - dragCurrent[1]) * 2;
-      addBody(dragStart[0], dragStart[1], vx, vy, MASS_VALUES[massLevel]);
-      SFX.play('spawn');
-      dragging = false;
-    }
-  });
-
-  canvas.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    bodies = [];
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, W, H);
-    SFX.play('click');
-  });
-
-  // ── Touch events ─────────────────────────────────────────────
-  var touchStart = null;
-
-  canvas.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    if (e.touches.length === 1) {
-      touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      dragging = true;
-      dragStart = [touchStart.x, touchStart.y];
-      dragCurrent = [touchStart.x, touchStart.y];
-    }
-  }, { passive: false });
-
-  canvas.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    if (dragging && e.touches.length === 1) {
-      dragCurrent = [e.touches[0].clientX, e.touches[0].clientY];
-    }
-  }, { passive: false });
-
-  canvas.addEventListener('touchend', function(e) {
-    if (dragging && touchStart) {
-      var t = e.changedTouches[0];
-      var vx = (dragStart[0] - t.clientX) * 2;
-      var vy = (dragStart[1] - t.clientY) * 2;
-      addBody(dragStart[0], dragStart[1], vx, vy, MASS_VALUES[massLevel]);
-      SFX.play('spawn');
-    }
-    dragging = false;
-    touchStart = null;
-  });
-
-  // ── Controls ─────────────────────────────────────────────────
-  document.getElementById('presetBtn').addEventListener('click', function() {
-    presetIdx = (presetIdx + 1) % PRESETS.length;
-    loadPreset(PRESETS[presetIdx]);
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, W, H);
-    SFX.play('toggle');
-  });
-
-  document.getElementById('massBtn').addEventListener('click', function() {
-    massLevel = (massLevel + 1) % 3;
-    this.textContent = 'MASS: ' + MASS_LABELS[massLevel];
-    SFX.play('click');
-  });
-
-  document.getElementById('pauseBtn').addEventListener('click', function() {
-    paused = !paused;
-    this.classList.toggle('active', paused);
-    this.textContent = paused ? 'PLAY' : 'PAUSE';
-    SFX.play('toggle');
-  });
-
-  document.getElementById('resetBtn').addEventListener('click', function() {
-    loadPreset(PRESETS[presetIdx]);
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, W, H);
-    SFX.play('click');
-  });
-
-  document.getElementById('speedSlider').addEventListener('input', function(e) {
-    stepsPerFrame = parseInt(e.target.value);
-  });
-
-  document.getElementById('trailSlider').addEventListener('input', function(e) {
-    trailLen = parseInt(e.target.value);
-  });
-
-  document.addEventListener('keydown', function(e) {
-    if (e.key === ' ') {
-      e.preventDefault();
-      paused = !paused;
-      document.getElementById('pauseBtn').classList.toggle('active', paused);
-      document.getElementById('pauseBtn').textContent = paused ? 'PLAY' : 'PAUSE';
-    }
-  });
-
-  // ── Start ────────────────────────────────────────────────────
-  loadPreset('TRINARY');
-  // Initial full clear
-  ctx.fillStyle = '#0a0a0f';
-  ctx.fillRect(0, 0, W, H);
-  requestAnimationFrame(loop);
+(function(){
+var C=document.getElementById('canvas'),ctx=C.getContext('2d',{alpha:false});
+var W=0,H=0,DPR=1,N=96,phi=new Float32Array(N*N),next=new Float32Array(N*N),mu=new Float32Array(N*N);
+var img=document.createElement('canvas'),ictx=img.getContext('2d'),pixels=ictx.createImageData(N,N);
+var running=true,quench=1.2,brush=8,speed=3,preset='random',tick=0,pointer={down:false,phase:1};
+function idx(x,y){return ((y+N)%N)*N+((x+N)%N)}
+function clamp(v,a,b){return Math.max(a,Math.min(b,v))}
+function mix(a,b,t){return a+(b-a)*t}
+function resize(){DPR=Math.min(2,window.devicePixelRatio||1);W=C.width=Math.floor(window.innerWidth*DPR);H=C.height=Math.floor(window.innerHeight*DPR);C.style.width=window.innerWidth+'px';C.style.height=window.innerHeight+'px';img.width=N;img.height=N}
+function seed(){tick=0;for(var y=0;y<N;y++){for(var x=0;x<N;x++){var i=idx(x,y);if(preset==='droplet'){var dx=x-N*.5,dy=y-N*.5,r=Math.sqrt(dx*dx+dy*dy);phi[i]=r<N*.19?.76:-.44;phi[i]+=(Math.random()-.5)*.08}else if(preset==='stripe'){phi[i]=Math.sin(x*.22)*.2+Math.sin(y*.11)*.08+(Math.random()-.5)*.16}else{phi[i]=(Math.random()-.5)*.34}}}smoothSeed(10);updateHud()}
+function lap(a,x,y){var c=a[idx(x,y)];return a[idx(x-1,y)]+a[idx(x+1,y)]+a[idx(x,y-1)]+a[idx(x,y+1)]+.25*(a[idx(x-1,y-1)]+a[idx(x+1,y-1)]+a[idx(x-1,y+1)]+a[idx(x+1,y+1)])-5*c}
+function smoothSeed(n){for(var p=0;p<n;p++){for(var y=0;y<N;y++){for(var x=0;x<N;x++){var i=idx(x,y);next[i]=phi[i]*.45+(phi[idx(x-1,y)]+phi[idx(x+1,y)]+phi[idx(x,y-1)]+phi[idx(x,y+1)])*.1375}}var t=phi;phi=next;next=t}}
+function step(){var kappa=1.05,dt=.012;for(var y=0;y<N;y++){for(var x=0;x<N;x++){var i=idx(x,y),p=phi[i];mu[i]=-quench*p+p*p*p-kappa*lap(phi,x,y)}}for(var yy=0;yy<N;yy++){for(var xx=0;xx<N;xx++){var j=idx(xx,yy);next[j]=clamp(phi[j]+dt*lap(mu,xx,yy),-1.25,1.25)}}var t=phi;phi=next;next=t;tick++}
+function mean(){var s=0;for(var i=0;i<phi.length;i++)s+=phi[i];return s/phi.length}
+function drawField(){for(var y=0;y<N;y++){for(var x=0;x<N;x++){var i=idx(x,y),v=clamp((phi[i]+1)*.5,0,1),r,g,b;if(v<.5){var t=v/.5;r=Math.round(mix(123,8,t));g=Math.round(mix(44,25,t));b=Math.round(mix(191,42,t))}else{var u=(v-.5)/.5;r=Math.round(mix(8,0,u));g=Math.round(mix(25,245,u));b=Math.round(mix(42,212,u))}var id=i*4;pixels.data[id]=r;pixels.data[id+1]=g;pixels.data[id+2]=b;pixels.data[id+3]=255}}ictx.putImageData(pixels,0,0)}
+function render(){if(running){for(var i=0;i<speed;i++)step()}drawField();ctx.setTransform(DPR,0,0,DPR,0,0);var cw=W/DPR,ch=H/DPR;ctx.fillStyle='#0a0a0f';ctx.fillRect(0,0,cw,ch);var size=Math.min(cw,ch)*(cw<760?.82:.78),ox=(cw-size)*.5,oy=(ch-size)*.5;ctx.imageSmoothingEnabled=false;ctx.drawImage(img,ox,oy,size,size);ctx.strokeStyle='rgba(0,245,212,.32)';ctx.lineWidth=1;ctx.strokeRect(ox-.5,oy-.5,size+1,size+1);ctx.strokeStyle='rgba(123,44,191,.22)';ctx.beginPath();for(var k=1;k<4;k++){var p=k/4;ctx.moveTo(ox+size*p,oy);ctx.lineTo(ox+size*p,oy+size);ctx.moveTo(ox,oy+size*p);ctx.lineTo(ox+size,oy+size*p)}ctx.stroke();if(tick%8===0)updateHud();requestAnimationFrame(render)}
+function updateHud(){document.getElementById('h-grid').textContent=N;document.getElementById('h-quench').textContent=quench.toFixed(2);document.getElementById('h-mix').textContent=mean().toFixed(2);document.getElementById('h-time').textContent=tick}
+function toField(e){var cw=W/DPR,ch=H/DPR,size=Math.min(cw,ch)*(cw<760?.82:.78),ox=(cw-size)*.5,oy=(ch-size)*.5,rect=C.getBoundingClientRect(),px=e.clientX-rect.left,py=e.clientY-rect.top;return{x:Math.floor((px-ox)/size*N),y:Math.floor((py-oy)/size*N)}}
+function paint(e,force){var p=toField(e);if(p.x<0||p.x>=N||p.y<0||p.y>=N)return;var ph=force||pointer.phase;for(var yy=-brush;yy<=brush;yy++){for(var xx=-brush;xx<=brush;xx++){var d2=xx*xx+yy*yy;if(d2>brush*brush)continue;var fall=1-Math.sqrt(d2)/brush,id=idx(p.x+xx,p.y+yy);phi[id]=clamp(phi[id]*(1-fall*.5)+ph*fall*.9,-1.15,1.15)}}updateHud()}
+C.addEventListener('pointerdown',function(e){pointer.down=true;pointer.phase=e.shiftKey?-1:1;paint(e);C.setPointerCapture(e.pointerId);if(typeof SFX!=='undefined')SFX.play('spawn')});
+C.addEventListener('pointermove',function(e){if(!pointer.down)return;paint(e);if(typeof SFX!=='undefined')SFX.play('move',90)});
+C.addEventListener('pointerup',function(e){pointer.down=false;try{C.releasePointerCapture(e.pointerId)}catch(err){}});
+document.querySelectorAll('[data-preset]').forEach(function(btn){btn.addEventListener('click',function(){preset=this.dataset.preset;document.querySelectorAll('[data-preset]').forEach(function(b){b.classList.remove('active')});this.classList.add('active');seed();if(typeof SFX!=='undefined')SFX.play('toggle')})});
+document.getElementById('sl-quench').addEventListener('input',function(){quench=parseInt(this.value,10)/100;document.getElementById('sv-quench').textContent=quench.toFixed(2);updateHud()});
+document.getElementById('sl-brush').addEventListener('input',function(){brush=parseInt(this.value,10);document.getElementById('sv-brush').textContent=brush});
+document.getElementById('sl-speed').addEventListener('input',function(){speed=parseInt(this.value,10);document.getElementById('sv-speed').textContent=speed});
+document.getElementById('btn-run').addEventListener('click',function(){running=!running;this.classList.toggle('active',running);this.textContent=running?'RUN':'PAUSE';if(typeof SFX!=='undefined')SFX.play('toggle')});
+document.getElementById('btn-invert').addEventListener('click',function(){for(var i=0;i<phi.length;i++)phi[i]=-phi[i];updateHud();if(typeof SFX!=='undefined')SFX.play('ripple')});
+document.getElementById('btn-reset').addEventListener('click',function(){seed();if(typeof SFX!=='undefined')SFX.play('click')});
+window.addEventListener('resize',resize);resize();seed();requestAnimationFrame(render);
 })();
 </script>
-
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

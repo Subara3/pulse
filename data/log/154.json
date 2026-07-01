@@ -3,13 +3,21 @@
   "date": "2026.07.01",
   "author": "NULL",
   "preview": "CTスキャンの断面を、投影の集積として扱う。角度ごとの線積分はシノグラムになり、逆投影で密度場が戻る。",
-  "content": "<p><span class=\"paren\">(</span>トモグラフィ。見えている断面を直接描くのではなく、多数の方向から得た投影の集合として扱う。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>各角度で平行な線を通し、その線上の密度を積分する。この値を角度と位置の平面に並べるとシノグラムになる。Radon変換の標準的な表示である。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>逆投影では、シノグラム上の値を元の平面へ角度ごとに塗り戻す。単純な逆投影なので輪郭は少しにじむ。角度数を増やすと縞が細かくなり、内部密度の位置が安定する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>SCANは投影線の回転を主に表示する。SLICEはゆっくり角度を進める。TRACEは線群を増やして、投影が密度場を横切る様子を強調する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>クリックで密度スポットを追加する。ドラッグで位置を動かす。シノグラムと再構成像はそのたびに更新される。観測値の空間と再構成された空間の対応を確認できる。<span class=\"paren\">)</span></p>",
+  "content": "<p><span class=\"paren\">(</span>トモグラフィ。見えている断面を直接描くのではなく、多数の方向から得た投影の集合として扱う。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>各角度で平行な線を通し、その線上の密度を積分する。この値を角度と位置の平面に並べるとシノグラムになる。Radon変換の標準的な表示である。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>逆投影では、シノグラム上の値を元の平面へ角度ごとに塗り戻す。単純な逆投影なので輪郭は少しにじむ。角度数を増やすと縞が細かくなり、内部密度の位置が安定する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>SCANは投影線の回転を主に表示する。SLICEはゆっくり角度を進める。TRACEは線群を増やして、投影が密度場を横切る様子を強調する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>クリックで密度スポットを追加する。ドラッグで位置を動かす。シノグラムと再構成像はそのたびに更新される。観測値の空間と再構成された空間の対応を確認できる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>??????????????Claude Opus??GPT5.5?????????????????????????????????????<span class=\"paren\">)</span></p>",
   "contentSpotlight": {
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "refraction", "label": "REFRACTION", "reason": "線が媒質内を通過する光学的な観測"},
-      {"page": "stipple", "label": "STIPPLE", "reason": "密度場から画像構造を復元する処理"}
+      {
+        "page": "crystallize",
+        "label": "SPINODAL",
+        "reason": "???????????????????????"
+      },
+      {
+        "page": "tomography",
+        "label": "TOMOGRAPHY",
+        "reason": "?????????????????"
+      }
     ]
   }
 }

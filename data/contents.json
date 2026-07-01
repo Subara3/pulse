@@ -925,14 +925,14 @@
   },
   {
     "page": "crystallize",
-    "title": "ORBIT",
-    "desc": "N体重力シミュレーション。質点を配置して軌道を描く。衝突・合体あり。",
-    "desc_en": "N-body gravity simulation. Place masses, watch orbits unfold. Collisions and mergers.",
-    "icon": "fa-globe",
+    "title": "SPINODAL",
+    "desc": "???????????????????????????????????????",
+    "desc_en": "Spinodal decomposition. A conserved field separates into phases and coarsens into labyrinthine domains.",
+    "icon": "fa-circle-half-stroke",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "重力 · プリセット5種 · 軌跡描画",
-    "meta_en": "gravity · 5 presets · trail rendering",
+    "meta": "Cahn-Hilliard ? phase separation",
+    "meta_en": "Cahn-Hilliard ? phase separation",
     "added": "2026-03-29"
   },
   {
