@@ -5,7 +5,7 @@ recordPageView('clifford');
 
 $pageName      = 'clifford';
 $pageTitle     = 'CLIFFORD - PULSE';
-$pageDesc      = 'クリフォードアトラクター。4つのパラメータが作る2次元カオス軌道。百万点が積み重なって模様が現れる。';
+$pageDesc      = 'Clifford attractor density plot. Tune four parameters or randomize to discover stable two-dimensional chaotic forms.';
 $pageCanonical = 'https://pulse.subara3.com/clifford.php';
 
 $extraStyle = '
@@ -56,14 +56,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <canvas id="canvas"></canvas>
 
 <div id="hud">
-  <div><span class="lbl">A</span><span class="val" id="va">—</span></div>
-  <div><span class="lbl">B</span><span class="val" id="vb">—</span></div>
-  <div><span class="lbl">C</span><span class="val" id="vc">—</span></div>
-  <div><span class="lbl">D</span><span class="val" id="vd">—</span></div>
+  <div><span class="lbl">A</span><span class="val" id="va">0.00</span></div>
+  <div><span class="lbl">B</span><span class="val" id="vb">0.00</span></div>
+  <div><span class="lbl">C</span><span class="val" id="vc">0.00</span></div>
+  <div><span class="lbl">D</span><span class="val" id="vd">0.00</span></div>
   <div><span class="lbl">PTS</span><span class="pts" id="vpts">0</span></div>
 </div>
 
-<div id="ctrl">
+<div id="controls" class="drawer-controls">
   <div class="crow">
     <label>A <span id="lva">-1.40</span></label>
     <input type="range" id="sla" min="-300" max="300" step="1" value="-140">
@@ -85,6 +85,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     <button class="cbtn" id="rndBtn">RANDOM</button>
   </div>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <?php
 $interactionHints = [

@@ -5,7 +5,7 @@ recordPageView('bifurcation');
 
 $pageName      = 'bifurcation';
 $pageTitle     = 'BIFURCATION - PULSE';
-$pageDesc      = 'ロジスティック写像の分岐図。パラメータrの増加とともに周期倍加が起きカオスへ至る。ズームすると自己相似構造が現れる。';
+$pageDesc      = 'Logistic map bifurcation diagram. Zoom through period doubling into the self-similar structure of chaos.';
 $pageCanonical = 'https://pulse.subara3.com/bifurcation.php';
 
 $extraStyle = '
@@ -48,13 +48,14 @@ $interactionHints = [
 require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
 <div id="hud">
-  <div><span class="lbl">r</span><span class="val" id="r-range">2.5000 – 4.0000</span></div>
-  <div><span class="lbl">x</span><span class="val" id="x-range">0.0000 – 1.0000</span></div>
-  <div><span class="lbl">zoom</span><span class="val" id="zoom-val">1×</span></div>
+  <div><span class="lbl">r</span><span class="val" id="r-range">2.5000 - 4.0000</span></div>
+  <div><span class="lbl">x</span><span class="val" id="x-range">0.0000 - 1.0000</span></div>
+  <div><span class="lbl">zoom</span><span class="val" id="zoom-val">1x</span></div>
 </div>
-<div id="ctrl">
+<div id="controls" class="drawer-controls">
   <button class="cbtn" id="btn-reset">RESET</button>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <script>
 (function() {
   const canvas = document.getElementById('canvas');
@@ -180,11 +181,11 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   function updateHUD() {
     const zoom = (INIT.rMax - INIT.rMin) / (view.rMax - view.rMin);
     document.getElementById('r-range').textContent =
-      `${view.rMin.toFixed(5)} – ${view.rMax.toFixed(5)}`;
+      `${view.rMin.toFixed(5)} - ${view.rMax.toFixed(5)}`;
     document.getElementById('x-range').textContent =
-      `${view.xMin.toFixed(5)} – ${view.xMax.toFixed(5)}`;
+      `${view.xMin.toFixed(5)} - ${view.xMax.toFixed(5)}`;
     document.getElementById('zoom-val').textContent =
-      `${zoom >= 1 ? Math.round(zoom) : zoom.toFixed(2)}×`;
+      `${zoom >= 1 ? Math.round(zoom) : zoom.toFixed(2)}x`;
   }
 
   /* ── zoom helper ─────────────────────────────────────── */

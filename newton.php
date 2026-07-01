@@ -5,7 +5,7 @@ recordPageView('newton');
 
 $pageName      = 'newton';
 $pageTitle     = 'NEWTON - PULSE';
-$pageDesc      = 'ニュートンフラクタル。複素平面上でNewton-Raphson法がz^n−1=0の根に収束する過程を可視化。収束先と速さが美しい境界を描く。';
+$pageDesc      = 'Newton fractal for z^n - 1. Click to zoom into basins of attraction and adjust the polynomial degree.';
 $pageCanonical = 'https://pulse.subara3.com/newton.php';
 
 $extraStyle = '
@@ -57,18 +57,19 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
 <div class="hud">
   DEGREE:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="hudDeg"  class="v">3</span><br>
-  ZOOM:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="hudZoom" class="v">1.0×</span><br>
+  ZOOM:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="hudZoom" class="v">1.0x</span><br>
   RENDER:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id="hudPct"  class="v">0%</span>
 </div>
 
-<div class="ctrl-bar">
+<div id="controls" class="drawer-controls">
   <div class="deg-bar">
-    <button class="ctrl-btn" id="btnDm">DEG−</button>
+    <button class="ctrl-btn" id="btnDm">DEG-</button>
     <span class="deg-label">DEGREE</span>
     <button class="ctrl-btn" id="btnDp">DEG+</button>
   </div>
   <button class="ctrl-btn" id="btnReset">RESET</button>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <?php
 $interactionHints = [
@@ -207,7 +208,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     imgData   = ctx.createImageData(W, H);
     pixels    = imgData.data;
     document.getElementById('hudDeg').textContent  = degree;
-    document.getElementById('hudZoom').textContent = (BASE_SCALE / scale).toFixed(1) + '×';
+    document.getElementById('hudZoom').textContent = (BASE_SCALE / scale).toFixed(1) + 'x';
     document.getElementById('hudPct').textContent  = '0%';
     rafId = requestAnimationFrame(renderChunk);
   }

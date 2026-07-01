@@ -214,12 +214,12 @@
 
 .drawer-controls {
   position: fixed;
-  bottom: 16px;
+  bottom: calc(150px + env(safe-area-inset-bottom));
   right: 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  z-index: 100;
+  z-index: 9099;
   transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
