@@ -269,7 +269,8 @@ function render(timestamp) {
   requestAnimationFrame(render);
 }
 
-C.addEventListener('click', function() {
+C.addEventListener('pointerup', function(e) {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
   if (!autoPlay) {
     applyStep(true);
     if (typeof SFX !== 'undefined') SFX.play('tick');

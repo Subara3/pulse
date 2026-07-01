@@ -2,12 +2,12 @@
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/access_log.php';
 
-// アクセス記録
+// Access log
 recordPageView('network');
 
 $pageName = 'network';
 $pageTitle = 'NETWORK - PULSE';
-$pageDesc = json_decode('"Erdos-Renyi ランダムグラフ。接続確率を上げると、突然ひとつの巨大成分が現れる。"');
+$pageDesc = 'Erdos-Renyi random graph: raise edge probability and watch a giant connected component emerge.';
 $pageCanonical = 'https://pulse.subara3.com/network.php';
 
 $extraStyle = '
@@ -36,8 +36,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
 <?php
 $interactionHints = [
-  ['type' => 'click', 'label' => 'toggle'],
-  ['type' => 'drag', 'label' => 'settle'],
+  ['type' => 'click', 'label' => 'toggle auto'],
+  ['type' => 'drag', 'label' => 'move node'],
 ];
 require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
@@ -101,6 +101,9 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   let largestSize = 0;
   let prob = 0.012;
   let autoMode = true;
+  let draggedNode = -1;
+  let didDrag = false;
+  let pointerDownAt = null;
   let phaseTriggered = false;
   let prevLargestRatio = 0;
 
@@ -244,16 +247,22 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
     // Center gravity
     for (let i = 0; i < N; i++) {
+      if (i === draggedNode) continue;
       nodes[i].vx += (cx - nodes[i].x) * centerPull;
       nodes[i].vy += (cy - nodes[i].y) * centerPull;
     }
 
     // Update positions
     for (let i = 0; i < N; i++) {
-      nodes[i].vx *= damping;
-      nodes[i].vy *= damping;
-      nodes[i].x += nodes[i].vx;
-      nodes[i].y += nodes[i].vy;
+      if (i === draggedNode) {
+        nodes[i].vx = 0;
+        nodes[i].vy = 0;
+      } else {
+        nodes[i].vx *= damping;
+        nodes[i].vy *= damping;
+        nodes[i].x += nodes[i].vx;
+        nodes[i].y += nodes[i].vy;
+      }
 
       // Keep in bounds
       const margin = 30;
@@ -353,6 +362,28 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     requestAnimationFrame(loop);
   }
 
+  function pointerPos(e) {
+    const r = canvas.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
+
+  function nearestNode(x, y) {
+    let best = -1;
+    let bestD = Infinity;
+    for (let i = 0; i < N; i++) {
+      const dx = nodes[i].x - x;
+      const dy = nodes[i].y - y;
+      const d = dx * dx + dy * dy;
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    return bestD < 3600 ? best : -1;
+  }
+
+  function setAutoMode(next) {
+    autoMode = next;
+    autoBtn.classList.toggle('active', autoMode);
+  }
+
   // --- Events ---
   probSlider.addEventListener('input', function() {
     prob = this.value / 1000;
@@ -362,14 +393,12 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   });
 
   autoBtn.addEventListener('click', function() {
-    autoMode = !autoMode;
-    this.classList.toggle('active', autoMode);
+    setAutoMode(!autoMode);
     if (typeof SFX !== 'undefined') SFX.play('toggle');
   });
 
   resetBtn.addEventListener('click', function() {
-    autoMode = false;
-    autoBtn.classList.remove('active');
+    setAutoMode(false);
     prob = 0;
     probSlider.value = 0;
     probLabel.textContent = 'p=0.000';
@@ -379,6 +408,52 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     initNodes();
     buildGraph(0);
     if (typeof SFX !== 'undefined') SFX.play('success');
+  });
+
+
+  canvas.addEventListener('pointerdown', function(e) {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    const p = pointerPos(e);
+    draggedNode = nearestNode(p.x, p.y);
+    didDrag = false;
+    pointerDownAt = p;
+    if (draggedNode >= 0) {
+      canvas.setPointerCapture(e.pointerId);
+      nodes[draggedNode].x = p.x;
+      nodes[draggedNode].y = p.y;
+      setAutoMode(false);
+      if (typeof SFX !== 'undefined') SFX.play('tick', 60);
+    }
+  });
+
+  canvas.addEventListener('pointermove', function(e) {
+    if (draggedNode < 0) return;
+    const p = pointerPos(e);
+    if (pointerDownAt) {
+      const dx = p.x - pointerDownAt.x;
+      const dy = p.y - pointerDownAt.y;
+      if (dx * dx + dy * dy > 36) didDrag = true;
+    }
+    nodes[draggedNode].x = p.x;
+    nodes[draggedNode].y = p.y;
+  });
+
+  canvas.addEventListener('pointerup', function(e) {
+    if (draggedNode >= 0) {
+      try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+      draggedNode = -1;
+      if (didDrag && typeof SFX !== 'undefined') SFX.play('toggle', 80);
+      return;
+    }
+    if (!didDrag) {
+      setAutoMode(!autoMode);
+      if (typeof SFX !== 'undefined') SFX.play('toggle');
+    }
+  });
+
+  canvas.addEventListener('pointercancel', function() {
+    draggedNode = -1;
+    didDrag = false;
   });
 
   function resize() {

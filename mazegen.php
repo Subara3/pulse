@@ -393,7 +393,8 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   startGen();
   requestAnimationFrame(frame);
 
-  C.addEventListener('click', function() {
+  C.addEventListener('pointerup', function(e) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
     startGen();
     if (typeof SFX !== 'undefined') SFX.play('click');
   });

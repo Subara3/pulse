@@ -9,11 +9,13 @@ $pageDesc = 'Four-bar linkage kinematics. A rotating crank drives a coupler whos
 $pageCanonical = 'https://pulse.subara3.com/linkage.php';
 $extraStyle = '
 body{overflow:hidden;background:#0a0a0f}
-#canvas{display:block}
+#canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:pointer}
 #hud{position:fixed;top:1rem;left:1rem;font-family:monospace;pointer-events:none;line-height:1.8;z-index:10}
 #hud .title{font-size:.62rem;color:rgba(0,245,212,.4);letter-spacing:.12em}
 #hud .name{font-size:.88rem;color:#00f5d4;letter-spacing:.08em}
 #hud .desc{font-size:.6rem;color:rgba(0,245,212,.35);letter-spacing:.04em}
+#controls .preset-group{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.4rem}
+#controls .preset-btn{min-width:7.4rem}
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -33,6 +35,22 @@ $interactionHints = [
 ];
 require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
+
+<div id="controls" class="drawer-controls">
+  <div class="preset-group" id="presetBtns">
+    <button class="preset-btn active" data-preset="0">CHEBYSHEV</button>
+    <button class="preset-btn" data-preset="1">WIDELOOP</button>
+    <button class="preset-btn" data-preset="2">BUTTERFLY</button>
+    <button class="preset-btn" data-preset="3">TRILOBITE</button>
+    <button class="preset-btn" data-preset="4">TEARDROP</button>
+  </div>
+  <div class="slider-wrap">
+    <label for="speedSlider">SPEED</label>
+    <input type="range" id="speedSlider" min="0" max="200" value="100">
+    <span class="slider-value" id="speedVal">1.00</span>
+  </div>
+</div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <script>
 (function () {
   const canvas = document.getElementById('canvas');
@@ -50,7 +68,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     { name: 'TEARDROP',  desc: 'asymmetric rocker loop',           a: 1,   b: 2,   c: 3,   d: 2.5, p: 1.8,  delta: Math.PI * 0.45 },
   ];
 
-  let pIdx = 0, theta2 = 0, curve = [];
+  let pIdx = 0, theta2 = 0, curve = [], speed = 1;
 
   function resize() {
     W = canvas.width = window.innerWidth;
@@ -153,21 +171,43 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     drawCurve();
     const sol = solve(PRESETS[pIdx], theta2);
     if (sol) drawMechanism(sol);
-    theta2 = (theta2 + 0.018) % (Math.PI * 2);
+    theta2 = (theta2 + 0.018 * speed) % (Math.PI * 2);
     requestAnimationFrame(frame);
   }
 
-  function nextPreset() {
-    pIdx = (pIdx + 1) % PRESETS.length;
+  function setPreset(idx, withSound) {
+    pIdx = ((idx % PRESETS.length) + PRESETS.length) % PRESETS.length;
     theta2 = 0;
     buildCurve();
     document.getElementById('hud-name').textContent = PRESETS[pIdx].name;
     document.getElementById('hud-desc').textContent = PRESETS[pIdx].desc;
-    SFX.play('toggle');
+    document.querySelectorAll('#presetBtns .preset-btn').forEach(btn => {
+      btn.classList.toggle('active', parseInt(btn.dataset.preset, 10) === pIdx);
+    });
+    if (withSound && typeof SFX !== 'undefined') SFX.play('toggle');
   }
 
-  canvas.addEventListener('click', nextPreset);
-  canvas.addEventListener('touchend', e => { e.preventDefault(); nextPreset(); }, { passive: false });
+  function nextPreset() {
+    setPreset(pIdx + 1, true);
+  }
+
+  document.querySelectorAll('#presetBtns .preset-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      setPreset(parseInt(btn.dataset.preset, 10), true);
+    });
+  });
+
+  document.getElementById('speedSlider').addEventListener('input', function () {
+    speed = parseInt(this.value, 10) / 100;
+    document.getElementById('speedVal').textContent = speed.toFixed(2);
+    if (typeof SFX !== 'undefined') SFX.play('tick', 60);
+  });
+
+  canvas.addEventListener('pointerup', function(e) {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    nextPreset();
+  });
   window.addEventListener('resize', resize);
 
   resize();
