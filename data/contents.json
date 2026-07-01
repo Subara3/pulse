@@ -170,13 +170,13 @@
   {
     "page": "sand",
     "title": "SAND",
-    "desc": "砂が落ちて積もる。砂・水・石で遊ぶ。",
-    "desc_en": "Falling sand simulation. Play with sand, water, and stone.",
+    "desc": "粒子セルが落下・流動・固定を繰り返す粒状シミュレーション。",
+    "desc_en": "A granular cell simulation for falling, flowing, and fixed matter.",
     "icon": "fa-hourglass",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "インタラクティブ",
-    "meta_en": "Interactive",
+    "meta": "粒状セル",
+    "meta_en": "Granular cells",
     "added": "2026-01-29"
   },
   {
@@ -206,13 +206,13 @@
   {
     "page": "fourier",
     "title": "FOURIER",
-    "desc": "フーリエ変換。回転する円の連鎖が図形を描く。",
-    "desc_en": "Fourier transform. Rotating circles draw shapes.",
+    "desc": "回転するベクトル列が波形を組み立てるフーリエ可視化。",
+    "desc_en": "A Fourier epicycle visualization where rotating vectors assemble waveforms.",
     "icon": "fa-circle-notch",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "アルゴリズム",
-    "meta_en": "Algorithm",
+    "meta": "エピサイクル",
+    "meta_en": "Epicycles",
     "added": "2026-02-06"
   },
   {
@@ -230,13 +230,13 @@
   {
     "page": "reaction",
     "title": "REACTION",
-    "desc": "反応拡散系。チューリングが見つけた、数式が生む生命の模様。",
-    "desc_en": "Reaction-diffusion. Turing patterns — life-like forms from equations.",
+    "desc": "Gray-Scott反応拡散の文様生成を触って育てる。",
+    "desc_en": "Grow Gray-Scott reaction diffusion patterns directly on the canvas.",
     "icon": "fa-disease",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "インタラクティブ",
-    "meta_en": "Interactive",
+    "meta": "反応拡散",
+    "meta_en": "Reaction diffusion",
     "added": "2026-02-09"
   },
   {
