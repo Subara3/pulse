@@ -305,10 +305,11 @@ function pagesFromContents() {
         outWebm,
       ]);
 
+      // Pick a mid-preview frame for thumbnails; early frames are often still fading in.
       run('ffmpeg', [
         '-y',
         '-ss',
-        '0.35',
+        '2.40',
         '-i',
         outMp4,
         '-vframes',

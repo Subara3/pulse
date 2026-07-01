@@ -68,6 +68,13 @@ jobs:
               echo "all=" >> "$GITHUB_OUTPUT"
             fi
           else
+            PREVIEW_SCRIPT_CHANGED=$(git diff --name-only HEAD^ HEAD -- scripts/generate_previews.js scripts/run_preview_pipeline.py scripts/check_preview_coverage.py scripts/check_preview_dark_static.py scripts/check_and_fix_preview_flash.py scripts/auto_fix_preview_loop.py 2>/dev/null | awk 'NF' || true)
+            if [ -n "$PREVIEW_SCRIPT_CHANGED" ]; then
+              echo "pages=" >> "$GITHUB_OUTPUT"
+              echo "all=1" >> "$GITHUB_OUTPUT"
+              echo "Preview tooling changed; regenerating all previews"
+              exit 0
+            fi
             # On push: changed .php (root only) UNION pages from contents.json that lack any preview file
             CHANGED=$(git diff --name-only HEAD^ HEAD -- '*.php' 2>/dev/null \
               | awk -F/ 'NF==1{sub(/\.php$/,""); print}' \
