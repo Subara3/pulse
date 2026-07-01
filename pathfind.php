@@ -6,15 +6,13 @@ recordPageView('pathfind');
 
 $pageName = 'pathfind';
 $pageTitle = 'PATHFIND - PULSE';
-$pageDesc = '探索アルゴリズムの可視化。A*、ダイクストラ、BFSがゴールを探す過程を眺める。';
+$pageDesc = json_decode('"探索アルゴリズムの可視化。A*、ダイクストラ、BFSがゴールへ広がる過程を描く。"');
 $pageCanonical = 'https://pulse.subara3.com/pathfind.php';
-
-$extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">';
 
 $extraStyle = '
 body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
-#canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; }
-.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
+#canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%;  touch-action: none; cursor: crosshair; }
+.ui { position: fixed; z-index: 100; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; pointer-events: none; }
 .hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.35); font-size: 0.65rem; text-align: right; letter-spacing: 0.05em; line-height: 1.8; }
 .hud .highlight { color: #00f5d4; font-weight: 700; }
 .hud .purple { color: #7b2cbf; font-weight: 700; }
@@ -45,6 +43,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
   STATE: <span id="hudState" class="highlight">READY</span>
 </div>
 
+<?php
+$interactionHints = [
+  ['type' => 'click', 'label' => 'wall'],
+  ['type' => 'drag', 'label' => 'start / goal'],
+];
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
 <div id="controls" class="drawer-controls">
   <div class="slider-wrap">
     <label>SPEED</label>

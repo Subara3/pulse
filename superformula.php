@@ -6,10 +6,8 @@ recordPageView('superformula');
 
 $pageName = 'superformula';
 $pageTitle = 'SUPERFORMULA - PULSE';
-$pageDesc = '1つの数式が、花・葉・貝・結晶を描く。パラメータを変えて自然の形を見つけよう。';
+$pageDesc = json_decode('"スーパーフォーミュラ。4つのパラメータで花や貝殻のような形を描く。"');
 $pageCanonical = 'https://pulse.subara3.com/superformula.php';
-
-$extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">';
 
 $extraStyle = '
 body {
@@ -24,7 +22,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-}
+ touch-action: none; cursor: crosshair; }
 
 .ui {
   position: fixed;
@@ -36,7 +34,7 @@ body {
   bottom: 1.5rem;
   left: 1.5rem;
   color: rgba(255,255,255,0.15);
-  font-family: "Orbitron", sans-serif;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.7rem;
   letter-spacing: 0.2em;
 }
@@ -46,7 +44,7 @@ body {
   left: 1.5rem;
   text-align: left;
   color: rgba(255,255,255,0.3);
-  font-family: "JetBrains Mono", monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.7rem;
   letter-spacing: 0.05em;
 }
@@ -69,17 +67,7 @@ body {
   color: rgba(123, 44, 191, 0.6);
 }
 
-.controls {
-  bottom: 1.5rem;
-  right: 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  align-items: flex-end;
-  pointer-events: auto;
-}
-
-.slider-group {
+.drawer-controls .slider-group {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -87,7 +75,7 @@ body {
 
 .slider-label {
   color: rgba(255,255,255,0.4);
-  font-family: "JetBrains Mono", monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.6rem;
   width: 1.6rem;
   text-align: right;
@@ -95,7 +83,7 @@ body {
 
 .slider-value {
   color: #00f5d4;
-  font-family: "JetBrains Mono", monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.6rem;
   width: 2.8rem;
   text-align: left;
@@ -136,7 +124,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.2);
   color: rgba(255,255,255,0.5);
-  font-family: "Orbitron", sans-serif;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.55rem;
   cursor: pointer;
   border-radius: 4px;
@@ -161,7 +149,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
   .hud { top: 0.5rem; left: 0.5rem; font-size: 0.55rem; }
   .hud .preset-name { font-size: 0.7rem; }
   .hud .param-line { font-size: 0.5rem; }
-  .controls { bottom: 0.8rem; right: 0.8rem; gap: 0.4rem; }
+  .drawer-controls { gap: 0.4rem; }
   .control-btn { padding: 0.3rem 0.5rem; font-size: 0.45rem; }
   input[type="range"] { width: 70px; }
   .slider-label, .slider-value { font-size: 0.5rem; }
@@ -185,7 +173,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div class="shape-count" id="shapeCount"></div>
 </div>
 
-<div class="ui controls">
+<div id="controls" class="drawer-controls">
   <div class="slider-group">
     <span class="slider-label">m</span>
     <input type="range" id="sliderM" min="1" max="20" step="0.1" value="1">
@@ -212,6 +200,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     <button class="control-btn" id="clearBtn">CLEAR</button>
   </div>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <?php
 $interactionHints = [

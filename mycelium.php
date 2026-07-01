@@ -5,15 +5,13 @@ recordPageView('mycelium');
 
 $pageName = 'mycelium';
 $pageTitle = 'MYCELIUM - PULSE';
-$pageDesc = '粘菌アルゴリズム。粒子が化学の匂いを追い、ゆっくりと菌糸ネットワークを育てる。';
+$pageDesc = json_decode('"粘菌アルゴリズム。粒子が化学の匂いを追い、菌糸状のネットワークを育てる。"');
 $pageCanonical = 'https://pulse.subara3.com/mycelium.php';
-
-$extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">';
 
 $extraStyle = '
 body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 #canvas { position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; }
-.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
+.ui { position: fixed; z-index: 100; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; pointer-events: none; }
 .hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.35); font-size: 0.65rem; text-align: right; letter-spacing: 0.05em; line-height: 1.8; }
 .hud .highlight { color: #00f5d4; font-weight: 700; }
 .info { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.22); font-size: 0.6rem; letter-spacing: 0.05em; line-height: 1.8; max-width: min(70vw, 420px); }
@@ -42,6 +40,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
   SLOW MOTION MODE FOR LONG WATCHING
 </div>
 
+<?php
+$interactionHints = [
+  ['type' => 'click', 'label' => 'feed'],
+  ['type' => 'drag', 'label' => 'paint trail'],
+];
+require_once __DIR__ . '/includes/interaction-hints.php';
+?>
 <div id="controls" class="drawer-controls">
   <div class="slider-wrap">
     <label>AGENTS</label>
