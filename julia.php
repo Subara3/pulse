@@ -1,285 +1,44 @@
 <?php
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/access_log.php';
-
 recordPageView('julia');
 
 $pageName = 'julia';
 $pageTitle = 'JULIA SET - PULSE';
-$pageDesc = 'ジュリア集合。マンデルブロの仲間。パラメータで無限の形を生む。';
+$pageDesc = json_decode('"\u30b8\u30e5\u30ea\u30a2\u96c6\u5408\u306e\u30d1\u30e9\u30e1\u30fc\u30bf\u7a7a\u9593\u3092\u3001\u30c9\u30e9\u30c3\u30b0\u3067\u9023\u7d9a\u7684\u306b\u5909\u5f62\u3059\u308bCanvas\u53ef\u8996\u5316\u3002"');
 $pageCanonical = 'https://pulse.subara3.com/julia.php';
-
-$extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">';
-
-$extraStyle = '
-body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
-#canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; }
-.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
-.title { bottom: 1.5rem; left: 1.5rem; color: rgba(255,255,255,0.15); font-size: 0.7rem; letter-spacing: 0.2em; }
-.stats { top: 1rem; right: 1rem; text-align: right; font-family: "JetBrains Mono", monospace; font-size: 0.75rem; color: rgba(255,255,255,0.5); background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 8px; }
-.stats div { margin-bottom: 0.3rem; }
-.stats span { color: #00f5d4; }
-.hint { top: 50%; left: 1.5rem; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.65rem; line-height: 1.8; }
-.loading { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); color: rgba(255,255,255,0.3); font-family: "Orbitron", sans-serif; font-size: 0.9rem; display: none; }
-.loading.show { display: block; }
-
-@media (max-width: 768px) {
-  .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
-  .stats { top: 0.5rem; right: 0.5rem; font-size: 0.55rem; padding: 0.5rem; }
-  .hint { display: none; }
-}
-';
+$extraStyle = '\nbody{background:#0a0a0f;min-height:100vh;overflow:hidden}\n#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}\n.hud{position:fixed;top:1rem;right:1rem;z-index:20;font:12px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;color:rgba(255,255,255,.55);text-align:right;letter-spacing:.08em;background:rgba(10,10,15,.48);border:1px solid rgba(0,245,212,.16);padding:.75rem .85rem;border-radius:8px;backdrop-filter:blur(12px)}\n.hud b{color:#00f5d4;font-weight:700}.hud .sub{color:rgba(123,44,191,.9)}\n.mark{position:fixed;left:1rem;bottom:1rem;z-index:20;font:11px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.24em;color:rgba(255,255,255,.18)}\n.drawer-controls .btn-row{display:flex;gap:.5rem;flex-wrap:wrap}.drawer-controls .control-btn{min-height:36px}.slider-row{display:grid;grid-template-columns:72px 1fr 54px;gap:.65rem;align-items:center}.slider-label,.slider-value{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;color:rgba(255,255,255,.72);letter-spacing:.08em}.slider-value{text-align:right;color:#00f5d4}input[type=range]{width:100%;accent-color:#00f5d4}\n@media(max-width:760px){.hud{top:.75rem;right:.75rem;font-size:10px;padding:.55rem .65rem}.mark{font-size:9px}.slider-row{grid-template-columns:62px 1fr 44px}}\n';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
-require_once __DIR__ . '/includes/share.php';
 ?>
-
 <canvas id="canvas"></canvas>
-<div class="ui title">JULIA SET</div>
-<div class="ui stats">
-  <div>c = <span id="cReal">-0.7</span> + <span id="cImag">0.27</span>i</div>
-  <div>zoom: <span id="zoomLevel">1</span>x</div>
-  <div>iterations: <span id="iterations">100</span></div>
-</div>
-<div class="ui hint">
-  Move → change c<br>
-  Scroll → zoom<br>
-  Click → lock
-</div>
-<div class="loading" id="loading">RENDERING...</div>
+<div class="hud">C <b id="h-c">-0.70 + 0.27i</b><br>ZOOM <b id="h-zoom">1.00</b><br>ITER <b id="h-iter">104</b><br><span class="sub">FIELD</span> <b id="h-field">FLOW</b></div>
+<div class="mark">JULIA SET</div>
+<?php $interactionHints=[['type'=>'drag','label'=>'shape'],['type'=>'click','label'=>'lock'],['type'=>'scroll','label'=>'zoom']];require_once __DIR__ . '/includes/interaction-hints.php'; ?>
 <div id="controls" class="drawer-controls">
-  <div class="control-group">
-    <button class="control-btn" id="animateBtn">▶ ANIMATE</button>
-    <button class="control-btn" id="resetBtn">RESET</button>
-  </div>
-  <div class="theme-group">
-    <button class="control-btn active" data-theme="pulse">PULSE</button>
-    <button class="control-btn" data-theme="ember">EMBER</button>
-    <button class="control-btn" data-theme="deep">DEEP</button>
-    <button class="control-btn" data-theme="psyche">PSYCHE</button>
-  </div>
-  <div class="preset-group">
-    <button class="preset-btn" data-c="-0.7,0.27015">▸ Classic</button>
-    <button class="preset-btn" data-c="-0.8,0.156">▸ Spiral</button>
-    <button class="preset-btn" data-c="-0.4,0.6">▸ Dendrite</button>
-    <button class="preset-btn" data-c="0.285,0.01">▸ Galaxy</button>
-    <button class="preset-btn" data-c="-0.835,-0.2321">▸ Dragon</button>
-    <button class="preset-btn" data-c="-0.70176,-0.3842">▸ Starfish</button>
-    <button class="preset-btn" data-c="0.355,0.355">▸ Rabbit</button>
-  </div>
+  <div class="btn-row"><button class="control-btn active" data-mode="flow">FLOW</button><button class="control-btn" data-mode="thorn">THORN</button><button class="control-btn" data-mode="basin">BASIN</button></div>
+  <div class="slider-row"><span class="slider-label">ITER</span><input type="range" id="sl-iter" min="48" max="180" value="104"><span class="slider-value" id="sv-iter">104</span></div>
+  <div class="slider-row"><span class="slider-label">MOTION</span><input type="range" id="sl-motion" min="0" max="100" value="35"><span class="slider-value" id="sv-motion">0.35</span></div>
+  <div class="btn-row"><button class="control-btn active" id="btn-anim">MORPH</button><button class="control-btn" id="btn-reset">RESET</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
 <script>
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-const loading = document.getElementById('loading');
+(function(){
+'use strict';
 
-let width, height;
-let cReal = -0.7;
-let cImag = 0.27015;
-let zoom = 1;
-let centerX = 0;
-let centerY = 0;
-let maxIterations = 100;
-let currentTheme = 'pulse';
-let locked = false;
-let animating = false;
-let animAngle = 0;
-
-const THEMES = {
-  pulse: (t) => {
-    // Teal primary (#00f5d4) - site accent
-    const r = Math.floor(Math.sin(t * 3) * 30);
-    const g = Math.floor(Math.sin(t * 3 + 1) * 60 + 195);
-    const b = Math.floor(Math.sin(t * 3 + 2) * 40 + 172);
-    return [Math.max(0, r), Math.min(255, g), Math.min(255, b)];
-  },
-  ember: (t) => {
-    // Magenta-purple range (hue 290-330)
-    const r = Math.floor(180 * Math.min(1, t * 2.5) + 75 * t);
-    const g = Math.floor(50 * Math.pow(t, 2));
-    const b = Math.floor(191 * Math.min(1, t * 2));
-    return [Math.min(255, r), g, Math.min(255, b)];
-  },
-  deep: (t) => {
-    // Teal-to-blue (hue 185-220)
-    const r = Math.floor(20 * t);
-    const g = Math.floor(120 + 125 * t);
-    const b = Math.floor(170 + 85 * t);
-    return [r, Math.min(255, g), Math.min(255, b)];
-  },
-  psyche: (t) => {
-    // Constrained teal-purple cycle (hue 160-300)
-    const hue = 160 + (Math.sin(t * 10) * 0.5 + 0.5) * 140;
-    const s = 0.8;
-    const l = 0.55 + Math.sin(t * 10 + 2) * 0.15;
-    // HSL to RGB conversion
-    const c = (1 - Math.abs(2 * l - 1)) * s;
-    const x = c * (1 - Math.abs(((hue / 60) % 2) - 1));
-    const m = l - c / 2;
-    let r1, g1, b1;
-    if (hue < 180) { r1 = 0; g1 = c; b1 = x; }
-    else if (hue < 240) { r1 = 0; g1 = x; b1 = c; }
-    else if (hue < 300) { r1 = x; g1 = 0; b1 = c; }
-    else { r1 = c; g1 = 0; b1 = x; }
-    return [Math.floor((r1 + m) * 255), Math.floor((g1 + m) * 255), Math.floor((b1 + m) * 255)];
-  }
-};
-
-function init() {
-  width = canvas.width = window.innerWidth;
-  height = canvas.height = window.innerHeight;
-  render();
-}
-
-function render() {
-  loading.classList.add('show');
-  
-  setTimeout(() => {
-    const imageData = ctx.createImageData(width, height);
-    const data = imageData.data;
-    
-    const aspectRatio = width / height;
-    const rangeX = 4 / zoom;
-    const rangeY = rangeX / aspectRatio;
-    
-    const minX = centerX - rangeX / 2;
-    const maxX = centerX + rangeX / 2;
-    const minY = centerY - rangeY / 2;
-    const maxY = centerY + rangeY / 2;
-    
-    maxIterations = Math.floor(100 + Math.log(zoom) * 30);
-    
-    const colorFunc = THEMES[currentTheme];
-    
-    for (let py = 0; py < height; py++) {
-      for (let px = 0; px < width; px++) {
-        let x = minX + (px / width) * (maxX - minX);
-        let y = minY + (py / height) * (maxY - minY);
-        
-        let iteration = 0;
-        
-        while (x * x + y * y <= 4 && iteration < maxIterations) {
-          const xTemp = x * x - y * y + cReal;
-          y = 2 * x * y + cImag;
-          x = xTemp;
-          iteration++;
-        }
-        
-        const idx = (py * width + px) * 4;
-        
-        if (iteration === maxIterations) {
-          data[idx] = 0;
-          data[idx + 1] = 0;
-          data[idx + 2] = 0;
-        } else {
-          const t = iteration / maxIterations;
-          const [r, g, b] = colorFunc(t);
-          data[idx] = r;
-          data[idx + 1] = g;
-          data[idx + 2] = b;
-        }
-        data[idx + 3] = 255;
-      }
-    }
-    
-    ctx.putImageData(imageData, 0, 0);
-    updateStats();
-    loading.classList.remove('show');
-  }, 10);
-}
-
-function updateStats() {
-  document.getElementById('cReal').textContent = cReal.toFixed(4);
-  document.getElementById('cImag').textContent = cImag.toFixed(4);
-  document.getElementById('zoomLevel').textContent = zoom.toFixed(0);
-  document.getElementById('iterations').textContent = maxIterations;
-}
-
-function reset() {
-  cReal = -0.7;
-  cImag = 0.27015;
-  zoom = 1;
-  centerX = 0;
-  centerY = 0;
-  locked = false;
-  render();
-}
-
-canvas.addEventListener('mousemove', (e) => {
-  if (locked || animating) return;
-  
-  // マウス位置からcの値を計算
-  cReal = (e.clientX / width - 0.5) * 2;
-  cImag = (e.clientY / height - 0.5) * 2;
-  
-  render();
-});
-
-canvas.addEventListener('click', () => {
-  if (animating) return;
-  locked = !locked;
-});
-
-canvas.addEventListener('wheel', (e) => {
-  e.preventDefault();
-  const factor = e.deltaY < 0 ? 1.5 : 0.67;
-  zoom *= factor;
-  if (zoom < 0.5) zoom = 0.5;
-  if (zoom > 1e6) zoom = 1e6;
-  render();
-});
-
-// プリセット
-document.querySelectorAll('[data-c]').forEach(btn => {
-  btn.addEventListener('click', function() {
-    const [r, i] = this.dataset.c.split(',').map(Number);
-    cReal = r;
-    cImag = i;
-    locked = true;
-    render();
-  });
-});
-
-// テーマ
-document.querySelectorAll('[data-theme]').forEach(btn => {
-  btn.addEventListener('click', function() {
-    document.querySelectorAll('[data-theme]').forEach(b => b.classList.remove('active'));
-    this.classList.add('active');
-    currentTheme = this.dataset.theme;
-    render();
-  });
-});
-
-// アニメーション
-document.getElementById('animateBtn').addEventListener('click', function() {
-  animating = !animating;
-  this.textContent = animating ? '⏸ PAUSE' : '▶ ANIMATE';
-  this.classList.toggle('active', animating);
-  if (animating) animate();
-});
-
-function animate() {
-  if (!animating) return;
-  
-  animAngle += 0.02;
-  cReal = 0.7885 * Math.cos(animAngle);
-  cImag = 0.7885 * Math.sin(animAngle);
-  
-  render();
-  setTimeout(() => requestAnimationFrame(animate), 50);
-}
-
-document.getElementById('resetBtn').addEventListener('click', reset);
-
-window.addEventListener('resize', init);
-
-init();
+var c=document.getElementById('canvas'),x=c.getContext('2d'),W,H,D=1,cr=-.7,ci=.27015,zoom=1,iter=104,mode='flow',motion=.35,anim=true,locked=false,needs=true,t=0;
+var hc=document.getElementById('h-c'),hz=document.getElementById('h-zoom'),hi=document.getElementById('h-iter'),hf=document.getElementById('h-field'),si=document.getElementById('sl-iter'),sm=document.getElementById('sl-motion'),vi=document.getElementById('sv-iter'),vm=document.getElementById('sv-motion');
+function resize(){D=Math.min(2,devicePixelRatio||1);W=c.width=Math.floor(innerWidth*D);H=c.height=Math.floor(innerHeight*D);c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';needs=true}
+function col(n){if(n>=iter)return [7,6,13,255];var q=n/iter,a=mode==='thorn'?Math.sqrt(q):mode==='basin'?(Math.sin(q*18+t)*.5+.5):q;return [Math.floor(20+103*a),Math.floor(20+225*Math.pow(a,.65)),Math.floor(72+155*(1-a*.55)),255]}
+function render(){if(anim&&!locked){cr=-.72+Math.sin(t*.41)*motion*.42;ci=.18+Math.cos(t*.33)*motion*.34;needs=true}if(!needs)return;needs=false;var img=x.createImageData(W,H),data=img.data,scale=3.1/Math.min(W,H)/zoom,k=0;for(var y=0;y<H;y+=2){for(var px=0;px<W;px+=2){var zr=(px-W/2)*scale,zi=(y-H/2)*scale,n=0;while(n<iter&&zr*zr+zi*zi<4){var nz=zr*zr-zi*zi+cr;zi=2*zr*zi+ci;zr=nz;n++}var cc=col(n);for(var yy=0;yy<2;yy++)for(var xx=0;xx<2;xx++){var X=px+xx,Y=y+yy;if(X<W&&Y<H){k=(Y*W+X)*4;data[k]=cc[0];data[k+1]=cc[1];data[k+2]=cc[2];data[k+3]=255}}}}x.putImageData(img,0,0);hud()}
+function hud(){hc.textContent=cr.toFixed(2)+' + '+ci.toFixed(2)+'i';hz.textContent=zoom.toFixed(2);hi.textContent=iter;vi.textContent=iter;hf.textContent=mode.toUpperCase();vm.textContent=motion.toFixed(2)}
+function setC(e){cr=(e.clientX/innerWidth-.5)*1.8;ci=(e.clientY/innerHeight-.5)*1.45;needs=true}
+c.addEventListener('pointerdown',function(e){locked=true;setC(e);if(window.SFX)SFX.play('ripple',100)});c.addEventListener('pointermove',function(e){if(e.buttons){setC(e);if(window.SFX)SFX.play('move',130)}});c.addEventListener('dblclick',function(){locked=false;if(window.SFX)SFX.play('success')});c.addEventListener('wheel',function(e){e.preventDefault();zoom*=e.deltaY<0?1.18:.85;needs=true;if(window.SFX)SFX.play('tick',110)},{passive:false});
+document.querySelectorAll('[data-mode]').forEach(function(b){b.onclick=function(){mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(function(q){q.classList.toggle('active',q===b)});needs=true;if(window.SFX)SFX.play('toggle')}});si.oninput=function(){iter=+si.value;needs=true;hud()};sm.oninput=function(){motion=+sm.value/100;needs=true;hud()};document.getElementById('btn-anim').onclick=function(e){anim=!anim;e.currentTarget.classList.toggle('active',anim);if(window.SFX)SFX.play('toggle')};document.getElementById('btn-reset').onclick=function(){cr=-.7;ci=.27015;zoom=1;locked=true;needs=true;if(window.SFX)SFX.play('success')};addEventListener('resize',resize);resize();(function loop(){t+=.016;render();requestAnimationFrame(loop)})();
+})();
 </script>
-
-<?php require_once __DIR__ . '/includes/related.php'; ?>
+<?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

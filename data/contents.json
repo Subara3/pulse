@@ -110,25 +110,25 @@
   {
     "page": "fractal",
     "title": "FRACTAL",
-    "desc": "マンデルブロ集合。無限の複雑さを探検。",
-    "desc_en": "Mandelbrot set. Explore infinite complexity.",
+    "desc": "マンデルブロ集合を、ズームと色層で探る。",
+    "desc_en": "Explore the Mandelbrot set through zoom and layered color fields.",
     "icon": "fa-snowflake",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "自動ズーム",
-    "meta_en": "Auto-zoom",
+    "meta": "ズームフィールド",
+    "meta_en": "Zoom field",
     "added": "2026-01-29"
   },
   {
     "page": "julia",
     "title": "JULIA SET",
-    "desc": "ジュリア集合。マウスでパラメータ変更。",
-    "desc_en": "Julia set. Change parameters with your mouse.",
+    "desc": "ジュリア集合のパラメータ空間を、ドラッグで連続的に変形する。",
+    "desc_en": "Drag through Julia-set parameter space and watch the field morph continuously.",
     "icon": "fa-asterisk",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "7プリセット",
-    "meta_en": "7 presets",
+    "meta": "パラメータ変形",
+    "meta_en": "Parameter morph",
     "added": "2026-01-29"
   },
   {
@@ -458,13 +458,13 @@
   {
     "page": "pendulum",
     "title": "PENDULUM",
-    "desc": "振り子が揺れる。衝突、共振、二重振り子。",
-    "desc_en": "Pendulums swinging. Collision, resonance, double pendulum.",
+    "desc": "単振り子、二重振り子、位相の軌跡を操作する。",
+    "desc_en": "Manipulate single pendulums, double pendulums, and phase-space traces.",
     "icon": "fa-weight-hanging",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "4モード",
-    "meta_en": "4 modes",
+    "meta": "振り子力学",
+    "meta_en": "Pendulum dynamics",
     "added": "2026-01-29"
   },
   {
