@@ -62,13 +62,13 @@
   {
     "page": "physics",
     "title": "PHYSICS",
-    "desc": "物理シミュ。砂鉄、磁石、弾むボール、チェーン。",
-    "desc_en": "Physics simulation. Iron sand, magnets, bouncing balls, chains.",
+    "desc": "重力、引力、衝突、チェーンの動きを触って試す物理場。",
+    "desc_en": "Touch a physics field of gravity, attraction, collisions, and chains.",
     "icon": "fa-atom",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "4モード",
-    "meta_en": "4 modes",
+    "meta": "物理場",
+    "meta_en": "Physics field",
     "added": "2026-01-29"
   },
   {
@@ -182,13 +182,13 @@
   {
     "page": "sort",
     "title": "SORT",
-    "desc": "ソートアルゴリズムの可視化。眺めるだけ。",
-    "desc_en": "Sorting algorithms visualized. Just watch.",
+    "desc": "ソートアルゴリズムの比較と交換を、光の棒グラフで観察する。",
+    "desc_en": "Watch sorting comparisons and swaps as luminous bar fields.",
     "icon": "fa-bars-staggered",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "",
-    "meta_en": "",
+    "meta": "比較と交換",
+    "meta_en": "Comparisons and swaps",
     "added": "2026-01-29"
   },
   {
@@ -386,13 +386,13 @@
   {
     "page": "percolation",
     "title": "PERCOLATION",
-    "desc": "パーコレーション。格子を確率的に埋め、連結クラスタを可視化。臨界点で相転移が起こる。",
-    "desc_en": "Percolation. Fill a grid probabilistically, visualize connected clusters. Phase transition at the critical point.",
+    "desc": "格子を確率で開き、連結クラスタと臨界点を観察する。",
+    "desc_en": "Open grid cells by probability and observe connected clusters near the critical point.",
     "icon": "fa-border-all",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "相転移",
-    "meta_en": "Phase transition",
+    "meta": "臨界クラスタ",
+    "meta_en": "Critical clusters",
     "added": "2026-02-17"
   },
   {
