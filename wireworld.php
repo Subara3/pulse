@@ -5,7 +5,7 @@ recordPageView('wireworld');
 
 $pageName = 'wireworld';
 $pageTitle = 'WIREWORLD - PULSE';
-$pageDesc = '4状態のセルオートマトンで電子回路をシミュレーション。導線を描いて電子の流れを作る。';
+$pageDesc = 'Wireworld cellular automaton. Draw conductive circuits, place electron heads, and watch signal pulses travel.';
 $pageCanonical = 'https://pulse.subara3.com/wireworld.php';
 $extraStyle = '
 body { background: #0a0a0f; overflow: hidden; }
@@ -34,7 +34,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>e<sup>-</sup> <span class="v" id="electronDisplay">0</span></div>
   <div>MODE <span class="v" id="modeDisplay">WIRE</span></div>
 </div>
-<div class="ctrl">
+<div id="controls" class="ctrl drawer-controls">
   <button id="btnRun">PAUSE</button>
   <button id="btnStep">STEP</button>
   <button id="btnMode">MODE: WIRE</button>
@@ -42,6 +42,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <button id="btnClear">CLEAR</button>
   <button id="btnReset">RESET</button>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <?php
 $interactionHints = [
   ['type' => 'drag',  'label' => 'draw wire'],

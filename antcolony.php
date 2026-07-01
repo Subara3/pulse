@@ -5,7 +5,7 @@ recordPageView('antcolony');
 
 $pageName = 'antcolony';
 $pageTitle = 'ANTCOLONY - PULSE';
-$pageDesc = 'アリコロニー最適化。フェロモントレイルの強化によって最短経路が自然発生する。';
+$pageDesc = 'Ant colony pheromone simulation. Add food and draw walls to redirect trail formation around the nest.';
 $pageCanonical = 'https://pulse.subara3.com/antcolony.php';
 $extraStyle = '
 body { background: #0a0a0f; overflow: hidden; }
@@ -34,11 +34,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>CARRYING: <span class="v" id="hCarrying">0</span></div>
   <div>FOOD: <span class="v" id="hFood">3</span></div>
 </div>
-<div class="ctrl">
+<div id="controls" class="ctrl drawer-controls">
   <label>SPEED <input type="range" id="speedSlider" min="1" max="8" step="1" value="2"></label>
   <button id="btnAddFood">+FOOD</button>
   <button id="btnReset">RESET</button>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <div class="title">ANTCOLONY</div>
 <?php
 $interactionHints = [

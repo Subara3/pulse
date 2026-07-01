@@ -5,7 +5,7 @@ recordPageView('kuramoto');
 
 $pageName = 'kuramoto';
 $pageTitle = 'KURAMOTO - PULSE';
-$pageDesc = '蔵本モデル。N個の振動子が弱い力で引き合い、臨界点を超えると一斉に同期する。';
+$pageDesc = 'Kuramoto oscillator synchronization. Raise coupling strength and watch independent phases lock into a shared rhythm.';
 $pageCanonical = 'https://pulse.subara3.com/kuramoto.php';
 $extraStyle = '
 body { background: #0a0a0f; overflow: hidden; }
@@ -36,12 +36,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>K: <span class="v" id="kDisplay">1.00</span></div>
   <div>r: <span class="sync" id="rDisplay">0.00</span></div>
 </div>
-<div class="ctrl">
+<div id="controls" class="ctrl drawer-controls">
   <label>K (coupling) <input type="range" id="kSlider" min="0" max="6" step="0.05" value="1.0"></label>
   <label>N (oscillators) <input type="range" id="nSlider" min="10" max="200" step="5" value="80"></label>
   <button id="btnReset">RESET</button>
   <button id="btnAuto">AUTO: OFF</button>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <div class="title">KURAMOTO</div>
 <?php
 $interactionHints = [
