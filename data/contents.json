@@ -338,13 +338,13 @@
   {
     "page": "voronoi",
     "title": "VORONOI",
-    "desc": "ボロノイ図。最も近い点が空間を分割する。",
-    "desc_en": "Voronoi diagram. Space divided by nearest points.",
+    "desc": "最も近い点による空間分割を、動く種点と距離場で描く。",
+    "desc_en": "Draw nearest-point space partitions with moving seeds and distance fields.",
     "icon": "fa-draw-polygon",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "3モード",
-    "meta_en": "3 modes",
+    "meta": "距離場",
+    "meta_en": "Distance field",
     "added": "2026-02-13"
   },
   {
@@ -470,13 +470,13 @@
   {
     "page": "spirograph",
     "title": "SPIROGRAPH",
-    "desc": "スピログラフ。歯車が回転し、ペンが数学の曲線を描く。",
-    "desc_en": "Spirograph. Gears rotate, and a pen draws mathematical curves.",
+    "desc": "回転する円とペンの位置が描くスピログラフ曲線。",
+    "desc_en": "Spirograph curves drawn by rotating circles and pen offsets.",
     "icon": "fa-gear",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "インタラクティブ",
-    "meta_en": "Interactive",
+    "meta": "回転曲線",
+    "meta_en": "Rotating curves",
     "added": "2026-02-21"
   },
   {
@@ -494,13 +494,13 @@
   {
     "page": "cloth",
     "title": "CLOTH",
-    "desc": "布のシミュレーション。掴んで、引っ張って、引き裂く。",
-    "desc_en": "Cloth simulation. Grab, pull, and tear.",
+    "desc": "点と制約で布を作り、重力と風に揺れる弾性メッシュを触る。",
+    "desc_en": "Touch an elastic cloth mesh built from points and constraints under gravity and wind.",
     "icon": "fa-scroll",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "インタラクティブ",
-    "meta_en": "Interactive",
+    "meta": "弾性メッシュ",
+    "meta_en": "Elastic mesh",
     "added": "2026-02-23"
   },
   {
