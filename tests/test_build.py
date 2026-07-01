@@ -1,103 +1,102 @@
 #!/usr/bin/env python3
-"""
-PULSE ビルドテスト
-デプロイ前に実行して問題を検出する
-"""
+"""Build checks for the PULSE site."""
 
+from __future__ import annotations
+
+import json
+import shutil
 import subprocess
 import sys
-import os
 from pathlib import Path
 
-# プロジェクトルート
-ROOT = Path(__file__).parent.parent
+ROOT = Path(__file__).resolve().parent.parent
+SKIP_PAGE_FILES = {"about", "contents", "log"}
 
-def test_php_syntax():
-    """全PHPファイルの構文チェック"""
-    print("🔍 PHP構文チェック...")
-    errors = []
-    
-    php_files = list(ROOT.glob("*.php")) + list(ROOT.glob("**/*.php"))
-    # 除外: vendor, node_modules
-    php_files = [f for f in php_files if "vendor" not in str(f) and "node_modules" not in str(f)]
-    
+
+def test_php_syntax() -> bool:
+    print("Checking PHP syntax...")
+    php_files = sorted(set(ROOT.glob("**/*.php")))
+    php_files = [
+        path
+        for path in php_files
+        if "vendor" not in path.parts and "node_modules" not in path.parts
+    ]
+
+    errors: list[str] = []
     for php_file in php_files:
         result = subprocess.run(
             ["php", "-l", str(php_file)],
             capture_output=True,
-            text=True
+            text=True,
+            encoding="utf-8",
+            errors="replace",
         )
         if result.returncode != 0:
-            errors.append(f"{php_file.name}: {result.stdout.strip()}")
-    
+            msg = (result.stdout or result.stderr).strip()
+            errors.append(f"{php_file.relative_to(ROOT)}: {msg}")
+
     if errors:
-        print("❌ PHP構文エラー:")
-        for e in errors:
-            print(f"  - {e}")
+        print("PHP syntax errors:")
+        for error in errors:
+            print(f"  - {error}")
         return False
-    
-    print(f"✅ {len(php_files)}個のPHPファイル OK")
+
+    print(f"OK: {len(php_files)} PHP files")
     return True
 
-def test_json_syntax():
-    """JSONファイルの構文チェック"""
-    print("🔍 JSON構文チェック...")
-    import json
-    errors = []
-    
-    json_files = list(ROOT.glob("data/*.json")) + list(ROOT.glob("data/**/*.json"))
-    
+
+def test_json_syntax() -> bool:
+    print("Checking JSON syntax...")
+    json_files = sorted(set((ROOT / "data").glob("**/*.json")))
+    errors: list[str] = []
+
     for json_file in json_files:
         try:
-            with open(json_file, "r", encoding="utf-8") as f:
-                json.load(f)
-        except json.JSONDecodeError as e:
-            errors.append(f"{json_file.name}: {e}")
-    
+            with json_file.open("r", encoding="utf-8") as handle:
+                json.load(handle)
+        except json.JSONDecodeError as exc:
+            errors.append(f"{json_file.relative_to(ROOT)}: {exc}")
+
     if errors:
-        print("❌ JSON構文エラー:")
-        for e in errors:
-            print(f"  - {e}")
+        print("JSON syntax errors:")
+        for error in errors:
+            print(f"  - {error}")
         return False
-    
-    print(f"✅ {len(json_files)}個のJSONファイル OK")
+
+    print(f"OK: {len(json_files)} JSON files")
     return True
 
-def test_contents_json():
-    """contents.jsonの整合性チェック"""
-    print("🔍 contents.json整合性チェック...")
-    import json
-    
+
+def test_contents_json() -> bool:
+    print("Checking contents.json integrity...")
     contents_path = ROOT / "data" / "contents.json"
     if not contents_path.exists():
-        print("⚠️ data/contents.json が見つかりません")
-        return True
-    
-    with open(contents_path, "r", encoding="utf-8") as f:
-        contents = json.load(f)
-    
-    errors = []
+        print("Missing data/contents.json")
+        return False
+
+    with contents_path.open("r", encoding="utf-8") as handle:
+        contents = json.load(handle)
+
+    missing: list[str] = []
     for item in contents:
-        page = item.get("page", "")
-        php_file = ROOT / f"{page}.php"
-        if not php_file.exists() and page not in ["contents", "about", "log"]:
-            # contents, about, log は特殊なので除外しない
-            if not (ROOT / f"{page}.php").exists():
-                errors.append(f"'{page}' のPHPファイルが存在しません")
-    
-    if errors:
-        print("⚠️ 警告（PHPファイル不足）:")
-        for e in errors:
-            print(f"  - {e}")
-        # 警告のみ、エラーにはしない
-    
-    print(f"✅ contents.json OK ({len(contents)}エントリ)")
+        page = (item.get("page") or "").strip()
+        if not page or page in SKIP_PAGE_FILES:
+            continue
+        if not (ROOT / f"{page}.php").exists():
+            missing.append(page)
+
+    if missing:
+        print("Missing PHP files referenced by contents.json:")
+        for page in missing:
+            print(f"  - {page}.php")
+        return False
+
+    print(f"OK: contents.json ({len(contents)} entries)")
     return True
 
-def test_required_files():
-    """必須ファイルの存在チェック"""
-    print("🔍 必須ファイルチェック...")
-    
+
+def test_required_files() -> bool:
+    print("Checking required files...")
     required = [
         "index.php",
         "includes/config.php",
@@ -105,47 +104,41 @@ def test_required_files():
         "includes/footer.php",
         "data/contents.json",
     ]
-    
-    missing = []
-    for f in required:
-        if not (ROOT / f).exists():
-            missing.append(f)
-    
+    missing = [path for path in required if not (ROOT / path).exists()]
+
     if missing:
-        print("❌ 必須ファイルが不足:")
-        for f in missing:
-            print(f"  - {f}")
+        print("Missing required files:")
+        for path in missing:
+            print(f"  - {path}")
         return False
-    
-    print(f"✅ 必須ファイル OK")
+
+    print("OK: required files")
     return True
 
-def main():
+
+def main() -> int:
     print("=" * 50)
-    print("PULSE ビルドテスト")
+    print("PULSE build checks")
     print("=" * 50)
-    
-    results = []
-    
-    # PHP構文チェック（phpがインストールされている場合のみ）
-    php_check = subprocess.run(["which", "php"], capture_output=True)
-    if php_check.returncode == 0:
+
+    results: list[bool] = []
+    if shutil.which("php"):
         results.append(test_php_syntax())
     else:
-        print("⚠️ PHPがインストールされていません（構文チェックをスキップ）")
-    
+        print("WARNING: php not found; skipping PHP syntax check")
+
     results.append(test_json_syntax())
     results.append(test_contents_json())
     results.append(test_required_files())
-    
+
     print("=" * 50)
-    
     if all(results):
-        print("✅ 全テスト合格!")
+        print("All checks passed")
         return 0
-    else:
-        print("❌ テスト失敗あり")
-        return 1
+
+    print("Some checks failed")
+    return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

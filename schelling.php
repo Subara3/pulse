@@ -5,7 +5,7 @@ recordPageView('schelling');
 
 $pageName = 'schelling';
 $pageTitle = 'SCHELLING - PULSE';
-$pageDesc = 'シェリング隔離モデル。緩やかな同類選好だけで強い隔離が自然発生する。社会物理学のシミュレーション。';
+$pageDesc = "シェリング隔離モデル。緩やかな同類選好だけで強い隔離が自然発生する。社会物理学のシミュレーション。";
 $pageCanonical = 'https://pulse.subara3.com/schelling.php';
 
 $extraStyle = '
@@ -88,6 +88,9 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   var speed = 3;
   var step = 0;
   var running = true;
+  function playSfx(name, value) {
+    if (typeof SFX !== 'undefined') SFX.play(name, value);
+  }
   var pendingReseed = false;
   var fitScale, drawX, drawY, dispW, dispH;
   var offC = document.createElement('canvas'), offCtx = offC.getContext('2d');
@@ -273,13 +276,13 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       }
       if (totalMoved > 0) {
         offCtx.putImageData(imgData, 0, 0);
-        if (totalMoved > 30) SFX.play('tick', 80);
+        if (totalMoved > 30) playSfx('tick', 80);
       } else if (running) {
         // equilibrium reached
         running = false;
         document.getElementById('btnRun').classList.remove('active');
         document.getElementById('btnRun').textContent = 'RUN';
-        SFX.play('complete');
+        playSfx('complete');
       }
     }
     hudTimer++;
@@ -343,7 +346,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     }
     var idx = screenToCell(e.clientX, e.clientY);
     applyBrush(idx, painting);
-    SFX.play('tick', 60);
+    playSfx('tick', 60);
   });
 
   C.addEventListener('pointermove', function(e) {
@@ -365,7 +368,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       document.getElementById('btnRun').classList.add('active');
       document.getElementById('btnRun').textContent = 'PAUSE';
     }
-    SFX.play('toggle');
+    playSfx('toggle');
   });
 
   document.getElementById('sldDen').addEventListener('input', function() {
@@ -374,7 +377,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   });
   document.getElementById('sldDen').addEventListener('change', function() {
     pendingReseed = true;
-    SFX.play('toggle');
+    playSfx('toggle');
   });
 
   document.getElementById('sldSpeed').addEventListener('input', function() {
@@ -386,7 +389,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     running = !running;
     this.classList.toggle('active', running);
     this.textContent = running ? 'PAUSE' : 'RUN';
-    SFX.play('toggle');
+    playSfx('toggle');
   });
 
   document.getElementById('btnStep').addEventListener('click', function() {
@@ -396,7 +399,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     var m = doStep();
     if (m > 0) offCtx.putImageData(imgData, 0, 0);
     updateHud();
-    SFX.play('click');
+    playSfx('click');
   });
 
   document.getElementById('btnReseed').addEventListener('click', function() {
@@ -404,7 +407,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     running = true;
     document.getElementById('btnRun').classList.add('active');
     document.getElementById('btnRun').textContent = 'PAUSE';
-    SFX.play('click');
+    playSfx('click');
   });
 
   window.addEventListener('resize', resize);
