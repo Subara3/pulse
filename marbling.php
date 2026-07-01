@@ -5,7 +5,7 @@ recordPageView('marbling');
 
 $pageName = 'marbling';
 $pageTitle = 'MARBLING - PULSE';
-$pageDesc = 'インクの滴が流体に落ちて渦を描く。マーブリングの数学的模倣。';
+$pageDesc = "インクの滴が流体に落ちて渦を描く。マーブリングの数学的模倣。";
 $pageCanonical = 'https://pulse.subara3.com/marbling.php';
 $extraStyle = '
 canvas { display:block; }
@@ -32,10 +32,11 @@ require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
-<div class="controls">
+<div id="controls" class="controls drawer-controls">
   <button class="btn active" id="btnAuto">AUTO: ON</button>
   <button class="btn" id="btnReset">RESET</button>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <div class="info" id="info">DROP 0</div>
 <?php
 $interactionHints = [

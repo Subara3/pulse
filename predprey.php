@@ -5,7 +5,7 @@ recordPageView('predprey');
 
 $pageName = 'predprey';
 $pageTitle = 'PREDPREY - PULSE';
-$pageDesc = '捕食と被食。魚の群れをサメが追い回す粒子シミュレーション。Lotka-Volterra振動が創発する。';
+$pageDesc = "捕食と被食。魚とサメが格子を舞台に繁殖・捕食・死滅を繰り返し、Lotka-Volterra振動が創発する。";
 $pageCanonical = 'https://pulse.subara3.com/predprey.php';
 $extraStyle = '
 body { background: #060810; overflow: hidden; }
@@ -40,10 +40,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>GEN <span class="vf" id="hGen">0</span></div>
 </div>
 <div class="graph-box"><canvas id="graph" width="220" height="65"></canvas></div>
-<div class="ctrl">
+<div id="controls" class="ctrl drawer-controls">
   <label>SPEED <input type="range" id="sl-speed" min="0.5" max="3" step="0.1" value="1"></label>
   <button id="btn-reset">RESET</button>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <div class="title">PREDPREY</div>
 <?php
 $interactionHints = [

@@ -5,7 +5,7 @@ recordPageView('gametheory');
 
 $pageName = 'gametheory';
 $pageTitle = 'GAMETHEORY - PULSE';
-$pageDesc = '空間囚人のジレンマ。格子上の協力者と裏切り者が戦略をコピーし、複雑なパターンが創発する。';
+$pageDesc = "空間囚人のジレンマ。格子上の協力者と裏切り者が戦略をコピーし、複雑なパターンが創発する。";
 $pageCanonical = 'https://pulse.subara3.com/gametheory.php';
 $extraStyle = '
 body { background: #0a0a0f; overflow: hidden; }
@@ -37,7 +37,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>D <span class="vd" id="hud-d">--</span>%</div>
 </div>
 
-<div class="ctrl">
+<div id="controls" class="ctrl drawer-controls">
   <button id="btn-reset">RESET</button>
   <button id="btn-defect">ALL DEFECT</button>
   <label>b <span id="lbl-b">1.65</span>
@@ -45,6 +45,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   </label>
 </div>
 
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <div class="title">GAMETHEORY</div>
 
 <?php

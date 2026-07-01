@@ -5,7 +5,7 @@ recordPageView('pursuit');
 
 $pageName = 'pursuit';
 $pageTitle = 'PURSUIT - PULSE';
-$pageDesc = '追跡の連鎖。粒子の鎖がカーソルを追い、動かすだけで光の対数螺旋が画面を埋める。';
+$pageDesc = "N点の追跡多角形。各頂点が次の頂点を等速で追い続け、対数螺旋が創発する。";
 $pageCanonical = 'https://pulse.subara3.com/pursuit.php';
 $extraStyle = '
 body { background: #060810; overflow: hidden; }
@@ -35,7 +35,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>NODES <span class="vc" id="hud-nodes">0</span></div>
 </div>
 
-<div class="ctrl">
+<div id="controls" class="ctrl drawer-controls">
   <button id="btn-clear">CLEAR</button>
   <label>SPEED <span id="lbl-spd">1.0</span>
     <input type="range" id="sl-spd" min="0.3" max="3.0" step="0.1" value="1.0">
@@ -45,6 +45,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   </label>
 </div>
 
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <div class="title">PURSUIT</div>
 
 <?php

@@ -5,7 +5,7 @@ recordPageView('tesseract');
 
 $pageName = 'tesseract';
 $pageTitle = 'TESSERACT - PULSE';
-$pageDesc = '4次元超立方体のリアルタイム投影。6軸回転が次元の向こう側を映し出す。';
+$pageDesc = "4次元超立方体のリアルタイム投影。6軸回転が次元の向こう側を映し出す。";
 $pageCanonical = 'https://pulse.subara3.com/tesseract.php';
 $extraStyle = '
 canvas { display:block; }
@@ -33,12 +33,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
 
-<div class="controls">
+<div id="controls" class="controls drawer-controls">
   <button class="btn" id="btnMode">MODE: AUTO-A</button>
   <button class="btn" id="btnProj">PROJ: PERSP</button>
   <button class="btn" id="btnGlow">GLOW: ON</button>
 </div>
 
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <div class="info" id="info">VERTS: 16 · EDGES: 32</div>
 
 <?php

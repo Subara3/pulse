@@ -5,7 +5,7 @@ recordPageView('soliton');
 
 $pageName = 'soliton';
 $pageTitle = 'SOLITON - PULSE';
-$pageDesc = 'KdV方程式による孤立波のシミュレーション。波は衝突後も形を保って通り抜ける。';
+$pageDesc = "KdV方程式による孤立波。衝突後も形を保って通り抜ける非線形波動現象。";
 $pageCanonical = 'https://pulse.subara3.com/soliton.php';
 $extraStyle = '
 #hud{position:fixed;top:1.2rem;right:1.2rem;font-family:monospace;font-size:.7rem;color:rgba(0,245,212,.6);text-align:right;pointer-events:none;line-height:1.9}

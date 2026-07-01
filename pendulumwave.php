@@ -5,7 +5,7 @@ recordPageView('pendulumwave');
 
 $pageName = 'pendulumwave';
 $pageTitle = 'PENDULUMWAVE - PULSE';
-$pageDesc = '周期の異なる振り子群が織りなす集団的位相パターン。60秒で完全再同期。';
+$pageDesc = "周期の異なる振り子群が織りなす集団的位相パターン。60秒で完全再同期。";
 $pageCanonical = 'https://pulse.subara3.com/pendulumwave.php';
 $extraStyle = '
 canvas { display:block; }
@@ -43,12 +43,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
 <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
 
-<div class="controls">
+<div id="controls" class="controls drawer-controls">
   <button class="btn" id="btnReset">RESET</button>
   <button class="btn" id="btnTrail">TRAIL: ON</button>
   <button class="btn" id="btnCount">N: 20</button>
 </div>
 
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <div class="info" id="info">
   T: 0.0s<br>
   PHASE

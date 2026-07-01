@@ -5,7 +5,7 @@ recordPageView('conformal');
 
 $pageName = 'conformal';
 $pageTitle = 'CONFORMAL - PULSE';
-$pageDesc = '複素関数による等角写像。格子が滑らかに歪む数学的変換を体験する。';
+$pageDesc = "複素関数による等角写像。格子が滑らかに歪む数学的変換を体験する。";
 $pageCanonical = 'https://pulse.subara3.com/conformal.php';
 $extraStyle = '
 canvas { display:block; }
@@ -39,11 +39,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
 
-<div class="controls">
+<div id="controls" class="controls drawer-controls">
   <button class="btn" id="btnTransform">SQUARE</button>
   <button class="btn" id="btnAuto">AUTO: ON</button>
 </div>
 
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <div class="info" id="info">
   <div id="infoEq">f(z) = z²</div>
   <div id="infoBlend">BLEND: 0%</div>

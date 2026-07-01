@@ -5,7 +5,7 @@ recordPageView('magnetpendulum');
 
 $pageName = 'magnetpendulum';
 $pageTitle = 'MAGNETPENDULUM - PULSE';
-$pageDesc = '3つの磁石が作る引力圏フラクタル。わずかな初期位置の差が全く異なる磁石へ向かう振り子を生む。';
+$pageDesc = "3つの磁石が作る引力圏フラクタル。わずかな初期位置の差が全く異なる磁石へ向かう振り子を生む。";
 $pageCanonical = 'https://pulse.subara3.com/magnetpendulum.php';
 $extraStyle = '
 body { background: #0a0a0f; overflow: hidden; }
@@ -34,9 +34,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>C <span class="v2">■</span></div>
   <div id="hStat" style="margin-top:0.5rem;font-size:0.6rem;color:rgba(255,255,255,0.22)"></div>
 </div>
-<div class="ctrl">
+<div id="controls" class="ctrl drawer-controls">
   <button id="btnReset">RESET</button>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <div class="title">MAGNETPENDULUM</div>
 <?php
 $interactionHints = [

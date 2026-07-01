@@ -5,7 +5,7 @@ recordPageView('quantum');
 
 $pageName = 'quantum';
 $pageTitle = 'QUANTUM - PULSE';
-$pageDesc = '量子波動の干渉と障壁トンネル効果。クリックで波を生み、壁を描いて干渉パターンを観察する。';
+$pageDesc = "量子波束のトンネル効果。障壁に当たると反射と透過に分かれる、シュレーディンガー方程式の体験。";
 $pageCanonical = 'https://pulse.subara3.com/quantum.php';
 $extraStyle = '
 body { overflow:hidden; cursor:crosshair; }
@@ -33,9 +33,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
 
-<div class="controls">
+<div id="controls" class="controls drawer-controls">
   <button class="btn" id="btnReset">RESET</button>
 </div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <?php
 $interactionHints = [
