@@ -86,25 +86,25 @@
   {
     "page": "fibonacci",
     "title": "FIBONACCI",
-    "desc": "フィボナッチ数列。5つのモードで可視化。",
-    "desc_en": "Fibonacci sequence. Visualized in 5 modes.",
+    "desc": "黄金角とフィボナッチ比が作る葉序・螺旋・成長場。",
+    "desc_en": "Phyllotaxis, spirals, and growth fields shaped by the golden angle.",
     "icon": "fa-hurricane",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "5モード",
-    "meta_en": "5 modes",
+    "meta": "黄金角",
+    "meta_en": "Golden angle",
     "added": "2026-01-29"
   },
   {
     "page": "pi",
-    "title": "π VISUALIZATION",
-    "desc": "円周率πの数字をアートに変換。",
-    "desc_en": "Turning the digits of π into art.",
+    "title": "PI",
+    "desc": "円周率の数字列を歩行・螺旋・弦として描く。",
+    "desc_en": "Draw digits of pi as walks, spirals, and chords.",
     "icon": "fa-circle-notch",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "4モード",
-    "meta_en": "4 modes",
+    "meta": "数字列",
+    "meta_en": "Digit stream",
     "added": "2026-01-29"
   },
   {
@@ -242,13 +242,13 @@
   {
     "page": "console",
     "title": "CONSOLE",
-    "desc": "SF映画風コンソール。眺めるだけでハッカー気分。",
-    "desc_en": "Sci-fi movie console. Feel like a hacker just by watching.",
+    "desc": "複数の信号場を同期させて眺める、非言語Canvasダッシュボード。",
+    "desc_en": "A nonverbal Canvas signal dashboard with synchronized fields.",
     "icon": "fa-display",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "",
-    "meta_en": "",
+    "meta": "信号場",
+    "meta_en": "Signal field",
     "added": "2026-01-29"
   },
   {
