@@ -14,13 +14,13 @@
   {
     "page": "morse",
     "title": "MORSE",
-    "desc": "モールス信号を打て。スペースキーで入力。",
-    "desc_en": "Type in Morse code. Use the spacebar to input.",
+    "desc": "モールス信号を、時間波形とスペクトルとして打つトレーナー。",
+    "desc_en": "Practice Morse code as timing waves and signal pulses.",
     "icon": "fa-signal",
     "category": "遊べる",
     "category_en": "Play",
-    "meta": "プレイ可能",
-    "meta_en": "Playable",
+    "meta": "信号トレーナー",
+    "meta_en": "Signal trainer",
     "added": "2026-01-29"
   },
   {
@@ -350,13 +350,13 @@
   {
     "page": "string",
     "title": "STRING ART",
-    "desc": "ストリングアート。円周上の点を糸で結ぶと、数式が曲線を描き出す。",
-    "desc_en": "String art. Connect points on a circle with strings — math draws curves.",
+    "desc": "円周上の点を数式で結び、糸の密度が曲線を描く。",
+    "desc_en": "Connect points on a circle with formulas and let thread density draw curves.",
     "icon": "fa-spider-web",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "6プリセット",
-    "meta_en": "6 presets",
+    "meta": "密度曲線",
+    "meta_en": "Density curves",
     "added": "2026-02-14"
   },
   {
@@ -374,13 +374,13 @@
   {
     "page": "lissajous",
     "title": "LISSAJOUS",
-    "desc": "リサジュー曲線。2つの振動が出会うとき、数式が曲線を描く。",
-    "desc_en": "Lissajous curves. When two oscillations meet, mathematics draws curves.",
+    "desc": "二つの振動の位相と周波数が描くリサジュー曲線。",
+    "desc_en": "Lissajous curves drawn from the phase and frequency of two oscillations.",
     "icon": "fa-wave-square",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "インタラクティブ",
-    "meta_en": "Interactive",
+    "meta": "位相と周波数",
+    "meta_en": "Phase and frequency",
     "added": "2026-02-16"
   },
   {
