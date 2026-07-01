@@ -194,13 +194,13 @@
   {
     "page": "evolution",
     "title": "EVOLUTION",
-    "desc": "遺伝的アルゴリズム。生物が世代を重ねてゴールを目指す。",
-    "desc_en": "Genetic algorithm. Creatures evolve through generations toward a goal.",
+    "desc": "遺伝的アルゴリズムの世代交代を、軌跡と適応度で観察する。",
+    "desc_en": "Observe genetic-algorithm generations through motion trails and fitness.",
     "icon": "fa-dna",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "アルゴリズム",
-    "meta_en": "Algorithm",
+    "meta": "適応度と世代",
+    "meta_en": "Fitness and generations",
     "added": "2026-02-06"
   },
   {
@@ -218,13 +218,13 @@
   {
     "page": "langton",
     "title": "LANGTON'S ANT",
-    "desc": "ラングトンのアリ。たった2つのルールが生む秩序と混沌。",
-    "desc_en": "Langton's Ant. Order and chaos from just 2 rules.",
+    "desc": "ラングトンのアリのセルオートマトンを、複数状態の軌跡として観察する。",
+    "desc_en": "Explore Langton's Ant as multi-state cellular-automaton trails.",
     "icon": "fa-bug",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "セルオートマトン",
-    "meta_en": "Cellular automaton",
+    "meta": "セル軌跡",
+    "meta_en": "Cell trails",
     "added": "2026-02-08"
   },
   {
@@ -326,13 +326,13 @@
   {
     "page": "collatz",
     "title": "COLLATZ",
-    "desc": "コラッツ予想。すべての正の整数は1に辿り着く——まだ誰も証明していない。",
-    "desc_en": "Collatz conjecture. Every positive integer reaches 1 — still unproven.",
+    "desc": "コラッツ予想の数列を、分岐する軌跡と密度として描く。",
+    "desc_en": "Draw Collatz sequences as branching trajectories and density fields.",
     "icon": "fa-question",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "3モード",
-    "meta_en": "3 modes",
+    "meta": "分岐軌跡",
+    "meta_en": "Branching trajectories",
     "added": "2026-02-12"
   },
   {
