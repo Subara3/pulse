@@ -1,260 +1,34 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/access_log.php';
-
-// アクセス記録
 recordPageView('ripple');
 
 $pageName = 'ripple';
-$pageTitle = 'Ripple - PULSE';
-$pageDesc = 'クリックすると波紋が広がる。ただそれだけ。ぼんやり眺めてください。';
+$pageTitle = "RIPPLE - PULSE";
+$pageDesc = json_decode('"\u30af\u30ea\u30c3\u30af\u3068\u30c9\u30e9\u30c3\u30b0\u3067\u6ce2\u7d0b\u5834\u3092\u91cd\u306d\u308bCanvas\u53ef\u8996\u5316\u3002"');
 $pageCanonical = 'https://pulse.subara3.com/ripple.php';
-
-$extraHead = '<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">';
-
-$extraStyle = '
-body {
-  background: #0a0a0f;
-  min-height: 100vh;
-  overflow: hidden;
-  font-family: "Orbitron", sans-serif;
-}
-
-.canvas-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  cursor: crosshair;
-}
-
-canvas {
-  display: block;
-}
-
-.ui {
-  position: fixed;
-  top: 2rem;
-  left: 2rem;
-  z-index: 100;
-}
-
-.logo {
-  font-size: 1.5rem;
-  color: #00f5d4;
-  text-decoration: none;
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.hint {
-  color: #666;
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-}
-
-.controls {
-  position: fixed;
-  bottom: 2rem;
-  left: 2rem;
-  z-index: 100;
-  display: flex;
-  gap: 0.5rem;
-}
-
-.btn {
-  padding: 0.5rem 1rem;
-  background: rgba(0, 245, 212, 0.1);
-  border: 1px solid rgba(0, 245, 212, 0.3);
-  color: #00f5d4;
-  font-family: "Orbitron", sans-serif;
-  font-size: 0.7rem;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.3s;
-}
-
-.btn:hover {
-  background: rgba(0, 245, 212, 0.2);
-  border-color: #00f5d4;
-}
-
-.btn.active {
-  background: #00f5d4;
-  color: #0a0a0f;
-}
-
-.back-link {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  color: #666;
-  text-decoration: none;
-  font-size: 0.75rem;
-  z-index: 100;
-}
-
-.back-link:hover {
-  color: #00f5d4;
-}
-
-.counter {
-  position: fixed;
-  top: 5rem;
-  right: 2rem;
-  color: #333;
-  font-size: 0.7rem;
-  z-index: 100;
-}
-
-@media (max-width: 768px) {
-  .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
-  .controls { bottom: 0.5rem; gap: 0.3rem; }
-  .control-btn { padding: 0.35rem 0.6rem; font-size: 0.5rem; }
-  .counter { top: 0.5rem; right: 0.5rem; font-size: 0.55rem; }
-}
-';
+$extraStyle = 'body{background:#0a0a0f;min-height:100vh;overflow:hidden;margin:0}#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}.hud{position:fixed;top:1rem;right:1rem;z-index:20;font:12px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;color:rgba(255,255,255,.55);text-align:right;letter-spacing:.08em;background:rgba(10,10,15,.50);border:1px solid rgba(0,245,212,.16);padding:.75rem .85rem;border-radius:8px;backdrop-filter:blur(12px)}.hud b{color:#00f5d4}.hud .sub{color:rgba(123,44,191,.9)}.mark{position:fixed;left:1rem;bottom:1rem;z-index:20;font:11px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.22em;color:rgba(255,255,255,.18)}.drawer-controls .btn-row{display:flex;gap:.5rem;flex-wrap:wrap}.drawer-controls .control-btn{min-height:36px}.slider-row{display:grid;grid-template-columns:78px 1fr 54px;gap:.65rem;align-items:center}.slider-label,.slider-value{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;color:rgba(255,255,255,.72);letter-spacing:.08em}.slider-value{text-align:right;color:#00f5d4}input[type=range]{width:100%;accent-color:#00f5d4}@media(max-width:760px){.hud{top:.7rem;right:.7rem;font-size:10px;padding:.55rem .65rem}.mark{font-size:9px}.slider-row{grid-template-columns:64px 1fr 42px}}';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
-require_once __DIR__ . '/includes/share.php';
 ?>
-
-<div class="ui">
-  <a href="index.php" class="logo">PULSE</a>
-  <p class="hint">CLICK ANYWHERE</p>
-</div>
-
-<div class="controls">
-  <button class="btn active" data-color="cyan">CYAN</button>
-  <button class="btn" data-color="purple">PURPLE</button>
-  <button class="btn" data-color="rainbow">RAINBOW</button>
-</div>
-
-<div class="counter">ripples: <span id="count">0</span></div>
-
-<a href="index.php" class="back-link"><i class="fa-solid fa-arrow-left"></i></a>
-
-<div class="canvas-container">
-  <canvas id="canvas"></canvas>
-</div>
-
+<canvas id="canvas"></canvas>
+<div class="hud">MODE <b id="h-mode">WATER</b><br>RIPPLES <b id="h-ripples">0</b><br>DAMP <b id="h-damp">0.96</b><br><span class="sub">ENERGY</span> <b id="h-energy">0.00</b></div>
+<div class="mark">RIPPLE</div>
+<?php $interactionHints=[['type'=>'click','label'=>'drop'],['type'=>'drag','label'=>'wake']];require_once __DIR__ . '/includes/interaction-hints.php'; ?>
+<div id="controls" class="drawer-controls"><div class="btn-row"><button class="control-btn active" data-mode="water">WATER</button><button class="control-btn" data-mode="glass">GLASS</button><button class="control-btn" data-mode="field">FIELD</button></div><div class="slider-row"><span class="slider-label">DAMP</span><input type="range" id="sl-damp" min="88" max="99" value="96"><span class="slider-value" id="sv-damp">0.96</span></div><div class="slider-row"><span class="slider-label">SIZE</span><input type="range" id="sl-size" min="40" max="180" value="95"><span class="slider-value" id="sv-size">95</span></div><div class="btn-row"><button class="control-btn active" id="btn-flow">FLOW</button><button class="control-btn" id="btn-clear">CLEAR</button></div></div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <script>
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
+(function(){
+'use strict';
 
-let width, height;
-let ripples = [];
-let colorMode = 'cyan';
-let totalRipples = 0;
-
-const colors = {
-  cyan: ['rgba(0, 245, 212, ', 'rgba(0, 200, 180, '],
-  purple: ['rgba(123, 44, 191, ', 'rgba(180, 80, 220, '],
-  rainbow: null
-};
-
-function resize() {
-  width = canvas.width = window.innerWidth;
-  height = canvas.height = window.innerHeight;
-}
-
-function getRainbowColor(offset) {
-  // Constrain hue to 160-300 range (teal through blue to purple)
-  const raw = (Date.now() / 20 + offset) % 140;
-  const hue = 160 + raw;
-  return `hsla(${hue}, 80%, 60%, `;
-}
-
-function createRipple(x, y) {
-  const count = 3 + Math.floor(Math.random() * 3);
-  for (let i = 0; i < count; i++) {
-    ripples.push({
-      x,
-      y,
-      radius: i * 10,
-      maxRadius: 150 + Math.random() * 150,
-      speed: 2 + Math.random() * 2,
-      lineWidth: 2 - i * 0.3,
-      offset: i * 30
-    });
-  }
-  totalRipples++;
-  document.getElementById('count').textContent = totalRipples;
-}
-
-function animate() {
-  ctx.fillStyle = 'rgba(10, 10, 15, 0.1)';
-  ctx.fillRect(0, 0, width, height);
-
-  ripples = ripples.filter(r => {
-    r.radius += r.speed;
-    
-    const progress = r.radius / r.maxRadius;
-    const alpha = Math.max(0, 1 - progress);
-    
-    let color;
-    if (colorMode === 'rainbow') {
-      color = getRainbowColor(r.offset) + alpha + ')';
-    } else {
-      const colorSet = colors[colorMode];
-      color = colorSet[Math.floor(Math.random() * colorSet.length)] + alpha + ')';
-    }
-    
-    ctx.beginPath();
-    ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = r.lineWidth * (1 - progress * 0.5);
-    ctx.stroke();
-    
-    return r.radius < r.maxRadius;
-  });
-
-  requestAnimationFrame(animate);
-}
-
-window.addEventListener('resize', resize);
-
-canvas.addEventListener('click', (e) => {
-  createRipple(e.clientX, e.clientY);
-  SFX.play('ripple', 80);
-});
-
-canvas.addEventListener('touchstart', (e) => {
-  e.preventDefault();
-  const touch = e.touches[0];
-  createRipple(touch.clientX, touch.clientY);
-  SFX.play('ripple', 80);
-});
-
-document.querySelectorAll('.btn').forEach(btn => {
-  btn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    document.querySelectorAll('.btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    colorMode = btn.dataset.color;
-    SFX.play('toggle');
-  });
-});
-
-setInterval(() => {
-  if (Math.random() > 0.5) {
-    createRipple(
-      Math.random() * width,
-      Math.random() * height
-    );
-  }
-}, 3000);
-
-resize();
-animate();
-
-setTimeout(() => createRipple(width / 2, height / 2), 500);
+var c=document.getElementById('canvas'),x=c.getContext('2d'),W,H,D=1,mode='water',damp=.96,size=95,flow=true,t=0,rips=[];
+var hm=document.getElementById('h-mode'),hr=document.getElementById('h-ripples'),hd=document.getElementById('h-damp'),he=document.getElementById('h-energy'),sd=document.getElementById('sl-damp'),ss=document.getElementById('sl-size'),vd=document.getElementById('sv-damp'),vs=document.getElementById('sv-size');
+function resize(){D=Math.min(2,devicePixelRatio||1);W=c.width=Math.floor(innerWidth*D);H=c.height=Math.floor(innerHeight*D);c.style.width=innerWidth+'px';c.style.height=innerHeight+'px'}function drop(x0,y0,p){rips.push({x:x0*D,y:y0*D,r:4*D,a:p||1,w:size*D});if(window.SFX)SFX.play('ripple',100)}
+function draw(){t+=.016;if(flow&&Math.sin(t*1.7)>.995)drop(innerWidth*(.5+.35*Math.sin(t*.7)),innerHeight*(.5+.3*Math.cos(t*.5)),.55);x.fillStyle='rgba(10,10,15,.20)';x.fillRect(0,0,W,H);x.globalCompositeOperation='lighter';var e=0;for(var i=rips.length-1;i>=0;i--){var r=rips[i];r.r+=2.5*D;r.a*=damp;e+=r.a;if(r.a<.015){rips.splice(i,1);continue}for(var k=0;k<3;k++){var q=k/3,alpha=r.a*(.45-q*.12);x.strokeStyle=mode==='glass'?'rgba(0,245,212,'+alpha+')':mode==='field'?'rgba(123,44,191,'+alpha+')':(k%2?'rgba(123,44,191,'+alpha+')':'rgba(0,245,212,'+alpha+')');x.lineWidth=(1.2+k*.8)*D;x.beginPath();x.arc(r.x,r.y,r.r+q*r.w,0,Math.PI*2);x.stroke()}}x.globalCompositeOperation='source-over';hud(e);requestAnimationFrame(draw)}function hud(e){hm.textContent=mode.toUpperCase();hr.textContent=rips.length;hd.textContent=damp.toFixed(2);he.textContent=e.toFixed(2);vd.textContent=damp.toFixed(2);vs.textContent=size}c.addEventListener('pointerdown',function(e){drop(e.clientX,e.clientY,1)});c.addEventListener('pointermove',function(e){if(e.buttons){drop(e.clientX,e.clientY,.45);if(window.SFX)SFX.play('move',130)}});document.querySelectorAll('[data-mode]').forEach(function(b){b.onclick=function(){mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(function(q){q.classList.toggle('active',q===b)});if(window.SFX)SFX.play('toggle')}});sd.oninput=function(){damp=+sd.value/100;hud(0)};ss.oninput=function(){size=+ss.value;hud(0)};document.getElementById('btn-flow').onclick=function(e){flow=!flow;e.currentTarget.classList.toggle('active',flow);if(window.SFX)SFX.play('toggle')};document.getElementById('btn-clear').onclick=function(){rips=[];if(window.SFX)SFX.play('success')};addEventListener('resize',resize);resize();drop(innerWidth*.5,innerHeight*.5,1);draw();
+})();
 </script>
-
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
-<?php require_once __DIR__ . '/includes/related.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

@@ -290,25 +290,25 @@
   {
     "page": "ripple",
     "title": "RIPPLE",
-    "desc": "水面の波紋。クリックで波を起こす。",
-    "desc_en": "Water ripples. Click to make waves.",
+    "desc": "クリックとドラッグで波紋場を重ねる。",
+    "desc_en": "Layer ripple fields with clicks and drags.",
     "icon": "fa-droplet",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "インタラクティブ",
-    "meta_en": "Interactive",
+    "meta": "波紋場",
+    "meta_en": "Ripple field",
     "added": "2026-01-29"
   },
   {
     "page": "sandpile",
     "title": "SANDPILE",
-    "desc": "砂山モデル。自己組織化臨界現象。",
-    "desc_en": "Sandpile model. Self-organized criticality.",
+    "desc": "アーベル砂山モデルの崩壊と自己組織化臨界を描く。",
+    "desc_en": "Visualize Abelian sandpile avalanches and self-organized criticality.",
     "icon": "fa-mountain",
     "category": "眺める",
     "category_en": "Watch",
-    "meta": "アルゴリズム",
-    "meta_en": "Algorithm",
+    "meta": "自己組織化臨界",
+    "meta_en": "Self-organized criticality",
     "added": "2026-02-10"
   },
   {
@@ -446,13 +446,13 @@
   {
     "page": "maze",
     "title": "MAZE",
-    "desc": "毎回ランダム生成される迷路。ゴールを目指せ。",
-    "desc_en": "Randomly generated maze each time. Find the goal.",
+    "desc": "自動生成される迷路を、光の探索軌跡で進む。",
+    "desc_en": "Navigate a generated maze through luminous exploration trails.",
     "icon": "fa-gamepad",
     "category": "遊べる",
     "category_en": "Play",
-    "meta": "プレイ可能",
-    "meta_en": "Playable",
+    "meta": "探索迷路",
+    "meta_en": "Exploration maze",
     "added": "2026-01-29"
   },
   {
