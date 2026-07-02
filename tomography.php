@@ -95,6 +95,8 @@ var reconstruction = document.createElement('canvas');
 var rctx = reconstruction.getContext('2d');
 var sinogram = document.createElement('canvas');
 var sctx = sinogram.getContext('2d');
+var sinogramValues = new Float32Array(0);
+var mapsDirty = true;
 var grid = 88;
 var sinoH = 150;
 
@@ -107,7 +109,7 @@ function resetBlobs(){
     {x:0.36,y:0.12,r:0.08,w:0.74}
   ];
   updateHud();
-  rebuildMaps();
+  requestRebuild();
 }
 
 function resize(){
@@ -120,7 +122,7 @@ function resize(){
   reconstruction.height = grid;
   sinogram.width = samples;
   sinogram.height = sinoH;
-  rebuildMaps();
+  requestRebuild();
 }
 
 function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
@@ -153,7 +155,7 @@ function colorFor(v, alpha){
 function projection(theta, s){
   var c = Math.cos(theta), sn = Math.sin(theta);
   var sum = 0;
-  var steps = 90;
+  var steps = 72;
   for (var i=0;i<steps;i++){
     var t = -1.15 + 2.3 * i / (steps - 1);
     var x = s * c - t * sn;
@@ -163,16 +165,35 @@ function projection(theta, s){
   return sum / steps;
 }
 
+function requestRebuild(){
+  mapsDirty = true;
+}
+
+function sampleSinogram(angleIndex, s){
+  if (!sinogramValues.length) return 0;
+  var y = ((s / 2.1) + .5) * (sinoH - 1);
+  y = clamp(y, 0, sinoH - 1);
+  var y0 = Math.floor(y);
+  var y1 = Math.min(sinoH - 1, y0 + 1);
+  var t = y - y0;
+  var base0 = y0 * samples + angleIndex;
+  var base1 = y1 * samples + angleIndex;
+  return sinogramValues[base0] * (1 - t) + sinogramValues[base1] * t;
+}
+
 function rebuildMaps(){
   if (!W || !H) return;
+  mapsDirty = false;
   sinogram.width = samples;
   sinogram.height = sinoH;
+  sinogramValues = new Float32Array(samples * sinoH);
   var img = sctx.createImageData(samples, sinoH);
   for (var a=0;a<samples;a++){
     var theta = Math.PI * a / samples;
     for (var y=0;y<sinoH;y++){
       var s = (y / (sinoH - 1) - .5) * 2.1;
       var p = projection(theta, s);
+      sinogramValues[y * samples + a] = p;
       var id = (y * samples + a) * 4;
       var v = clamp(p * 2.8, 0, 1);
       img.data[id] = Math.round(mix(5, 0, v));
@@ -202,7 +223,7 @@ function rebuildMaps(){
         for (var aa=0;aa<samples;aa+=2){
           var th = Math.PI * aa / samples;
           var sproj = x * Math.cos(th) + yv * Math.sin(th);
-          acc += projection(th, sproj);
+          acc += sampleSinogram(aa, sproj);
           used++;
         }
         acc = used ? acc / used * gain * 4.2 : 0;
@@ -311,6 +332,7 @@ function drawSinogram(L){
 
 function render(t){
   if (auto) angle += speed * 0.00012 * (mode === 'slice' ? .35 : 1);
+  if (mapsDirty) rebuildMaps();
   ctx.setTransform(DPR,0,0,DPR,0,0);
   ctx.fillStyle = '#0a0a0f';
   ctx.fillRect(0,0,W/DPR,H/DPR);
@@ -354,7 +376,7 @@ canvas.addEventListener('pointerdown', function(e){
     blobs.push({x:p.x,y:p.y,r:0.09 + Math.random()*0.07,w:0.62 + Math.random()*0.32});
     if (blobs.length > 9) blobs.shift();
     dragging = blobs.length - 1;
-    rebuildMaps();
+    requestRebuild();
     updateHud();
     if (typeof SFX !== 'undefined') SFX.play('spawn');
   } else if (dragging >= 0 && typeof SFX !== 'undefined') {
@@ -370,7 +392,7 @@ canvas.addEventListener('pointermove', function(e){
   if (len > .92) { p.x *= .92 / len; p.y *= .92 / len; }
   blobs[dragging].x = p.x;
   blobs[dragging].y = p.y;
-  rebuildMaps();
+  requestRebuild();
   if (typeof SFX !== 'undefined') SFX.play('move', 90);
 });
 
@@ -393,14 +415,14 @@ document.getElementById('sl-angles').addEventListener('input', function(){
   samples = parseInt(this.value, 10);
   document.getElementById('sv-angles').textContent = samples;
   updateHud();
-  rebuildMaps();
+  requestRebuild();
 });
 
 document.getElementById('sl-gain').addEventListener('input', function(){
   gain = parseInt(this.value, 10) / 100;
   document.getElementById('sv-gain').textContent = gain.toFixed(2);
   updateHud();
-  rebuildMaps();
+  requestRebuild();
 });
 
 document.getElementById('sl-speed').addEventListener('input', function(){

@@ -1982,7 +1982,7 @@
   {
     "page": "hough",
     "title": "HOUGH",
-    "desc": "?????????????????????????????Hough???",
+    "desc": "点群を直線のパラメータ空間へ写し、投票の山から線を検出するHough変換。",
     "desc_en": "Hough transform for line detection. Points become sinusoidal votes, and peaks reveal hidden lines.",
     "icon": "fa-slash",
     "category": "眺める",
