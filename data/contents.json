@@ -1980,6 +1980,18 @@
     "added": "2026-07-01"
   },
   {
+    "page": "hough",
+    "title": "HOUGH",
+    "desc": "?????????????????????????????Hough???",
+    "desc_en": "Hough transform for line detection. Points become sinusoidal votes, and peaks reveal hidden lines.",
+    "icon": "fa-slash",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Hough transform / line detection",
+    "meta_en": "Hough transform / line detection",
+    "added": "2026-07-02"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
