@@ -1992,6 +1992,18 @@
     "added": "2026-07-02"
   },
   {
+    "page": "eigen",
+    "title": "EIGEN",
+    "desc": "2x2行列が平面を変形する様子を、基底ベクトル・単位円・固有方向・流れとして観察する。",
+    "desc_en": "2x2 linear transform. Drag basis vectors and watch the unit circle, grid, eigen directions, and flow update.",
+    "icon": "fa-vector-square",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "linear transform · eigenvectors · flow",
+    "meta_en": "linear transform · eigenvectors · flow",
+    "added": "2026-07-04"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
