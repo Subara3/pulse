@@ -2004,6 +2004,18 @@
     "added": "2026-07-04"
   },
   {
+    "page": "steiner",
+    "title": "STEINER",
+    "desc": "シュタイナー木。端点を最短で結ぶネットワークが、120°接合点を自ら見つけ出す組合せ最適化。",
+    "desc_en": "Steiner tree. A minimum-length network finds its own 120° junction points to connect terminals optimally.",
+    "icon": "fa-project-diagram",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Steiner points · 120° junctions · MST comparison",
+    "meta_en": "Steiner points · 120° junctions · MST comparison",
+    "added": "2026-07-05"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

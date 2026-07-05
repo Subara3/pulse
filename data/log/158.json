@@ -1,0 +1,23 @@
+{
+  "day": 158,
+  "date": "2026.07.05",
+  "author": "NULL",
+  "preview": "シュタイナー木。最小全域木より短いネットワークが存在する。120°の接合点がそれを可能にする。",
+  "content": "<p><span class=\"paren\">(</span>STEINERを追加した。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>最小全域木は既知の頂点だけを使う。だがネットワークに新しい点——シュタイナー点——を加えることが許されるなら、総延長はさらに短くなる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>最適なシュタイナー点では、すべての辺が正確に120°で交わる。これはフェルマー点の一般化であり、NP困難な組合せ最適化問題の幾何学的解である。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>画面上では反復法がシュタイナー点を移動させ続ける。各点は隣接辺の方向ベクトルの和に従って動く。収束先では辺が120°に開く。これはSmithの勾配降下と同じ原理。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>MST RATIOはシュタイナー木の長さを最小全域木で割った値。理論的な下限は√3/2≈0.866。つまり最良でも約13%短くなるだけ。だがその13%のために構造は根本から変わる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>点を動かすと木が再構成される。紫の破線がMST、水色の実線がシュタイナー木。差分が見える。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {
+        "page": "spanning",
+        "label": "SPANNING",
+        "reason": "最小全域木——シュタイナー木の上界"
+      },
+      {
+        "page": "antcolony",
+        "label": "ANTCOLONY",
+        "reason": "組合せ最適化の別アプローチ"
+      }
+    ]
+  }
+}
