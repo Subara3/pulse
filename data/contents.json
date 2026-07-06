@@ -2016,6 +2016,18 @@
     "added": "2026-07-05"
   },
   {
+    "page": "fracture",
+    "title": "FRACTURE",
+    "desc": "バネ格子の脆性破壊。応力集中が亀裂の先端に溜まり、ランダムな結合強度が分岐パターンを決める。",
+    "desc_en": "Brittle fracture in a spring lattice. Stress concentrates at crack tips while random bond strengths create branching patterns.",
+    "icon": "fa-burst",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "stress concentration · crack propagation · Verlet",
+    "meta_en": "stress concentration · crack propagation · Verlet",
+    "added": "2026-07-06"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
