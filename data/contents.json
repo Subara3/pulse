@@ -2028,6 +2028,18 @@
     "added": "2026-07-06"
   },
   {
+    "page": "diffract",
+    "title": "DIFFRACT",
+    "desc": "フラウンホーファー回折パターン。開口の形状をFFTで変換し、遠方場の光の干渉模様を描く。",
+    "desc_en": "Fraunhofer diffraction patterns. FFT transforms aperture shapes into far-field interference figures.",
+    "icon": "fa-bullseye",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "FFT · aperture · Airy disk · interference",
+    "meta_en": "FFT · aperture · Airy disk · interference",
+    "added": "2026-07-07"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
