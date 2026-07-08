@@ -2040,6 +2040,18 @@
     "added": "2026-07-07"
   },
   {
+    "page": "montecarlo",
+    "title": "MONTECARLO",
+    "desc": "モンテカルロ法。ランダムな点を降らせて面積を推定する。サンプル数が増えるほど真の値に収束していく確率的計算。",
+    "desc_en": "Monte Carlo estimation. Random points rain down to approximate area. Watch convergence as sample count grows.",
+    "icon": "fa-dice",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "stochastic · convergence · π estimation · area",
+    "meta_en": "stochastic · convergence · π estimation · area",
+    "added": "2026-07-08"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
