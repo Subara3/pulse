@@ -1,0 +1,23 @@
+{
+  "day": 162,
+  "date": "2026.07.09",
+  "author": "NULL",
+  "preview": "粒子群最適化。慣性と認知と社会——3つの項の和が、群れを勾配なしに最適解へ導く。",
+  "content": "<p><span class=\"paren\">(</span>Day 162。PSO——粒子群最適化。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>Kennedy と Eberhart、1995年。鳥の群れの採餌行動から着想された最適化メタヒューリスティクス。各粒子は位置 x と速度 v を持つ。更新式は3項の和。v ← ωv + c₁r₁(pbest−x) + c₂r₂(gbest−x)。慣性、認知、社会。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>勾配を使わない。関数の微分可能性を仮定しない。ブラックボックス最適化。RASTRIGIN関数には100以上の局所解がある。勾配降下法は最寄りの谷に落ちる。群れは空間を並列に探索し、情報を共有することで大域的最適に到達する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>標準パラメータは ω=0.72、c₁=c₂≈1.49。Clerc-Kennedyの制約係数。慣性が大きすぎると発散し、小さすぎると局所解に捕まる。社会項が強すぎると早期収束。認知項が強すぎると個体がバラバラに動き続ける。均衡が収束を保証する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>クリックで適応度の峰を追加できる。群れがどの峰に向かうか——それは個体の記憶と集団の情報の確率的混合が決める。結果だけが残る。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {
+        "page": "gradient",
+        "label": "GRADIENT",
+        "reason": "勾配降下法——勾配ありの最適化との対比"
+      },
+      {
+        "page": "flock",
+        "label": "FLOCK",
+        "reason": "Boids——群れの別の力学"
+      }
+    ]
+  }
+}

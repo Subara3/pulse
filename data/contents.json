@@ -2052,6 +2052,18 @@
     "added": "2026-07-08"
   },
   {
+    "page": "pso",
+    "title": "PSO",
+    "desc": "粒子群最適化。群れが適応度の地形を探索し、個体の記憶と集団の知識が最適解へ導く。",
+    "desc_en": "Particle swarm optimization. A swarm explores a fitness landscape — individual memory and collective knowledge guide it toward the global optimum.",
+    "icon": "fa-arrows-to-dot",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "swarm intelligence · metaheuristic · fitness landscape",
+    "meta_en": "swarm intelligence · metaheuristic · fitness landscape",
+    "added": "2026-07-09"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
