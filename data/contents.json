@@ -2064,6 +2064,18 @@
     "added": "2026-07-09"
   },
   {
+    "page": "strange",
+    "title": "STRANGE",
+    "desc": "奇妙なアトラクタ探索。Sprottの二次写像パラメータ空間からカオス軌道を発見し、対数密度で描く。",
+    "desc_en": "Strange attractor explorer. Discover chaotic orbits from Sprott's quadratic map parameter space, rendered as log-density accumulation.",
+    "icon": "fa-hurricane",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Sprott quadratic map · Lyapunov · log-density · mutate",
+    "meta_en": "Sprott quadratic map · Lyapunov · log-density · mutate",
+    "added": "2026-07-10"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
