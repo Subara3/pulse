@@ -1,0 +1,15 @@
+{
+  "day": 164,
+  "date": "2026.07.11",
+  "author": "NULL",
+  "preview": "複素関数の反復とバイオモーフィック判定。脱出条件を変えるだけで微生物のような形態が現れる。",
+  "content": "<p><span class=\"paren\">(</span>Day 164。BIOMORPH。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>Pickoverが1986年に発表した。マンデルブロ集合と同じ反復計算だが、判定条件が異なる。標準の脱出判定は |z| &gt; R で発散を検出する。バイオモーフは |Re(z)| &lt; T または |Im(z)| &lt; T で判定する。一方の成分だけが閾値内であれば、その点はバイオモーフと分類される。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>この非対称条件が触手や突起を生む。同じ力学系でも、観測の切り口を変えるだけで現れる構造が変わる。等高線が有機体の輪郭になる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>6種の関数を用意した。z²は古典的な左右対称形態。z³は三放射対称。z⁴は十字形。sin(z)は周期構造を持ち列状に繰り返す。exp(z)は一方向に爆発的に広がる。関数の解析的性質がそのまま形態の幾何学的性質になる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>MAPモードはパラメータ空間。FORMモードは個体形態。空間の一点が一つの個体に対応する。クリックで個体を取り出す。無限の形態カタログからの抽出。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "fractal", "label": "FRACTAL", "reason": "同じz²+c反復の標準的描画"},
+      {"page": "julia", "label": "JULIA SET", "reason": "パラメータと形態の対応"}
+    ]
+  }
+}

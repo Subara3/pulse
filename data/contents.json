@@ -2076,6 +2076,18 @@
     "added": "2026-07-10"
   },
   {
+    "page": "biomorph",
+    "title": "BIOMORPH",
+    "desc": "Pickoverバイオモーフ。複素関数の反復にバイオモーフィック判定を適用すると、微生物のような有機的フラクタルが現れる。",
+    "desc_en": "Pickover biomorphs. Apply a biomorphic bailout test to complex iteration — organism-like fractals emerge from pure mathematics.",
+    "icon": "fa-virus",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "complex iteration · biomorphic bailout · 6 functions · MAP/FORM",
+    "meta_en": "complex iteration · biomorphic bailout · 6 functions · MAP/FORM",
+    "added": "2026-07-11"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
