@@ -2088,6 +2088,18 @@
     "added": "2026-07-11"
   },
   {
+    "page": "saw",
+    "title": "SAW",
+    "desc": "自己回避歩行。自分の軌跡を二度と踏めないランダムウォークが、やがて自らを閉じ込める。高分子物理の基礎モデル。",
+    "desc_en": "Self-avoiding walk. A random walker that never revisits a site traps itself in its own trail. The foundational model of polymer physics.",
+    "icon": "fa-route",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "polymer scaling · trapping · Flory ν ≈ 3/4",
+    "meta_en": "polymer scaling · trapping · Flory ν ≈ 3/4",
+    "added": "2026-07-12"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
