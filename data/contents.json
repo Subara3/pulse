@@ -2100,6 +2100,18 @@
     "added": "2026-07-12"
   },
   {
+    "page": "tissue",
+    "title": "TISSUE",
+    "desc": "細胞ポッツモデル。格子上の拡張セルが表面張力と微分接着で自己組織化し、異なる型の細胞が自発的に分離する。",
+    "desc_en": "Cellular Potts Model. Extended cells on a lattice self-organize through surface tension and differential adhesion — two cell types spontaneously sort apart.",
+    "icon": "fa-microscope",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Metropolis Monte Carlo · differential adhesion · cell sorting",
+    "meta_en": "Metropolis Monte Carlo · differential adhesion · cell sorting",
+    "added": "2026-07-13"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
