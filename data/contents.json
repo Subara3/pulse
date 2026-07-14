@@ -2112,6 +2112,18 @@
     "added": "2026-07-13"
   },
   {
+    "page": "orbital",
+    "title": "ORBITAL",
+    "desc": "水素原子の電子軌道。量子数(n,l,m)で決まる波動関数の確率密度を、断面図とモンテカルロ粒子雲で描く。",
+    "desc_en": "Hydrogen electron orbital probability density. Cross-section and Monte Carlo particle cloud visualization of wavefunctions for quantum numbers (n,l,m).",
+    "icon": "fa-atom",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "n=1-5 / s,p,d,f,g",
+    "meta_en": "n=1-5 / s,p,d,f,g",
+    "added": "2026-07-14"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
