@@ -2124,6 +2124,18 @@
     "added": "2026-07-14"
   },
   {
+    "page": "xymodel",
+    "title": "XY MODEL",
+    "desc": "XYモデル。格子上の連続スピンが温度に従い配向する。低温では渦欠陥が対を組み、BKT転移で解離する。",
+    "desc_en": "XY model. Continuous-angle spins on a lattice align with temperature. Vortex defects pair at low temperature and unbind at the BKT transition.",
+    "icon": "fa-compass",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "BKT transition · vortex defects · Metropolis",
+    "meta_en": "BKT transition · vortex defects · Metropolis",
+    "added": "2026-07-15"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
