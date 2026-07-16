@@ -2136,6 +2136,18 @@
     "added": "2026-07-15"
   },
   {
+    "page": "foam",
+    "title": "FOAM",
+    "desc": "2D泡沫シミュレーション。表面張力がセル境界を曲げ、フォン・ノイマンの法則で泡が消え、トポロジーが組み変わる。",
+    "desc_en": "2D foam dynamics. Surface tension curves cell walls, von Neumann coarsening shrinks small bubbles, and topology rearranges as cells pop.",
+    "icon": "fa-droplet",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Voronoi · surface tension · coarsening",
+    "meta_en": "Voronoi · surface tension · coarsening",
+    "added": "2026-07-16"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
