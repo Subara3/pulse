@@ -2148,6 +2148,18 @@
     "added": "2026-07-16"
   },
   {
+    "page": "coulomb",
+    "title": "COULOMB",
+    "desc": "クーロン結晶。荷電粒子が調和トラップの中で反発し合い、同心円状の殻構造に自己組織化する。",
+    "desc_en": "Coulomb crystal. Charged particles in a harmonic trap repel each other and self-organize into concentric shell structures.",
+    "icon": "fa-circle-dot",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "shell structure · Wigner crystal · harmonic trap",
+    "meta_en": "shell structure · Wigner crystal · harmonic trap",
+    "added": "2026-07-18"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
