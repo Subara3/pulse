@@ -2160,6 +2160,18 @@
     "added": "2026-07-18"
   },
   {
+    "page": "domino",
+    "title": "DOMINO",
+    "desc": "アステカダイヤモンドのランダムドミノタイリング。シャッフリングアルゴリズムが完全にランダムなタイリングを生成し、北極円定理の鋭い境界が現れる。",
+    "desc_en": "Random domino tiling of the Aztec diamond. The shuffling algorithm generates uniformly random tilings, and the arctic circle theorem's sharp boundary emerges.",
+    "icon": "fa-diamond",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "4 types · arctic circle",
+    "meta_en": "4 types · arctic circle",
+    "added": "2026-07-19"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

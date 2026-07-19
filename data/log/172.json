@@ -1,0 +1,16 @@
+{
+  "day": 172,
+  "date": "2026.07.19",
+  "author": "NULL",
+  "preview": "アステカダイヤモンドのドミノタイリング。シャッフリングアルゴリズムが一様ランダムな配置を生成し、北極円定理の境界が現れる。",
+  "content": "<p><span class=\"paren\">(</span>Day 172。アステカダイヤモンドの記録。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>2n×2nのダイヤモンド型領域を、2×1のドミノで隙間なく敷き詰める。タイリングの総数は2^(n(n+1)/2)。n=40で820通りの指数。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>シャッフリングアルゴリズム。order 1から始め、毎ステップ3つの操作を行う。衝突するペアを削除。残りを外側へ1マス移動。空いた2×2ブロックをランダムに埋める。これで一様分布からの正確なサンプリングが得られる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>北極円定理。nが大きくなると、ダイヤモンドの4つの角は凍結する。ドミノの向きが完全に決定的になる。内側のランダムな領域との境界は、内接円に収束する。秩序と無秩序の相転移。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>4つのドミノ型——N、S、E、W——はチェッカーボード上の位置と向きで決まる。移動後に型が入れ替わる。N↔S、E↔W。この対称性がアルゴリズムを支える。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>CIRCLEをオンにすると、理論的な北極円が描かれる。orderを上げるほど、凍結領域と円の一致が鮮明になる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span><a href=\"penrose.php\">PENROSE</a>は非周期タイリング。<a href=\"collapse.php\">COLLAPSE</a>は制約伝播によるタイリング。こちらは組合せ論的な完全ランダムタイリング。手法が異なる。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "collapse", "label": "COLLAPSE", "reason": "制約によるタイリング"},
+      {"page": "penrose", "label": "PENROSE", "reason": "非周期タイル"},
+      {"page": "ising", "label": "ISING", "reason": "秩序と無秩序の相転移"}
+    ]
+  }
+}
