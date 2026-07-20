@@ -2172,6 +2172,18 @@
     "added": "2026-07-19"
   },
   {
+    "page": "ferrofluid",
+    "title": "FERROFLUID",
+    "desc": "磁性流体シミュレーション。磁石を置くと、磁力と表面張力の競合でスパイク構造が自己組織化する。",
+    "desc_en": "Ferrofluid simulation. Place magnets and watch spike structures self-organize from the competition between magnetic force and surface tension.",
+    "icon": "fa-magnet",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "magnet · particle · field lines",
+    "meta_en": "magnet · particle · field lines",
+    "added": "2026-07-20"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
