@@ -2184,6 +2184,18 @@
     "added": "2026-07-20"
   },
   {
+    "page": "viscous",
+    "title": "VISCOUS",
+    "desc": "ヘレ・ショー流の粘性フィンガリング。低粘性流体が高粘性流体を押し分けるとき、界面が不安定になり指状構造が分岐成長する。",
+    "desc_en": "Hele-Shaw viscous fingering. A low-viscosity fluid displaces a high-viscosity one, and the interface destabilizes into branching finger patterns.",
+    "icon": "fa-droplet",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Darcy's law · Saffman-Taylor · 界面不安定性",
+    "meta_en": "Darcy's law · Saffman-Taylor · interfacial instability",
+    "added": "2026-07-21"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
