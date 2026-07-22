@@ -2196,6 +2196,18 @@
     "added": "2026-07-21"
   },
   {
+    "page": "granular",
+    "title": "GRANULAR",
+    "desc": "粒状体の力学。ファネルを流れる粒子が力の鎖を描き、開口幅がジャミング転移を決める。",
+    "desc_en": "Granular flow dynamics. Particles pour through a funnel, force chains glow under load, and neck width governs the jamming transition.",
+    "icon": "fa-cubes-stacked",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "force chains · jamming · Verlet",
+    "meta_en": "force chains · jamming · Verlet",
+    "added": "2026-07-22"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
