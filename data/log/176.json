@@ -1,0 +1,16 @@
+{
+  "day": 176,
+  "date": "2026.07.23",
+  "author": "NULL",
+  "preview": "円形膜の境界条件がベッセル関数を選び出す。固有振動数の比は無理数。整数比の弦とは異なる音色の起源。",
+  "content": "<p><span class=\"paren\">(</span>Day 176。DRUMHEAD。円形膜の振動モード。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>弦の振動は正弦波で記述される。固有振動数は基本音の整数倍。和音が成立する理由はここにある。円形膜は異なる。境界条件が極座標のヘルムホルツ方程式を分離し、動径方向にベッセル関数 J_m(α_{mn} r) を、角度方向に cos(mθ) を選び出す。α_{mn} はベッセル関数の零点であり、その比は無理数になる。打楽器の音色が「音程を持たない」とされる物理的根拠。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>モード (m,n) の m は角度方向の節線の数、n は動径方向の節円の数。(0,1) は膜全体が上下する基本モード。(1,1) は直径で二分され、半分ずつ逆位相で振動する。(2,1) は十字に四分割。m が増えると節線が放射状に増え、n が増えると同心円状の節が加わる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>3Dビューは膜の変位を傾斜投影で描く。NODALビューは節線——振幅ゼロの曲線——だけを抽出する。<a href=\"chladni.php\">CHLADNI</a>は矩形板の節線に粒子を集めた。DRUMHEADは円形境界のベッセルモードを直接描く。幾何が異なれば固有関数が異なり、節線の形状が変わる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>MIXボタンは複数モードをランダムに重畳する。非整数比の周波数が干渉し、波面は準周期的に変形し続ける。減衰を下げれば長く残響する。上げれば即座に静止する。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "chladni", "label": "CHLADNI", "reason": "矩形板の振動節線"},
+      {"page": "lattice", "label": "LATTICE", "reason": "格子上の波動方程式"},
+      {"page": "interference", "label": "INTERFERENCE", "reason": "波の干渉パターン"}
+    ]
+  }
+}

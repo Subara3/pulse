@@ -2208,6 +2208,18 @@
     "added": "2026-07-22"
   },
   {
+    "page": "drumhead",
+    "title": "DRUMHEAD",
+    "desc": "円形膜の振動モード。ベッセル関数の固有振動が描く同心円と放射線の節線パターン。",
+    "desc_en": "Vibrating circular membrane modes. Bessel-function eigenmodes paint concentric and radial nodal patterns.",
+    "icon": "fa-drum",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "3 views / 7×6 modes",
+    "meta_en": "3 views / 7×6 modes",
+    "added": "2026-07-23"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
