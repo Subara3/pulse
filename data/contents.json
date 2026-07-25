@@ -2232,6 +2232,18 @@
     "added": "2026-07-24"
   },
   {
+    "page": "scalefree",
+    "title": "SCALE-FREE",
+    "desc": "スケールフリーネットワーク。優先的選択で新ノードがハブに引き寄せられ、べき乗則の次数分布が創発する。",
+    "desc_en": "Scale-free network. Preferential attachment draws new nodes to hubs, and a power-law degree distribution emerges.",
+    "icon": "fa-sitemap",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "BA model / hub emergence",
+    "meta_en": "BA model / hub emergence",
+    "added": "2026-07-25"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
