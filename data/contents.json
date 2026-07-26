@@ -2244,6 +2244,18 @@
     "added": "2026-07-25"
   },
   {
+    "page": "cml",
+    "title": "CML",
+    "desc": "結合写像格子。ロジスティック写像の格子が拡散結合し、時空間カオスとパターン選択が創発する。",
+    "desc_en": "Coupled map lattice. A grid of logistic maps with diffusive coupling spawns spatiotemporal chaos and pattern selection.",
+    "icon": "fa-grip",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "logistic map / spatiotemporal chaos",
+    "meta_en": "logistic map / spatiotemporal chaos",
+    "added": "2026-07-26"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
