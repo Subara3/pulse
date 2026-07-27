@@ -2256,6 +2256,18 @@
     "added": "2026-07-26"
   },
   {
+    "page": "transport",
+    "title": "TRANSPORT",
+    "desc": "最適輸送。二つの分布を最小コストで結ぶ粒子の流れが、貪欲法と2-opt改善で収束する。",
+    "desc_en": "Optimal transport. Particles flow between distributions via greedy assignment and 2-opt refinement, minimizing total displacement.",
+    "icon": "fa-route",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Earth Mover's Distance / W₂",
+    "meta_en": "Earth Mover's Distance / W₂",
+    "added": "2026-07-27"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
