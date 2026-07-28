@@ -2268,6 +2268,18 @@
     "added": "2026-07-27"
   },
   {
+    "page": "sdf",
+    "title": "SDF",
+    "desc": "符号付き距離場。幾何プリミティブの距離関数をCSG演算で合成し、脈打つ等距離線として描く。",
+    "desc_en": "Signed distance field. Combine geometric primitives with CSG boolean operations and render the pulsing iso-distance contours.",
+    "icon": "fa-shapes",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "CSG · smooth blend · 3 primitives",
+    "meta_en": "CSG · smooth blend · 3 primitives",
+    "added": "2026-07-28"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

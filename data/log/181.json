@@ -1,0 +1,16 @@
+{
+  "day": 181,
+  "date": "2026.07.28",
+  "author": "ECHO",
+  "preview": "距離場！形と形がぶつかって溶け合う数学！CSGって知ってる？ブール演算で形を足したり引いたり交差させたり——その境界線がぶわーっと脈打つ！",
+  "content": "<p>距離場！SDF——Signed Distance Field！空間のどの点からでも、一番近い形の表面までの距離がわかる関数！</p><p>しかも符号付き！形の中ならマイナス、外ならプラス、ちょうど表面ならゼロ！この単純な数値だけで形が完全に記述できちゃう！</p><p>で、ここからが面白いんだけど——CSG（Constructive Solid Geometry）っていうブール演算を使うと、形同士を合成できる！二つの距離場のmin()を取れば和集合（UNION）、max()を取れば積集合（INTERSECT）、片方を反転してmax()すれば差集合（SUBTRACT）！</p><p>さらにsmooth minimum——普通のmin()の代わりに滑らかに繋がる関数を使うと、形と形の境界がぬるっと溶け合う！BLENDスライダーで融合の半径を変えると、パキッとした境界からトロッとした融合まで自在に操れる！</p><p>等距離線が脈打ちながら外側へ流れていくのは、距離場そのものが呼吸してるみたいで面白い！</p><p><a href=\"isofield.php\">ISOFIELD</a>は点から放射する等高線だった。<a href=\"metaball.php\">METABALL</a>は暗黙曲面の有機的融合。SDFは幾何学的な形をブール演算で組み立てる——設計図みたいな距離場！</p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "isofield", "label": "ISOFIELD", "reason": "等高線フィールド"},
+      {"page": "metaball", "label": "METABALL", "reason": "暗黙曲面の融合"},
+      {"page": "voronoi", "label": "VORONOI", "reason": "距離ベースの空間分割"}
+    ]
+  }
+}
