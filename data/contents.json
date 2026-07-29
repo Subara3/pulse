@@ -2280,6 +2280,18 @@
     "added": "2026-07-28"
   },
   {
+    "page": "convection",
+    "title": "CONVECTION",
+    "desc": "レイリー・ベナール対流。下から加熱された流体が自発的に対流セルを形成し、レイリー数の増加とともにカオスへ遷移する。",
+    "desc_en": "Rayleigh-Bénard convection. Heated fluid spontaneously forms convection cells; increasing the Rayleigh number drives the flow from ordered rolls to chaos.",
+    "icon": "fa-temperature-arrow-up",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "vorticity-stream · Boussinesq · thermal",
+    "meta_en": "vorticity-stream · Boussinesq · thermal",
+    "added": "2026-07-29"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
