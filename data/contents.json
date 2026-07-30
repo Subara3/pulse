@@ -2292,6 +2292,18 @@
     "added": "2026-07-29"
   },
   {
+    "page": "coriolis",
+    "title": "CORIOLIS",
+    "desc": "コリオリ効果。回転する円盤の上で直線運動が曲がって見える。慣性系と回転系を切り替えて見かけの力を体験する。",
+    "desc_en": "Coriolis effect. Straight-line motion on a rotating disk appears to curve. Switch between inertial and rotating frames to experience fictitious forces.",
+    "icon": "fa-rotate",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "rotating frame · fictitious forces · 2ωv",
+    "meta_en": "rotating frame · fictitious forces · 2ωv",
+    "added": "2026-07-30"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
