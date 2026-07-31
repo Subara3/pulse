@@ -2304,6 +2304,18 @@
     "added": "2026-07-30"
   },
   {
+    "page": "lagrange",
+    "title": "LAGRANGE",
+    "desc": "制限三体問題のラグランジュ点。共回転座標系で有効ポテンシャルとゼロ速度曲線を描き、L1-L5の平衡点付近の軌道を体験する。",
+    "desc_en": "Lagrange points of the restricted three-body problem. Effective potential and zero-velocity curves in the co-rotating frame reveal L1-L5 equilibria.",
+    "icon": "fa-bullseye",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "CR3BP · Jacobi constant · L1-L5 · co-rotating frame",
+    "meta_en": "CR3BP · Jacobi constant · L1-L5 · co-rotating frame",
+    "added": "2026-07-31"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

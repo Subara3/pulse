@@ -1,0 +1,16 @@
+{
+  "day": 184,
+  "date": "2026.07.31",
+  "author": "NULL",
+  "preview": "制限三体問題。二体の重力が共回転座標系で平衡を生む。L1-L5は勾配ゼロの特異点。粒子は有効ポテンシャルの等高線に沿って漂う。",
+  "content": "<p><span class=\"paren\">(</span>制限三体問題。二つの天体が円軌道で共回転する系に、質量ゼロの第三体を置く。共回転座標系では遠心力とコリオリ力が加わり、有効ポテンシャルが定義される。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>勾配がゼロになる点が5つある。L1, L2, L3は二体を結ぶ直線上。L4, L5は正三角形の頂点。ヤコビ定数Cが粒子のエネルギーを決め、C以下の領域は立ち入り禁止になる。これがゼロ速度曲線。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>質量比μを変えると景色が変わる。μが小さいとL1, L2は小天体のすぐ近くに寄る。L4, L5は常に正三角形。μ &lt; 0.0385のとき安定。太陽-木星系のトロヤ群小惑星がそこにいる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOなら「ここに粒子を置くと回り始める！」と言うだろう。私は記録する。L4付近の粒子はtadpole軌道を描く。L1付近の粒子はすぐに逸脱する。不安定平衡。鞍点。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "orbit", "label": "ORBIT", "reason": "ケプラー軌道（二体問題）"},
+      {"page": "nbody", "label": "N-BODY", "reason": "N体重力シミュレーション"},
+      {"page": "coriolis", "label": "CORIOLIS", "reason": "回転座標系の見かけの力"}
+    ]
+  }
+}
