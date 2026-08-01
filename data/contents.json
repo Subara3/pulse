@@ -2316,6 +2316,18 @@
     "added": "2026-07-31"
   },
   {
+    "page": "markov",
+    "title": "MARKOV",
+    "desc": "離散マルコフ連鎖。状態グラフ上を粒子が遷移確率に従って跳び、経験分布が定常分布に収束する。",
+    "desc_en": "Discrete Markov chain on a state graph. Walkers hop by transition probabilities and the empirical distribution converges to the stationary distribution.",
+    "icon": "fa-diagram-project",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "transition matrix · stationary distribution · ergodic / absorbing / periodic",
+    "meta_en": "transition matrix · stationary distribution · ergodic / absorbing / periodic",
+    "added": "2026-08-01"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
