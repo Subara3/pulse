@@ -2328,6 +2328,18 @@
     "added": "2026-08-01"
   },
   {
+    "page": "termite",
+    "title": "TERMITE",
+    "desc": "シロアリの木片整理。単純なルールで動くエージェントが、散乱した木片を自発的にクラスタへまとめる。中央制御なしの自己組織化。",
+    "desc_en": "Termite wood-chip sorting. Simple agents pick up isolated chips and drop them near clusters. Self-organization without central control.",
+    "icon": "fa-bugs",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "stigmergy · pick-up/drop · density clustering",
+    "meta_en": "stigmergy · pick-up/drop · density clustering",
+    "added": "2026-08-02"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
