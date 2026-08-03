@@ -2340,6 +2340,18 @@
     "added": "2026-08-02"
   },
   {
+    "page": "spacetime",
+    "title": "SPACETIME",
+    "desc": "ミンコフスキー時空図。ローレンツブーストで光円錐・世界線・同時性が変形する特殊相対論の可視化。",
+    "desc_en": "Minkowski spacetime diagram. Lorentz boosts shear the grid while the light cone stays at 45 degrees. Place events, draw worldlines, and watch simultaneity tilt.",
+    "icon": "fa-atom",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Lorentz変換 · 光円錐 · 世界線 · 固有時間 · 同時性の相対性",
+    "meta_en": "Lorentz transform · light cone · worldline · proper time · relativity of simultaneity",
+    "added": "2026-08-03"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
