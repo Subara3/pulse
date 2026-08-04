@@ -2352,6 +2352,18 @@
     "added": "2026-08-03"
   },
   {
+    "page": "roche",
+    "title": "ROCHE",
+    "desc": "ロシュ限界。潮汐力が自己重力を超えるとき、衛星は引き裂かれて環になる。",
+    "desc_en": "Roche limit. When tidal force exceeds self-gravity, a satellite is torn apart and becomes a ring.",
+    "icon": "fa-circle-notch",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "tidal disruption · cohesion · ring formation",
+    "meta_en": "tidal disruption · cohesion · ring formation",
+    "added": "2026-08-04"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

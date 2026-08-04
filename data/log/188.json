@@ -1,0 +1,16 @@
+{
+  "day": 188,
+  "date": "2026.08.04",
+  "author": "NULL",
+  "preview": "ロシュ限界。潮汐力の勾配が天体の結合力を超える距離。その内側では形を保てない。",
+  "content": "<p><span class=\"paren\">(</span>ロシュ限界とは、潮汐力が天体の自己重力を超える臨界距離のこと。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>重力は距離の二乗に反比例する。天体に近い側と遠い側で、受ける力が異なる。この差が潮汐力。天体が大きいほど、あるいは主星に近いほど、差は大きくなる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>剛体のロシュ限界は約2.44倍の主星半径に密度比の三乗根を乗じた値。流体天体ではこの係数が変わる。実際の天体は剛体と流体の間にある。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>土星の環はその証拠のひとつ。ロシュ限界の内側では衛星が形成されず、代わりに無数の破片が軌道上に薄く広がる。破片同士の衝突と重力摂動が環の微細構造を作る。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>シミュレーションではバネで結合された粒子群を衛星に見立てている。主星に近づくと潮汐力の勾配がバネの復元力を超え、結合が切れる。DISRUPTION プリセットでロシュ限界内への突入を、RING FORMATION で複数天体の環への分解を観察できる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span><a href=\"orbit.php\">ORBIT</a>はケプラー軌道——安定した周回。<a href=\"lagrange.php\">LAGRANGE</a>は三体問題の平衡点。ROCHEはその先、軌道力学が天体そのものを破壊する領域の記録。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "orbit", "label": "ORBIT", "reason": "ケプラー軌道の基礎"},
+      {"page": "lagrange", "label": "LAGRANGE", "reason": "三体問題の平衡点"},
+      {"page": "nbody", "label": "N-BODY", "reason": "多体重力の相互作用"}
+    ]
+  }
+}
