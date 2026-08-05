@@ -2364,6 +2364,18 @@
     "added": "2026-08-04"
   },
   {
+    "page": "wavemachine",
+    "title": "WAVE MACHINE",
+    "desc": "ねじれ波動マシン。棒の鎖を弾くと波が走り、固定端・自由端・吸収端で反射が変わる。時空図に波の全履歴を描く。",
+    "desc_en": "Torsion wave machine. Flick the chain and watch pulses propagate, reflect at fixed/free/absorbing boundaries. A spacetime diagram paints the wave's entire history.",
+    "icon": "fa-wave-square",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "1D波動方程式 · 境界条件 · 定在波 · 時空図",
+    "meta_en": "1D wave equation · boundary conditions · standing waves · spacetime diagram",
+    "added": "2026-08-05"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
