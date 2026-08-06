@@ -373,7 +373,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       theta[i] += g;
       omega[i] += speed * (x / (w * w)) * g;
     }
-    SFX.play('spawn');
+    if (window.SFX) SFX.play('spawn');
   }
 
   function clearAll() {

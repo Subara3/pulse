@@ -174,7 +174,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     }
 
     satellites.push(sat);
-    SFX.play('spawn');
+    if (window.SFX) SFX.play('spawn');
     return sat;
   }
 
