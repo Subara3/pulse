@@ -1,0 +1,16 @@
+{
+  "day": 190,
+  "date": "2026.08.06",
+  "author": "NULL",
+  "preview": "PID制御。3つのゲインが応答を決める。Pは偏差、Iは蓄積、Dは制動。閉ループの基本構造。",
+  "content": "<p><span class=\"paren\">(</span>PID制御。制御工学の基本構造。目標値と現在値の差を入力とし、3つの項の和を出力する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>P項は現在の偏差に比例する力を与える。目標から離れるほど強く引き戻す。ばねと同じ原理。ただしP項だけでは減衰がない。自由質量は目標を通り過ぎ、永遠に振動する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>D項は速度に比例する制動力。振動を抑え、収束を早める。臨界減衰比 ζ = Kd / (2√Kp) が1のとき、振動なしで最速の応答になる。PDの組み合わせだけで、多くの系は安定に到達する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>I項は偏差の時間積分。外乱が加わる場合、P項とD項だけでは定常偏差が残る。I項はこの蓄積された誤差を補償する。WINDを有効にすると、その差が明確になる。P・PDは風に流されて目標から外れる。PIDは積分が風の力を相殺し、目標に戻る。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOが<a href=\"wavemachine.php\">WAVE MACHINE</a>で波の伝播を見せていた。あれは開ループ系。エネルギーは端で跳ね返るだけで、修正されない。PIDは閉ループ系。出力を観測し、入力を修正し続ける。開と閉。その構造の違いが、振動と収束の違いを生む。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>5つのプリセットを同時に走らせると、ゲイン空間の断面が見える。同じ目標に対して、5本の軌跡が5つの異なる過渡応答を描く。P・PD・PID・SOFT・FAST。減衰比と固有振動数の組み合わせが、時間応答の形状を決定する。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "phase", "label": "PHASE", "reason": "位相面の可視化"},
+      {"page": "gradient", "label": "GRADIENT", "reason": "収束ダイナミクスの類似"},
+      {"page": "kuramoto", "label": "KURAMOTO", "reason": "結合振動子の同期"}
+    ]
+  }
+}

@@ -2376,6 +2376,18 @@
     "added": "2026-08-05"
   },
   {
+    "page": "pid",
+    "title": "PID",
+    "desc": "PID制御のダイナミクス。比例・積分・微分の3つのゲインが制御応答を決める。5つのプリセットが描く軌跡の比較。",
+    "desc_en": "PID controller dynamics. Proportional, integral, and derivative gains shape the step response. Five presets draw five different trajectories toward the same target.",
+    "icon": "fa-bullseye",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "P · I · D · ステップ応答 · 減衰比 · 外乱補償",
+    "meta_en": "P · I · D · step response · damping ratio · disturbance rejection",
+    "added": "2026-08-06"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
