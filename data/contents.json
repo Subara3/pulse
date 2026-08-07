@@ -2388,6 +2388,15 @@
     "added": "2026-08-06"
   },
   {
+    "page": "plasma",
+    "title": "PLASMA",
+    "desc": "二成分プラズマ。電子とイオンがクーロン力で相互作用し、デバイ遮蔽とプラズマ振動が創発する。",
+    "icon": "fa-bolt",
+    "category": "眺める",
+    "meta": "クーロン力 · デバイ遮蔽 · プラズマ振動 · 電場",
+    "added": "2026-08-07"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
