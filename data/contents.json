@@ -2397,6 +2397,18 @@
     "added": "2026-08-07"
   },
   {
+    "page": "stereo",
+    "title": "STEREO",
+    "desc": "立体射影。球面上の格子・航路・多面体が平面の円として映し出され、回転とともに変形する等角写像の可視化。",
+    "desc_en": "Stereographic projection. Sphere patterns—grid, loxodromes, icosahedron—map to circles on the plane, morphing as the sphere rotates.",
+    "icon": "fa-globe",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "等角写像 · 円円対応 · 航角線 · 正二十面体",
+    "meta_en": "conformal · circle-preserving · loxodrome · icosahedron",
+    "added": "2026-08-08"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
