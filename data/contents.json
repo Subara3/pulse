@@ -2409,6 +2409,18 @@
     "added": "2026-08-08"
   },
   {
+    "page": "wallpaper",
+    "title": "WALLPAPER",
+    "desc": "壁紙群。平面を埋め尽くす対称性パターン。粒子の軌跡が回転・鏡映・並進で無限に繰り返され、結晶学的秩序が創発する。",
+    "desc_en": "Wallpaper groups. Particle trails replicated by rotation, reflection, and translation tile the plane with crystallographic symmetry.",
+    "icon": "fa-border-all",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "6 groups / trails",
+    "meta_en": "6 groups / trails",
+    "added": "2026-08-09"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
