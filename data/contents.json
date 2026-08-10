@@ -2421,6 +2421,18 @@
     "added": "2026-08-09"
   },
   {
+    "page": "gears",
+    "title": "GEARS",
+    "desc": "歯車列シミュレーション。噛み合う歯車が回転比を伝え、歯形が滑らかに接触する。",
+    "desc_en": "Gear train simulation. Meshing gears transmit rotation ratios through interlocking tooth profiles.",
+    "icon": "fa-gears",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "involute teeth / gear ratio / train",
+    "meta_en": "involute teeth / gear ratio / train",
+    "added": "2026-08-10"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
