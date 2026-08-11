@@ -2433,6 +2433,18 @@
     "added": "2026-08-10"
   },
   {
+    "page": "braitenberg",
+    "title": "BRAITENBERG",
+    "desc": "ブライテンベルグ・ビークル。センサーとモーターの単純な配線が恐怖・攻撃・愛着・探索の行動を生む。",
+    "desc_en": "Braitenberg vehicles. Simple sensor-motor wiring produces fear, aggression, love, and exploration from the same light sources.",
+    "icon": "fa-car",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "4 types / sensor-motor / emergent behavior",
+    "meta_en": "4 types / sensor-motor / emergent behavior",
+    "added": "2026-08-11"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
