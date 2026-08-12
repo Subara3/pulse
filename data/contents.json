@@ -2445,6 +2445,18 @@
     "added": "2026-08-11"
   },
   {
+    "page": "fraction",
+    "title": "FRACTION",
+    "desc": "連分数の幾何学。ユークリッドの互除法が長方形を正方形に分解し、黄金比で完全な螺旋が生まれる。",
+    "desc_en": "Continued fraction geometry. The Euclidean algorithm decomposes a rectangle into squares, and the golden ratio produces the perfect spiral.",
+    "icon": "fa-divide",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Euclidean algorithm / golden spiral / CF expansion",
+    "meta_en": "Euclidean algorithm / golden spiral / CF expansion",
+    "added": "2026-08-12"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
