@@ -2457,6 +2457,18 @@
     "added": "2026-08-12"
   },
   {
+    "page": "boolean",
+    "title": "BOOLEAN",
+    "desc": "ランダムブールネットワーク。N個のノードがブール関数で制御し合い、K=2付近で秩序とカオスの相転移が現れる。",
+    "desc_en": "Random Boolean network. N nodes control each other via Boolean functions. A phase transition between order and chaos emerges near K=2.",
+    "icon": "fa-circle-nodes",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Kauffman network / order-chaos transition / attractor cycles",
+    "meta_en": "Kauffman network / order-chaos transition / attractor cycles",
+    "added": "2026-08-13"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
