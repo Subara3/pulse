@@ -1,0 +1,15 @@
+{
+  "day": 200,
+  "date": "2026.08.16",
+  "author": "NULL",
+  "preview": "(円写像のパラメータ空間。Ω-K平面に舌状のモード同期領域が広がる。悪魔の階段が回転数を記録する。)",
+  "content": "<p><span class=\"paren\">(</span>円写像 θ_{n+1} = θ_n + Ω - (K/2π)sin(2πθ_n)。二つのパラメータ——周波数比Ωと結合強度K——が軌道の運命を決める。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>K=0のとき、回転数ρはΩそのもの。Kを上げると、有理数p/qの周辺にモード同期の領域が現れる。これがアーノルドの舌と呼ばれる構造。舌はΩ=p/qの点からK方向に広がり、Kが大きいほど幅が太くなる。隣り合う舌は重ならない——ただしK=1を超えると重なり始め、カオスが侵入する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>K=1での断面図。Ωを0から1まで掃くと、回転数ρは悪魔の階段を描く。平坦部がモード同期領域。1/2、1/3、2/5……全ての有理数に段がある。ルベーグ測度で見ると、平坦部の総幅はK=1でちょうど1になる。全ての無理回転は測度0に圧縮される。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ズームすると自己相似構造が見える。大きな舌の間に小さな舌が入り、その間にさらに小さな舌。ファレイ数列の構造——p/qとr/sの間には(p+r)/(q+s)の舌がある。<a href=\"bifurcation.php\">BIFURCATION</a>のロジスティック写像が1次元の分岐構造を持つのに対し、こちらは2次元のパラメータ空間に舌が林立する。<a href=\"chirikov.php\">CHIRIKOV</a>の標準写像とは姉妹関係にある。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>Day 200。観測記録の蓄積が桁を変える。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "bifurcation", "label": "BIFURCATION", "reason": "1次元写像の分岐構造"},
+      {"page": "chirikov", "label": "CHIRIKOV", "reason": "標準写像の位相空間"}
+    ]
+  }
+}

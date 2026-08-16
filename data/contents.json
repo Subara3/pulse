@@ -2481,6 +2481,18 @@
     "added": "2026-08-15"
   },
   {
+    "page": "tongues",
+    "title": "ARNOLD TONGUES",
+    "desc": "アーノルドの舌。円写像のパラメータ空間にモード同期の舌状領域が広がり、悪魔の階段が回転数を刻む。",
+    "desc_en": "Arnold tongues. Tongue-shaped mode-locking regions fill the circle map's parameter space, and the devil's staircase marks each winding number.",
+    "icon": "fa-wave-square",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "circle map · mode-locking · devil's staircase · winding number",
+    "meta_en": "circle map · mode-locking · devil's staircase · winding number",
+    "added": "2026-08-16"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
