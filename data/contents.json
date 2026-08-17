@@ -2493,6 +2493,18 @@
     "added": "2026-08-16"
   },
   {
+    "page": "polymerize",
+    "title": "POLYMERIZE",
+    "desc": "重合シミュレーション。モノマーが衝突と結合を繰り返し、鎖状分子からゲルネットワークへ相転移する。",
+    "desc_en": "Polymerization simulation. Monomers collide and bond into chains that undergo a gelation phase transition into spanning networks.",
+    "icon": "fa-link",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "step-growth / gelation",
+    "meta_en": "step-growth / gelation",
+    "added": "2026-08-17"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
