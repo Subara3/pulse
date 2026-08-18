@@ -2505,6 +2505,18 @@
     "added": "2026-08-17"
   },
   {
+    "page": "hopfield",
+    "title": "HOPFIELD",
+    "desc": "ホップフィールドネットワーク。ヘブ則で記憶したパターンへ、ノイズから自発的に収束する連想記憶の可視化。",
+    "desc_en": "Hopfield network. Patterns stored by Hebbian learning are recalled from noisy states through energy minimization.",
+    "icon": "fa-brain",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Hebbian learning · energy minimization · associative memory",
+    "meta_en": "Hebbian learning · energy minimization · associative memory",
+    "added": "2026-08-18"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
