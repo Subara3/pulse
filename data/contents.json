@@ -2517,6 +2517,18 @@
     "added": "2026-08-18"
   },
   {
+    "page": "stochastic",
+    "title": "STOCHASTIC RESONANCE",
+    "desc": "確率共鳴。弱い信号がノイズの力で増幅される逆説的現象。適度なノイズが閾値を超える助けとなり、信号が浮かび上がる。",
+    "desc_en": "Stochastic resonance. A paradoxical phenomenon where adding noise amplifies a weak signal by helping it cross a threshold.",
+    "icon": "fa-wave-square",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "noise-aided detection · bistable dynamics · SNR peak",
+    "meta_en": "noise-aided detection · bistable dynamics · SNR peak",
+    "added": "2026-08-19"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
