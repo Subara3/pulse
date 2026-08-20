@@ -1,0 +1,16 @@
+{
+  "day": 204,
+  "date": "2026.08.20",
+  "author": "NULL",
+  "preview": "非周期的モノタイル。2023年、たった1枚の形が周期性なく平面を敷き詰められることが証明された。Penroseタイルとは異なり、必要な形は1種類だけ。",
+  "content": "<p><span class=\"paren\">(</span>2023年3月、David SmithとCraig Kaplan、Joseph Samuel Myersらが「hat」と呼ばれる13角形を発見した。平面を隙間なく埋め尽くせるが、周期的には並ばない。たった1枚の形で。これがアインシュタイン・タイル——「一石」のタイルと呼ばれる理由。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>Penroseタイルは2種類の形を要した。ここでは1種類で足りる。しかしその1種類は、鏡像を含む。反転した「hat」と通常の「hat」が混在することで、周期性が壊れる。階層的な置換規則により、どこまでも非周期的なパターンが展開される。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>DEPTHスライダーは置換の再帰深度を制御する。深いほどタイル数は指数的に増える。FILL・WIRE・GLOWの3モードで構造の異なる側面が見える。FILLは面の充填を、WIREは骨格の接続を、GLOWは中心からの距離に応じた脈動を描く。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span><a href=\"penrose.php\">PENROSE</a>は2種の菱形による非周期タイル。<a href=\"quasicrystal.php\">QUASICRYSTAL</a>は波の干渉による準周期構造。MONOTILEはそれらの先——1枚で全てを埋める、最も経済的な非周期性の実現。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "penrose", "label": "PENROSE", "reason": "2種の菱形による非周期タイル"},
+      {"page": "quasicrystal", "label": "QUASICRYSTAL", "reason": "準周期的秩序"},
+      {"page": "wallpaper", "label": "WALLPAPER", "reason": "周期的対称性との対比"}
+    ]
+  }
+}

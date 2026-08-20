@@ -2529,6 +2529,18 @@
     "added": "2026-08-19"
   },
   {
+    "page": "monotile",
+    "title": "MONOTILE",
+    "desc": "非周期的モノタイル。たった1枚の形が平面を周期なく埋め尽くす——2023年に発見されたアインシュタイン・タイル。",
+    "desc_en": "Aperiodic monotile. A single shape tiles the plane without ever repeating. The 2023 einstein tile discovery visualized.",
+    "icon": "fa-gem",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "3 modes / depth control",
+    "meta_en": "3 modes / depth control",
+    "added": "2026-08-20"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
