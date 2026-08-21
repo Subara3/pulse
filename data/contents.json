@@ -2541,6 +2541,18 @@
     "added": "2026-08-20"
   },
   {
+    "page": "motile",
+    "title": "MOTILE",
+    "desc": "自己駆動粒子の非平衡相分離。引力なしで密度と持続性だけからクラスタが自発的に形成・融合・蒸発する。",
+    "desc_en": "Active Brownian particles. No attraction, yet clusters form spontaneously from density and persistence alone — motility-induced phase separation.",
+    "icon": "fa-bacterium",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "MIPS · active matter · non-equilibrium",
+    "meta_en": "MIPS · active matter · non-equilibrium",
+    "added": "2026-08-21"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
