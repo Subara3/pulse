@@ -2553,6 +2553,18 @@
     "added": "2026-08-21"
   },
   {
+    "page": "dune",
+    "title": "DUNE",
+    "desc": "風成砂丘シミュレーション。風が砂粒を跳躍させ、堆積と雪崩を繰り返して三日月型バルハン砂丘が自律的に形成・移動する。",
+    "desc_en": "Aeolian dune simulation. Wind saltation, selective deposition, and avalanche self-organize crescent-shaped barchan dunes.",
+    "icon": "fa-wind",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "saltation · shadow · barchan",
+    "meta_en": "saltation · shadow · barchan",
+    "added": "2026-08-22"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
