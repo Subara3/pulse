@@ -2565,6 +2565,18 @@
     "added": "2026-08-22"
   },
   {
+    "page": "geodesic",
+    "title": "GEODESIC",
+    "desc": "曲面上の測地線。ガウス曲率の地形を自由に描き、最短経路の粒子が曲がる様子を眺める微分幾何学の可視化。",
+    "desc_en": "Geodesics on curved surfaces. Sculpt a height field and watch shortest-path particles bend where Gaussian curvature warps space.",
+    "icon": "fa-route",
+    "category": "眺める",
+    "category_en": "Watch",
+    "meta": "Riemannian · Gauss curvature · parallel transport",
+    "meta_en": "Riemannian · Gauss curvature · parallel transport",
+    "added": "2026-08-23"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
