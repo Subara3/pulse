@@ -79,6 +79,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <script>
+  function brandHue(t){t=t<0?0:t>1?1:t;var e=t<0.5?0.5*Math.pow(2*t,3.2):1-0.5*Math.pow(2*(1-t),3.2);return 172+e*118}
 (function() {
   var C = document.getElementById('canvas'), ctx = C.getContext('2d');
   var W, H, dpr;
@@ -235,7 +236,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   function tileColor(idx, alpha) {
     var hBase = (idx * 137.508 + hueShift * 3.6) % 360;
     // Clamp to allowed hue ranges: 165-295
-    var h = 165 + (hBase % 130);
+    var h = brandHue((hBase % 130) / 130);
     var s = 55 + (idx * 7) % 20;
     var l = 35 + (idx * 3) % 20;
     return 'hsla(' + h + ',' + s + '%,' + l + '%,' + alpha + ')';

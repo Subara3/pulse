@@ -101,16 +101,22 @@ def main() -> int:
     os.makedirs(os.path.dirname(REPORT), exist_ok=True)
     json.dump(rows, open(REPORT, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 
-    # 遷移領域(青)は「控えめに使う」ルールなので、支配的なら違反扱い
+    # out率 = 許容色相の外。これは明確な違反。
+    # blue率 = 遷移領域(205-255)の占有率。teal と purple を加算合成すると
+    #          その中間色が必然的にここへ落ちるため、高いだけでは違反にしない。
+    #          ただし「色相を一様に振っている」ページはここが 8 割を超えるので、
+    #          目視で確認する価値がある指標として残す。
     for r in rows:
-        r['violation'] = r['ratio'] > args.fail_ratio or r['blue_ratio'] > 0.55
+        r['violation'] = r['ratio'] > args.fail_ratio
+        r['review'] = not r['violation'] and r['blue_ratio'] > 0.55
     bad = [r for r in rows if r['violation']]
-    show = rows[:args.limit] if args.limit else bad
+    review = [r for r in rows if r['review']]
+    show = rows[:args.limit] if args.limit else (bad + review)
 
-    print(f'判定対象 {len(rows)} ページ / 違反 {len(bad)} ページ '
-          f'(out率 > {args.fail_ratio:.0%})')
+    print(f'判定対象 {len(rows)} ページ / 違反 {len(bad)} / 要確認 {len(review)}'
+          f'  (違反: out率 > {args.fail_ratio:.0%} / 要確認: 青 > 55%)')
     for r in show:
-        mark = 'x' if r['violation'] else '-'
+        mark = 'x' if r['violation'] else ('?' if r['review'] else '-')
         print(f"  {mark} {r['page']:<16} out={r['ratio']:6.1%} blue={r['blue_ratio']:6.1%}"
               f"  主要色相={r['dominant_hue']:>3}deg")
     print(f'\n詳細: {os.path.relpath(REPORT, ROOT)}')

@@ -74,6 +74,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <script>
+  function brandHue(t){t=t<0?0:t>1?1:t;var e=t<0.5?0.5*Math.pow(2*t,3.2):1-0.5*Math.pow(2*(1-t),3.2);return 172+e*118}
 (function() {
   'use strict';
 
@@ -200,7 +201,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
   function col(spd) {
     var t = Math.min(spd / (temp * 0.06), 1);
-    return 'hsl(' + (172 + t * 108) + ',' + (65 + t * 15) + '%,' + (55 - t * 10) + '%)';
+    return 'hsl(' + brandHue(t) + ',' + (65 + t * 15) + '%,' + (55 - t * 10) + '%)';
   }
 
   function fmtN(n) {
@@ -238,7 +239,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     for (k = 0; k < bins; k++) {
       var bH = b[k] / mx * (hH - 16);
       var t = k / bins;
-      ctx.fillStyle = 'hsla(' + (172 + t * 108) + ',65%,50%,0.5)';
+      ctx.fillStyle = 'hsla(' + brandHue(t) + ',65%,50%,0.5)';
       ctx.fillRect(hX + k * bW, hY + hH - bH, bW - 0.5, bH);
     }
 

@@ -82,6 +82,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <script>
+  function brandHue(t){t=t<0?0:t>1?1:t;var e=t<0.5?0.5*Math.pow(2*t,3.2):1-0.5*Math.pow(2*(1-t),3.2);return 172+e*118}
 (function() {
   var C = document.getElementById('canvas');
   var ctx = C.getContext('2d');
@@ -124,7 +125,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     var brightness = 0.3 + Math.random() * 0.7;
     var size = 0.5 + Math.random() * 1.5;
     if (r < 30) { brightness = 0.8 + Math.random() * 0.2; size *= 0.7; }
-    var hue = 175 + (r / (Math.min(W, H) * 0.42)) * 80;
+    var hue = brandHue(r / (Math.min(W, H) * 0.42) * 0.8);
     return { r: r, angle: angle, orbitalSpeed: orbitalSpeed, brightness: brightness, size: size, hue: hue, armIdx: armIdx };
   }
 

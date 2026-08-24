@@ -123,7 +123,7 @@ function initOrbiters() {
       baseR: baseR * (0.7 + i * 0.3),
       speed: 0.015 + i * 0.005,
       wobbleFreq: 0.4 + i * 0.15,
-      hue: 174 + i * 45,
+      hue: [176, 232, 284][i % 3],
       size: 3 + i * 0.5
     });
   }

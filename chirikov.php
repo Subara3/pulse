@@ -84,6 +84,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <script>
+  function brandHue(t){t=t<0?0:t>1?1:t;var e=t<0.5?0.5*Math.pow(2*t,3.2):1-0.5*Math.pow(2*(1-t),3.2);return 172+e*118}
 (function() {
   var C = document.getElementById('canvas'), X = C.getContext('2d');
   var W, H, SZ;
@@ -146,7 +147,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
   function orbitColor(theta0, p0) {
     var t = p0 / TWO_PI;
-    var h = 170 + t * 120;
+    var h = brandHue(t);
     var s = 60 + Math.sin(theta0 * 3) * 15;
     var l = 50 + Math.cos(p0 * 2.7) * 12;
     return 'hsla(' + h + ',' + s + '%,' + l + '%,0.55)';

@@ -59,6 +59,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <script>
+  function brandHue(t){t=t<0?0:t>1?1:t;var e=t<0.5?0.5*Math.pow(2*t,3.2):1-0.5*Math.pow(2*(1-t),3.2);return 172+e*118}
 (function(){
   var C = document.getElementById('canvas'), X = C.getContext('2d');
   var W, H, dpr, cx, cy, SC;
@@ -214,7 +215,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
   function spawnParticle(sx, sy, svx, svy) {
     if (particles.length >= MAXP) particles.shift();
-    var hue = 170 + Math.random() * 90;
+    var hue = brandHue(Math.random());
     particles.push({ x: sx, y: sy, vx: svx, vy: svy, trail: [], age: 0, hue: hue });
     if (typeof SFX !== 'undefined') SFX.play('spawn', 80);
   }

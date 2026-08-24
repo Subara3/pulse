@@ -237,7 +237,10 @@ function update() {
     if (p.y > H) p.y -= H;
 
     // Color based on angle
-    var hue = pal.hueMin + ((angle / (Math.PI * 4) + 0.5) % 1) * hueRange;
+    var _ht = ((angle / (Math.PI * 4) + 0.5) % 1);
+    // 色相を一様に振ると帯の中央(青)に半分が落ちるので、中央を圧縮する
+    _ht = _ht < 0.5 ? 0.5 * Math.pow(2 * _ht, 3.2) : 1 - 0.5 * Math.pow(2 * (1 - _ht), 3.2);
+    var hue = pal.hueMin + _ht * hueRange;
     var sat = 70 + Math.sin(angle) * 20;
     var light = 50 + Math.cos(angle * 0.5) * 15;
 
