@@ -82,6 +82,7 @@ $extraStyle = '
   font-size: clamp(.95rem, 1.8vw, 1.1rem); line-height: 2; color: var(--text);
 }
 .hero-sub b { color: var(--teal); font-weight: 700; }
+.hero-sub .nb { white-space: nowrap; }
 
 .hero-actions { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1.7rem; }
 
@@ -209,7 +210,7 @@ require_once __DIR__ . '/includes/nav.php';
     <p class="eyebrow">Day <?php echo str_pad((string)$dayNumber, 3, '0', STR_PAD_LEFT); ?> &nbsp;·&nbsp; <?php echo str_replace('-', '.', $today); ?></p>
     <h1 class="hero-mark">PULSE<span>.</span></h1>
     <p class="hero-sub">
-      数式と規則が<b>動いているところ</b>だけを、<b><?php echo $workCount; ?>本</b>。<br>
+      数式と規則が<b>動いているところ</b>だけを、<b class="nb"><?php echo $workCount; ?>本</b>。<br>
       読まなくていい。触ればわかる。
     </p>
 

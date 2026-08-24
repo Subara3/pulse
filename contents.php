@@ -60,6 +60,7 @@ $extraStyle = '
   scrollbar-width: none; margin-top: .6rem;
 }
 .chips::-webkit-scrollbar { display: none; }
+@media (min-width: 900px) { .chips { flex-wrap: wrap; overflow: visible; } }
 
 .no-hit { padding: 4rem 0; text-align: center; color: var(--text-3); }
 .no-hit .mono { display: block; margin-bottom: .8rem; color: var(--teal); letter-spacing: .2em; font-size: .72rem; }
