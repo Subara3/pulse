@@ -1,0 +1,117 @@
+{
+  "mazegen": {
+    "to": "maze",
+    "why": "迷路生成 ⊂ 迷路",
+    "concept": "迷路生成アルゴリズム"
+  },
+  "ripple": {
+    "to": "waves",
+    "why": "波紋 ⊂ 波動場",
+    "concept": "波紋・水面の重ね合わせ"
+  },
+  "interference": {
+    "to": "waves",
+    "why": "干渉縞 ⊂ 波動場",
+    "concept": "波の干渉縞・定在波"
+  },
+  "console": {
+    "to": "waves",
+    "why": "信号ダッシュボードは他ページの寄せ集め",
+    "concept": "複数信号のダッシュボード"
+  },
+  "doublepend": {
+    "to": "pendulum",
+    "why": "pendulum に二重振り子モードあり",
+    "concept": "二重振り子のカオス"
+  },
+  "spring": {
+    "to": "pendulum",
+    "why": "バネ振り子カオス ⊂ 振り子カオス",
+    "concept": "バネ振り子のカオス"
+  },
+  "worley": {
+    "to": "voronoi",
+    "why": "セルラーノイズ = ボロノイ距離場",
+    "concept": "セルラーノイズ（最近傍距離）"
+  },
+  "chaosgame": {
+    "to": "ifs",
+    "why": "カオスゲームは IFS の描画法そのもの",
+    "concept": "カオスゲーム"
+  },
+  "drift": {
+    "to": "levydrift",
+    "why": "単純ランダムウォーク ⊂ レヴィフライト",
+    "concept": "単純ランダムウォーク"
+  },
+  "orbit": {
+    "to": "nbody",
+    "why": "ケプラー2体 ⊂ N体重力",
+    "concept": "ケプラー2体軌道"
+  },
+  "lissajous": {
+    "to": "harmonograph",
+    "why": "リサジュー = 減衰なしハーモノグラフ",
+    "concept": "リサジュー曲線"
+  },
+  "cycloid": {
+    "to": "spirograph",
+    "why": "転がる円の軌跡 ⊂ スピログラフ",
+    "concept": "サイクロイド・転がる円"
+  },
+  "wildfire": {
+    "to": "percolation",
+    "why": "森林火災 = 動的パーコレーション",
+    "concept": "森林火災モデル"
+  },
+  "xymodel": {
+    "to": "ising",
+    "why": "XYモデル = 連続スピンのイジング",
+    "concept": "XYモデル（連続スピン）"
+  },
+  "drumhead": {
+    "to": "chladni",
+    "why": "円形膜モード ⊂ 振動の節線",
+    "concept": "円形膜の振動モード"
+  },
+  "optics": {
+    "to": "refraction",
+    "why": "幾何光線の反射/屈折で二重",
+    "concept": "幾何光学の鏡面反射"
+  },
+  "vortex": {
+    "to": "karman",
+    "why": "点渦 ⊂ カルマン渦列",
+    "concept": "点渦の流体力学"
+  },
+  "isofield": {
+    "to": "metaball",
+    "why": "等高線場 = メタボールの等値面",
+    "concept": "等高線フィールド"
+  },
+  "turmite": {
+    "to": "langton",
+    "why": "ターマイト = ラングトンのアリの一般化",
+    "concept": "ターマイト（ラングトンのアリの一般化）"
+  },
+  "cyclicca": {
+    "to": "cyclic",
+    "why": "循環セルオートマトンの後継実装（Day 208）",
+    "concept": "循環セルオートマトン"
+  },
+  "scatter": {
+    "to": "billiard",
+    "why": "ローレンツガス = シナイ・ビリヤード",
+    "concept": "ローレンツガス／シナイ・ビリヤード"
+  },
+  "golden": {
+    "to": "fibonacci",
+    "why": "黄金比 ⊂ 黄金角とフィボナッチ",
+    "concept": "黄金比・黄金角"
+  },
+  "flow": {
+    "to": "flowfield",
+    "why": "グラデーションの流れ ⊂ ノイズ流れ場",
+    "concept": "グラデーションの流れ場"
+  }
+}

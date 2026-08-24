@@ -21,8 +21,8 @@ RewriteRule ^(.+)\.html$ $1.php [R=301,L]
 Redirect 301 /chaosgame.php /ifs.php
 # 信号ダッシュボードは他ページの寄せ集め
 Redirect 301 /console.php /waves.php
-# 循環CA と興奮性媒質はどちらも渦巻き波
-Redirect 301 /cyclicca.php /excitable.php
+# 循環セルオートマトンの後継実装（Day 208 の cyclic）
+Redirect 301 /cyclicca.php /cyclic.php
 # 転がる円の軌跡 ⊂ スピログラフ
 Redirect 301 /cycloid.php /spirograph.php
 # pendulum に二重振り子モードあり

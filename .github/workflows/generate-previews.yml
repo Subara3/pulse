@@ -125,4 +125,22 @@ jobs:
             exit 0
           fi
           git commit -m "chore: regenerate preview videos / sync inventory"
-          git push origin main
+          # 全再生成は1時間近くかかる。その間に main が進むと push が弾かれ、
+          # 生成物がまるごと捨てられる（2026-08-24 に実際に発生）。
+          # rebase してから押し直す。プレビューは常にこちらの生成物を優先する。
+          for attempt in 1 2 3 4 5; do
+            if git push origin main; then
+              echo "pushed on attempt $attempt"
+              exit 0
+            fi
+            echo "push rejected; rebasing onto origin/main (attempt $attempt)"
+            git fetch origin main
+            if ! git rebase -X theirs origin/main; then
+              git rebase --abort || true
+              echo "rebase failed"
+              exit 1
+            fi
+            sleep 5
+          done
+          echo "push failed after 5 attempts"
+          exit 1

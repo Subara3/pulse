@@ -182,7 +182,24 @@ def main() -> int:
                 msg += f' …ほか{len(uniq) - 6}種'
             errors.append(msg)
 
+    # ------------------------------------------------- 統合済みページの整合性
+    merged_path = os.path.join(ROOT, 'data', 'merged.json')
+    merged = {}
+    if os.path.exists(merged_path):
+        merged = json.load(open(merged_path, encoding='utf-8'))
+        ht = open(os.path.join(ROOT, '.htaccess'), encoding='utf-8').read()
+        for old, info in merged.items():
+            if os.path.exists(os.path.join(ROOT, f'{old}.php')):
+                errors.append(f'統合済みの {old}.php が復活している')
+            if old in seen:
+                errors.append(f'統合済みの {old} が contents.json に戻っている')
+            if f'Redirect 301 /{old}.php' not in ht:
+                errors.append(f'{old} の 301 リダイレクトが .htaccess に無い')
+            if info.get('to') not in seen:
+                errors.append(f"{old} のリダイレクト先 {info.get('to')} が存在しない")
+
     # ---------------------------------------------------------------- 4
+
     link_re = re.compile(r'href="([a-z0-9_-]+)\.php"')
     for f in glob.glob(os.path.join(ROOT, '*.php')) + glob.glob(os.path.join(ROOT, 'includes', '*.php')):
         src = open(f, encoding='utf-8').read()

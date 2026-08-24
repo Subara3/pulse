@@ -133,8 +133,10 @@ function buildPalette() {
   for (var i = 0; i < N; i++) {
     var t = i / N;
     var h = brandHue(t);
-    var s = 72 + 10 * Math.sin(t * Math.PI);
-    var l = 42 + 18 * Math.sin(t * Math.PI * 2);
+    var s = 55 + 25 * Math.sin(t * Math.PI);
+    // 全状態を明るくすると画面が塗りつぶされ、サイト全体の「暗闇に光る」基調から外れる。
+    // 大半の状態は暗いまま置き、波面にあたる数状態だけを光らせる。
+    var l = 3 + 46 * Math.pow(Math.sin(t * Math.PI), 3.4);
     var rgb = P.hsl(h, s, l);
     palette.push(rgb);
   }

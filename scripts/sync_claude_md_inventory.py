@@ -64,6 +64,24 @@ def build_section(items):
             out.append(f"- `{slug}` **{title}** — {desc}  _(added {added})_")
         out.append("")
 
+    # 統合済みの概念。ここを出しておかないと、消した概念を自動更新が作り直す
+    # （2026-08-24 に cyclicca を消した直後、Day 208 で cyclic が再生成された）。
+    merged_path = ROOT / "data" / "merged.json"
+    if merged_path.exists():
+        merged = json.loads(merged_path.read_text(encoding="utf-8"))
+        out.append(f"### 統合済み・再作成しないこと（{len(merged)}件）")
+        out.append("")
+        out.append(
+            "> 過去に「被り」として統合したページ。**同じ概念で新規ページを作らないこと。**"
+            "既存ページを拡張するか、別の概念を選ぶ。"
+        )
+        out.append("")
+        for old_page in sorted(merged):
+            info = merged[old_page]
+            concept = info.get("concept") or ""
+            out.append(f"- `{old_page}` — {concept} → **`{info['to']}`** に統合済み（{info['why']}）")
+        out.append("")
+
     out.append(
         "**カバー判定の使い方**: 新案は、まず 12 コレクションのどれに入るかを決める。"
         "その中の `desc` を全部読んで、概念が重なるものが 1 つでもあれば別案にする。"
