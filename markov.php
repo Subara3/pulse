@@ -8,9 +8,9 @@ $pageTitle = 'MARKOV - PULSE';
 $pageDesc = '離散マルコフ連鎖。状態グラフ上を粒子が遷移確率に従って跳び、経験分布が定常分布に収束する。';
 $pageCanonical = 'https://pulse.subara3.com/markov.php';
 $extraStyle = '
-  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Orbitron",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
+  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
   #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Orbitron",monospace;letter-spacing:.12em}
+  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -226,7 +226,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       var ay = cy + Math.sin(ea) * loopR;
       drawArrowHead(ax, ay, ea + Math.PI/2, prob);
       X.fillStyle = rgba([255,255,255], 0.5);
-      X.font = '9px Orbitron, monospace';
+      X.font = '9px Space Grotesk, monospace';
       X.textAlign = 'center';
       X.fillText((prob * 100 | 0) + '%', cx + Math.cos(ang) * 8, cy + Math.sin(ang) * 8);
       return;
@@ -262,7 +262,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
     var mx = (sx1 + sx2) / 2, my = (sy1 + sy2) / 2;
     X.fillStyle = rgba([255,255,255], 0.5);
-    X.font = '9px Orbitron, monospace';
+    X.font = '9px Space Grotesk, monospace';
     X.textAlign = 'center';
     X.fillText((prob * 100 | 0) + '%', mx - ny * 12, my + nx * 12);
   }
@@ -322,7 +322,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       }
 
       X.fillStyle = rgba([255,255,255], 0.6);
-      X.font = '9px Orbitron, monospace';
+      X.font = '9px Space Grotesk, monospace';
       X.textAlign = 'center';
       X.fillText(s.label, x + barW / 2, baseY + 14);
       X.fillStyle = rgba(col, 0.8);
@@ -394,7 +394,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       X.fill();
 
       X.fillStyle = rgba([255,255,255], 0.8);
-      X.font = '12px Orbitron, monospace';
+      X.font = '12px Space Grotesk, monospace';
       X.textAlign = 'center';
       X.textBaseline = 'middle';
       X.fillText(s.label, s.x, s.y);

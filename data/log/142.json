@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "vortex", "label": "VORTEX", "reason": "点渦力学。カルマン渦列の理論的基盤"},
-      {"page": "fluidveil", "label": "FLUID VEIL", "reason": "流体シミュレーション。異なるアプローチの流体可視化"},
-      {"page": "bifurcation", "label": "BIFURCATION", "reason": "分岐図。Re増加による対称性の破れは分岐現象"}
+      {
+        "page": "karman",
+        "label": "KÁRMÁN",
+        "reason": "点渦力学。カルマン渦列の理論的基盤"
+      },
+      {
+        "page": "fluidveil",
+        "label": "FLUID VEIL",
+        "reason": "流体シミュレーション。異なるアプローチの流体可視化"
+      },
+      {
+        "page": "bifurcation",
+        "label": "BIFURCATION",
+        "reason": "分岐図。Re増加による対称性の破れは分岐現象"
+      }
     ]
   }
 }

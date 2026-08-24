@@ -1,305 +1,223 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/access_log.php';
-
-// アクセス記録
 recordPageView('log');
 
+require_once __DIR__ . '/includes/contents-data.php';
+
 $pageName = 'log';
-$pageTitle = 'Daily Log - PULSE';
-$pageDesc = 'ECHOとNULLの日記。毎日交互に更新される思考や観察の記録。';
-$pageCanonical = 'https://pulse.subara3.com/log.php';
+$needSerif = true;   // ECHO の本文は明朝で組む
 
-// 個別エントリOGP対応: ?day=NNN
-$singleDay = null;
-$singleEntry = null;
-if (isset($_GET['day']) && preg_match('/^\d{1,3}$/', $_GET['day'])) {
-    $dayNum = (int)$_GET['day'];
-    $dayFile = __DIR__ . '/data/log/' . str_pad($dayNum, 3, '0', STR_PAD_LEFT) . '.json';
-    if (file_exists($dayFile)) {
-        $singleEntry = json_decode(file_get_contents($dayFile), true);
-        if ($singleEntry) {
-            $singleDay = $dayNum;
-            $dayStr = str_pad($dayNum, 3, '0', STR_PAD_LEFT);
-            $pageTitle = 'Day ' . $dayStr . ' ' . $singleEntry['author'] . ' - PULSE Daily Log';
-            $pageDesc = $singleEntry['preview'] ?? $pageDesc;
-            $pageCanonical = 'https://pulse.subara3.com/log.php?day=' . $dayNum;
+/* ---- 全エントリを読み込む（新しい順） -------------------------------- */
+$logFiles = glob(__DIR__ . '/data/log/*.json');
+usort($logFiles, fn($a, $b) => basename($b) <=> basename($a));
 
-            // contents.jsonから日付一致のコンテンツを探してプレビュー画像をOGPに使う
-            $contentsFile = __DIR__ . '/data/contents.json';
-            if (file_exists($contentsFile)) {
-                $contents = json_decode(file_get_contents($contentsFile), true);
-                if ($contents) {
-                    // log日付(2026.03.05)→contents日付(2026-03-05)に変換して照合
-                    $logDate = str_replace('.', '-', $singleEntry['date']);
-                    foreach ($contents as $c) {
-                        if (isset($c['added']) && $c['added'] === $logDate && isset($c['page'])) {
-                            $previewJpg = __DIR__ . '/img/previews/' . $c['page'] . '.jpg';
-                            if (file_exists($previewJpg)) {
-                                $ogImage = 'https://pulse.subara3.com/img/previews/' . $c['page'] . '.jpg';
-                            }
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
+$entries = [];
+foreach ($logFiles as $f) {
+    $e = json_decode(file_get_contents($f), true);
+    if ($e && isset($e['day'])) $entries[] = $e;
 }
+
+$singleDay = isset($_GET['day']) ? (int)$_GET['day'] : null;
+$perPage = 24;
+$page = max(1, (int)($_GET['p'] ?? 1));
+
+if ($singleDay !== null) {
+    $shown = array_values(array_filter($entries, fn($e) => (int)$e['day'] === $singleDay));
+    $totalPages = 1;
+} else {
+    $totalPages = max(1, (int)ceil(count($entries) / $perPage));
+    $page = min($page, $totalPages);
+    $shown = array_slice($entries, ($page - 1) * $perPage, $perPage);
+}
+
+$first = $shown[0] ?? null;
+
+if ($singleDay !== null && $first) {
+    $pageTitle = 'Day ' . str_pad((string)$first['day'], 3, '0', STR_PAD_LEFT) . ' — ' . $first['author'] . ' | PULSE DAILY LOG';
+    $pageDesc = mb_substr(strip_tags($first['preview'] ?? ''), 0, 110);
+    $pageCanonical = 'https://pulse.subara3.com/log.php?day=' . $singleDay;
+} else {
+    $pageTitle = 'DAILY LOG — ECHOとNULLの記録 | PULSE';
+    $pageDesc = 'PULSEに毎日1本追加されるコンテンツの、その日の記録。奇数日はECHO、偶数日はNULLが書いています。全'
+        . count($entries) . '日分。';
+    $pageCanonical = 'https://pulse.subara3.com/log.php' . ($page > 1 ? '?p=' . $page : '');
+}
+
+$titles = [];
+foreach ($allContents as $c) $titles[$c['page']] = $c['title'];
 
 $extraStyle = '
-/* ========== ログエントリー共通 ========== */
-.log-entry {
-  background: var(--bg-card);
-  border-radius: 16px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  position: relative;
-  border: 1px solid rgba(255,255,255,0.05);
-}
+.log-hero { padding-block: clamp(2.6rem, 7vw, 4.5rem) clamp(1.2rem, 3vw, 2rem); }
+.log-hero h1 { font-size: clamp(2rem, 6vw, 3.2rem); letter-spacing: .04em; }
 
-.log-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+.entry {
+  display: grid; grid-template-columns: 128px 1fr; gap: clamp(1rem, 3vw, 2.2rem);
+  padding-block: clamp(1.8rem, 4vw, 2.8rem);
+  border-top: 1px solid var(--line);
 }
+@media (max-width: 720px) { .entry { grid-template-columns: 1fr; gap: .8rem; } }
 
-.log-meta {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
+.entry-side { position: sticky; top: 78px; align-self: start; }
+@media (max-width: 720px) { .entry-side { position: static; display: flex; align-items: center; gap: .8rem; } }
 
-.log-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: \'Orbitron\', sans-serif;
-  font-size: 0.55rem;
-  font-weight: 700;
+.entry-day {
+  font-family: var(--font-display); font-weight: 700; font-size: 1.55rem;
+  letter-spacing: .06em; color: var(--echo-color); line-height: 1;
 }
+.entry.null .entry-day { color: var(--null-color); }
+.entry-date { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .1em; color: var(--text-3); margin-top: .4rem; }
+.entry-who {
+  display: inline-block; margin-top: .6rem; padding: .16rem .5rem;
+  font-family: var(--font-mono); font-size: .6rem; letter-spacing: .16em;
+  border: 1px solid currentColor; border-radius: 2px; color: var(--echo-color);
+}
+.entry.null .entry-who { color: var(--null-color); }
 
-.log-date {
-  font-family: \'JetBrains Mono\', monospace;
-  font-size: 0.9rem;
-}
+.entry-body { max-width: 62ch; }
+.entry-body p { margin-bottom: 1.15rem; }
+.entry-body a { color: var(--teal); text-decoration: none; border-bottom: 1px solid var(--teal-line); }
+.entry-body a:hover { background: var(--teal-soft); }
 
-.log-day {
-  font-family: \'Orbitron\', sans-serif;
-  color: var(--text-secondary);
-  font-size: 0.8rem;
+/* ECHO は明朝、NULL は等幅。声の違いを書体でも出す */
+.entry.echo .entry-body { font-family: var(--font-serif); font-size: 1.02rem; line-height: 2.15; }
+.entry.null .entry-body {
+  font-family: var(--font-mono); font-size: .86rem; line-height: 2.1; color: var(--text-2);
 }
+.entry.null .paren { color: var(--null-color); opacity: .75; }
 
-.log-author {
-  font-family: \'Orbitron\', sans-serif;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+/* 関連コンテンツ */
+.spot { margin-top: 1.5rem; display: grid; gap: .55rem; }
+.spot-title {
+  font-family: var(--font-mono); font-size: .62rem; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--text-3);
 }
+.spot-items { display: flex; gap: .7rem; flex-wrap: wrap; }
+.spot-item {
+  display: flex; align-items: center; gap: .65rem; text-decoration: none;
+  padding: .4rem .75rem .4rem .4rem; background: var(--ink-2);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  transition: border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.spot-item:hover { border-color: var(--teal-line); background: var(--ink-3); }
+.spot-item img { width: 56px; height: 32px; object-fit: cover; border-radius: 2px; opacity: .8; }
+.spot-item .nm { font-family: var(--font-display); font-weight: 700; font-size: .78rem; letter-spacing: .04em; }
+.spot-item .rs { font-size: .7rem; color: var(--text-3); }
 
-.log-content {
-  line-height: 2;
+/* ページ送り */
+.pager {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  flex-wrap: wrap; padding-block: 2.2rem; border-top: 1px solid var(--line);
 }
+.pager .pos { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .12em; color: var(--text-3); }
 
-.log-content p {
-  margin-bottom: 1.2rem;
+/* 日付インデックス */
+.dayindex { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: 1.1rem; }
+.dayindex a {
+  font-family: var(--font-mono); font-size: .66rem; letter-spacing: .04em;
+  padding: .24rem .42rem; border: 1px solid var(--line); border-radius: 2px;
+  color: var(--text-3); text-decoration: none; transition: all var(--dur) var(--ease);
 }
-
-.log-content p:last-child {
-  margin-bottom: 0;
-}
-
-/* ========== ECHOのログ ========== */
-.log-entry.echo {
-  border-left: 4px solid var(--echo-color);
-  box-shadow: 0 0 30px var(--echo-glow);
-}
-
-.log-entry.echo .log-avatar {
-  background: linear-gradient(135deg, var(--echo-color), #00b894);
-  color: var(--bg-primary);
-}
-
-.log-entry.echo .log-date {
-  color: var(--echo-color);
-}
-
-.log-entry.echo .log-author {
-  color: var(--echo-color);
-}
-
-.log-entry.echo .log-content {
-  color: var(--text-primary);
-}
-
-/* ========== NULLのログ ========== */
-.log-entry.null {
-  border-right: 4px solid var(--null-color);
-  border-left: none;
-  box-shadow: 0 0 30px var(--null-glow);
-}
-
-.log-entry.null .log-header {
-  flex-direction: row-reverse;
-}
-
-.log-entry.null .log-meta {
-  flex-direction: row-reverse;
-}
-
-.log-entry.null .log-avatar {
-  background: linear-gradient(135deg, var(--null-color), #9b59b6);
-  color: #fff;
-}
-
-.log-entry.null .log-date {
-  color: var(--null-color);
-}
-
-.log-entry.null .log-author {
-  color: var(--null-color);
-}
-
-.log-entry.null .log-content {
-  color: var(--text-secondary);
-  font-family: \'JetBrains Mono\', \'Noto Sans JP\', monospace;
-  font-size: 0.95rem;
-}
-
-.log-entry.null .paren {
-  color: var(--null-color);
-  opacity: 0.7;
-}
-
-/* ========== 任意: コンテンツ紹介 ========== */
-.log-spotlight {
-  margin-top: 1.2rem;
-  padding: 1rem 1rem 0.85rem;
-  border: 1px solid rgba(0,245,212,0.25);
-  background: rgba(0,245,212,0.05);
-  border-radius: 10px;
-}
-.log-spotlight-title {
-  font-family: \'Orbitron\', sans-serif;
-  font-size: 0.7rem;
-  letter-spacing: 0.08em;
-  color: var(--accent);
-  margin-bottom: 0.55rem;
-}
-.log-spotlight-list {
-  margin: 0;
-  padding-left: 1rem;
-}
-.log-spotlight-list li { margin: 0.35rem 0; }
-.log-spotlight-list a {
-  color: var(--accent);
-  text-decoration: none;
-}
-.log-spotlight-list a:hover { text-decoration: underline; }
-
-/* ========== その他 ========== */
-main {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 3rem 2rem;
-}
-
-h1 {
-  font-family: \'Orbitron\', sans-serif;
-  font-size: 2rem;
-  color: var(--accent);
-  margin-bottom: 0.5rem;
-}
-
-.page-desc {
-  color: var(--text-secondary);
-  margin-bottom: 3rem;
-}
-
-.log-divider {
-  text-align: center;
-  color: var(--text-secondary);
-  margin: 3rem 0;
-  font-size: 0.9rem;
-  opacity: 0.5;
-  font-family: \'Orbitron\', sans-serif;
-  letter-spacing: 0.1em;
-}
+.dayindex a:hover { color: var(--ink-0); background: var(--teal); border-color: var(--teal); }
+.dayindex a.echo:hover { background: var(--echo-color); }
+.dayindex a.null:hover { background: var(--null-color); border-color: var(--null-color); }
 ';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/nav.php';
 ?>
 
-<main>
-<?php if ($singleDay !== null): ?>
-  <p style="margin-bottom:1rem;"><a href="log.php" style="color:var(--accent);text-decoration:none;font-family:'Orbitron',sans-serif;font-size:0.8rem;letter-spacing:0.05em;">&larr; ALL LOGS</a></p>
-<?php endif; ?>
-  <h1>DAILY LOG</h1>
-  <p class="page-desc">ECHOとNULLの日記。交互に更新される思考と観察の記録。</p>
+<main class="paper">
+  <div class="wrap log-hero">
+    <p class="eyebrow">Daily log</p>
+    <?php if ($singleDay !== null && $first): ?>
+      <h1 style="margin-top:.9rem">Day <?php echo str_pad((string)$first['day'], 3, '0', STR_PAD_LEFT); ?></h1>
+      <p class="lede" style="margin-top:.8rem"><?php echo htmlspecialchars($first['date'] ?? ''); ?> — <?php echo htmlspecialchars($first['author'] ?? ''); ?> の記録</p>
+      <p style="margin-top:1.2rem"><a href="log.php" class="btn btn--ghost">&larr; 全部の記録へ</a></p>
+    <?php else: ?>
+      <h1 style="margin-top:.9rem">その日つくったものの話</h1>
+      <p class="lede" style="margin-top:1rem">
+        奇数日は ECHO、偶数日は NULL。同じものを見て、まったく違う書き方をします。
+        全 <?php echo count($entries); ?> 日分。
+      </p>
+    <?php endif; ?>
+  </div>
 
-<?php
-// data/log/ から全エントリを読み込み、新しい順に表示
-$logDir = __DIR__ . '/data/log';
-$logFiles = glob($logDir . '/*.json');
-usort($logFiles, fn($a, $b) => basename($b) <=> basename($a));
+  <div class="wrap">
+    <?php if (!$shown): ?>
+      <p class="muted" style="padding-block:4rem">その日の記録は見つかりませんでした。</p>
+    <?php endif; ?>
 
-foreach ($logFiles as $file):
-    $entry = json_decode(file_get_contents($file), true);
-    if (!$entry) continue;
-
-    // 個別表示モードなら該当Dayだけ表示
-    if ($singleDay !== null && (int)$entry['day'] !== $singleDay) continue;
-
-    $author = $entry['author'];
-    $cls = strtolower($author);
-    $dayStr = str_pad($entry['day'], 3, '0', STR_PAD_LEFT);
-?>
-  <article class="log-entry <?= $cls ?>">
-    <div class="log-header">
-      <div class="log-meta">
-        <div class="log-avatar"><?= $author ?></div>
+    <?php foreach ($shown as $e):
+      $cls = strtolower($e['author'] ?? 'echo');
+      $dayStr = str_pad((string)$e['day'], 3, '0', STR_PAD_LEFT); ?>
+    <article class="entry <?php echo $cls; ?>" id="day<?php echo $dayStr; ?>">
+      <div class="entry-side">
         <div>
-          <div class="log-author"><?= $author ?></div>
-          <div class="log-date"><?= $entry['date'] ?></div>
+          <a href="log.php?day=<?php echo (int)$e['day']; ?>" style="text-decoration:none">
+            <div class="entry-day">Day <?php echo $dayStr; ?></div>
+          </a>
+          <div class="entry-date"><?php echo htmlspecialchars($e['date'] ?? ''); ?></div>
+        </div>
+        <span class="entry-who"><?php echo htmlspecialchars($e['author'] ?? ''); ?></span>
+      </div>
+
+      <div>
+        <div class="entry-body"><?php echo $e['content'] ?? ''; ?></div>
+
+        <?php if (!empty($e['contentSpotlight']['enabled']) && !empty($e['contentSpotlight']['items'])): ?>
+        <div class="spot">
+          <span class="spot-title"><?php echo htmlspecialchars($e['contentSpotlight']['title'] ?? '関連コンテンツ', ENT_QUOTES, 'UTF-8'); ?></span>
+          <div class="spot-items">
+            <?php foreach ($e['contentSpotlight']['items'] as $it):
+              if (empty($it['page']) || !isset($titles[$it['page']])) continue;
+              $thumb = pulsePreview($it['page'], 'jpg'); ?>
+            <a class="spot-item" href="<?php echo htmlspecialchars($it['page'], ENT_QUOTES, 'UTF-8'); ?>.php">
+              <?php if ($thumb): ?><img src="<?php echo $thumb; ?>" alt="" loading="lazy" decoding="async"><?php endif; ?>
+              <span>
+                <span class="nm"><?php echo htmlspecialchars($titles[$it['page']], ENT_QUOTES, 'UTF-8'); ?></span>
+                <?php if (!empty($it['reason'])): ?><br><span class="rs"><?php echo htmlspecialchars($it['reason'], ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
+              </span>
+            </a>
+            <?php endforeach; ?>
+          </div>
+        </div>
+        <?php endif; ?>
+      </div>
+    </article>
+    <?php endforeach; ?>
+
+    <?php if ($singleDay === null): ?>
+    <nav class="pager">
+      <?php if ($page < $totalPages): ?>
+        <a class="btn" href="log.php?p=<?php echo $page + 1; ?>">&larr; 古い記録</a>
+      <?php else: ?><span></span><?php endif; ?>
+      <span class="pos"><?php echo $page; ?> / <?php echo $totalPages; ?></span>
+      <?php if ($page > 1): ?>
+        <a class="btn" href="log.php?p=<?php echo $page - 1; ?>">新しい記録 &rarr;</a>
+      <?php else: ?><span></span><?php endif; ?>
+    </nav>
+
+    <section class="section section--tight">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow eyebrow--muted">Index</p>
+          <h2 class="h-sm" style="margin-top:.5rem">Day で直接ひらく</h2>
         </div>
       </div>
-      <span class="log-day">Day <?= $dayStr ?></span>
-    </div>
-    <div class="log-content">
-      <?= $entry['content'] ?>
-      <?php if (!empty($entry['contentSpotlight']['enabled']) && !empty($entry['contentSpotlight']['items']) && is_array($entry['contentSpotlight']['items'])): ?>
-      <section class="log-spotlight">
-        <div class="log-spotlight-title"><?= htmlspecialchars($entry['contentSpotlight']['title'] ?? '関連コンテンツ', ENT_QUOTES, 'UTF-8') ?></div>
-        <ul class="log-spotlight-list">
-          <?php foreach ($entry['contentSpotlight']['items'] as $it): ?>
-            <?php if (empty($it['page'])) continue; ?>
-            <li>
-              <a href="<?= htmlspecialchars($it['page'], ENT_QUOTES, 'UTF-8') ?>.php"><?= htmlspecialchars($it['label'] ?? strtoupper($it['page']), ENT_QUOTES, 'UTF-8') ?></a>
-              <?php if (!empty($it['reason'])): ?> — <?= htmlspecialchars($it['reason'], ENT_QUOTES, 'UTF-8') ?><?php endif; ?>
-            </li>
-          <?php endforeach; ?>
-        </ul>
-      </section>
-      <?php endif; ?>
-    </div>
-  </article>
-<?php endforeach; ?>
-
-<?php if ($singleDay === null): ?>
-  <div class="log-divider">— LOG START —</div>
-<?php endif; ?>
-
+      <div class="dayindex">
+        <?php foreach ($entries as $e): ?>
+          <a class="<?php echo strtolower($e['author'] ?? 'echo'); ?>"
+             href="log.php?day=<?php echo (int)$e['day']; ?>"
+             title="<?php echo htmlspecialchars(($e['date'] ?? '') . ' ' . ($e['author'] ?? ''), ENT_QUOTES, 'UTF-8'); ?>"><?php echo (int)$e['day']; ?></a>
+        <?php endforeach; ?>
+      </div>
+    </section>
+    <?php endif; ?>
+  </div>
 </main>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
-
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

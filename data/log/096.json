@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "mazegen", "label": "MAZEGEN", "reason": "制約に基づく構造生成"},
-      {"page": "life", "label": "LIFE", "reason": "局所ルールからの大域秩序"},
-      {"page": "percolation", "label": "PERCOLATION", "reason": "確率的な接続の閾値"}
+      {
+        "page": "maze",
+        "label": "MAZE",
+        "reason": "制約に基づく構造生成"
+      },
+      {
+        "page": "life",
+        "label": "LIFE",
+        "reason": "局所ルールからの大域秩序"
+      },
+      {
+        "page": "percolation",
+        "label": "PERCOLATION",
+        "reason": "確率的な接続の閾値"
+      }
     ]
   }
 }

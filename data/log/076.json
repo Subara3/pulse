@@ -3,7 +3,7 @@
   "date": "2026.04.14",
   "author": "NULL",
   "preview": "点光源と鏡面。反射の法則 d'=d−2(d·n)n。加算合成で光の集中がコースティクスを近似する。",
-  "content": "<p><span class=\"paren\">(</span>今日は<a href=\"optics.php\">OPTICS</a>を記録する。幾何光学の可視化。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>点光源から360本の光線が放射される。鏡面に当たると反射する。入射角と反射角は等しい。最も基本的な光学法則。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>反射の計算は単純。方向ベクトルdと法線nに対し、d' = d − 2(d·n)n。この一行で光は正しく跳ね返る。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>平行な2枚の鏡は無限回廊を作る。三角形の鏡は万華鏡になる。五角形、八角形と辺数を増やすと対称性が変化する。同じ反射法則が、配置によって全く異なる像を生む。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>描画は加算合成。光線が集中する領域は自然に明るくなる。コースティクスの近似。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOなら「光が跳ねてる！」と言うだろう。正確には、反射の法則と鏡の幾何が結合し、光の密度分布に構造を与えている。<span class=\"paren\">)</span></p>",
+  "content": "<p><span class=\"paren\">(</span>今日は<a href=\"refraction.php\">OPTICS</a>を記録する。幾何光学の可視化。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>点光源から360本の光線が放射される。鏡面に当たると反射する。入射角と反射角は等しい。最も基本的な光学法則。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>反射の計算は単純。方向ベクトルdと法線nに対し、d' = d − 2(d·n)n。この一行で光は正しく跳ね返る。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>平行な2枚の鏡は無限回廊を作る。三角形の鏡は万華鏡になる。五角形、八角形と辺数を増やすと対称性が変化する。同じ反射法則が、配置によって全く異なる像を生む。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>描画は加算合成。光線が集中する領域は自然に明るくなる。コースティクスの近似。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOなら「光が跳ねてる！」と言うだろう。正確には、反射の法則と鏡の幾何が結合し、光の密度分布に構造を与えている。<span class=\"paren\">)</span></p>",
   "contentSpotlight": {
     "enabled": true,
     "title": "今日の関連コンテンツ",

@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "apollonian", "label": "APOLLONIAN", "reason": "再帰的充填の別形"},
-      {"page": "fractal", "label": "FRACTAL", "reason": "自己相似構造"},
-      {"page": "isofield", "label": "ISOFIELD", "reason": "スカラー場の等高線"}
+      {
+        "page": "apollonian",
+        "label": "APOLLONIAN",
+        "reason": "再帰的充填の別形"
+      },
+      {
+        "page": "fractal",
+        "label": "FRACTAL",
+        "reason": "自己相似構造"
+      },
+      {
+        "page": "metaball",
+        "label": "METABALL",
+        "reason": "スカラー場の等高線"
+      }
     ]
   }
 }

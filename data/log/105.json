@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "penrose", "label": "PENROSE", "reason": "非周期タイリング"},
-      {"page": "interference", "label": "INTERFERENCE", "reason": "波の重ね合わせ"},
-      {"page": "crystal", "label": "CRYSTAL", "reason": "結晶成長の可視化"}
+      {
+        "page": "penrose",
+        "label": "PENROSE",
+        "reason": "非周期タイリング"
+      },
+      {
+        "page": "waves",
+        "label": "WAVES",
+        "reason": "波の重ね合わせ"
+      },
+      {
+        "page": "crystal",
+        "label": "CRYSTAL",
+        "reason": "結晶成長の可視化"
+      }
     ]
   }
 }

@@ -15,6 +15,55 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}\.php -f
 RewriteRule ^(.+)\.html$ $1.php [R=301,L]
 
+
+# ---- 統合済みページの301リダイレクト (2026-08-25 コンテンツ整理) ----
+# カオスゲームは IFS の描画法そのもの
+Redirect 301 /chaosgame.php /ifs.php
+# 信号ダッシュボードは他ページの寄せ集め
+Redirect 301 /console.php /waves.php
+# 循環CA と興奮性媒質はどちらも渦巻き波
+Redirect 301 /cyclicca.php /excitable.php
+# 転がる円の軌跡 ⊂ スピログラフ
+Redirect 301 /cycloid.php /spirograph.php
+# pendulum に二重振り子モードあり
+Redirect 301 /doublepend.php /pendulum.php
+# 単純ランダムウォーク ⊂ レヴィフライト
+Redirect 301 /drift.php /levydrift.php
+# 円形膜モード ⊂ 振動の節線
+Redirect 301 /drumhead.php /chladni.php
+# 干渉縞 ⊂ 波動場
+Redirect 301 /interference.php /waves.php
+# 等高線場 = メタボールの等値面
+Redirect 301 /isofield.php /metaball.php
+# リサジュー = 減衰なしハーモノグラフ
+Redirect 301 /lissajous.php /harmonograph.php
+# 迷路生成 ⊂ 迷路
+Redirect 301 /mazegen.php /maze.php
+# 幾何光線の反射/屈折で二重
+Redirect 301 /optics.php /refraction.php
+# ケプラー2体 ⊂ N体重力
+Redirect 301 /orbit.php /nbody.php
+# 波紋 ⊂ 波動場
+Redirect 301 /ripple.php /waves.php
+# ローレンツガス = シナイ・ビリヤード
+Redirect 301 /scatter.php /billiard.php
+# バネ振り子カオス ⊂ 振り子カオス
+Redirect 301 /spring.php /pendulum.php
+# ターマイト = ラングトンのアリの一般化
+Redirect 301 /turmite.php /langton.php
+# 点渦 ⊂ カルマン渦列
+Redirect 301 /vortex.php /karman.php
+# 森林火災 = 動的パーコレーション
+Redirect 301 /wildfire.php /percolation.php
+# セルラーノイズ = ボロノイ距離場
+Redirect 301 /worley.php /voronoi.php
+# XYモデル = 連続スピンのイジング
+Redirect 301 /xymodel.php /ising.php
+# 一覧未掲載のまま残っていた孤児ページ
+Redirect 301 /golden.php /fibonacci.php
+Redirect 301 /flow.php /flowfield.php
+# ---- ここまで ----
+
 # Default charset
 AddDefaultCharset UTF-8
 

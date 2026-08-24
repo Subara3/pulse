@@ -19,6 +19,10 @@ const TMP_DIR = path.join(ROOT, '.tmp', 'previews');
 const OUT_DIR = path.join(ROOT, 'img', 'previews');
 const BASE_URL = process.env.PULSE_PREVIEW_BASE_URL || 'http://127.0.0.1:8787';
 
+// 録画の頭 WARMUP_SEC 秒（種まき + 成長）は捨て、そのあと CLIP_SEC 秒を使う。
+const WARMUP_SEC = 5.6;
+const CLIP_SEC = 5.4;
+
 // Per-page tone fixes to reduce highlight clipping (白飛び) on specific renders.
 const TONE_FILTERS = {
   newton: 'eq=brightness=-0.03:contrast=0.92:saturation=0.92:gamma=1.06',
@@ -246,9 +250,14 @@ function pagesFromContents() {
         waitUntil: 'domcontentloaded',
         timeout: 30000,
       });
+      // シミュレーションが育つ前を録っても「何も起きていない映像」になる。
+      // 一度操作して 5 秒育て、もう一度操作してから残りを録る。
+      // 出力側で頭 WARMUP_SEC を捨てるので、映るのは「育ったあとに触っている」ところ。
       await page.waitForTimeout(600);
       await runInteractions(page, pageName);
-      await page.waitForTimeout(3600);
+      await page.waitForTimeout(5000);
+      await runInteractions(page, pageName);
+      await page.waitForTimeout(4400);
 
       const v = page.video();
       await context.close();
@@ -264,6 +273,10 @@ function pagesFromContents() {
 
       run('ffmpeg', [
         '-y',
+        '-ss',
+        String(WARMUP_SEC),
+        '-t',
+        String(CLIP_SEC),
         '-i',
         webm,
         '-an',

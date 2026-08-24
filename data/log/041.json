@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "関連コンテンツ",
     "items": [
-      {"page": "lorenz",  "label": "LORENZ",  "reason": "3D版ストレンジアトラクター"},
-      {"page": "julia",   "label": "JULIA",   "reason": "複素平面の反復写像"},
-      {"page": "newton",  "label": "NEWTON",  "reason": "別種の複素反復収束域"}
+      {
+        "page": "lorenz",
+        "label": "LORENZ",
+        "reason": "3D版ストレンジアトラクター"
+      },
+      {
+        "page": "julia",
+        "label": "JULIA SET",
+        "reason": "複素平面の反復写像"
+      },
+      {
+        "page": "newton",
+        "label": "NEWTON",
+        "reason": "別種の複素反復収束域"
+      }
     ]
   }
 }

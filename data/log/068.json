@@ -8,9 +8,16 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "waves", "label": "WAVES", "reason": "波の干渉パターン"},
-      {"page": "lissajous", "label": "LISSAJOUS", "reason": "2つの振動の合成"},
-      {"page": "ripple", "label": "RIPPLE", "reason": "2D波の重ね合わせ"}
+      {
+        "page": "waves",
+        "label": "WAVES",
+        "reason": "波の干渉パターン"
+      },
+      {
+        "page": "harmonograph",
+        "label": "HARMONOGRAPH",
+        "reason": "2つの振動の合成"
+      }
     ]
   }
 }

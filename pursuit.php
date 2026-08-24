@@ -17,7 +17,7 @@ body { background: #060810; overflow: hidden; }
 .ctrl button:hover { background: rgba(0,245,212,0.18); }
 .ctrl label { font-family: "JetBrains Mono", monospace; font-size: 0.65rem; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 0.6rem; }
 .ctrl input[type=range] { width: 90px; accent-color: #00f5d4; }
-.title { position: fixed; bottom: 1.5rem; left: 1.5rem; font-family: "Orbitron", sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.12); letter-spacing: 0.2em; z-index: 10; pointer-events: none; }
+.title { position: fixed; bottom: 1.5rem; left: 1.5rem; font-family: "Space Grotesk", sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.12); letter-spacing: 0.2em; z-index: 10; pointer-events: none; }
 @media (max-width: 768px) {
   .hud { font-size: 0.6rem; }
   .ctrl input[type=range] { width: 70px; }
@@ -70,6 +70,9 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   let mx, my;           // mouse position
   let mouseActive = false;
   let hueCounter = 170;
+  // 配色ルール: 色相は 165-295 の帯から出さない
+  const HUE_LO = 165, HUE_SPAN = 130;
+  const clampHue = (h) => HUE_LO + (((h - HUE_LO) % HUE_SPAN) + HUE_SPAN) % HUE_SPAN;
   const MAX_CHAINS = 15;
   const CHAIN_LEN = 60;
 
@@ -142,7 +145,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
         const t = 1 - i / len;
         const alpha = t * t * 0.85;
         const lw = t * 3.5 + 0.5;
-        const hue = (this.hue + i * 1.5) % 360;
+        const hue = clampHue(this.hue + i * 0.35);
 
         ctx.beginPath();
         ctx.moveTo(pts[i].x, pts[i].y);
@@ -177,7 +180,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   function spawnChain(x, y) {
     if (chains.length >= MAX_CHAINS) return;
     const hue = hueCounter;
-    hueCounter = (hueCounter + 47) % 360;
+    hueCounter = clampHue(hueCounter + 43);
     chains.push(new Chain(x, y, hue));
     typeof SFX !== 'undefined' && SFX.play('spawn');
   }

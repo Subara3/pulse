@@ -86,6 +86,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 
 <script>
+  function brandHue(t){t=t<0?0:t>1?1:t;var e=t<0.5?0.5*Math.pow(2*t,3.2):1-0.5*Math.pow(2*(1-t),3.2);return 172+e*118}
 (function() {
   var C = document.getElementById('canvas'), ctx = C.getContext('2d');
   var W, H, dpr;
@@ -303,8 +304,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
         var p = particles[i];
         var speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
         var t = Math.min(speed / (swimSpeed * 2), 1);
-        var h = 175 + t * 100;
-        if (h > 295) h = 295;
+        var h = brandHue(t);
         trailCtx.fillStyle = 'hsla(' + h + ',70%,50%,0.15)';
         trailCtx.beginPath();
         trailCtx.arc(p.x, p.y, radius * 0.3, 0, TAU);
@@ -319,8 +319,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       var p = particles[i];
       var speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
       var t = Math.min(speed / (swimSpeed * 2), 1);
-      var h = 175 + t * 100;
-      if (h > 295) h = 295;
+      var h = brandHue(t);
 
       ctx.beginPath();
       ctx.arc(p.x, p.y, radius, 0, TAU);

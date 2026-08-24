@@ -1,4 +1,7 @@
 <?php
+// サイトの時刻はすべて日本時間で扱う（Day番号・NEW判定・今日の1本がサーバ設定でズレないように）
+date_default_timezone_set('Asia/Tokyo');
+
 $lang = 'ja';
 $basePath = '';
 

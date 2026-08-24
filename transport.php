@@ -8,7 +8,7 @@ $pageTitle = 'TRANSPORT - PULSE';
 $pageDesc = '最適輸送。二つの分布を最小コストで結ぶ割り当てを求め、粒子の集団流動として描く。';
 $pageCanonical = 'https://pulse.subara3.com/transport.php';
 $extraStyle = '
-  #hud { position:fixed; top:80px; right:20px; color:rgba(0,245,212,0.6); font:12px "Orbitron",monospace; text-align:right; pointer-events:none; z-index:10; line-height:1.8; }
+  #hud { position:fixed; top:80px; right:20px; color:rgba(0,245,212,0.6); font:12px "Space Grotesk",monospace; text-align:right; pointer-events:none; z-index:10; line-height:1.8; }
 ';
 
 require_once __DIR__ . '/includes/header.php';

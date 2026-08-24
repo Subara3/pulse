@@ -8,9 +8,9 @@ $pageTitle = 'ROCHE - PULSE';
 $pageDesc = 'ロシュ限界。潮汐力が自己重力を超えるとき、衛星は引き裂かれて環になる。';
 $pageCanonical = 'https://pulse.subara3.com/roche.php';
 $extraStyle = '
-  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Orbitron",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
+  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
   #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Orbitron",monospace;letter-spacing:.12em}
+  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -534,7 +534,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     var orbitalV = Math.sqrt(G * planetMass / Math.max(dist, 1));
 
     X.fillStyle = rgba(TEAL, 0.3);
-    X.font = '10px "Orbitron", monospace';
+    X.font = '10px "Space Grotesk", monospace';
     X.fillText('v=' + speed.toFixed(0) + ' v_orb=' + orbitalV.toFixed(0), dragStart.x + 10, dragStart.y - 10);
 
     X.fillStyle = rgba(TEAL, 0.15);

@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "lissajous", "label": "LISSAJOUS", "reason": "パラメトリック曲線が生む形"},
-      {"page": "spirograph", "label": "SPIROGRAPH", "reason": "周期運動が刻む幾何"},
-      {"page": "fractal", "label": "FRACTAL", "reason": "自然の形と数式の関係"}
+      {
+        "page": "harmonograph",
+        "label": "HARMONOGRAPH",
+        "reason": "パラメトリック曲線が生む形"
+      },
+      {
+        "page": "spirograph",
+        "label": "SPIROGRAPH",
+        "reason": "周期運動が刻む幾何"
+      },
+      {
+        "page": "fractal",
+        "label": "FRACTAL",
+        "reason": "自然の形と数式の関係"
+      }
     ]
   }
 }

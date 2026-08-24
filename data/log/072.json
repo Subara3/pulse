@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "rule", "label": "RULE", "reason": "1次元セルオートマトン"},
-      {"page": "langton", "label": "LANGTON", "reason": "単純な規則からの創発"},
-      {"page": "wireworld", "label": "WIREWORLD", "reason": "セルベースの計算"}
+      {
+        "page": "rule",
+        "label": "RULE",
+        "reason": "1次元セルオートマトン"
+      },
+      {
+        "page": "langton",
+        "label": "LANGTON'S ANT",
+        "reason": "単純な規則からの創発"
+      },
+      {
+        "page": "wireworld",
+        "label": "WIREWORLD",
+        "reason": "セルベースの計算"
+      }
     ]
   }
 }

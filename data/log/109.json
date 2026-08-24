@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "chladni", "label": "CHLADNI", "reason": "振動モードの可視化"},
-      {"page": "interference", "label": "INTERFERENCE", "reason": "波の重ね合わせ"},
-      {"page": "soliton", "label": "SOLITON", "reason": "波動方程式の解"}
+      {
+        "page": "chladni",
+        "label": "CHLADNI",
+        "reason": "振動モードの可視化"
+      },
+      {
+        "page": "waves",
+        "label": "WAVES",
+        "reason": "波の重ね合わせ"
+      },
+      {
+        "page": "soliton",
+        "label": "SOLITON",
+        "reason": "波動方程式の解"
+      }
     ]
   }
 }

@@ -20,7 +20,7 @@ body { background: #060810; overflow: hidden; }
 .ctrl button:hover { background: rgba(0,245,212,0.18); }
 .ctrl label { font-family: "JetBrains Mono", monospace; font-size: 0.65rem; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 0.6rem; }
 .ctrl input[type=range] { width: 100px; accent-color: #00f5d4; }
-.title { position: fixed; bottom: 1.5rem; left: 1.5rem; font-family: "Orbitron", sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.12); letter-spacing: 0.2em; z-index: 10; pointer-events: none; }
+.title { position: fixed; bottom: 1.5rem; left: 1.5rem; font-family: "Space Grotesk", sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.12); letter-spacing: 0.2em; z-index: 10; pointer-events: none; }
 @media (max-width: 768px) {
   .hud { font-size: 0.6rem; }
   .ctrl input[type=range] { width: 80px; }

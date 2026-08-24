@@ -8,9 +8,16 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "waves", "label": "WAVES", "reason": "線形波動との対比"},
-      {"page": "ripple", "label": "RIPPLE", "reason": "波の干渉・重ね合わせ"},
-      {"page": "billiard", "label": "BILLIARD", "reason": "非線形力学系の軌跡"}
+      {
+        "page": "waves",
+        "label": "WAVES",
+        "reason": "線形波動との対比"
+      },
+      {
+        "page": "billiard",
+        "label": "BILLIARD",
+        "reason": "非線形力学系の軌跡"
+      }
     ]
   }
 }

@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "fluidveil", "label": "FLUIDVEIL", "reason": "ナビエ＝ストークス流体シム"},
-      {"page": "kuramoto", "label": "KURAMOTO", "reason": "結合振動子の同期"},
-      {"page": "doublepend", "label": "DOUBLEPEND", "reason": "カオス力学系"}
+      {
+        "page": "fluidveil",
+        "label": "FLUID VEIL",
+        "reason": "ナビエ＝ストークス流体シム"
+      },
+      {
+        "page": "kuramoto",
+        "label": "KURAMOTO",
+        "reason": "結合振動子の同期"
+      },
+      {
+        "page": "pendulum",
+        "label": "PENDULUM",
+        "reason": "カオス力学系"
+      }
     ]
   }
 }

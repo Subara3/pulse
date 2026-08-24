@@ -8,9 +8,9 @@ $pageTitle = 'STEREO - PULSE';
 $pageDesc = '立体射影。球面上の格子・航路・多面体が平面の円として映し出され、回転とともに変形する等角写像の可視化。';
 $pageCanonical = 'https://pulse.subara3.com/stereo.php';
 $extraStyle = '
-  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Orbitron",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
+  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
   #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Orbitron",monospace;letter-spacing:.12em}
+  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
   canvas{cursor:crosshair}
 ';
 

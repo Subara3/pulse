@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "spirograph", "label": "SPIROGRAPH", "reason": "回転が生む幾何学的曲線"},
-      {"page": "flock", "label": "FLOCK", "reason": "エージェントが互いに影響し合う動き"},
-      {"page": "lissajous", "label": "LISSAJOUS", "reason": "数式から生まれる美しい曲線"}
+      {
+        "page": "spirograph",
+        "label": "SPIROGRAPH",
+        "reason": "回転が生む幾何学的曲線"
+      },
+      {
+        "page": "flock",
+        "label": "FLOCK",
+        "reason": "エージェントが互いに影響し合う動き"
+      },
+      {
+        "page": "harmonograph",
+        "label": "HARMONOGRAPH",
+        "reason": "数式から生まれる美しい曲線"
+      }
     ]
   }
 }

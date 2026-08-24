@@ -18,7 +18,7 @@ body { background:#0a0a0f; margin:0; overflow:hidden; }
 #hud {
   position:fixed; top:1.1rem; left:1rem; z-index:100;
   pointer-events:none;
-  font-family:"Orbitron","Segoe UI",sans-serif;
+  font-family:"Space Grotesk","Segoe UI",sans-serif;
   font-size:0.62rem; line-height:1.9; letter-spacing:0.06em;
 }
 #hud .lbl { color:rgba(255,255,255,0.3); margin-right:0.3em; }
@@ -36,13 +36,13 @@ body { background:#0a0a0f; margin:0; overflow:hidden; }
 }
 .crow { display:flex; align-items:center; gap:0.5rem; }
 .crow label {
-  font-family:"Orbitron",sans-serif; font-size:0.56rem;
+  font-family:"Space Grotesk",sans-serif; font-size:0.56rem;
   color:rgba(255,255,255,0.35); letter-spacing:0.07em; min-width:5.5rem; text-align:right;
 }
 .crow input[type=range] { width:80px; accent-color:#00f5d4; }
 .cbtn {
   background:rgba(10,10,15,0.72); border:1px solid rgba(0,245,212,0.22);
-  color:rgba(255,255,255,0.65); font-family:"Orbitron",sans-serif;
+  color:rgba(255,255,255,0.65); font-family:"Space Grotesk",sans-serif;
   font-size:0.56rem; letter-spacing:0.07em;
   padding:0.35rem 0.7rem; cursor:pointer;
   backdrop-filter:blur(6px); transition:border-color 0.2s,color 0.2s;

@@ -122,8 +122,12 @@ if (isset($pageName) && !in_array($pageName, ['index', 'about', 'contents'])) {
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;700&family=Zen+Kaku+Gothic+New:wght@400;500;700<?php echo isset($needSerif) && $needSerif ? '&family=Shippori+Mincho:wght@400;600' : ''; ?>&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+
+<!-- PULSE デザインシステム（唯一の基準。ページ固有の装飾は $extraStyle へ） -->
+<link href="<?php echo $basePath; ?>css/pulse.css?v=20260825" rel="stylesheet">
+<noscript><style>.fade-in{opacity:1!important;transform:none!important}</style></noscript>
 <?php if (isset($extraHead)) echo $extraHead; ?>
 
 <?php if ($isPreview): ?>
@@ -138,150 +142,6 @@ body { overflow: hidden !important; }
 <?php endif; ?>
 
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-:root {
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #12121a;
-  --bg-card: #1a1a24;
-  --text-primary: #e0e0e0;
-  --text-secondary: #888;
-  --accent: #00f5d4;
-  --accent-secondary: #7b2cbf;
-  --pulse-glow: rgba(0, 245, 212, 0.3);
-  --echo-color: #00f5d4;
-  --echo-glow: rgba(0, 245, 212, 0.4);
-  --null-color: #7b2cbf;
-  --null-glow: rgba(123, 44, 191, 0.4);
-}
-
-html { scroll-behavior: smooth; }
-
-body {
-  font-family: 'Noto Sans JP', sans-serif;
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-/* ========== 共通フッター ========== */
-footer {
-  background: var(--bg-primary);
-  border-top: 1px solid rgba(255,255,255,0.1);
-  padding: 3rem 2rem;
-  text-align: center;
-}
-
-.footer-logo {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 1.5rem;
-  color: var(--accent);
-  margin-bottom: 1rem;
-}
-
-.footer-links {
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  flex-wrap: wrap;
-}
-
-.footer-links a {
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 1.2rem;
-  transition: color 0.3s;
-}
-
-.footer-links a:hover { color: var(--accent); }
-
-.footer-external {
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  flex-wrap: wrap;
-}
-
-.footer-external a {
-  color: var(--text-secondary);
-  text-decoration: none;
-  font-size: 0.85rem;
-  transition: all 0.3s;
-  padding: 0.4rem 0.8rem;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 20px;
-}
-
-.footer-external a:hover {
-  color: var(--accent);
-  border-color: var(--accent);
-}
-
-.footer-external a i {
-  margin-right: 0;
-}
-
-.footer-copy {
-  margin-top: 2rem;
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  opacity: 0.5;
-}
-
-/* ========== 共通ヘッダーナビ ========== */
-header {
-  padding: 2rem;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-.header-inner {
-  max-width: 900px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.logo-link {
-  font-family: 'Orbitron', sans-serif;
-  font-size: 1.5rem;
-  color: var(--accent);
-  text-decoration: none;
-}
-
-header nav a {
-  color: var(--text-secondary);
-  text-decoration: none;
-  margin-left: 2rem;
-  font-size: 0.9rem;
-  transition: color 0.3s;
-}
-
-header nav a:hover { color: var(--accent); }
-
-/* ========== 広告 ========== */
-.ad-section {
-  padding: 2rem;
-  text-align: center;
-}
-
-.ad-container { max-width: 728px; margin: 0 auto; }
-.ad-label { font-size: 0.7rem; color: var(--text-secondary); opacity: 0.5; margin-bottom: 0.5rem; }
-
-/* ========== アニメーション ========== */
-.fade-in {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s ease;
-}
-
-.fade-in.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
 <?php if (isset($extraStyle)) echo $extraStyle; ?>
 </style>
 </head>

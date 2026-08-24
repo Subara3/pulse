@@ -34,7 +34,7 @@ $shareUrl = urlencode($pageCanonical);
 }
 
 .share-label {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 0.75rem;
   color: var(--text-secondary);
   letter-spacing: 0.1em;

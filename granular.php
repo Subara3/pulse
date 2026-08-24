@@ -8,7 +8,7 @@ $pageTitle = 'GRANULAR - PULSE';
 $pageDesc = '粒状体の力学。ファネルを流れる粒子が力の鎖を描き、開口幅がジャミング転移を決める。';
 $pageCanonical = 'https://pulse.subara3.com/granular.php';
 $extraStyle = '
-  #hud { position:fixed; top:80px; right:20px; color:rgba(0,245,212,0.6); font:12px "Orbitron",monospace; text-align:right; pointer-events:none; z-index:10; line-height:1.8; }
+  #hud { position:fixed; top:80px; right:20px; color:rgba(0,245,212,0.6); font:12px "Space Grotesk",monospace; text-align:right; pointer-events:none; z-index:10; line-height:1.8; }
 ';
 
 require_once __DIR__ . '/includes/header.php';

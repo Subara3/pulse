@@ -8,9 +8,9 @@ $pageTitle = 'GEARS - PULSE';
 $pageDesc = '歯車列シミュレーション。噛み合う歯車が回転比を伝え、歯形が滑らかに接触する。';
 $pageCanonical = 'https://pulse.subara3.com/gears.php';
 $extraStyle = '
-  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Orbitron",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
+  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
   #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Orbitron",monospace;letter-spacing:.12em}
+  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
   canvas{cursor:crosshair}
 ';
 

@@ -27,7 +27,7 @@ body { background:#0a0a0f; margin:0; overflow:hidden; }
   background:rgba(0,245,212,0.07);
   border:1px solid rgba(0,245,212,0.25);
   color:#00f5d4;
-  font-family:"Orbitron",sans-serif;
+  font-family:"Space Grotesk",sans-serif;
   font-size:0.6rem; letter-spacing:0.07em;
   padding:0.35rem 0.75rem; cursor:pointer;
   transition:background 0.15s;

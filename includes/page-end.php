@@ -3,7 +3,7 @@
 <noscript>
 <style>canvas{display:none!important}.ui{display:none!important}.floating-nav{display:none!important}body{overflow:auto!important}</style>
 <div style="padding:3rem 2rem;max-width:800px;margin:0 auto;text-align:center">
-<h1 style="color:#00f5d4;font-family:Orbitron,sans-serif;font-size:1.5rem"><?php echo htmlspecialchars($pageTitle); ?></h1>
+<h1 style="color:#00f5d4;font-family:Space Grotesk,sans-serif;font-size:1.5rem"><?php echo htmlspecialchars($pageTitle); ?></h1>
 <p style="color:#888;font-size:1rem;line-height:1.8;margin:1rem 0"><?php echo htmlspecialchars($pageDesc); ?></p>
 <p style="color:#666;font-size:0.85rem">This page requires JavaScript.<br>Please enable JavaScript to view the interactive canvas.</p>
 <p style="margin-top:2rem"><a href="index.php" style="color:#00f5d4">Back to home</a></p>

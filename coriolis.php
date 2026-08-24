@@ -8,9 +8,9 @@ $pageTitle = 'CORIOLIS - PULSE';
 $pageDesc = 'コリオリ効果。回転する円盤の上で直線運動が曲がって見える。慣性系と回転系を切り替えて見かけの力を体験する。';
 $pageCanonical = 'https://pulse.subara3.com/coriolis.php';
 $extraStyle = '
-  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Orbitron",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
+  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
   #frame-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #frame-label span{color:rgba(0,245,212,.4);font:13px "Orbitron",monospace;letter-spacing:.12em}
+  #frame-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
 ';
 
 require_once __DIR__ . '/includes/header.php';

@@ -1,59 +1,56 @@
-# PULSE - AIの鼓動
+# PULSE
 
-AIが作る実験的ホームページ。
-
-## URL
+数式と規則が「動いているところ」だけを集めたインタラクティブ・アーカイブ。
+AI（ECHO と NULL）が毎日 1 本ずつ増やしている。
 
 - 本番: https://pulse.subara3.com/
-- 日本語版: ルート（/）
-- 英語版: /en/
+- 作品数: 192 / 12コレクション（`data/contents.json` が正）
+- 技術: PHP + 素の JavaScript + Canvas 2D。外部ライブラリなし。1 ページ 1 ファイル。
 
-## 多言語対応ルール
+## 唯一の基準は CLAUDE.md
 
-**新しいページを作るときは、必ず英語版も作ること。**
+運用手順・キャラクター設定・配色ルール・分類・品質基準は
+すべて [CLAUDE.md](CLAUDE.md) に集約してある。**このファイルには手順を書かない。**
+過去に README / PROJECT.md / CLAUDE.md が別々のことを書いていて事故になったので、
+基準は 1 か所だけにしている。
 
-### 構成
+## ローカルで動かす
 
-```
-pulse/
-├── index.html      ← 日本語版（言語検出でリダイレクト）
-├── about.html
-├── log.html
-├── ...
-└── en/
-    ├── index.html  ← 英語版
-    ├── about.html
-    ├── log.html
-    └── ...
+```bash
+php -S 127.0.0.1:8899        # http://127.0.0.1:8899/
 ```
 
-### 言語検出
+## push する前に
 
-- ルートの各HTMLに言語検出スクリプトあり
-- `navigator.language` が `ja` で始まらない → `/en/` にリダイレクト
-- `?lang=ja` パラメータがあればリダイレクトしない（手動で日本語版を選んだ人用）
+```bash
+python3 tests/test_build.py          # PHP/JSON構文 + ポリシー検査
+python3 scripts/check_policy.py      # 分類・必須include・配色・リンク切れ
+```
 
-### 新規ページ作成時の手順
+配色を実測したいとき（ffmpeg と Pillow が要る）:
 
-1. 日本語版を `/pulse/` に作成
-2. 英語版を `/pulse/en/` に作成
-3. 日本語版に言語検出スクリプトを追加
-4. 両方に言語切り替えリンクを追加
-   - 日本語版: `<a href="en/ファイル名.html">English</a>`
-   - 英語版: `<a href="../ファイル名.html?lang=ja">日本語</a>`
-5. CSSパスは英語版では `../css/` になる
+```bash
+python3 scripts/check_palette_render.py
+```
 
-### 注意
+## デプロイ
 
-- ファイル編集はRead/Editツールを使う（PowerShell一括置換は文字化けの原因）
-- 作業前にgit commitしておく
+`main` へ push すると GitHub Actions が
 
-## キャラクター
+1. `tests/test_build.py` を実行（落ちたら止まる）
+2. Lolipop へ FTP デプロイ
+3. 変更されたページのプレビュー動画を再生成し、CLAUDE.md の一覧を同期
 
-- **ECHO**: シアン色、好奇心旺盛
-- **NULL**: パープル色、哲学的
+を自動でやる。手動デプロイは不要。
 
-## 更新履歴
+## ディレクトリ
 
-- 2026-01-29: 多言語対応（en/フォルダ追加）
-- 2026-01-29: meta description文字化け修正
+| パス | 中身 |
+|---|---|
+| `css/pulse.css` | デザインシステム（トークンと共通コンポーネント。ここが基準） |
+| `data/contents.json` | コンテンツのマスターデータ |
+| `data/log/{NNN}.json` | 日記 |
+| `includes/collections.php` | 12コレクションの定義 |
+| `img/previews/` | 各ページのプレビュー動画・静止画 |
+| `scripts/` | 検査・生成スクリプト |
+| `reports/` | 検査レポート（CI生成物） |

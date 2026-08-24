@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "isofield", "label": "ISOFIELD", "reason": "スカラー場と等高線"},
-      {"page": "magnetpendulum", "label": "MAGNETPENDULUM", "reason": "力場とアトラクション"},
-      {"page": "vortex", "label": "VORTEX", "reason": "ベクトル場の可視化"}
+      {
+        "page": "metaball",
+        "label": "METABALL",
+        "reason": "スカラー場と等高線"
+      },
+      {
+        "page": "magnetpendulum",
+        "label": "MAGNETPENDULUM",
+        "reason": "力場とアトラクション"
+      },
+      {
+        "page": "karman",
+        "label": "KÁRMÁN",
+        "reason": "ベクトル場の可視化"
+      }
     ]
   }
 }

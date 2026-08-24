@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "chaosgame", "label": "CHAOSGAME", "reason": "頂点ジャンプ型IFS"},
-      {"page": "clifford", "label": "CLIFFORD", "reason": "反復写像のアトラクタ"},
-      {"page": "lsystemgarden", "label": "L-SYSTEM GARDEN", "reason": "再帰的植物形態"}
+      {
+        "page": "ifs",
+        "label": "IFS",
+        "reason": "頂点ジャンプ型IFS"
+      },
+      {
+        "page": "clifford",
+        "label": "CLIFFORD",
+        "reason": "反復写像のアトラクタ"
+      },
+      {
+        "page": "lsystemgarden",
+        "label": "L-SYSTEM GARDEN",
+        "reason": "再帰的植物形態"
+      }
     ]
   }
 }

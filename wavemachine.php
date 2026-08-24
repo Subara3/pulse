@@ -8,9 +8,9 @@ $pageTitle = 'WAVE MACHINE - PULSE';
 $pageDesc = 'ねじれ波動マシン。棒の鎖を弾くと波が走り、固定端・自由端・吸収端で反射が変わる。時空図に波の全履歴を描く。';
 $pageCanonical = 'https://pulse.subara3.com/wavemachine.php';
 $extraStyle = '
-  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Orbitron",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
+  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
   #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Orbitron",monospace;letter-spacing:.12em}
+  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -201,7 +201,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     X.translate(cX0 - 14, dY + dH / 2);
     X.rotate(-Math.PI / 2);
     X.fillStyle = 'rgba(255,255,255,0.07)';
-    X.font = '9px "Orbitron",monospace';
+    X.font = '9px "Space Grotesk",monospace';
     X.textAlign = 'center';
     X.fillText('TIME', 0, 0);
     X.restore();

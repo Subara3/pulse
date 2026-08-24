@@ -8,7 +8,7 @@ $pageTitle = 'CML - PULSE';
 $pageDesc = '結合写像格子。ロジスティック写像の格子が拡散結合し、時空間カオスとパターン選択が創発する。';
 $pageCanonical = 'https://pulse.subara3.com/cml.php';
 $extraStyle = '
-  #hud { position:fixed; top:80px; right:20px; color:rgba(0,245,212,0.6); font:12px "Orbitron",monospace; text-align:right; pointer-events:none; z-index:10; line-height:1.8; }
+  #hud { position:fixed; top:80px; right:20px; color:rgba(0,245,212,0.6); font:12px "Space Grotesk",monospace; text-align:right; pointer-events:none; z-index:10; line-height:1.8; }
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -85,7 +85,8 @@ require_once __DIR__ . '/includes/interaction-hints.php';
         l = 5 + u * 40;
       } else {
         var u = (t - 0.5) * 2;
-        h = 195 + u * 75;
+        var e = u < 0.5 ? 0.5 * Math.pow(2 * u, 3.2) : 1 - 0.5 * Math.pow(2 * (1 - u), 3.2);
+        h = 195 + e * 80;
         s = 80 - u * 10;
         l = 45 - u * 10;
       }

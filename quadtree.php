@@ -11,7 +11,7 @@ $pageCanonical = 'https://pulse.subara3.com/quadtree.php';
 $extraStyle = '
 body{background:#0a0a0f;min-height:100vh;overflow:hidden}
 #canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
-.hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Orbitron","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,0.34);font-size:0.64rem;text-align:right;letter-spacing:0.05em;line-height:1.8}
+.hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Space Grotesk","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,0.34);font-size:0.64rem;text-align:right;letter-spacing:0.05em;line-height:1.8}
 .hud .v{color:#00f5d4;font-weight:700}
 #info{position:fixed;bottom:1.5rem;left:1.5rem;color:rgba(255,255,255,0.22);font-family:"JetBrains Mono",monospace;font-size:0.6rem;line-height:1.7;letter-spacing:0.03em;pointer-events:none;z-index:50}
 #info .v{color:rgba(0,245,212,0.5)}
@@ -254,7 +254,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
         X.fillStyle='rgba(0,245,212,0.9)';X.fill();
       }
       X.fillStyle='rgba(0,245,212,0.7)';
-      X.font='10px "Orbitron",sans-serif';X.textAlign='center';
+      X.font='10px "Space Grotesk",sans-serif';X.textAlign='center';
       X.fillText(found.length+' FOUND',mx,my-rng-8);
     }
 
@@ -268,7 +268,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
         X.strokeStyle='#00f5d4';X.lineWidth=2;X.stroke();
         var dd=Math.sqrt(best.d);
         X.fillStyle='rgba(0,245,212,0.6)';
-        X.font='9px "Orbitron",sans-serif';X.textAlign='center';
+        X.font='9px "Space Grotesk",sans-serif';X.textAlign='center';
         X.fillText('d='+dd.toFixed(1),(mx+best.p.x)/2,(my+best.p.y)/2-8);
       }
     }

@@ -8,9 +8,16 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "orbit", "label": "ORBIT", "reason": "ケプラー軌道（二体問題）"},
-      {"page": "nbody", "label": "N-BODY", "reason": "N体重力シミュレーション"},
-      {"page": "coriolis", "label": "CORIOLIS", "reason": "回転座標系の見かけの力"}
+      {
+        "page": "nbody",
+        "label": "N-BODY",
+        "reason": "ケプラー軌道（二体問題）"
+      },
+      {
+        "page": "coriolis",
+        "label": "CORIOLIS",
+        "reason": "回転座標系の見かけの力"
+      }
     ]
   }
 }

@@ -20,37 +20,56 @@ END = "<!-- INVENTORY:END -->"
 
 def build_section(items):
     skip = {"about", "contents", "log", "log.php"}
-    by_cat = {}
+
+    # 12コレクションの並び順（includes/collections.php と揃えること）
+    order = [
+        ("chaos", "予測できないもの"), ("grow", "育つもの"), ("flow", "流れるもの"),
+        ("swarm", "群れるもの"), ("lattice", "格子のもの"), ("number", "数えるもの"),
+        ("curve", "描くもの"), ("fractal", "繰り返すもの"), ("light", "光るもの"),
+        ("force", "引き合うもの"), ("tile", "敷き詰めるもの"), ("mind", "探すもの"),
+    ]
+    label = dict(order)
+
+    by_group = {}
     for c in items:
         page = c.get("page")
         if not page or page in skip:
             continue
-        cat = c.get("category", "その他")
-        by_cat.setdefault(cat, []).append(c)
+        by_group.setdefault(c.get("group") or "?", []).append(c)
 
-    for cat in by_cat:
-        by_cat[cat].sort(key=lambda c: (c.get("added") or "", c.get("page")))
+    for g in by_group:
+        by_group[g].sort(key=lambda c: (c.get("added") or "", c.get("page")))
 
-    order = ["読み物", "遊べる", "眺める", "ガイド", "おまけ", "その他"]
-    cats = [c for c in order if c in by_cat] + [c for c in by_cat if c not in order]
+    groups = [g for g, _ in order if g in by_group] + [
+        g for g in by_group if g not in label
+    ]
 
-    total = sum(len(v) for v in by_cat.values())
+    total = sum(len(v) for v in by_group.values())
     out = [START, "", f"## 既存コンテンツ一覧（被りチェック用・自動生成 / total={total}）", ""]
-    out.append("> ⚠ ここは `scripts/sync_claude_md_inventory.py` が `data/contents.json` から再生成します。手で編集しないこと。新規ページ追加後は必ずスクリプトを実行(または `add` + `git push` 時にCIで再生成)。")
+    out.append(
+        "> ここは `scripts/sync_claude_md_inventory.py` が `data/contents.json` から再生成します。"
+        "手で編集しないこと。新規ページ追加後は必ずスクリプトを実行"
+        "(または `add` + `git push` 時にCIで再生成)。"
+    )
     out.append("")
 
-    for cat in cats:
-        out.append(f"### {cat}（{len(by_cat[cat])}件）")
+    for g in groups:
+        out.append(f"### {label.get(g, g)} / {g}（{len(by_group[g])}件）")
         out.append("")
-        for c in by_cat[cat]:
+        for c in by_group[g]:
             title = c.get("title", "").strip()
-            desc = (c.get("desc") or "").strip().replace("\n", " ")
+            desc = " ".join((c.get("desc") or "").split())
             added = c.get("added") or "?"
             slug = c.get("page")
             out.append(f"- `{slug}` **{title}** — {desc}  _(added {added})_")
         out.append("")
 
-    out.append("**カバー判定の使い方**: 新規アイデアが上の `desc` のキーワード/概念とかぶる場合は別案を出す。特にフィボナッチ/黄金比/螺旋/フラクタル/セルオートマトン/波/振動/カオス/流体/拡散はすでに複数ページがあるため、それらに分類されそうな新案は既存ページの説明文を必ず読んでから判断する。")
+    out.append(
+        "**カバー判定の使い方**: 新案は、まず 12 コレクションのどれに入るかを決める。"
+        "その中の `desc` を全部読んで、概念が重なるものが 1 つでもあれば別案にする。"
+        "特にフィボナッチ/黄金比/螺旋/フラクタル/セルオートマトン/波/振動/カオス/流体/拡散/"
+        "ランダムウォーク/最適化 は既に複数あるので、必ず既存の説明文を読んでから判断すること。"
+    )
     out.append("")
     out.append(END)
     return "\n".join(out)

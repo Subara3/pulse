@@ -8,7 +8,7 @@ $pageTitle = 'FERROFLUID - PULSE';
 $pageDesc = '磁性流体シミュレーション。磁石を置くと、磁力と表面張力の競合でスパイク構造が自己組織化する。';
 $pageCanonical = 'https://pulse.subara3.com/ferrofluid.php';
 $extraStyle = '
-  #hud { position:fixed; top:80px; right:20px; color:rgba(0,245,212,0.6); font:12px "Orbitron",monospace; text-align:right; pointer-events:none; z-index:10; line-height:1.8; }
+  #hud { position:fixed; top:80px; right:20px; color:rgba(0,245,212,0.6); font:12px "Space Grotesk",monospace; text-align:right; pointer-events:none; z-index:10; line-height:1.8; }
   .ctrl-btn.active { background:rgba(0,245,212,0.15); color:#00f5d4; border-color:rgba(0,245,212,0.5); }
 ';
 

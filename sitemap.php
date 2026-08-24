@@ -1,37 +1,46 @@
 <?php
 /**
- * 動的サイトマップ生成（多言語対応）
- * data/contents.json から自動的にURLを生成する。
- * .htaccess で sitemap.xml → sitemap.php にリライト。
+ * 動的サイトマップ生成。data/contents.json から自動でURLを作る。
+ * .htaccess で sitemap.xml → sitemap.php にリライトしている。
+ *
+ * 言語版は分けていない（同一URLで Accept-Language により説明文だけ切り替わる）ので、
+ * hreflang の alternate は出さない。自分自身を指す alternate はノイズにしかならない。
  */
+require_once __DIR__ . '/includes/config.php';
+
 header('Content-Type: application/xml; charset=UTF-8');
 
-$jsonPath = __DIR__ . '/data/contents.json';
-$contents = json_decode(file_get_contents($jsonPath), true) ?: [];
+$contents = json_decode(file_get_contents(__DIR__ . '/data/contents.json'), true) ?: [];
+
+// 最終更新日: ページの追加日を使う。log は毎日更新なので今日。
+$today = date('Y-m-d');
 
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
 ?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://pulse.subara3.com/</loc>
-    <xhtml:link rel="alternate" hreflang="ja" href="https://pulse.subara3.com/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://pulse.subara3.com/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://pulse.subara3.com/"/>
+    <lastmod><?= $today ?></lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
 <?php foreach ($contents as $c):
-    $freq = ($c['page'] === 'log') ? 'daily' : 'monthly';
-    $prio = ($c['page'] === 'log' || $c['page'] === 'contents') ? '0.7' : '0.8';
-    if ($c['category'] === 'ガイド' && $c['page'] === 'about') $prio = '0.7';
-    $url = "https://pulse.subara3.com/{$c['page']}.php";
+    $page = $c['page'];
+    if ($page === 'index') continue;
+
+    if ($page === 'log') {
+        $freq = 'daily';  $prio = '0.8'; $mod = $today;
+    } elseif ($page === 'contents') {
+        $freq = 'daily';  $prio = '0.9'; $mod = $today;
+    } elseif ($page === 'about') {
+        $freq = 'monthly'; $prio = '0.6'; $mod = $c['added'] ?? $today;
+    } else {
+        $freq = 'monthly'; $prio = '0.7'; $mod = $c['added'] ?? $today;
+    }
 ?>
   <url>
-    <loc><?= $url ?></loc>
-    <xhtml:link rel="alternate" hreflang="ja" href="<?= $url ?>"/>
-    <xhtml:link rel="alternate" hreflang="en" href="<?= $url ?>"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="<?= $url ?>"/>
+    <loc>https://pulse.subara3.com/<?= $page ?>.php</loc>
+    <lastmod><?= htmlspecialchars($mod, ENT_QUOTES, 'UTF-8') ?></lastmod>
     <changefreq><?= $freq ?></changefreq>
     <priority><?= $prio ?></priority>
   </url>

@@ -8,9 +8,9 @@ $pageTitle = 'STOCHASTIC RESONANCE - PULSE';
 $pageDesc = '確率共鳴。弱い信号がノイズの力で増幅される逆説的現象。適度なノイズが閾値を超える助けとなり、信号が浮かび上がる。';
 $pageCanonical = 'https://pulse.subara3.com/stochastic.php';
 $extraStyle = '
-  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Orbitron",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
+  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
   #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Orbitron",monospace;letter-spacing:.12em}
+  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
   canvas{cursor:crosshair}
 ';
 
@@ -229,7 +229,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     ctx.stroke();
 
     ctx.fillStyle = rgba(ACCENT, 0.4);
-    ctx.font = '10px Orbitron, monospace';
+    ctx.font = '10px Space Grotesk, monospace';
     ctx.fillText(label, plotX, yCenter - height - 5);
   }
 
@@ -249,7 +249,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     ctx.stroke();
 
     ctx.fillStyle = rgba(ACCENT, 0.4);
-    ctx.font = '10px Orbitron, monospace';
+    ctx.font = '10px Space Grotesk, monospace';
     ctx.fillText('SNR vs NOISE', plotX, plotY - 8);
     ctx.fillText('NOISE →', plotX + plotW - 50, plotY + plotH + 14);
     ctx.save();
@@ -320,7 +320,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     let plotY = H * 0.08;
 
     ctx.fillStyle = rgba(ACCENT, 0.4);
-    ctx.font = '10px Orbitron, monospace';
+    ctx.font = '10px Space Grotesk, monospace';
     ctx.fillText('DOUBLE-WELL POTENTIAL', plotX, plotY - 8);
 
     ctx.strokeStyle = rgba(SUB, 0.4);
@@ -375,7 +375,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     ctx.setLineDash([]);
 
     ctx.fillStyle = rgba(ACCENT, 0.15);
-    ctx.font = '9px Orbitron, monospace';
+    ctx.font = '9px Space Grotesk, monospace';
     ctx.fillText('THRESHOLD', 10, threshY - 6);
 
     for (let p of particles) {

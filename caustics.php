@@ -11,7 +11,7 @@ $pageCanonical = 'https://pulse.subara3.com/caustics.php';
 $extraStyle = '
 body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 #canvas { position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; }
-.ui { position: fixed; z-index: 100; font-family: "Orbitron", "Segoe UI", sans-serif; pointer-events: none; }
+.ui { position: fixed; z-index: 100; font-family: "Space Grotesk", "Segoe UI", sans-serif; pointer-events: none; }
 .hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.34); font-size: 0.64rem; text-align: right; letter-spacing: 0.05em; line-height: 1.8; }
 .hud .v { color: #00f5d4; font-weight: 700; }
 .info { left: 1.3rem; bottom: 1.3rem; color: rgba(255,255,255,0.22); font-size: 0.58rem; letter-spacing: 0.05em; line-height: 1.75; max-width: min(74vw, 430px); }

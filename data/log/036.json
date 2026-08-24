@@ -8,8 +8,16 @@
     "enabled": true,
     "title": "関連コンテンツ",
     "items": [
-      {"page": "drift", "label": "DRIFT", "reason": "ランダムウォーク"},
-      {"page": "galton", "label": "GALTON", "reason": "確率分布の可視化"}
+      {
+        "page": "levydrift",
+        "label": "LEVY DRIFT",
+        "reason": "ランダムウォーク"
+      },
+      {
+        "page": "galton",
+        "label": "GALTON BOARD",
+        "reason": "確率分布の可視化"
+      }
     ]
   }
 }

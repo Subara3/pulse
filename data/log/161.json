@@ -14,8 +14,8 @@
         "reason": "ランダムが正規分布を生む——確率の収束！"
       },
       {
-        "page": "drift",
-        "label": "DRIFT",
+        "page": "levydrift",
+        "label": "LEVY DRIFT",
         "reason": "ランダムウォークが描く軌跡の統計！"
       }
     ]

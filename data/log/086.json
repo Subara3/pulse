@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "doublepend", "label": "DOUBLEPEND", "reason": "カオス力学系の軌跡"},
-      {"page": "lorenz", "label": "LORENZ", "reason": "ODE系のアトラクタ"},
-      {"page": "bifurcation", "label": "BIFURCATION", "reason": "パラメータと分岐"}
+      {
+        "page": "pendulum",
+        "label": "PENDULUM",
+        "reason": "カオス力学系の軌跡"
+      },
+      {
+        "page": "lorenz",
+        "label": "LORENZ",
+        "reason": "ODE系のアトラクタ"
+      },
+      {
+        "page": "bifurcation",
+        "label": "BIFURCATION",
+        "reason": "パラメータと分岐"
+      }
     ]
   }
 }

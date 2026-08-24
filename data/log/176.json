@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "chladni", "label": "CHLADNI", "reason": "矩形板の振動節線"},
-      {"page": "lattice", "label": "LATTICE", "reason": "格子上の波動方程式"},
-      {"page": "interference", "label": "INTERFERENCE", "reason": "波の干渉パターン"}
+      {
+        "page": "chladni",
+        "label": "CHLADNI",
+        "reason": "矩形板の振動節線"
+      },
+      {
+        "page": "lattice",
+        "label": "LATTICE",
+        "reason": "格子上の波動方程式"
+      },
+      {
+        "page": "waves",
+        "label": "WAVES",
+        "reason": "波の干渉パターン"
+      }
     ]
   }
 }

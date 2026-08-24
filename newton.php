@@ -18,7 +18,7 @@ body { background: #0a0a0f; margin: 0; overflow: hidden; }
 .hud {
   position: fixed; top: 1rem; left: 1rem; z-index: 100;
   pointer-events: none;
-  font-family: "Orbitron","Segoe UI",sans-serif;
+  font-family: "Space Grotesk","Segoe UI",sans-serif;
   font-size: 0.62rem; color: rgba(255,255,255,0.3);
   line-height: 2; letter-spacing: 0.06em;
 }
@@ -29,7 +29,7 @@ body { background: #0a0a0f; margin: 0; overflow: hidden; }
 }
 .ctrl-btn {
   background: rgba(10,10,15,0.72); border: 1px solid rgba(0,245,212,0.25);
-  color: rgba(255,255,255,0.7); font-family: "Orbitron",sans-serif;
+  color: rgba(255,255,255,0.7); font-family: "Space Grotesk",sans-serif;
   font-size: 0.58rem; letter-spacing: 0.08em;
   padding: 0.38rem 0.75rem; border-radius: 4px; cursor: pointer;
   backdrop-filter: blur(6px); transition: border-color 0.2s, color 0.2s;
@@ -40,7 +40,7 @@ body { background: #0a0a0f; margin: 0; overflow: hidden; }
   display: flex; gap: 0.4rem; align-items: center;
 }
 .deg-label {
-  font-family: "Orbitron",sans-serif; font-size: 0.55rem;
+  font-family: "Space Grotesk",sans-serif; font-size: 0.55rem;
   color: rgba(255,255,255,0.4); letter-spacing: 0.06em;
 }
 @media (max-width: 768px) {

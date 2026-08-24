@@ -8,9 +8,9 @@ $pageTitle = 'BOOLEAN - PULSE';
 $pageDesc = 'ランダムブールネットワーク。N個のノードがブール関数で制御し合い、K=2付近で秩序とカオスの相転移が現れる。';
 $pageCanonical = 'https://pulse.subara3.com/boolean.php';
 $extraStyle = '
-  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Orbitron",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
+  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
   #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Orbitron",monospace;letter-spacing:.12em}
+  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
   canvas{cursor:crosshair}
 ';
 
@@ -301,7 +301,7 @@ function drawTimeline(){
     X.stroke();
     X.setLineDash([]);
 
-    X.font='9px Orbitron,monospace';
+    X.font='9px Space Grotesk,monospace';
     X.fillStyle='rgba(0,245,212,0.5)';
     X.fillText('CYCLE',cycleStartX+4,tY+12);
   }

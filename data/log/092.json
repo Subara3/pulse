@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "optics", "label": "OPTICS", "reason": "幾何光学と反射"},
-      {"page": "efield", "label": "EFIELD", "reason": "場の可視化"},
-      {"page": "pathfind", "label": "PATHFIND", "reason": "探索アルゴリズム"}
+      {
+        "page": "refraction",
+        "label": "REFRACTION",
+        "reason": "幾何光学と反射"
+      },
+      {
+        "page": "efield",
+        "label": "EFIELD",
+        "reason": "場の可視化"
+      },
+      {
+        "page": "pathfind",
+        "label": "PATHFIND",
+        "reason": "探索アルゴリズム"
+      }
     ]
   }
 }

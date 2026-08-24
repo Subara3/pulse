@@ -8,7 +8,7 @@ $pageTitle = 'CONVECTION - PULSE';
 $pageDesc = 'レイリー・ベナール対流。下から加熱された流体が自発的に対流セルを形成し、レイリー数の増加とともにカオスへ遷移する。';
 $pageCanonical = 'https://pulse.subara3.com/convection.php';
 $extraStyle = '
-  #hud { position:fixed; top:80px; right:20px; color:rgba(0,245,212,0.6); font:12px "Orbitron",monospace; text-align:right; pointer-events:none; z-index:10; line-height:1.8; }
+  #hud { position:fixed; top:80px; right:20px; color:rgba(0,245,212,0.6); font:12px "Space Grotesk",monospace; text-align:right; pointer-events:none; z-index:10; line-height:1.8; }
 ';
 
 require_once __DIR__ . '/includes/header.php';

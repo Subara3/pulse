@@ -8,9 +8,9 @@ $pageTitle = 'PLASMA - PULSE';
 $pageDesc = '二成分プラズマシミュレーション。電子とイオンのクーロン相互作用からデバイ遮蔽とプラズマ振動が創発する。';
 $pageCanonical = 'https://pulse.subara3.com/plasma.php';
 $extraStyle = '
-  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Orbitron",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
+  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
   #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Orbitron",monospace;letter-spacing:.12em}
+  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
   canvas{cursor:crosshair}
 ';
 
@@ -387,7 +387,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     X.setLineDash([3, 3]);
     X.beginPath(); X.moveTo(gx, cy); X.lineTo(gx + gw, cy); X.stroke();
     X.setLineDash([]);
-    X.font = '8px Orbitron,monospace';
+    X.font = '8px Space Grotesk,monospace';
     X.fillStyle = 'rgba(255,255,255,0.2)';
     X.textAlign = 'left';
     X.fillText('e⁻ DISPLACEMENT', gx + 5, gy + 11);

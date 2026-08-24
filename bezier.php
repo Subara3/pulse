@@ -17,7 +17,7 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 .hud {
   position: fixed; top: 1rem; left: 1rem; z-index: 100;
   pointer-events: none;
-  font-family: "Orbitron","Segoe UI",sans-serif;
+  font-family: "Space Grotesk","Segoe UI",sans-serif;
   font-size: 0.62rem; color: rgba(255,255,255,0.3);
   line-height: 2; letter-spacing: 0.06em;
 }
@@ -28,7 +28,7 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 }
 .ctrl-btn {
   background: rgba(10,10,15,0.72); border: 1px solid rgba(0,245,212,0.25);
-  color: rgba(255,255,255,0.7); font-family: "Orbitron",sans-serif;
+  color: rgba(255,255,255,0.7); font-family: "Space Grotesk",sans-serif;
   font-size: 0.58rem; letter-spacing: 0.08em;
   padding: 0.38rem 0.75rem; border-radius: 4px; cursor: pointer;
   backdrop-filter: blur(6px); transition: border-color 0.2s, color 0.2s;
@@ -151,7 +151,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     if (pts.length < 2) {
       ctx.save();
       ctx.fillStyle = rgba(ACCENT, 0.18);
-      ctx.font = '0.65rem Orbitron,sans-serif';
+      ctx.font = '0.65rem Space Grotesk,sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('CLICK ANYWHERE TO ADD CONTROL POINTS', W/2, H/2);
       ctx.restore();

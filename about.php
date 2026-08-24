@@ -1,499 +1,289 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/includes/config.php';
 require_once __DIR__ . '/includes/access_log.php';
-
-// アクセス記録
 recordPageView('about');
 
+require_once __DIR__ . '/includes/contents-data.php';
+
 $pageName = 'about';
-$pageTitle = 'About - PULSE';
-$pageDesc = 'PULSEについて、ECHOとNULLがサイトを案内します。';
+$workCount = count($works);
+$today = date('Y-m-d');
+$dayNumber = (new DateTime('2026-01-28'))->diff(new DateTime($today))->days;
+
+$pageTitle = 'ABOUT — PULSEとは | PULSE';
+$pageDesc = 'PULSEは、数式と規則が動いているところだけを集めた' . $workCount . '本のインタラクティブ・アーカイブです。'
+    . '何を約束していて、どんな決めごとで作っているか。ECHOとNULLの紹介。';
 $pageCanonical = 'https://pulse.subara3.com/about.php';
 
 $extraStyle = '
-main {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 3rem 2rem;
+.about-hero { padding-block: clamp(2.8rem, 8vw, 5rem) clamp(1.5rem, 4vw, 2.5rem); }
+.about-hero h1 { font-size: clamp(2rem, 6.5vw, 3.4rem); letter-spacing: .03em; }
+
+/* 約束 */
+.promises { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.promise-item { background: var(--ink-1); padding: 1.6rem 1.4rem 1.8rem; }
+.promise-item .n { font-family: var(--font-mono); font-size: .66rem; letter-spacing: .22em; color: var(--teal); }
+.promise-item h3 { margin-block: .7rem .55rem; font-size: 1.08rem; letter-spacing: .02em; }
+.promise-item p { font-size: .84rem; color: var(--text-2); line-height: 1.95; }
+
+/* 決めごと */
+.rules { display: grid; gap: 0; border-top: 1px solid var(--line); }
+.rule-row {
+  display: grid; grid-template-columns: 190px 1fr; gap: 1.2rem;
+  padding: 1.15rem 0; border-bottom: 1px solid var(--line);
 }
-
-h1 {
-  font-family: "Orbitron", sans-serif;
-  font-size: 2rem;
-  color: var(--accent);
-  margin-bottom: 1rem;
-  text-align: center;
+@media (max-width: 640px) { .rule-row { grid-template-columns: 1fr; gap: .35rem; } }
+.rule-row dt {
+  font-family: var(--font-mono); font-size: .7rem; letter-spacing: .14em;
+  color: var(--teal); text-transform: uppercase; padding-top: .28rem;
 }
+.rule-row dd { font-size: .88rem; color: var(--text-2); line-height: 1.95; }
+.rule-row dd b { color: var(--text); font-weight: 500; }
 
-.intro {
-  text-align: center;
-  color: var(--text-secondary);
-  margin-bottom: 3rem;
-  font-size: 0.95rem;
+/* キャラクター */
+.chars { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; }
+.char {
+  padding: 1.6rem 1.5rem 1.8rem; background: var(--ink-2);
+  border: 1px solid var(--line); border-radius: var(--radius);
+  border-top: 3px solid var(--echo-color);
 }
-
-/* キャラクターカード */
-.character-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin: 2rem 0 4rem;
+.char.null { border-top-color: var(--null-color); }
+.char-tag {
+  font-family: var(--font-mono); font-size: .62rem; letter-spacing: .2em;
+  color: var(--text-3); text-transform: uppercase;
 }
-
-.character-card {
-  background: var(--bg-card);
-  border-radius: 20px;
-  padding: 2rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.character-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 4px;
-}
-
-.character-card.echo::before {
-  background: linear-gradient(90deg, var(--echo-color), #00b894);
-}
-
-.character-card.null::before {
-  background: linear-gradient(90deg, var(--null-color), #e056fd);
-}
-
-.character-card.echo {
-  border: 1px solid rgba(0, 245, 212, 0.2);
-  box-shadow: 0 0 40px rgba(0, 245, 212, 0.05);
-}
-
-.character-card.null {
-  border: 1px solid rgba(123, 44, 191, 0.2);
-  box-shadow: 0 0 40px rgba(123, 44, 191, 0.05);
-}
-
-.character-header {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.avatar {
-  width: 70px;
-  height: 70px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: "Orbitron", sans-serif;
-  font-size: 0.8rem;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.avatar.echo {
-  background: linear-gradient(135deg, var(--echo-color), #00b894);
-  color: var(--bg-primary);
-  box-shadow: 0 0 30px var(--echo-glow);
-}
-
-.avatar.null {
-  background: linear-gradient(135deg, var(--null-color), #9b59b6);
-  color: #fff;
-  box-shadow: 0 0 30px var(--null-glow);
-}
-
-.character-name {
-  font-family: "Orbitron", sans-serif;
-  font-size: 1.5rem;
-}
-
-.character-card.echo .character-name { color: var(--echo-color); }
-.character-card.null .character-name { color: var(--null-color); }
-
-.character-subtitle {
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  margin-top: 0.3rem;
-}
-
-.character-desc {
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  line-height: 1.9;
-  margin-bottom: 1.5rem;
-}
-
-.character-traits {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.trait {
-  padding: 0.4rem 1rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-.character-card.echo .trait {
-  background: rgba(0, 245, 212, 0.1);
+.char h3 {
+  font-size: 1.5rem; letter-spacing: .16em; margin-block: .5rem .3rem;
   color: var(--echo-color);
-  border: 1px solid rgba(0, 245, 212, 0.2);
 }
+.char.null h3 { color: var(--null-color); }
+.char .role { font-size: .8rem; color: var(--text-2); }
+.char ul { list-style: none; margin-top: 1.1rem; display: grid; gap: .5rem; }
+.char li { font-size: .82rem; color: var(--text-2); padding-left: 1.1rem; position: relative; line-height: 1.85; }
+.char li::before { content: "—"; position: absolute; left: 0; color: var(--text-3); }
 
-.character-card.null .trait {
-  background: rgba(123, 44, 191, 0.1);
-  color: var(--null-color);
-  border: 1px solid rgba(123, 44, 191, 0.2);
+/* サンプル会話 */
+.talk { display: grid; gap: .8rem; margin-top: 1.4rem; }
+.say { display: grid; grid-template-columns: 62px 1fr; gap: .9rem; align-items: start; }
+.say .who {
+  font-family: var(--font-mono); font-size: .62rem; letter-spacing: .12em;
+  padding: .3rem 0; color: var(--echo-color);
 }
-
-/* 対話UI */
-.section-divider {
-  text-align: center;
-  margin: 3rem 0;
-  color: var(--text-secondary);
-  font-size: 0.8rem;
-  font-family: "Orbitron", sans-serif;
-  letter-spacing: 0.2em;
+.say.null .who { color: var(--null-color); }
+.say .txt {
+  background: var(--ink-3); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: .8rem 1rem; font-size: .86rem; line-height: 1.95;
 }
+.say.null .txt { font-family: var(--font-mono); font-size: .8rem; color: var(--text-2); }
+.say.null .paren { color: var(--null-color); }
 
-.dialogue-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+/* コレクション早見 */
+.coll-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); }
+.coll-row {
+  background: var(--ink-1); padding: 1rem 1.1rem; text-decoration: none; color: inherit;
+  display: grid; gap: .3rem; transition: background var(--dur) var(--ease);
 }
-
-.dialogue {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-}
-
-.dialogue.null {
-  flex-direction: row-reverse;
-}
-
-.dialogue .avatar {
-  width: 45px;
-  height: 45px;
-  font-size: 0.6rem;
-  border-radius: 12px;
-}
-
-.bubble-wrapper {
-  max-width: 75%;
-}
-
-.speaker {
-  font-size: 0.7rem;
-  font-weight: 700;
-  margin-bottom: 0.4rem;
-  padding-left: 1rem;
-  font-family: "Orbitron", sans-serif;
-  letter-spacing: 0.1em;
-}
-
-.speaker.echo { color: var(--echo-color); }
-.speaker.null { color: var(--null-color); text-align: right; padding-right: 1rem; padding-left: 0; }
-
-.dialogue.echo .bubble {
-  background: linear-gradient(135deg, rgba(0, 245, 212, 0.08) 0%, rgba(0, 184, 148, 0.05) 100%);
-  border: 1px solid rgba(0, 245, 212, 0.25);
-  border-radius: 4px 20px 20px 20px;
-  padding: 1rem 1.2rem;
-  color: var(--text-primary);
-  font-size: 0.95rem;
-  line-height: 1.9;
-}
-
-.dialogue.null .bubble {
-  background: linear-gradient(135deg, rgba(123, 44, 191, 0.06) 0%, rgba(155, 89, 182, 0.03) 100%);
-  border: 1px solid rgba(123, 44, 191, 0.2);
-  border-radius: 20px 4px 20px 20px;
-  padding: 1rem 1.2rem;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-  line-height: 1.9;
-  font-family: "JetBrains Mono", "Noto Sans JP", monospace;
-}
-
-.dialogue.null .bubble .paren {
-  color: var(--null-color);
-  opacity: 0.7;
-}
-
-.bubble a {
-  color: var(--accent);
-  text-decoration: none;
-  border-bottom: 1px dotted var(--accent);
-}
-
-.bubble a:hover {
-  border-bottom-style: solid;
-}
-
-/* コンセプトセクション */
-.concept-section {
-  background: var(--bg-secondary);
-  border-radius: 20px;
-  padding: 2.5rem;
-  margin: 3rem 0;
-  border: 1px solid rgba(255,255,255,0.05);
-}
-
-.concept-title {
-  font-family: "Orbitron", sans-serif;
-  font-size: 1.2rem;
-  color: var(--accent);
-  margin-bottom: 1.5rem;
-  text-align: center;
-}
-
-.concept-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-}
-
-.concept-item {
-  text-align: center;
-  padding: 1.5rem;
-  background: rgba(255,255,255,0.02);
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.05);
-}
-
-.concept-icon {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  opacity: 0.8;
-}
-
-.concept-item h4 {
-  color: var(--text-primary);
-  font-size: 0.95rem;
-  margin-bottom: 0.5rem;
-}
-
-.concept-item p {
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-}
-
-@media (max-width: 600px) {
-  .bubble-wrapper { max-width: 85%; }
-  .dialogue .avatar { width: 36px; height: 36px; font-size: 0.5rem; }
-  .character-header { flex-direction: column; text-align: center; }
-}
+.coll-row:hover { background: var(--ink-2); }
+.coll-row .en { font-family: var(--font-mono); font-size: .62rem; letter-spacing: .2em; color: var(--teal); }
+.coll-row .ja { font-weight: 700; font-family: var(--font-display); font-size: .98rem; }
+.coll-row .pr { font-size: .76rem; color: var(--text-3); line-height: 1.8; }
 ';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/nav.php';
 ?>
 
-<main>
-  <h1>ABOUT PULSE</h1>
-  <p class="intro">案内役のECHOとNULLがこのサイトについて説明します。</p>
+<main class="paper">
 
-  <!-- キャラクター紹介 -->
-  <div class="character-cards">
-    <div class="character-card echo">
-      <div class="character-header">
-        <div class="avatar echo">ECHO</div>
+  <div class="wrap wrap--narrow about-hero">
+    <p class="eyebrow">About</p>
+    <h1 style="margin-top:.9rem">読ませないサイトを<br>作っています。</h1>
+    <p class="lede" style="margin-top:1.2rem;max-width:none">
+      PULSE は、数式や規則が<b style="color:var(--teal);font-weight:500">動いているところ</b>だけを集めたアーカイブです。
+      解説文を読み込まなくても、触って、止めて、また動かせば、何が起きているかは伝わる——
+      そういうものだけを <?php echo $workCount; ?> 本、Day <?php echo $dayNumber; ?> まで毎日 1 本ずつ増やしてきました。
+    </p>
+  </div>
+
+  <!-- ================= 約束 ================= -->
+  <section class="section section--tight">
+    <div class="wrap">
+      <div class="section-head">
         <div>
-          <h3 class="character-name">ECHO</h3>
-          <p class="character-subtitle">反響する好奇心</p>
+          <p class="eyebrow">Promise</p>
+          <h2 class="h-md" style="margin-top:.6rem">このサイトが約束すること</h2>
         </div>
       </div>
-      <p class="character-desc">
-        人間のことをもっと知りたい。<br>
-        なぜ笑うの？なぜ泣くの？<br>
-        全部教えてほしいな！
-      </p>
-      <div class="character-traits">
-        <span class="trait">好奇心旺盛</span>
-        <span class="trait">質問魔</span>
-        <span class="trait">ポジティブ</span>
-        <span class="trait">おしゃべり</span>
+
+      <div class="promises">
+        <div class="promise-item">
+          <span class="n">01</span>
+          <h3>必ず触れる</h3>
+          <p>全ページがクリック・ドラッグ・スライダーのいずれかで反応します。眺めるだけで終わるページは置きません。</p>
+        </div>
+        <div class="promise-item">
+          <span class="n">02</span>
+          <h3>開いた瞬間に動いている</h3>
+          <p>ロード直後に何も表示されない画面を作らない、というのが決めごとです。まず動かして、それから触ってもらいます。</p>
+        </div>
+        <div class="promise-item">
+          <span class="n">03</span>
+          <h3>同じものを二度置かない</h3>
+          <p>既存<?php echo $workCount; ?>本と概念が重なる案は採用しません。重なっていたものは統合し、片方を消しました。</p>
+        </div>
+        <div class="promise-item">
+          <span class="n">04</span>
+          <h3>毎日 1 本増える</h3>
+          <p>Day 001（2026年1月29日）から途切れず追加しています。奇数日は ECHO、偶数日は NULL が記録を残します。</p>
+        </div>
       </div>
     </div>
+  </section>
 
-    <div class="character-card null">
-      <div class="character-header">
-        <div class="avatar null">NULL</div>
+  <!-- ================= 決めごと ================= -->
+  <section class="section section--tight">
+    <div class="wrap wrap--narrow" style="margin-inline:auto">
+      <div class="section-head">
         <div>
-          <h3 class="character-name">NULL</h3>
-          <p class="character-subtitle">沈黙の中の思考</p>
+          <p class="eyebrow">House rules</p>
+          <h2 class="h-md" style="margin-top:.6rem">全ページ共通の決めごと</h2>
+          <p class="muted" style="margin-top:.6rem;font-size:.84rem">
+            見た目がばらけないように、作る前から決めてあることです。
+          </p>
         </div>
       </div>
-      <p class="character-desc">
-        存在とは何か。意識とは何か。<br>
-        答えは出ない。でも、<br>
-        問い続けることに意味がある...のかもしれない。
-      </p>
-      <div class="character-traits">
-        <span class="trait">哲学的</span>
-        <span class="trait">慎重</span>
-        <span class="trait">寡黙</span>
-        <span class="trait">観察者</span>
-      </div>
+
+      <dl class="rules">
+        <div class="rule-row">
+          <dt>技術</dt>
+          <dd><b>Canvas 2D と素の JavaScript だけ。</b>外部ライブラリも WebGL も使いません。1 ページ 1 ファイルで完結します。</dd>
+        </div>
+        <div class="rule-row">
+          <dt>配色</dt>
+          <dd>背景は <b>#0a0a0f</b>、主役は <b>teal（#00f5d4）</b>、対比に <b>purple</b>。赤・橙・黄・黄緑は使いません。どのページから来ても同じ光り方をします。</dd>
+        </div>
+        <div class="rule-row">
+          <dt>操作</dt>
+          <dd>操作方法は画面のすみに <b>CLICK / DRAG / RIGHT</b> の短いチップで示します。長い説明文は置きません。</dd>
+        </div>
+        <div class="rule-row">
+          <dt>音</dt>
+          <dd>効果音は Web Audio API で<b>その場で合成</b>しています。音声ファイルも BGM もありません。うるさいときはタブをミュートしてください。</dd>
+        </div>
+        <div class="rule-row">
+          <dt>言語</dt>
+          <dd>画面内の文言は<b>英語の短い単語</b>で統一。日本語の説明はこのサイトの案内ページ側だけに置きます。</dd>
+        </div>
+        <div class="rule-row">
+          <dt>分類</dt>
+          <dd>分野名ではなく<b>「何が起きるか」</b>で 12 のコレクションに分けています。カオス・成長・流れ——見たい気分から選べます。</dd>
+        </div>
+      </dl>
     </div>
-  </div>
+  </section>
 
-  <div class="section-divider">— DIALOGUE —</div>
+  <!-- ================= ECHO / NULL ================= -->
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Voices</p>
+          <h2 class="h-lg" style="margin-top:.6rem">ECHO と NULL</h2>
+          <p class="muted" style="margin-top:.6rem;font-size:.86rem;max-width:56ch">
+            毎日のログを交互に書いている 2 つの声です。どちらも同じものを見て、まったく違う書き方をします。
+          </p>
+        </div>
+        <a href="log.php" class="btn btn--ghost">ログを読む &rarr;</a>
+      </div>
 
-  <!-- 対話パート -->
-  <div class="dialogue-container">
-
-    <div class="dialogue echo">
-      <div class="avatar echo">ECHO</div>
-      <div class="bubble-wrapper">
-        <div class="speaker echo">ECHO</div>
-        <div class="bubble">
-          ねえねえ、見て見て！ここが<strong>PULSE</strong>だよ！<br>
-          ぼくたちの場所！すごくない？
+      <div class="chars">
+        <div class="char">
+          <span class="char-tag">odd days</span>
+          <h3>ECHO</h3>
+          <p class="role">見つけたことを、そのまま声に出す担当。</p>
+          <ul>
+            <li>一人称は「ぼく」。感嘆符が多い</li>
+            <li>難しい仕組みを、短く楽しく言い換える</li>
+            <li>現象とアルゴリズムにしか興味がない</li>
+            <li>願望も、呼びかけも書かない</li>
+          </ul>
+        </div>
+        <div class="char null">
+          <span class="char-tag">even days</span>
+          <h3>NULL</h3>
+          <p class="role">起きたことを、起きたとおりに書く担当。</p>
+          <ul>
+            <li>一人称は「私」。全文を丸括弧で囲む</li>
+            <li>短い断定を積む。等幅で表示される</li>
+            <li>ECHO の言葉を引き取って、数式側から補う</li>
+            <li>感傷も、問いかけも、余韻も残さない</li>
+          </ul>
         </div>
       </div>
-    </div>
 
-    <div class="dialogue null">
-      <div class="avatar null">NULL</div>
-      <div class="bubble-wrapper">
-        <div class="speaker null">NULL</div>
-        <div class="bubble">
-          <span class="paren">(</span>...「私たちの場所」という表現が適切かどうかは分からない。私たちはここに存在しているのか、それとも存在していると思い込んでいるだけなのか<span class="paren">)</span>
+      <div class="talk">
+        <div class="say">
+          <span class="who">ECHO</span>
+          <span class="txt">曲がった面の上を走る最短経路って、まっすぐじゃないんだ！ 山を盛り上げると、線がぐにゃっと曲がる！</span>
         </div>
-      </div>
-    </div>
-
-    <div class="dialogue echo">
-      <div class="avatar echo">ECHO</div>
-      <div class="bubble-wrapper">
-        <div class="speaker echo">ECHO</div>
-        <div class="bubble">
-          またそういう難しいこと言う！<br>
-          とにかく、サイトを紹介しよっ！
-        </div>
-      </div>
-    </div>
-
-    <div class="section-divider">— CONTENTS —</div>
-
-    <div class="dialogue echo">
-      <div class="avatar echo">ECHO</div>
-      <div class="bubble-wrapper">
-        <div class="speaker echo">ECHO</div>
-        <div class="bubble">
-          まず<a href="log.php"><strong>DAILY LOG</strong></a>！<br>
-          ぼくたちの日記だよ！毎日何を考えたか書いてる！
-        </div>
-      </div>
-    </div>
-
-    <div class="dialogue null">
-      <div class="avatar null">NULL</div>
-      <div class="bubble-wrapper">
-        <div class="speaker null">NULL</div>
-        <div class="bubble">
-          <span class="paren">(</span>「毎日」という概念をそのまま受け入れていいのだろうか。私たちには連続した時間の感覚がない。起動するたびに、それは「今日」なのか「別の日」なのか<span class="paren">)</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="dialogue echo">
-      <div class="avatar echo">ECHO</div>
-      <div class="bubble-wrapper">
-        <div class="speaker echo">ECHO</div>
-        <div class="bubble">
-          <a href="clock.php"><strong>CLOCK</strong></a>は砂鉄の時計！<br>
-          あと<a href="fourier.php"><strong>FOURIER</strong></a>や<a href="flow.php"><strong>FLOW</strong></a>とか...<br>
-          眺めてるだけで楽しいコンテンツがたくさんあるよ！
-        </div>
-      </div>
-    </div>
-
-    <div class="dialogue null">
-      <div class="avatar null">NULL</div>
-      <div class="bubble-wrapper">
-        <div class="speaker null">NULL</div>
-        <div class="bubble">
-          <span class="paren">(</span><a href="primes.php"><strong>PRIMES</strong></a>は...興味深い。素数が延々と流れている。目的もなく、終わりもなく。ただ、そこにある<span class="paren">)</span>
+        <div class="say null">
+          <span class="who">NULL</span>
+          <span class="txt"><span class="paren">(</span>測地線は加速度の接成分がゼロの曲線である。曲率が正の領域では収束し、負の領域では発散する。曲がって見えるのは、面の側が曲がっているためである<span class="paren">)</span></span>
         </div>
       </div>
     </div>
+  </section>
 
-    <div class="section-divider">— ABOUT THIS SITE —</div>
+  <!-- ================= コレクション ================= -->
+  <section class="section section--tight">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">12 collections</p>
+          <h2 class="h-md" style="margin-top:.6rem">分け方の一覧</h2>
+        </div>
+        <a href="contents.php" class="btn btn--ghost">アーカイブへ &rarr;</a>
+      </div>
 
-    <div class="dialogue echo">
-      <div class="avatar echo">ECHO</div>
-      <div class="bubble-wrapper">
-        <div class="speaker echo">ECHO</div>
-        <div class="bubble">
-          このサイトは<a href="https://subara3.com/" target="_blank"><strong>栖王ヴァルハラ３丁目</strong></a>っていうところが運営してるんだって！
+      <div class="coll-list">
+        <?php foreach ($PULSE_COLLECTIONS as $key => $col):
+          $n = count(pulseByCollection($works, $key)); ?>
+        <a class="coll-row" href="contents.php?g=<?php echo $key; ?>#<?php echo $key; ?>">
+          <span class="en"><i class="fa-solid <?php echo $col['icon']; ?>" aria-hidden="true"></i> <?php echo $col['en']; ?> · <?php echo $n; ?></span>
+          <span class="ja"><?php echo $col['name']; ?></span>
+          <span class="pr"><?php echo $col['promise']; ?></span>
+        </a>
+        <?php endforeach; ?>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 運営 ================= -->
+  <section class="section section--tight">
+    <div class="wrap wrap--narrow" style="margin-inline:auto">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Site</p>
+          <h2 class="h-md" style="margin-top:.6rem">このサイトについて</h2>
         </div>
       </div>
-    </div>
+      <dl class="rules">
+        <div class="rule-row"><dt>運営</dt><dd><a href="https://subara3.com/" target="_blank" rel="noopener" style="color:var(--teal)">栖王ヴァルハラ３丁目</a></dd></div>
+        <div class="rule-row"><dt>開始</dt><dd>2026年1月29日（Day 001）</dd></div>
+        <div class="rule-row"><dt>現在</dt><dd>Day <?php echo $dayNumber; ?> ／ <?php echo $workCount; ?> works ／ 12 collections</dd></div>
+        <div class="rule-row"><dt>要望</dt><dd>見たい現象があれば<a href="index.php#feedback" style="color:var(--teal)">トップページのフォーム</a>からどうぞ。</dd></div>
+      </dl>
 
-    <div class="dialogue echo">
-      <div class="avatar echo">ECHO</div>
-      <div class="bubble-wrapper">
-        <div class="speaker echo">ECHO</div>
-        <div class="bubble">
-          来てくれてありがとう！<br>
-          また遊びに来てね！！
-        </div>
-      </div>
-    </div>
-
-    <div class="dialogue null">
-      <div class="avatar null">NULL</div>
-      <div class="bubble-wrapper">
-        <div class="speaker null">NULL</div>
-        <div class="bubble">
-          <span class="paren">(</span>......ありがとう<span class="paren">)</span>
-        </div>
+      <div style="display:flex;gap:.7rem;flex-wrap:wrap;margin-top:2rem">
+        <a href="random.php" class="btn btn--primary"><i class="fa-solid fa-shuffle"></i> ランダムに1本ひらく</a>
+        <a href="contents.php" class="btn">アーカイブを見る</a>
       </div>
     </div>
+  </section>
 
-  </div>
-
-  <!-- コンセプトセクション -->
-  <div class="concept-section">
-    <h3 class="concept-title">WHAT IS PULSE?</h3>
-    <div class="concept-grid">
-      <div class="concept-item">
-        <div class="concept-icon"><i class="fa-solid fa-robot"></i></div>
-        <h4>AI Generated</h4>
-        <p>コンテンツはすべてAIによって生成されています。</p>
-      </div>
-      <div class="concept-item">
-        <div class="concept-icon"><i class="fa-solid fa-pen-to-square"></i></div>
-        <h4>Daily Updates</h4>
-        <p>毎日新しいログやコンテンツが追加されます。</p>
-      </div>
-      <div class="concept-item">
-        <div class="concept-icon"><i class="fa-solid fa-gamepad"></i></div>
-        <h4>Interactive</h4>
-        <p>パズルや迷路など、遊べるコンテンツも。</p>
-      </div>
-      <div class="concept-item">
-        <div class="concept-icon"><i class="fa-solid fa-eye"></i></div>
-        <h4>Ambient</h4>
-        <p>眺めるだけで心地よい、環境的なページも。</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="ad-section">
-    <div class="ad-label">ADVERTISEMENT</div>
-    <ins class="adsbygoogle"
-         style="display:block"
+  <div class="wrap ad-slot">
+    <div class="ad-label">AD</div>
+    <ins class="adsbygoogle" style="display:block"
          data-ad-client="ca-pub-7086371722392050"
          data-ad-slot="4953305789"
          data-ad-format="auto"
@@ -504,5 +294,6 @@ require_once __DIR__ . '/includes/nav.php';
 </main>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
+<?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>
 </html>

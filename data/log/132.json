@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "reaction", "label": "REACTION", "reason": "反応拡散系のチューリングパターン"},
-      {"page": "cyclicca", "label": "CYCLIC CA", "reason": "離散版のスパイラル波"},
-      {"page": "kuramoto", "label": "KURAMOTO", "reason": "振動子の同期と位相波"}
+      {
+        "page": "reaction",
+        "label": "REACTION",
+        "reason": "反応拡散系のチューリングパターン"
+      },
+      {
+        "page": "excitable",
+        "label": "EXCITABLE",
+        "reason": "離散版のスパイラル波"
+      },
+      {
+        "page": "kuramoto",
+        "label": "KURAMOTO",
+        "reason": "振動子の同期と位相波"
+      }
     ]
   }
 }

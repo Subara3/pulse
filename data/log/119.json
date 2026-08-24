@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "voronoi", "label": "VORONOI", "reason": "スティップリングの裏で動くボロノイ分割"},
-      {"page": "packing", "label": "PACKING", "reason": "空間を埋める別のアプローチ"},
-      {"page": "gradient", "label": "GRADIENT", "reason": "最適化の収束過程の可視化"}
+      {
+        "page": "voronoi",
+        "label": "VORONOI",
+        "reason": "スティップリングの裏で動くボロノイ分割"
+      },
+      {
+        "page": "packing",
+        "label": "CIRCLE PACKING",
+        "reason": "空間を埋める別のアプローチ"
+      },
+      {
+        "page": "gradient",
+        "label": "GRADIENT",
+        "reason": "最適化の収束過程の可視化"
+      }
     ]
   }
 }

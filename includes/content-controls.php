@@ -56,7 +56,7 @@ if (!isset($controls) || empty($controls)) return;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 25px;
   color: rgba(255, 255, 255, 0.7);
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 0.65rem;
   letter-spacing: 0.05em;
   cursor: pointer;

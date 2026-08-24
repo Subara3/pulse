@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "efield", "label": "EFIELD", "reason": "電場の可視化"},
-      {"page": "vortex", "label": "VORTEX", "reason": "流れ場の渦"},
-      {"page": "interference", "label": "INTERFERENCE", "reason": "場の重ね合わせ"}
+      {
+        "page": "efield",
+        "label": "EFIELD",
+        "reason": "電場の可視化"
+      },
+      {
+        "page": "karman",
+        "label": "KÁRMÁN",
+        "reason": "流れ場の渦"
+      },
+      {
+        "page": "waves",
+        "label": "WAVES",
+        "reason": "場の重ね合わせ"
+      }
     ]
   }
 }

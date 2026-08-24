@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "lissajous", "label": "LISSAJOUS", "reason": "パラメトリック曲線"},
-      {"page": "spirograph", "label": "SPIROGRAPH", "reason": "回転と軌跡の幾何学"},
-      {"page": "moire", "label": "MOIRÉ", "reason": "周期パターンの干渉"}
+      {
+        "page": "harmonograph",
+        "label": "HARMONOGRAPH",
+        "reason": "パラメトリック曲線"
+      },
+      {
+        "page": "spirograph",
+        "label": "SPIROGRAPH",
+        "reason": "回転と軌跡の幾何学"
+      },
+      {
+        "page": "moire",
+        "label": "MOIRÉ",
+        "reason": "周期パターンの干渉"
+      }
     ]
   }
 }

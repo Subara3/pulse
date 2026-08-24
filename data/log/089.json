@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "koch", "label": "KOCH", "reason": "再帰的フラクタル"},
-      {"page": "hilbert", "label": "HILBERT", "reason": "空間充填曲線"},
-      {"page": "chaosgame", "label": "CHAOSGAME", "reason": "IFSフラクタル"}
+      {
+        "page": "koch",
+        "label": "KOCH SNOWFLAKE",
+        "reason": "再帰的フラクタル"
+      },
+      {
+        "page": "hilbert",
+        "label": "HILBERT",
+        "reason": "空間充填曲線"
+      },
+      {
+        "page": "ifs",
+        "label": "IFS",
+        "reason": "IFSフラクタル"
+      }
     ]
   }
 }

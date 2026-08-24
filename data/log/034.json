@@ -8,8 +8,16 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "string", "label": "STRING", "reason": "曲線軌跡の蓄積"},
-      {"page": "chladni", "label": "CHLADNI", "reason": "振動位相の可視化"}
+      {
+        "page": "string",
+        "label": "STRING ART",
+        "reason": "曲線軌跡の蓄積"
+      },
+      {
+        "page": "chladni",
+        "label": "CHLADNI",
+        "reason": "振動位相の可視化"
+      }
     ]
   }
 }

@@ -8,9 +8,16 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "levydrift", "label": "LEVY DRIFT", "reason": "粒子の軌跡パターン"},
-      {"page": "fluidveil", "label": "FLUID VEIL", "reason": "流体の可視化"},
-      {"page": "drift", "label": "DRIFT", "reason": "漂う点の軌跡"}
+      {
+        "page": "levydrift",
+        "label": "LEVY DRIFT",
+        "reason": "粒子の軌跡パターン"
+      },
+      {
+        "page": "fluidveil",
+        "label": "FLUID VEIL",
+        "reason": "流体の可視化"
+      }
     ]
   }
 }

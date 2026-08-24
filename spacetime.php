@@ -8,9 +8,9 @@ $pageTitle = 'SPACETIME - PULSE';
 $pageDesc = 'ミンコフスキー時空図。ローレンツブーストで光円錐・世界線・同時性が変形する特殊相対論の可視化。';
 $pageCanonical = 'https://pulse.subara3.com/spacetime.php';
 $extraStyle = '
-  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Orbitron",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
+  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
   #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Orbitron",monospace;letter-spacing:.12em}
+  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -165,7 +165,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     X.beginPath(); X.moveTo(top.sx, top.sy); X.lineTo(bot.sx, bot.sy); X.stroke();
 
     X.fillStyle = rgba(TEAL, 0.3);
-    X.font = '10px Orbitron, monospace';
+    X.font = '10px Space Grotesk, monospace';
     X.textAlign = 'center';
     var xOff = toScreen(0, 0);
     X.fillText('x', W - 12, xOff.sy - 6);
@@ -253,7 +253,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
       if (ev.label) {
         X.fillStyle = rgba([255,255,255], 0.6);
-        X.font = '9px Orbitron, monospace';
+        X.font = '9px Space Grotesk, monospace';
         X.textAlign = 'center';
         X.fillText(ev.label, p.sx, p.sy - 14);
       }

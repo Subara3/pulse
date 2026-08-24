@@ -8,9 +8,9 @@ $pageTitle = 'FRACTION - PULSE';
 $pageDesc = '連分数の幾何学。ユークリッドの互除法が長方形を正方形に分解し、黄金比で完全な螺旋が生まれる。';
 $pageCanonical = 'https://pulse.subara3.com/fraction.php';
 $extraStyle = '
-  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Orbitron",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
+  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
   #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Orbitron",monospace;letter-spacing:.12em}
+  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
   canvas{cursor:crosshair}
 ';
 
@@ -191,7 +191,7 @@ function draw(now){
     }
     if(ps>50&&fade>0.5){
       X.fillStyle='rgba(0,245,212,'+(0.15*fade)+')';
-      X.font=Math.max(9,Math.min(13,ps/5))+'px Orbitron,monospace';
+      X.font=Math.max(9,Math.min(13,ps/5))+'px Space Grotesk,monospace';
       X.textAlign='center';X.textBaseline='middle';
       X.fillText(i+1+'',px+ps/2,py+ps/2);
     }

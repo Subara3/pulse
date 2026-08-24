@@ -11,7 +11,7 @@ $pageCanonical = 'https://pulse.subara3.com/flowfield.php';
 $extraStyle = '
 body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 #canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; cursor: crosshair; }
-.ui { position: fixed; z-index: 100; font-family: "Orbitron", sans-serif; pointer-events: none; }
+.ui { position: fixed; z-index: 100; font-family: "Space Grotesk", sans-serif; pointer-events: none; }
 .hud { top: 60px; right: 20px; color: rgba(255,255,255,0.35); font-size: 0.65rem; text-align: right; letter-spacing: 0.05em; line-height: 1.8; }
 .hud .highlight { color: #00f5d4; font-weight: 700; }
 .hud .sub { color: #c455ff; }

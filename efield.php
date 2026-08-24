@@ -11,7 +11,7 @@ $pageCanonical = 'https://pulse.subara3.com/efield.php';
 $extraStyle = '
 body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 #canvas { position: fixed; inset: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
-.ui { position: fixed; z-index: 100; pointer-events: none; font-family: "Orbitron", "Segoe UI", sans-serif; }
+.ui { position: fixed; z-index: 100; pointer-events: none; font-family: "Space Grotesk", "Segoe UI", sans-serif; }
 .hud { top: 3.2rem; right: 1rem; color: rgba(255,255,255,0.34); font-size: 0.63rem; line-height: 1.8; text-align: right; letter-spacing: 0.05em; }
 .hud .v { color: #00f5d4; font-weight: 700; }
 .hud .v.neg { color: #7b2cbf; }
@@ -447,7 +447,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
       // Symbol
       ctx.fillStyle = color;
-      ctx.font = 'bold 14px "Orbitron", sans-serif';
+      ctx.font = 'bold 14px "Space Grotesk", sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(isPos ? '+' : '−', c.x, c.y + 1);

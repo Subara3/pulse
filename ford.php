@@ -11,7 +11,7 @@ $pageCanonical = 'https://pulse.subara3.com/ford.php';
 $extraStyle = '
 body{background:#0a0a0f;min-height:100vh;overflow:hidden}
 #canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
-.hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Orbitron","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,0.34);font-size:0.64rem;text-align:right;letter-spacing:0.05em;line-height:1.8}
+.hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Space Grotesk","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,0.34);font-size:0.64rem;text-align:right;letter-spacing:0.05em;line-height:1.8}
 .hud .v{color:#00f5d4;font-weight:700}
 #info{position:fixed;bottom:1.5rem;left:1.5rem;color:rgba(255,255,255,0.22);font-family:"JetBrains Mono",monospace;font-size:0.6rem;line-height:1.7;letter-spacing:0.03em;pointer-events:none;z-index:50}
 #info .v{color:rgba(0,245,212,0.5)}
@@ -339,7 +339,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     var h = 175 + t * 100;
     var s = 70 - t * 10;
     var l = 60 - t * 18;
-    if (hi) { h = 50; s = 95; l = 72; }
+    if (hi) { h = 288; s = 95; l = 74; }
     return 'hsla(' + h + ',' + s + '%,' + l + '%,' + alpha + ')';
   }
 
@@ -355,7 +355,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     // ticks at 0, 1/4, 1/3, 1/2, 2/3, 3/4, 1
     var ticks = [[0,1],[1,4],[1,3],[1,2],[2,3],[3,4],[1,1]];
     ctx.fillStyle = 'rgba(255,255,255,0.32)';
-    ctx.font = '10px "JetBrains Mono","Orbitron",monospace';
+    ctx.font = '10px "JetBrains Mono","Space Grotesk",monospace';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
     for (var i = 0; i < ticks.length; i++) {
@@ -422,7 +422,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       // Label for big circles or selected
       if ((rp > 28 || isSel) && c.q > 0) {
         ctx.fillStyle = isSel ? '#00f5d4' : 'rgba(255,255,255,' + (Math.min(0.7, rp / 80)) + ')';
-        ctx.font = (isSel ? '700 ' : '') + Math.min(13, Math.max(9, rp / 4)) + 'px "JetBrains Mono","Orbitron",monospace';
+        ctx.font = (isSel ? '700 ' : '') + Math.min(13, Math.max(9, rp / 4)) + 'px "JetBrains Mono","Space Grotesk",monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(c.p + '/' + c.q, sp[0], sp[1]);

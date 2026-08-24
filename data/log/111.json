@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "nbody", "label": "NBODY", "reason": "多体重力シミュレーション"},
-      {"page": "galaxy", "label": "GALAXY", "reason": "銀河の密度波"},
-      {"page": "gravlens", "label": "GRAVLENS", "reason": "重力レンズ効果"}
+      {
+        "page": "nbody",
+        "label": "N-BODY",
+        "reason": "多体重力シミュレーション"
+      },
+      {
+        "page": "galaxy",
+        "label": "GALAXY",
+        "reason": "銀河の密度波"
+      },
+      {
+        "page": "gravlens",
+        "label": "GRAVLENS",
+        "reason": "重力レンズ効果"
+      }
     ]
   }
 }

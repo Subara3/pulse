@@ -8,9 +8,9 @@ $pageTitle = 'ARNOLD TONGUES - PULSE';
 $pageDesc = 'アーノルドの舌。円写像のパラメータ空間にモード同期の舌状領域が広がり、悪魔の階段が回転数を刻む。';
 $pageCanonical = 'https://pulse.subara3.com/tongues.php';
 $extraStyle = '
-  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Orbitron",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
+  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
   #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Orbitron",monospace;letter-spacing:.12em}
+  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
   canvas{cursor:crosshair}
 ';
 
@@ -279,7 +279,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
     var rats = [[0,1],[1,3],[1,2],[2,3],[1,1]];
     ctx.fillStyle = 'rgba(0,245,212,0.5)';
-    ctx.font = '10px Orbitron, monospace';
+    ctx.font = '10px Space Grotesk, monospace';
     ctx.textAlign = 'center';
     for (var i = 0; i < rats.length; i++) {
       var p = rats[i][0], q = rats[i][1];
@@ -289,7 +289,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     }
 
     ctx.fillStyle = 'rgba(0,245,212,0.4)';
-    ctx.font = '11px Orbitron, monospace';
+    ctx.font = '11px Space Grotesk, monospace';
     ctx.textAlign = 'center';
     ctx.fillText('Ω', marginL + pw / 2, marginT + ph + 35);
     ctx.save();
@@ -299,7 +299,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     ctx.restore();
 
     ctx.fillStyle = 'rgba(0,245,212,0.3)';
-    ctx.font = '10px Orbitron, monospace';
+    ctx.font = '10px Space Grotesk, monospace';
     ctx.textAlign = 'right';
     ctx.fillText('K = ' + k.toFixed(2), W - 20, 30);
   }
@@ -364,7 +364,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     if (rho < 0) rho += 1;
 
     ctx.fillStyle = 'rgba(0,245,212,0.4)';
-    ctx.font = '11px Orbitron, monospace';
+    ctx.font = '11px Space Grotesk, monospace';
     ctx.textAlign = 'left';
     ctx.fillText('Ω = ' + omega.toFixed(4), 20, H - 60);
     ctx.fillText('K = ' + k.toFixed(4), 20, H - 42);
@@ -395,7 +395,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
     var labels = [[0,1,'0'],[1,4,'1/4'],[1,3,'1/3'],[1,2,'1/2'],[2,3,'2/3'],[3,4,'3/4'],[1,1,'1']];
     ctx.fillStyle = 'rgba(0,245,212,0.35)';
-    ctx.font = '9px Orbitron, monospace';
+    ctx.font = '9px Space Grotesk, monospace';
     ctx.textAlign = 'center';
     for (var i = 0; i < labels.length; i++) {
       var val = labels[i][0] / labels[i][1];
@@ -406,7 +406,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     }
 
     ctx.fillStyle = 'rgba(0,245,212,0.3)';
-    ctx.font = '10px Orbitron, monospace';
+    ctx.font = '10px Space Grotesk, monospace';
     ctx.textAlign = 'center';
     ctx.fillText('Ω', W / 2, H - 20);
     ctx.textAlign = 'left';

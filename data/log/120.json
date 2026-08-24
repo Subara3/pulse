@@ -8,9 +8,16 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "doublepend", "label": "DOUBLEPEND", "reason": "カオス的分岐の可視化"},
-      {"page": "pendulum", "label": "PENDULUM", "reason": "剛体振り子との比較"},
-      {"page": "phase", "label": "PHASE", "reason": "位相空間の軌道構造"}
+      {
+        "page": "pendulum",
+        "label": "PENDULUM",
+        "reason": "カオス的分岐の可視化"
+      },
+      {
+        "page": "phase",
+        "label": "PHASE",
+        "reason": "位相空間の軌道構造"
+      }
     ]
   }
 }

@@ -27,7 +27,7 @@ body {
 .ui {
   position: fixed;
   z-index: 1000;
-  font-family: "Orbitron", sans-serif;
+  font-family: "Space Grotesk", sans-serif;
   pointer-events: none;
 }
 
@@ -88,7 +88,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
 <div id="controls" class="drawer-controls">
   <div>
-    <div style="color:rgba(255,255,255,0.4);font-family:'Orbitron',sans-serif;font-size:0.6rem;margin-bottom:0.4rem;letter-spacing:0.08em;">PRESET</div>
+    <div style="color:rgba(255,255,255,0.4);font-family:'Space Grotesk',sans-serif;font-size:0.6rem;margin-bottom:0.4rem;letter-spacing:0.08em;">PRESET</div>
     <div class="preset-group" id="preset-btns">
       <button class="preset-btn active" data-preset="binary">BINARY+</button>
       <button class="preset-btn" data-preset="beaver3">BEAVER3</button>
@@ -440,7 +440,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
     // State label above triangle
     ctx.fillStyle = '#7b2cbf';
-    ctx.font = 'bold ' + (isMobile ? 14 : 18) + 'px "Orbitron", sans-serif';
+    ctx.font = 'bold ' + (isMobile ? 14 : 18) + 'px "Space Grotesk", sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
     ctx.fillText('STATE: ' + state, headX, triY - 6);
@@ -523,7 +523,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
     // Label
     ctx.fillStyle = 'rgba(255,255,255,0.12)';
-    ctx.font = '10px "Orbitron", sans-serif';
+    ctx.font = '10px "Space Grotesk", sans-serif';
     ctx.textAlign = 'left';
     ctx.fillText('HISTORY', 12, startY + 16);
   }

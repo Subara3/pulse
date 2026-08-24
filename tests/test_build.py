@@ -116,6 +116,26 @@ def test_required_files() -> bool:
     return True
 
 
+def test_policy() -> bool:
+    """scripts/check_policy.py をビルドの一部として必ず通す。
+
+    配色・必須include・分類・リンク切れは、CLAUDE.md に書くだけでは守られない。
+    ここで落とす。"""
+    print("Checking site policy...")
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts" / "check_policy.py")],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        cwd=str(ROOT),
+    )
+    output = (result.stdout or "") + (result.stderr or "")
+    for line in output.strip().splitlines():
+        print("  " + line)
+    return result.returncode == 0
+
+
 def main() -> int:
     print("=" * 50)
     print("PULSE build checks")
@@ -130,6 +150,7 @@ def main() -> int:
     results.append(test_json_syntax())
     results.append(test_contents_json())
     results.append(test_required_files())
+    results.append(test_policy())
 
     print("=" * 50)
     if all(results):

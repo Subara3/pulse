@@ -26,7 +26,7 @@
   background: rgba(255,255,255,0.05);
   border: 1px solid rgba(255,255,255,0.2);
   color: rgba(255,255,255,0.62);
-  font-family: var(--font-display, "Orbitron", sans-serif);
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
   font-size: 0.7rem;
   cursor: pointer;
   border-radius: 4px;
@@ -88,7 +88,7 @@
 .slider-label,
 .ctrl-label {
   color: rgba(255,255,255,0.56);
-  font-family: var(--font-display, "Orbitron", sans-serif);
+  font-family: var(--font-display, "Space Grotesk", sans-serif);
   font-size: 0.65rem;
   letter-spacing: 0.05em;
 }

@@ -8,9 +8,9 @@ $pageTitle = 'HOPFIELD - PULSE';
 $pageDesc = 'ホップフィールドネットワーク。ヘブ則で記憶したパターンへ、ノイズから自発的に収束する連想記憶の可視化。';
 $pageCanonical = 'https://pulse.subara3.com/hopfield.php';
 $extraStyle = '
-  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Orbitron",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
+  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
   #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Orbitron",monospace;letter-spacing:.12em}
+  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
   canvas{cursor:crosshair}
 ';
 
@@ -361,7 +361,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
         }
 
         ctx.fillStyle = 'rgba(255,255,255,0.3)';
-        ctx.font = '9px Orbitron, monospace';
+        ctx.font = '9px Space Grotesk, monospace';
         ctx.textAlign = 'center';
         ctx.fillText('P' + (p + 1), tx + thumbSize / 2, thumbY + thumbSize + 12);
       }
@@ -369,12 +369,12 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
     if (recalling) {
       ctx.fillStyle = 'rgba(0,245,212,0.15)';
-      ctx.font = '12px Orbitron, monospace';
+      ctx.font = '12px Space Grotesk, monospace';
       ctx.textAlign = 'center';
       ctx.fillText('RECALLING...', W / 2, gridY - 15);
     } else if (converged) {
       ctx.fillStyle = 'rgba(0,245,212,0.4)';
-      ctx.font = '12px Orbitron, monospace';
+      ctx.font = '12px Space Grotesk, monospace';
       ctx.textAlign = 'center';
       ctx.fillText('CONVERGED', W / 2, gridY - 15);
     }

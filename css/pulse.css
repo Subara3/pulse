@@ -1,0 +1,615 @@
+/* =========================================================================
+   PULSE Design System  —  2026-08 リフォーム版
+   ここがサイト全体の唯一の基準。ページ側の $extraStyle はここを上書きせず、
+   ここに無いページ固有の装飾だけを足すこと。
+   ========================================================================= */
+
+/* ---------------------------------------------------------------- tokens */
+:root {
+  /* 面 —— 奥から手前へ */
+  --ink-0: #07070b;   /* ページ最奥 */
+  --ink-1: #0a0a0f;   /* ブランド背景（Canvasページの基準色。変更禁止） */
+  --ink-2: #101017;   /* セクション面 */
+  --ink-3: #16161f;   /* カード面 */
+  --ink-4: #1d1d28;   /* カードhover */
+
+  /* 線 */
+  --line:        rgba(255, 255, 255, 0.07);
+  --line-mid:    rgba(255, 255, 255, 0.13);
+  --line-strong: rgba(255, 255, 255, 0.24);
+
+  /* 文字 */
+  --text:   #e9e9ef;
+  --text-2: #9b9baa;
+  --text-3: #6b6b7a;
+
+  /* ブランド色 */
+  --teal:        #00f5d4;
+  --teal-soft:   rgba(0, 245, 212, 0.12);
+  --teal-line:   rgba(0, 245, 212, 0.32);
+  --violet:      #7b2cbf;   /* 面・装飾用（暗いので文字には使わない） */
+  --violet-lit:  #b58cff;   /* 文字・線用に持ち上げた紫 */
+  --violet-soft: rgba(155, 108, 255, 0.14);
+
+  /* 既存ページ互換エイリアス（195ページが参照しているので消さないこと） */
+  --bg-primary: var(--ink-1);
+  --bg-secondary: var(--ink-2);
+  --bg-card: var(--ink-3);
+  --text-primary: var(--text);
+  --text-secondary: var(--text-2);
+  --accent: var(--teal);
+  --accent-secondary: var(--violet);
+  --pulse-glow: rgba(0, 245, 212, 0.3);
+  --echo-color: var(--teal);
+  --echo-glow: rgba(0, 245, 212, 0.4);
+  --null-color: var(--violet-lit);
+  --null-glow: rgba(155, 108, 255, 0.35);
+
+  /* 書体 */
+  --font-display: 'Space Grotesk', 'Zen Kaku Gothic New', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-body: 'Zen Kaku Gothic New', 'Space Grotesk', sans-serif;
+  --font-serif: 'Shippori Mincho', serif;
+
+  /* 寸法 */
+  --maxw: 1240px;
+  --gutter: clamp(1.15rem, 4vw, 2.75rem);
+  --radius: 4px;         /* 角丸は最小限。計測器のような直線を基調にする */
+  --radius-lg: 8px;
+
+  /* 動き */
+  --ease: cubic-bezier(0.16, 0.84, 0.44, 1);
+  --dur: 0.32s;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  background: var(--ink-1);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.85;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--teal); color: var(--ink-0); }
+
+a { color: inherit; }
+
+:where(a, button, input, textarea, select):focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 3px;
+}
+
+img, video { max-width: 100%; display: block; }
+
+/* ------------------------------------------------------------ 方眼の地色 */
+/* 実験ノートの方眼。主張しない濃度で、暗闇に「面」があることだけ伝える。 */
+.paper {
+  position: relative;
+  background-color: var(--ink-1);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: 44px 44px;
+}
+.paper::after {
+  /* 粒状ノイズ。平坦なダークUIの「のっぺり」を殺す */
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+}
+
+/* ----------------------------------------------------------- typography */
+.display {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(3.4rem, 15vw, 9.5rem);
+  line-height: 0.88;
+  letter-spacing: 0.02em;
+  color: var(--text);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1.22;
+  letter-spacing: 0.005em;
+}
+
+.h-lg { font-size: clamp(1.7rem, 4.2vw, 2.5rem); }
+.h-md { font-size: clamp(1.2rem, 2.6vw, 1.55rem); }
+.h-sm { font-size: clamp(1rem, 2vw, 1.15rem); }
+
+/* 計測ラベル。セクション見出しの上に置く小さなモノスペース */
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--teal);
+}
+.eyebrow::before {
+  content: '';
+  width: 22px;
+  height: 1px;
+  background: var(--teal);
+  flex: none;
+}
+.eyebrow--muted { color: var(--text-3); }
+.eyebrow--muted::before { background: var(--text-3); }
+
+.mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.lede {
+  font-size: clamp(0.98rem, 1.6vw, 1.12rem);
+  color: var(--text-2);
+  line-height: 2;
+  max-width: 46ch;
+}
+
+.muted { color: var(--text-2); }
+.dim { color: var(--text-3); }
+
+/* --------------------------------------------------------------- layout */
+.wrap {
+  width: 100%;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding-inline: var(--gutter);
+}
+.wrap--narrow { max-width: 780px; }
+
+.section { padding-block: clamp(3.5rem, 9vw, 7rem); }
+.section--tight { padding-block: clamp(2.2rem, 5vw, 3.5rem); }
+
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: clamp(1.4rem, 3vw, 2.2rem);
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+.section-head p { margin-top: 0.55rem; }
+
+.rule { height: 1px; background: var(--line); border: 0; }
+
+/* --------------------------------------------------------------- button */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.82rem 1.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--text);
+  background: transparent;
+  border: 1px solid var(--line-mid);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease),
+              color var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.btn:hover {
+  border-color: var(--teal-line);
+  background: var(--teal-soft);
+  color: var(--teal);
+  transform: translateY(-1px);
+}
+.btn--primary {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: var(--ink-0);
+  font-weight: 700;
+}
+.btn--primary:hover {
+  background: #5affe4;
+  border-color: #5affe4;
+  color: var(--ink-0);
+}
+.btn--ghost { border-color: transparent; color: var(--text-2); }
+.btn--ghost:hover { border-color: var(--line-mid); background: transparent; }
+
+/* ----------------------------------------------------------------- chip */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.42rem 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  color: var(--text-2);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--dur) var(--ease);
+}
+.chip:hover { border-color: var(--line-strong); color: var(--text); }
+.chip[aria-pressed="true"],
+.chip.is-on {
+  color: var(--ink-0);
+  background: var(--teal);
+  border-color: var(--teal);
+  font-weight: 700;
+}
+.chip .n { opacity: 0.55; font-size: 0.66rem; }
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-radius: 2px;
+  border: 1px solid var(--line-mid);
+  color: var(--text-3);
+}
+.badge--new {
+  color: var(--ink-0);
+  background: var(--teal);
+  border-color: var(--teal);
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------- 作品タイル (核) */
+/* アーカイブと各所で使い回す、プレビュー動画つきのタイル。 */
+.tile {
+  position: relative;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  background: var(--ink-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease),
+              background var(--dur) var(--ease);
+}
+.tile:hover,
+.tile:focus-visible {
+  border-color: var(--teal-line);
+  background: var(--ink-3);
+  transform: translateY(-3px);
+}
+
+.tile-media {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  background: var(--ink-0);
+  overflow: hidden;
+}
+.tile-media video,
+.tile-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.88;
+  transition: opacity var(--dur) var(--ease), transform 0.6s var(--ease);
+}
+.tile:hover .tile-media video,
+.tile:hover .tile-media img { opacity: 1; transform: scale(1.03); }
+
+.tile-media--empty {
+  display: grid;
+  place-items: center;
+  color: var(--text-3);
+  font-size: 1.6rem;
+}
+
+.tile-body { padding: 0.85rem 0.95rem 1rem; }
+
+.tile-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.05em;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.tile:hover .tile-title { color: var(--teal); }
+
+.tile-desc {
+  margin-top: 0.4rem;
+  font-size: 0.775rem;
+  line-height: 1.75;
+  color: var(--text-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.tile-foot {
+  margin-top: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  color: var(--text-3);
+  text-transform: uppercase;
+}
+
+/* 作品グリッド */
+.tile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
+  gap: clamp(0.7rem, 1.6vw, 1.15rem);
+}
+.tile-grid--wide { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); }
+
+/* 横スクロールのレール（NEW など少数を見せる用） */
+.rail {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(258px, 1fr);
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 0.75rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+.rail > * { scroll-snap-align: start; }
+.rail::-webkit-scrollbar { height: 6px; }
+.rail::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 3px; }
+
+/* ------------------------------------------------------- コレクション札 */
+.collections {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+}
+.collection {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 1.35rem 1.3rem 1.5rem;
+  background: var(--ink-1);
+  text-decoration: none;
+  color: inherit;
+  overflow: hidden;
+  transition: background var(--dur) var(--ease);
+}
+.collection:hover { background: var(--ink-2); }
+.collection::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 2px;
+  background: var(--teal);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--dur) var(--ease);
+}
+.collection:hover::after { transform: scaleX(1); }
+
+.collection-key {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.22em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  display: flex;
+  justify-content: space-between;
+}
+.collection-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.22rem;
+  letter-spacing: 0.01em;
+}
+.collection:hover .collection-name { color: var(--teal); }
+.collection-promise {
+  font-size: 0.8rem;
+  line-height: 1.8;
+  color: var(--text-2);
+}
+.collection-strip {
+  margin-top: 0.35rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+}
+.collection-strip img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  opacity: 0.42;
+  filter: saturate(0.8);
+  transition: opacity var(--dur) var(--ease), filter var(--dur) var(--ease);
+}
+.collection:hover .collection-strip img { opacity: 0.95; filter: none; }
+
+/* -------------------------------------------------------------- 共通ナビ */
+.site-head {
+  position: sticky;
+  top: 0;
+  z-index: 900;
+  background: rgba(10, 10, 15, 0.82);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--line);
+}
+.site-head-in {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0.85rem var(--gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.34em;
+  color: var(--text);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.wordmark .dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 10px var(--teal);
+  animation: beat 2.4s var(--ease) infinite;
+}
+@keyframes beat {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  45% { transform: scale(0.55); opacity: 0.45; }
+}
+
+.site-nav { display: flex; align-items: center; gap: 0.35rem; }
+.site-nav a {
+  padding: 0.5rem 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.73rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  text-decoration: none;
+  border-radius: var(--radius);
+  transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.site-nav a:hover { color: var(--text); background: var(--ink-2); }
+.site-nav a.is-current { color: var(--teal); }
+
+@media (max-width: 620px) {
+  .wordmark { letter-spacing: 0.2em; font-size: 0.95rem; }
+  .site-nav a { padding: 0.45rem 0.5rem; font-size: 0.66rem; letter-spacing: 0.08em; }
+}
+
+/* ------------------------------------------------------------- フッター */
+.site-foot {
+  border-top: 1px solid var(--line);
+  background: var(--ink-0);
+  padding-block: clamp(2.5rem, 6vw, 4rem);
+}
+.foot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 2rem;
+}
+.foot-col h4 {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 0.9rem;
+}
+.foot-col ul { list-style: none; display: grid; gap: 0.5rem; }
+.foot-col a {
+  font-size: 0.85rem;
+  color: var(--text-2);
+  text-decoration: none;
+  transition: color var(--dur) var(--ease);
+}
+.foot-col a:hover { color: var(--teal); }
+.foot-bottom {
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.5rem;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: var(--text-3);
+}
+
+/* ------------------------------------------------------------- 広告枠 */
+.ad-slot {
+  padding-block: 2rem;
+  text-align: center;
+}
+.ad-slot .ad-label {
+  font-family: var(--font-mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  color: var(--text-3);
+  margin-bottom: 0.5rem;
+}
+/* 旧クラス互換 */
+.ad-section { padding: 2rem; text-align: center; }
+.ad-container { max-width: 728px; margin: 0 auto; }
+.ad-label { font-size: 0.7rem; color: var(--text-3); margin-bottom: 0.5rem; }
+
+/* ----------------------------------------------------------- モーション */
+.fade-in {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+.fade-in.visible { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .fade-in { opacity: 1; transform: none; }
+}
+
+/* ------------------------------------------- 旧テンプレ互換（段階的撤去） */
+footer:not(.site-foot) {
+  background: var(--ink-1);
+  border-top: 1px solid var(--line);
+  padding: 3rem 2rem;
+  text-align: center;
+}
+header:not(.site-head) { padding: 2rem; border-bottom: 1px solid var(--line); }
+.header-inner {
+  max-width: var(--maxw); margin: 0 auto;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.logo-link {
+  font-family: var(--font-display); font-size: 1.3rem;
+  letter-spacing: 0.2em; color: var(--teal); text-decoration: none;
+}

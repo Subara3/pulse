@@ -8,9 +8,9 @@ $pageTitle = 'PID - PULSE';
 $pageDesc = 'PID制御のダイナミクス。比例・積分・微分の3つのゲインが制御応答を決める。5つのプリセットが描く軌跡の比較。';
 $pageCanonical = 'https://pulse.subara3.com/pid.php';
 $extraStyle = '
-  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Orbitron",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
+  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
   #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Orbitron",monospace;letter-spacing:.12em}
+  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
   canvas{cursor:crosshair}
 ';
 
@@ -206,7 +206,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       X.moveTo(cx + 22 + ox, cy - 5); X.lineTo(cx + 30 + ox, cy); X.lineTo(cx + 22 + ox, cy + 5);
     }
     X.stroke();
-    X.font = '9px Orbitron,monospace';
+    X.font = '9px Space Grotesk,monospace';
     X.fillStyle = 'rgba(0,245,212,0.12)';
     X.textAlign = 'center';
     X.fillText('WIND', cx, cy + 18);
@@ -263,7 +263,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       X.fillStyle = 'rgb(' + a.c[0] + ',' + a.c[1] + ',' + a.c[2] + ')';
       X.beginPath(); X.arc(a.x, a.y, 3.5, 0, Math.PI * 2); X.fill();
       if (agents.length > 1) {
-        X.font = '9px Orbitron,monospace';
+        X.font = '9px Space Grotesk,monospace';
         X.fillStyle = rgba(a.c, 0.65);
         X.textAlign = 'left';
         X.fillText(a.name, a.x + 10, a.y - 6);
@@ -292,7 +292,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     X.beginPath(); X.moveTo(gx, rY); X.lineTo(gx + gw, rY); X.stroke();
     X.setLineDash([]);
 
-    X.font = '8px Orbitron,monospace';
+    X.font = '8px Space Grotesk,monospace';
     X.fillStyle = 'rgba(255,255,255,0.22)';
     X.textAlign = 'left';
     X.fillText('STEP RESPONSE', gx + 5, gy + 11);
@@ -329,7 +329,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
     if (agents.length > 1) {
       var lx = gx + 5, ly = gy + gh + 22;
-      X.font = '8px Orbitron,monospace';
+      X.font = '8px Space Grotesk,monospace';
       for (var i = 0; i < agents.length; i++) {
         var a = agents[i];
         X.fillStyle = 'rgb(' + a.c[0] + ',' + a.c[1] + ',' + a.c[2] + ')';

@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "soliton", "label": "SOLITON", "reason": "非線形孤立波との対比"},
-      {"page": "lattice", "label": "LATTICE", "reason": "2D格子の波動方程式"},
-      {"page": "interference", "label": "INTERFERENCE", "reason": "波の干渉パターン"}
+      {
+        "page": "soliton",
+        "label": "SOLITON",
+        "reason": "非線形孤立波との対比"
+      },
+      {
+        "page": "lattice",
+        "label": "LATTICE",
+        "reason": "2D格子の波動方程式"
+      },
+      {
+        "page": "waves",
+        "label": "WAVES",
+        "reason": "波の干渉パターン"
+      }
     ]
   }
 }

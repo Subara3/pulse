@@ -19,7 +19,7 @@ body { background: #0a0a0f; overflow: hidden; }
 .ctrl input[type=range] { width: 120px; accent-color: #00f5d4; }
 .ctrl button { background: rgba(0,245,212,0.08); border: 1px solid rgba(0,245,212,0.3); color: #00f5d4; font-family: "JetBrains Mono", monospace; font-size: 0.65rem; padding: 0.35rem 0.8rem; cursor: pointer; letter-spacing: 0.1em; transition: background 0.2s; }
 .ctrl button:hover { background: rgba(0,245,212,0.18); }
-.title { position: fixed; bottom: 1.5rem; left: 1.5rem; font-family: "Orbitron", sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.12); letter-spacing: 0.2em; z-index: 10; pointer-events: none; }
+.title { position: fixed; bottom: 1.5rem; left: 1.5rem; font-family: "Space Grotesk", sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.12); letter-spacing: 0.2em; z-index: 10; pointer-events: none; }
 @media (max-width: 768px) {
   .ctrl input[type=range] { width: 90px; }
   .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }

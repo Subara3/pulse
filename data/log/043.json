@@ -8,8 +8,16 @@
     "enabled": true,
     "title": "関連コンテンツ",
     "items": [
-      {"page": "packing", "label": "PACKING", "reason": "円充填の別アプローチ"},
-      {"page": "fractal", "label": "FRACTAL", "reason": "数式から生まれる自己相似"}
+      {
+        "page": "packing",
+        "label": "CIRCLE PACKING",
+        "reason": "円充填の別アプローチ"
+      },
+      {
+        "page": "fractal",
+        "label": "FRACTAL",
+        "reason": "数式から生まれる自己相似"
+      }
     ]
   }
 }

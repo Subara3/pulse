@@ -8,9 +8,21 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "chaosgame", "label": "CHAOSGAME", "reason": "シェルピンスキーの別経路"},
-      {"page": "collatz", "label": "COLLATZ", "reason": "数論の視覚パターン"},
-      {"page": "modular", "label": "MODULAR", "reason": "剰余演算の幾何学"}
+      {
+        "page": "ifs",
+        "label": "IFS",
+        "reason": "シェルピンスキーの別経路"
+      },
+      {
+        "page": "collatz",
+        "label": "COLLATZ",
+        "reason": "数論の視覚パターン"
+      },
+      {
+        "page": "modular",
+        "label": "MODULAR",
+        "reason": "剰余演算の幾何学"
+      }
     ]
   }
 }

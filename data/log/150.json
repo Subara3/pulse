@@ -8,8 +8,16 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "optics", "label": "OPTICS", "reason": "反射の幾何光学"},
-      {"page": "slit", "label": "SLIT", "reason": "波動光学の干渉"}
+      {
+        "page": "refraction",
+        "label": "REFRACTION",
+        "reason": "反射の幾何光学"
+      },
+      {
+        "page": "slit",
+        "label": "SLIT",
+        "reason": "波動光学の干渉"
+      }
     ]
   }
 }

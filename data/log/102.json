@@ -8,9 +8,16 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "ripple", "label": "RIPPLE", "reason": "単一インパルス波の伝播"},
-      {"page": "waves", "label": "WAVES", "reason": "1次元波動の重ね合わせ"},
-      {"page": "slit", "label": "SLIT", "reason": "スリット回折も干渉の一形態"}
+      {
+        "page": "waves",
+        "label": "WAVES",
+        "reason": "単一インパルス波の伝播"
+      },
+      {
+        "page": "slit",
+        "label": "SLIT",
+        "reason": "スリット回折も干渉の一形態"
+      }
     ]
   }
 }

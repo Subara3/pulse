@@ -8,9 +8,16 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "ifs", "label": "IFS", "reason": "線形版の反復関数系"},
-      {"page": "clifford", "label": "CLIFFORD", "reason": "カオス軌道の点描"},
-      {"page": "chaosgame", "label": "CHAOSGAME", "reason": "確率的フラクタル生成"}
+      {
+        "page": "ifs",
+        "label": "IFS",
+        "reason": "線形版の反復関数系"
+      },
+      {
+        "page": "clifford",
+        "label": "CLIFFORD",
+        "reason": "カオス軌道の点描"
+      }
     ]
   }
 }

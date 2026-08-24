@@ -11,7 +11,7 @@ $pageCanonical = 'https://pulse.subara3.com/modular.php';
 $extraStyle = '
 body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 #canvas { position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
-.ui { position: fixed; z-index: 100; font-family: "Orbitron", "Segoe UI", sans-serif; pointer-events: none; }
+.ui { position: fixed; z-index: 100; font-family: "Space Grotesk", "Segoe UI", sans-serif; pointer-events: none; }
 .hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.34); font-size: 0.64rem; text-align: right; letter-spacing: 0.05em; line-height: 1.8; }
 .hud .v { color: #00f5d4; font-weight: 700; }
 #kDisplay {
@@ -22,7 +22,7 @@ body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 }
 #curveName {
   position: fixed; bottom: 6.5rem; left: 50%; transform: translateX(-50%);
-  font-family: "Orbitron", sans-serif; font-size: 0.72rem; font-weight: 700;
+  font-family: "Space Grotesk", sans-serif; font-size: 0.72rem; font-weight: 700;
   color: rgba(0, 245, 212, 0); z-index: 50; pointer-events: none;
   letter-spacing: 0.12em; transition: none; white-space: nowrap;
 }

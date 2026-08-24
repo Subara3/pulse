@@ -10,7 +10,7 @@ $pageCanonical = 'https://pulse.subara3.com/lsystemgarden.php';
 $extraStyle = '
 body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
 #canvas { position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; }
-.ui { position: fixed; z-index: 10; pointer-events: none; font-family: "Orbitron", "Segoe UI", sans-serif; letter-spacing: 0.05em; }
+.ui { position: fixed; z-index: 10; pointer-events: none; font-family: "Space Grotesk", "Segoe UI", sans-serif; letter-spacing: 0.05em; }
 .hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.36); font-size: 0.62rem; line-height: 1.8; text-align: right; }
 .hud .v { color: #00f5d4; font-weight: 700; }
 .info { left: 1rem; bottom: 1rem; color: rgba(255,255,255,0.32); font-size: 0.56rem; line-height: 1.7; max-width: min(72vw, 520px); }

@@ -11,7 +11,7 @@ $pageCanonical = 'https://pulse.subara3.com/catmap.php';
 $extraStyle = '
 body{background:#0a0a0f;min-height:100vh;overflow:hidden}
 #canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
-.hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Orbitron","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,.34);font-size:.64rem;text-align:right;letter-spacing:.05em;line-height:1.8}
+.hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Space Grotesk","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,.34);font-size:.64rem;text-align:right;letter-spacing:.05em;line-height:1.8}
 .hud .v{color:#00f5d4;font-weight:700}
 .hud .recur{color:#00f5d4;animation:pulse-glow 1s ease-in-out infinite}
 @keyframes pulse-glow{0%,100%{opacity:1}50%{opacity:.4}}
@@ -152,14 +152,14 @@ function initGrid() {
         var cx = x - N / 2, cy = y - N / 2;
         var dist = Math.sqrt(cx * cx + cy * cy) / (N * 0.35);
         if (dist < 1) {
-          rgb = hslToRgb(170 + dist * 60, 0.9, 0.5 - dist * 0.15);
+          rgb = hslToRgb(170 + Math.pow(dist, 1.8) * 115, 0.9, 0.5 - dist * 0.15);
         } else {
           rgb = hslToRgb(270, 0.5, 0.08);
         }
       } else {
         var qx = x < N / 2, qy = y < N / 2;
         if (qx && qy) rgb = hslToRgb(172, 0.8, 0.45);
-        else if (!qx && qy) rgb = hslToRgb(195, 0.8, 0.35);
+        else if (!qx && qy) rgb = hslToRgb(186, 0.8, 0.35);
         else if (qx && !qy) rgb = hslToRgb(260, 0.8, 0.35);
         else rgb = hslToRgb(280, 0.8, 0.25);
       }

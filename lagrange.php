@@ -8,9 +8,9 @@ $pageTitle = 'LAGRANGE - PULSE';
 $pageDesc = '制限三体問題のラグランジュ点。共回転座標系で有効ポテンシャルとゼロ速度曲線を描き、L1-L5の平衡点を体験する。';
 $pageCanonical = 'https://pulse.subara3.com/lagrange.php';
 $extraStyle = '
-  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Orbitron",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
+  #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
   #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Orbitron",monospace;letter-spacing:.12em}
+  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -325,7 +325,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       X.stroke();
 
       if (showLabels) {
-        X.font = '10px "Orbitron", monospace';
+        X.font = '10px "Space Grotesk", monospace';
         X.fillStyle = 'rgba(0,245,212,0.5)';
         X.fillText(lp.label, px + 9, py + 4);
       }
