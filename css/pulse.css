@@ -21,7 +21,7 @@
   /* 文字 */
   --text:   #e9e9ef;
   --text-2: #9b9baa;
-  --text-3: #6b6b7a;
+  --text-3: #7f7f8d;   /* #0a0a0f 上で 5.0:1。これ以上暗くすると WCAG AA を割る */
 
   /* ブランド色 */
   --teal:        #00f5d4;
@@ -470,6 +470,7 @@ h1, h2, h3 {
 .site-head-in {
   max-width: var(--maxw);
   margin: 0 auto;
+  min-height: 53px;   /* contents.php の .filterbar が top: 53px を前提にしている */
   padding: 0.85rem var(--gutter);
   display: flex;
   align-items: center;

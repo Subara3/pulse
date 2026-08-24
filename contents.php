@@ -55,6 +55,8 @@ $extraStyle = '
   font-family: var(--font-mono); font-size: .62rem; color: var(--text-3);
   border: 1px solid var(--line-mid); border-radius: 3px; padding: .1rem .32rem;
 }
+/* タッチ端末にキーボードショートカットの案内を出しても意味がない */
+@media (pointer: coarse) { .search kbd { display: none; } }
 .chips {
   display: flex; gap: .4rem; overflow-x: auto; padding-block: .35rem;
   scrollbar-width: none; margin-top: .6rem;
