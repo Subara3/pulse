@@ -2520,6 +2520,19 @@
     "group": "curve"
   },
   {
+    "page": "cyclic",
+    "title": "CYCLIC",
+    "desc": "巡回セルオートマトン。N個の状態が環状に捕食し合い、ランダムからスパイラル波が自発的に生まれる。",
+    "desc_en": "Cyclic cellular automaton. N states prey on each other in a ring, and spiral waves emerge spontaneously from noise.",
+    "icon": "fa-circle-notch",
+    "category": "格子のもの",
+    "category_en": "LATTICE",
+    "meta": "N-state · Moore · spiral wave",
+    "meta_en": "N-state · Moore · spiral wave",
+    "added": "2026-08-24",
+    "group": "lattice"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
