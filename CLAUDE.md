@@ -305,7 +305,7 @@ P.bright(c, f) // 明るくする
 2. インタラクション箇所で `SFX.play('音名')` を呼ぶ
 3. 連打が起きる箇所はスロットル付き: `SFX.play('音名', 50)` (50ms抑制)
 4. トグルボタンなし。常時有効。ユーザーはブラウザのタブミュートで制御
-5. **初期化パス（ページロード時に同期実行される関数）から `SFX.play` を呼ぶな。** sfx.phpはメインスクリプトの後に読み込まれるため `SFX is not defined` でスクリプト全体が死ぬ（Day 188/189で実際に発生）。初期化からも呼ばれ得る関数内では `if (window.SFX) SFX.play('音名')` とガードする
+5. **初期化パスから `SFX.play` を呼んでも落ちないようにしてある。** `header.php` が先に no-op のスタブ（`window.SFX`）を置き、`sfx.php` が本物に差し替える。以前は `const SFX` の TDZ により `SFX is not defined` でページ全体が死んでいた（Day 188/189 と domino で発生。2026-08-25 に恒久対処）。それでも初期化中の音は鳴らないので、鳴らしたい音は操作イベント側から呼ぶこと
 
 ### 利用可能な音
 | 音名 | 用途 | 例 |
@@ -630,6 +630,7 @@ P.bright(c, f) // 明るくする
 |---|---|---|
 | `scripts/check_policy.py` | 分類・必須include・配色リテラル・リンク切れ・孤児ページ | push 前 / CI（必須） |
 | `scripts/check_palette_render.py` | プレビュー動画の実ピクセルで配色を実測 | 手動（要 ffmpeg + Pillow） |
+| `reports/page-errors.json` | プレビュー生成中に各ページで出た JS 例外。**プレビューが真っ黒なページはまずここを見る** | CI（自動生成） |
 | `scripts/sync_claude_md_inventory.py` | このファイルの一覧を再生成 | CI |
 | `scripts/generate_previews.js` | プレビュー動画生成（頭5.6秒は捨てて「育った後」を撮る） | CI |
 | `scripts/reform_taxonomy.py` | 2026-08 の分類再編・重複統合の記録（再実行不要） | — |

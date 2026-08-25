@@ -28,7 +28,10 @@
 ?>
 
 <script>
-const SFX = (function() {
+/* const にすると TDZ が生まれ、sfx.php より前に走る初期化コードの
+   bare な SFX 参照が ReferenceError でページ全体を殺す。
+   header.php で入れたスタブを、ここで本物に差し替える。 */
+window.SFX = (function() {
   let audioCtx = null;
   let enabled = true;
   
@@ -222,5 +225,4 @@ const SFX = (function() {
     }
   };
 })();
-window.SFX = SFX;
 </script>

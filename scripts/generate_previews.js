@@ -23,6 +23,14 @@ const BASE_URL = process.env.PULSE_PREVIEW_BASE_URL || 'http://127.0.0.1:8787';
 const WARMUP_SEC = 5.6;
 const CLIP_SEC = 5.4;
 
+// 時間が経つほど画面が塗りつぶされるページは、早い時点を切り出す。
+// 放置すると一覧に「単色のタイル」が並ぶ。
+const WARMUP_OVERRIDES = {
+  langton: 1.4, atoms: 1.6, caustics: 1.6, erosion: 2.0,
+  marbling: 2.0, sand: 1.6, quasicrystal: 2.2, newton: 2.0,
+  quantum: 2.0, tongues: 2.4, reaction: 3.0, cyclic: 2.0,
+};
+
 // Per-page tone fixes to reduce highlight clipping (白飛び) on specific renders.
 const TONE_FILTERS = {
   newton: 'eq=brightness=-0.03:contrast=0.92:saturation=0.92:gamma=1.06',
@@ -31,25 +39,52 @@ const TONE_FILTERS = {
 };
 
 const INTERACTION_PRESETS = {
+  convection: [
+    { kind: 'drag', from: [200, 460], to: [760, 460], steps: 30 },
+    { kind: 'click', x: 300, y: 430 }, { kind: 'click', x: 660, y: 430 },
+  ],
+  excitable: [
+    { kind: 'click', x: 480, y: 270 }, { kind: 'click', x: 300, y: 180 },
+    { kind: 'click', x: 660, y: 360 }, { kind: 'drag', from: [420, 240], to: [540, 300], steps: 16 },
+  ],
+  venation: [
+    { kind: 'click', x: 480, y: 300 }, { kind: 'drag', from: [260, 160], to: [700, 400], steps: 30 },
+  ],
+  lightning: [
+    { kind: 'click', x: 300, y: 120 }, { kind: 'click', x: 660, y: 120 },
+    { kind: 'click', x: 480, y: 100 },
+  ],
+  evolution: [
+    { kind: 'click', x: 520, y: 500 }, { kind: 'click', x: 480, y: 270 },
+  ],
+  saw: [
+    { kind: 'click', x: 480, y: 270 }, { kind: 'click', x: 360, y: 200 },
+    { kind: 'click', x: 600, y: 340 },
+  ],
+  physics: [
+    { kind: 'click', x: 480, y: 200 }, { kind: 'click', x: 380, y: 160 },
+    { kind: 'click', x: 580, y: 160 },
+    { kind: 'drag', from: [420, 240], to: [620, 300], steps: 16 },
+  ],
+  orbital: [
+    { kind: 'click', x: 480, y: 270 }, { kind: 'click', x: 360, y: 220 },
+  ],
+  steiner: [
+    { kind: 'click', x: 360, y: 200 }, { kind: 'click', x: 620, y: 200 },
+    { kind: 'click', x: 480, y: 380 },
+  ],
+  domino: [
+    { kind: 'click', x: 480, y: 270 },
+  ],
   voronoi: [
     { kind: 'click', x: 480, y: 270 },
     { kind: 'click', x: 320, y: 220 },
     { kind: 'click', x: 640, y: 320 },
   ],
-  ripple: [
-    { kind: 'click', x: 480, y: 270 },
-    { kind: 'click', x: 360, y: 220 },
-    { kind: 'click', x: 600, y: 320 },
-    { kind: 'drag', from: [300, 180], to: [660, 340], steps: 22 },
-  ],
   sand: [
     { kind: 'click', x: 480, y: 270 },
     { kind: 'drag', from: [300, 180], to: [660, 360], steps: 26 },
     { kind: 'drag', from: [660, 180], to: [300, 360], steps: 26 },
-  ],
-  physics: [
-    { kind: 'click', x: 480, y: 270 },
-    { kind: 'drag', from: [420, 260], to: [620, 300], steps: 16 },
   ],
   fluidveil: [
     { kind: 'drag', from: [320, 200], to: [640, 320], steps: 24 },
@@ -60,17 +95,9 @@ const INTERACTION_PRESETS = {
   sort: [
     { kind: 'click', x: 520, y: 500 },
   ],
-  evolution: [
-    { kind: 'click', x: 520, y: 500 },
-    { kind: 'click', x: 420, y: 500 },
-  ],
   string: [
     { kind: 'click', x: 520, y: 500 },
     { kind: 'drag', from: [400, 250], to: [620, 260], steps: 18 },
-  ],
-  lissajous: [
-    { kind: 'drag', from: [350, 300], to: [610, 220], steps: 20 },
-    { kind: 'drag', from: [610, 220], to: [350, 300], steps: 20 },
   ],
   sandpile: [
     { kind: 'click', x: 480, y: 270 },
@@ -100,18 +127,9 @@ const INTERACTION_PRESETS = {
     { kind: 'click', x: 520, y: 500 },
     { kind: 'drag', from: [360, 260], to: [620, 260], steps: 18 },
   ],
-  drift: [
-    { kind: 'click', x: 480, y: 270 },
-    { kind: 'drag', from: [320, 220], to: [640, 320], steps: 22 },
-  ],
   tree: [
     { kind: 'click', x: 520, y: 500 },
     { kind: 'click', x: 420, y: 500 },
-  ],
-  sand: [
-    { kind: 'click', x: 480, y: 270 },
-    { kind: 'drag', from: [280, 180], to: [680, 340], steps: 30 },
-    { kind: 'drag', from: [680, 180], to: [280, 340], steps: 30 },
   ],
   pi: [
     { kind: 'click', x: 520, y: 500 },
@@ -233,6 +251,7 @@ function pagesFromContents() {
 
   const ok = [];
   const ng = [];
+  const jsErrors = {};
 
   for (const pageName of pages) {
     const pageTmp = path.join(TMP_DIR, pageName);
@@ -246,6 +265,13 @@ function pagesFromContents() {
       });
 
       const page = await context.newPage();
+
+      // 描画ループが例外で止まると、プレビューは「ただの黒い動画」になる。
+      // 黒さから推測するのではなく、原因そのものを記録する。
+      const pageErrors = [];
+      page.on('pageerror', (e) => pageErrors.push(String((e && e.message) || e)));
+      page.on('console', (m) => { if (m.type() === 'error') pageErrors.push(m.text()); });
+
       await page.goto(`${BASE_URL}/${pageName}.php?preview=1`, {
         waitUntil: 'domcontentloaded',
         timeout: 30000,
@@ -274,7 +300,8 @@ function pagesFromContents() {
       run('ffmpeg', [
         '-y',
         '-ss',
-        String(WARMUP_SEC),
+        String(WARMUP_OVERRIDES[pageName] !== undefined
+          ? WARMUP_OVERRIDES[pageName] : WARMUP_SEC),
         '-t',
         String(CLIP_SEC),
         '-i',
@@ -332,6 +359,10 @@ function pagesFromContents() {
         outJpg,
       ]);
 
+      if (pageErrors.length) {
+        jsErrors[pageName] = Array.from(new Set(pageErrors)).slice(0, 5);
+        console.log(`JSERROR ${pageName}: ${jsErrors[pageName][0]}`);
+      }
       ok.push(pageName);
       console.log(`ok ${pageName}`);
     } catch (e) {
@@ -342,7 +373,18 @@ function pagesFromContents() {
 
   await browser.close();
 
-  console.log(`\nDone. success=${ok.length}, failed=${ng.length}`);
+  const errPages = Object.keys(jsErrors);
+  if (errPages.length) {
+    fs.mkdirSync(path.join(ROOT, 'reports'), { recursive: true });
+    fs.writeFileSync(
+      path.join(ROOT, 'reports', 'page-errors.json'),
+      JSON.stringify(jsErrors, null, 1) + '\n'
+    );
+    console.log(`\nJavaScript errors on ${errPages.length} page(s):`);
+    for (const p of errPages) console.log(`- ${p}: ${jsErrors[p][0]}`);
+  }
+
+  console.log(`\nDone. success=${ok.length}, failed=${ng.length}, jsErrors=${errPages.length}`);
   if (ng.length) {
     console.log('Failed pages:');
     for (const x of ng) console.log(`- ${x.page}`);

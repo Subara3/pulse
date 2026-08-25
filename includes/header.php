@@ -39,6 +39,11 @@ if (!isset($ogImage)) $ogImage = 'https://pulse.subara3.com/img/ogp.png';
 <!-- Theme Color -->
 <meta name="theme-color" content="#0a0a0f">
 
+<!-- 効果音のスタブ。includes/sfx.php はページ本体スクリプトより後に読まれるため、
+     初期化中に SFX.play() が呼ばれると ReferenceError でページごと死ぬ。
+     先に無害な no-op を置いておき、sfx.php が本物に差し替える。 -->
+<script>window.SFX={play:function(){},toggle:function(){},isEnabled:function(){return false},stub:true};</script>
+
 <!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href="<?php echo $basePath; ?>favicon.svg">
 <link rel="apple-touch-icon" href="<?php echo $basePath; ?>favicon.svg">

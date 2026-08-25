@@ -175,7 +175,9 @@ function optimizeStep(){
     }
   }
 
-  for(var si=sn-1;si>=0;si--){
+  // 直前のループで steinerPts を splice しているため、sn は古い長さになっている。
+  // sn のまま回すと steinerPts[si] が undefined になり dist() で落ちる（ページ全体が停止）。
+  for(var si=steinerPts.length-1;si>=0;si--){
     var tooClose=false;
     for(var j=0;j<terminals.length;j++){
       if(dist(steinerPts[si],terminals[j])<0.015){tooClose=true;break;}
