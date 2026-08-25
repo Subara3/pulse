@@ -2533,6 +2533,19 @@
     "group": "lattice"
   },
   {
+    "page": "shear",
+    "title": "SHEAR",
+    "desc": "ケルビン・ヘルムホルツ不安定性。二層の流体がすれ違うとき、界面が渦を巻いて螺旋状に巻き上がる。",
+    "desc_en": "Kelvin-Helmholtz instability. Two fluid layers sliding past each other roll up into spiral vortices at the shear interface.",
+    "icon": "fa-water",
+    "group": "flow",
+    "category": "流れるもの",
+    "category_en": "FLOW",
+    "meta": "渦巻き上がり · せん断不安定性 · 渦度法",
+    "meta_en": "vortex roll-up · shear instability · vortex method",
+    "added": "2026-08-25"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
