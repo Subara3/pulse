@@ -2546,6 +2546,19 @@
     "added": "2026-08-25"
   },
   {
+    "page": "burningship",
+    "title": "BURNING SHIP",
+    "desc": "バーニングシップフラクタル。絶対値操作が対称性を破り、炎上する船のような非対称フラクタルが現れる。",
+    "desc_en": "Burning Ship fractal. Absolute value operations break the symmetry of the Mandelbrot formula, producing an asymmetric fractal resembling a ship ablaze.",
+    "icon": "fa-fire",
+    "group": "fractal",
+    "category": "繰り返すもの",
+    "category_en": "FRACTAL",
+    "meta": "非対称フラクタル · smooth coloring",
+    "meta_en": "asymmetric fractal · smooth coloring",
+    "added": "2026-08-26"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
