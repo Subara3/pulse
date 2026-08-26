@@ -151,3 +151,12 @@ body { overflow: hidden !important; }
 </style>
 </head>
 <body>
+<?php
+// サウンド。ページ本体のスクリプトより先に立てる必要があるので、ここで読む。
+// 各ページ末尾の require_once includes/sfx.php は同じパスなので二重には読まれない。
+// プレビュー撮影（?preview=1）では音もゲートも出さない。
+if (!$isPreview) {
+    require_once __DIR__ . '/sfx.php';
+    require_once __DIR__ . '/audio-consent.php';
+}
+?>

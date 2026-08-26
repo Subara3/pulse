@@ -228,7 +228,8 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     // Trace animation
     if (trace) {
       const dur = 3.0;
-      const p   = Math.min((ts - trace.t0) / 1000 / dur, 1);
+      // rAF timestamp can predate the click that set t0, which made idx negative
+      const p   = Math.min(Math.max((ts - trace.t0) / 1000 / dur, 0), 1);
       const n   = trace.pts.length;
       const idx = Math.floor(p * (n - 1));
       const col = MCSS[trace.mag];
