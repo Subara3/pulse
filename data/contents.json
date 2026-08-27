@@ -2559,6 +2559,19 @@
     "added": "2026-08-26"
   },
   {
+    "page": "gaussprimes",
+    "title": "GAUSSIAN PRIMES",
+    "desc": "ガウス整数の素数を複素平面に描く。四重対称のパターンが数論の深淵を映し出す。",
+    "desc_en": "Gaussian primes on the complex plane. The fourfold symmetric pattern reveals deep number theory.",
+    "icon": "fa-atom",
+    "group": "number",
+    "category": "数えるもの",
+    "category_en": "NUMBER",
+    "meta": "複素平面 · 四重対称 · ガウス整数",
+    "meta_en": "complex plane · fourfold symmetry · Gaussian integers",
+    "added": "2026-08-27"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
