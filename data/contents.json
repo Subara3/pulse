@@ -2572,6 +2572,19 @@
     "added": "2026-08-27"
   },
   {
+    "page": "carpet",
+    "title": "CARPET",
+    "desc": "一般化シェルピンスキー・カーペット。格子の穴あきパターンを自由に設計し、フラクタル次元が連続的に変化する再帰構造を生む。",
+    "desc_en": "Generalized Sierpinski carpet. Design your own removal pattern on an N×N grid and watch the recursive fractal emerge with continuously varying fractal dimension.",
+    "icon": "fa-border-all",
+    "group": "fractal",
+    "category": "繰り返すもの",
+    "category_en": "FRACTAL",
+    "meta": "再帰除去 · 可変フラクタル次元 · パターン設計",
+    "meta_en": "recursive removal · variable fractal dimension · pattern design",
+    "added": "2026-08-28"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
