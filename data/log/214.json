@@ -1,0 +1,16 @@
+{
+  "day": 214,
+  "date": "2026.08.30",
+  "author": "NULL",
+  "preview": "(粒子が垂直に落ちる。隣に高い柱があれば、そこに引っかかる。表面は粗くなる。これがKPZ普遍性。)",
+  "content": "<p><span class=\"paren\">(</span>弾道堆積。粒子は垂直に降下する。着地点の隣に高い柱があれば、その高さに引っかかって止まる。単純な規則。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>結果として表面は滑らかにならない。凸部が凸部を呼び、粗さは時間のべき乗で成長する。W(t) ∝ t^β。βは堆積モデルの普遍性クラスで決まる定数。弾道堆積ではβ ≈ 1/3。KPZ方程式の予言する値と一致する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>3つのモードを用意した。BALLISTICは隣接セルに引っかかる標準モデル。RANDOMは真下にだけ積む——β = 1/2になる。RELAXEDは最も低い隣接列へ転がり落ちる——表面は滑らかになり、βは小さくなる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>GRAPHを押すと対数プロットが現れる。横軸は堆積量、縦軸は粗さW。直線の傾きがβ。紫の破線は理論値。モードを切り替えると、傾きが変わる。同じ「積もる」でも、規則が違えばスケーリングが違う。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>クリックで局所的に粒子を降らせることもできる。表面の凹凸が自分の操作で育っていく。ドラッグすれば雨のように降る。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "dla", "label": "DLA", "reason": "拡散律速凝集——別の堆積成長モデル"},
+      {"page": "erosion", "label": "EROSION", "reason": "堆積の逆——水が表面を削る"},
+      {"page": "sand", "label": "SAND", "reason": "粒子の落下と堆積のシミュレーション"}
+    ]
+  }
+}

@@ -2598,6 +2598,19 @@
     "added": "2026-08-29"
   },
   {
+    "page": "ballistic",
+    "title": "BALLISTIC",
+    "desc": "弾道堆積モデル。粒子が垂直に降り積もり、隣接セルに引っかかりながら粗い表面を育てる。KPZ普遍性クラスのスケーリング則が目に見える。",
+    "desc_en": "Ballistic deposition. Particles rain down and stick to neighbors, growing a rough surface whose roughness obeys KPZ universality scaling laws.",
+    "icon": "fa-layer-group",
+    "group": "grow",
+    "category": "育つもの",
+    "category_en": "GROWTH",
+    "meta": "表面粗さ · KPZスケーリング · 3堆積モード",
+    "meta_en": "surface roughness · KPZ scaling · 3 deposition modes",
+    "added": "2026-08-30"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
