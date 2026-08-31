@@ -2611,6 +2611,19 @@
     "added": "2026-08-30"
   },
   {
+    "page": "tame",
+    "title": "TAME",
+    "desc": "カオス制御。ロジスティック写像のカオス軌道を微小な摂動で不安定周期軌道に安定化する。OGY法の可視化。",
+    "desc_en": "Chaos control. Tiny parameter perturbations stabilize unstable periodic orbits hidden in the logistic map's chaos — the OGY method tames disorder into order.",
+    "icon": "fa-crosshairs",
+    "group": "chaos",
+    "category": "予測できないもの",
+    "category_en": "CHAOS",
+    "meta": "ロジスティック写像 · OGY制御 · コブウェブ図",
+    "meta_en": "logistic map · OGY control · cobweb diagram",
+    "added": "2026-08-31"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
