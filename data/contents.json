@@ -2624,6 +2624,19 @@
     "added": "2026-08-31"
   },
   {
+    "page": "zeta",
+    "title": "ZETA",
+    "desc": "リーマンゼータ関数の領域彩色。非自明零点が臨界線Re(s)=1/2に並ぶ数論の深淵を覗き込む。",
+    "desc_en": "Domain coloring of the Riemann zeta function. Non-trivial zeros align on the critical line, revealing deep number-theoretic structure.",
+    "icon": "fa-infinity",
+    "group": "number",
+    "category": "数えるもの",
+    "category_en": "NUMBER",
+    "meta": "複素解析 · 領域彩色 · 臨界線",
+    "meta_en": "complex analysis · domain coloring · critical line",
+    "added": "2026-09-01"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
