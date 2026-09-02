@@ -2637,6 +2637,19 @@
     "added": "2026-09-01"
   },
   {
+    "page": "multibrot",
+    "title": "MULTIBROT",
+    "desc": "マルチブロ集合。z^d+cの冪乗dを連続的に変化させると、マンデルブロ集合が(d-1)回対称へ変形していく。",
+    "desc_en": "The Multibrot set. Smoothly vary the exponent d in z^d+c and watch the Mandelbrot set morph into (d-1)-fold symmetry.",
+    "icon": "fa-asterisk",
+    "group": "fractal",
+    "category": "繰り返すもの",
+    "category_en": "FRACTAL",
+    "meta": "d = 2.0–8.0 / Mandelbrot + Julia",
+    "meta_en": "d = 2.0–8.0 / Mandelbrot + Julia",
+    "added": "2026-09-02"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
