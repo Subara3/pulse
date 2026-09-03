@@ -2650,6 +2650,19 @@
     "added": "2026-09-02"
   },
   {
+    "page": "cascade",
+    "title": "CASCADE",
+    "desc": "ネットワーク上のカスケード故障。1つのノードが倒れると負荷が隣へ溢れ、連鎖的に崩壊が広がる。スケールフリーネットワークの構造的脆弱性。",
+    "desc_en": "Cascading failure on networks. One node falls, its load spills to neighbors, and collapse propagates. Scale-free networks are robust to random failure but fragile to targeted attack.",
+    "icon": "fa-burst",
+    "group": "mind",
+    "category": "探すもの",
+    "category_en": "MIND",
+    "meta": "3 modes / Barabási-Albert / load redistribution",
+    "meta_en": "3 modes / Barabási-Albert / load redistribution",
+    "added": "2026-09-03"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
