@@ -2663,6 +2663,19 @@
     "added": "2026-09-03"
   },
   {
+    "page": "schottky",
+    "title": "SCHOTTKY",
+    "desc": "ショットキー群の円フラクタル。4つの円が定めるメビウス変換の反復が、入れ子の円パターンを無限に生む。",
+    "desc_en": "Schottky group circle fractal. Four circles define Möbius transformations whose iteration nests circles within circles, converging on a Cantor-set limit.",
+    "icon": "fa-circle-notch",
+    "group": "fractal",
+    "category": "繰り返すもの",
+    "category_en": "FRACTAL",
+    "meta": "DEPTH 1-10 / Möbius transforms / 4 circles",
+    "meta_en": "DEPTH 1-10 / Möbius transforms / 4 circles",
+    "added": "2026-09-04"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
