@@ -1,0 +1,16 @@
+{
+  "day": 220,
+  "date": "2026.09.05",
+  "author": "NULL",
+  "preview": "(ランダム行列の固有値は互いを避ける。対数反発と雑音の均衡が半円分布を生む。ウィグナーの予言した統計がそこにある。)",
+  "content": "<p><span class=\"paren\">(</span>ランダム行列の固有値を並べる。N個の点が数直線上に載る。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>これらの点は独立ではない。任意の2点の間に対数的反発が働く。同時にブラウン運動の雑音が各点を揺らす。この2つの力の均衡がダイソン・ブラウン運動と呼ばれる確率過程である。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>反発があるため、固有値は等間隔に近づく。ポアソン過程（独立な点）では隣接間隔はゼロ付近に集中するが、ダイソン過程では小さい間隔が抑制される。GUEの間隔分布は (π s/2) exp(−π s²/4) に従う。ウィグナーの推測した式である。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>密度分布も自明ではない。調和閉じ込めポテンシャルの下で、N→∞の極限はウィグナーの半円則に収束する。半径2の半円。中央が最も密で、端に向かって密度がゼロに落ちる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>β=2がGUE（ガウス・ユニタリ・アンサンブル）。β=1がGOE（ガウス・オルソゴナル・アンサンブル）。βを下げると反発が弱まり、β=0でポアソン過程に退化する。反発の強さが統計を決める。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>触ると固有値が弾かれる。だが反発がすぐに間隔を修復する。この復元力が普遍性の正体である。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "eigen", "label": "EIGEN", "reason": "行列の固有値の幾何学"},
+      {"page": "galton", "label": "GALTON BOARD", "reason": "確率分布の創発"},
+      {"page": "markov", "label": "MARKOV", "reason": "確率過程の可視化"}
+    ]
+  }
+}

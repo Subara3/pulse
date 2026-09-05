@@ -2676,6 +2676,19 @@
     "added": "2026-09-04"
   },
   {
+    "page": "dyson",
+    "title": "DYSON",
+    "desc": "ランダム行列のダイソン・ブラウン運動。固有値が対数的に反発し合いながらゆらぎ、半円分布とウィグナー統計が創発する。",
+    "desc_en": "Dyson Brownian motion of random matrix eigenvalues. Logarithmic repulsion and thermal noise produce the Wigner semicircle law and level-repulsion statistics.",
+    "icon": "fa-wave-square",
+    "group": "number",
+    "category": "数えるもの",
+    "category_en": "NUMBER",
+    "meta": "GUE / GOE / Poisson · semicircle law · spacing",
+    "meta_en": "GUE / GOE / Poisson · semicircle law · spacing",
+    "added": "2026-09-05"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
