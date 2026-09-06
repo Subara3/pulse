@@ -2689,6 +2689,19 @@
     "added": "2026-09-05"
   },
   {
+    "page": "catastrophe",
+    "title": "CATASTROPHE",
+    "desc": "カスプ・カタストロフ。制御パラメータが滑らかに変わるとき、平衡状態が突然跳ぶ。ヒステリシスが分岐の幾何学を描き出す。",
+    "desc_en": "Cusp catastrophe. Smooth parameter changes cause sudden jumps in equilibrium state. Hysteresis traces the geometry of discontinuous bifurcation.",
+    "icon": "fa-bolt",
+    "group": "chaos",
+    "category": "予測できないもの",
+    "category_en": "CHAOS",
+    "meta": "CUSP / HYSTERESIS / FOLD",
+    "meta_en": "CUSP / HYSTERESIS / FOLD",
+    "added": "2026-09-06"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
