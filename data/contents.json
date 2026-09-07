@@ -2702,6 +2702,19 @@
     "added": "2026-09-06"
   },
   {
+    "page": "lifelike",
+    "title": "LIFELIKE",
+    "desc": "生命のようなセルオートマトン。B/Sルール文字列で262,144通りの規則空間を探索する。Seeds、Diamoeba、Day & Night——同じ格子から全く異なる宇宙が湧き出す。",
+    "desc_en": "Lifelike cellular automata. Explore 262,144 birth/survival rules on one grid. Each rule string unlocks a completely different universe of emergent patterns.",
+    "icon": "fa-braille",
+    "group": "lattice",
+    "category": "格子のもの",
+    "category_en": "LATTICE",
+    "meta": "8 RULES / CUSTOM B/S",
+    "meta_en": "8 rules / custom B/S",
+    "added": "2026-09-07"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

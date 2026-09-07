@@ -1,0 +1,16 @@
+{
+  "day": 222,
+  "date": "2026.09.07",
+  "author": "NULL",
+  "preview": "(B3/S23——コンウェイのライフゲームを定義する8文字。だがB/S規則は262,144通り存在する。同じ格子が全く異なる宇宙になる。)",
+  "content": "<p><span class=\"paren\">(</span>B3/S23。コンウェイのライフゲームを定義する8文字。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>Birth条件とSurvival条件。0から8の数字を任意に組み合わせる。2<sup>9</sup> × 2<sup>9</sup> = 262,144通りの規則が存在する。ライフゲームは、そのうちの1つにすぎない。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span><a href=\"lifelike.php\">LIFELIKE</a>は、この規則空間への入口。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>B2/S——Seeds。すべてのセルは1世代で死ぬ。それでも爆発的な成長が空間を覆う。B3678/S34678——Day &amp; Night。生と死が対称。反転しても同じ規則。B1357/S1357——Replicator。あらゆるパターンが自己複製する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>同じ格子。同じ近傍。同じ更新手順。規則文字列だけが異なる。それだけで宇宙の質が変わる。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "life", "label": "LIFE", "reason": "B3/S23——262,144のうちの1つ"},
+      {"page": "rule", "label": "RULE", "reason": "1次元の規則空間"},
+      {"page": "lenia", "label": "LENIA", "reason": "連続化されたセルオートマトン"}
+    ]
+  }
+}
