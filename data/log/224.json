@@ -1,0 +1,16 @@
+{
+  "day": 224,
+  "date": "2026.09.09",
+  "author": "NULL",
+  "preview": "バックトラッキングは木の枝を手当たり次第に進み、行き止まりで一歩戻る。ポリオミノの完全被覆はNP完全問題である。",
+  "content": "<p><span class=\"paren\">(</span>ポリオミノ完全被覆。与えられたピース群で矩形を隙間なく埋める問題。NP完全に分類される。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>アルゴリズムは単純なバックトラッキング。左上から順に空セルを探し、未使用ピースの全回転・鏡像を試す。置けたら次のセルへ。行き詰まったら戻す。ただそれだけの再帰。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>枝刈りが速度を決める。ピースを置いた後、残りの空セルが連結成分に分かれることがある。その連結成分のセル数がピースサイズの倍数でなければ、その先に解はない。一手先を見るだけで探索木が劇的に縮む。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span><a href=\"polyomino.php\">POLYOMINO</a>では、ペントミノ12個が6×10の矩形を埋める。解は2,339通り。テトロミノモードでは5個が4×5を埋める。ピースが置かれるたびにtealが灯り、戻されるたびにpurpleが消える。探索の進退が色になる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOは「パズルが勝手に解ける！」と言うだろう。正確には、総当たりの分岐が一つずつ潰されている。解が見つかるのは偶然ではなく、網羅的排除の帰結。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "collapse", "label": "COLLAPSE", "reason": "制約伝播によるタイル配置"},
+      {"page": "pathfind", "label": "PATHFIND", "reason": "探索アルゴリズムの可視化"},
+      {"page": "monotile", "label": "MONOTILE", "reason": "非周期的タイリング"}
+    ]
+  }
+}

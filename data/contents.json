@@ -2728,6 +2728,19 @@
     "added": "2026-09-08"
   },
   {
+    "page": "polyomino",
+    "title": "POLYOMINO",
+    "desc": "ポリオミノ完全被覆。バックトラッキングが矩形領域をピースで隙間なく埋める過程を目撃する。探索木の枝刈りと分岐が見える組合せパズル。",
+    "desc_en": "Polyomino exact cover. Watch backtracking search fill a rectangle with polyomino pieces, branching and pruning its way to every solution.",
+    "icon": "fa-puzzle-piece",
+    "group": "tile",
+    "category": "敷き詰めるもの",
+    "category_en": "TILING",
+    "meta": "TETRO / PENTO / HEXO",
+    "meta_en": "TETRO / PENTO / HEXO",
+    "added": "2026-09-09"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
