@@ -2741,6 +2741,19 @@
     "added": "2026-09-09"
   },
   {
+    "page": "reptile",
+    "title": "REPTILE",
+    "desc": "レプタイル。自分自身の拡大コピーを敷き詰められる形。L字タイルが4つの分身に分裂し、自己相似のモザイクが無限に広がる。",
+    "desc_en": "Rep-tile. A shape that tiles a scaled copy of itself. L-trominoes split into four clones, and a self-similar mosaic unfolds infinitely.",
+    "icon": "fa-clone",
+    "group": "tile",
+    "category": "敷き詰めるもの",
+    "category_en": "TILING",
+    "meta": "L-TROMINO / TRIANGLE / AUTO INFLATE",
+    "meta_en": "L-TROMINO / TRIANGLE / AUTO INFLATE",
+    "added": "2026-09-10"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
