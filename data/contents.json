@@ -2754,6 +2754,19 @@
     "added": "2026-09-10"
   },
   {
+    "page": "kalman",
+    "title": "KALMAN",
+    "desc": "カルマンフィルタ。ノイズを含む観測から隠れた運動状態を推定し、予測と更新が不確かさの楕円を収束させていく。",
+    "desc_en": "Kalman filter. Estimate hidden motion from noisy observations as prediction and update steps tighten the uncertainty ellipse.",
+    "icon": "fa-crosshairs",
+    "group": "mind",
+    "category": "探すもの",
+    "category_en": "SEARCH",
+    "meta": "状態推定 · 観測ノイズ · 不確かさ",
+    "meta_en": "state estimation · sensor noise · uncertainty",
+    "added": "2026-09-11"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
