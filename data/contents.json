@@ -2767,6 +2767,19 @@
     "added": "2026-09-11"
   },
   {
+    "page": "fourcolor",
+    "title": "FOUR COLOR",
+    "desc": "四色定理。平面グラフを4色で塗り分ける——バックトラッキングが衝突を見つけては戻り、必ず解にたどり着く。",
+    "desc_en": "Four color theorem. Backtracking colors a planar graph with just four colors, retreating at conflicts until a valid coloring emerges.",
+    "icon": "fa-palette",
+    "group": "mind",
+    "category": "探すもの",
+    "category_en": "SEARCH",
+    "meta": "グラフ彩色 · バックトラッキング · 制約充足",
+    "meta_en": "graph coloring · backtracking · constraint satisfaction",
+    "added": "2026-09-12"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
