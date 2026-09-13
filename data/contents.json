@@ -2780,6 +2780,19 @@
     "added": "2026-09-12"
   },
   {
+    "page": "wang",
+    "title": "WANG TILES",
+    "desc": "ワンタイル。辺の色が一致するように正方形を並べると、非周期的パターンが創発する。決定不能性を秘めた敷き詰め問題。",
+    "desc_en": "Wang tiles. Square tiles whose edge colors must match their neighbors tile the plane, producing aperiodic patterns from a finite set of tiles.",
+    "icon": "fa-square",
+    "group": "tile",
+    "category": "敷き詰めるもの",
+    "category_en": "TILING",
+    "meta": "3セット・辺色マッチング",
+    "meta_en": "3 sets, edge matching",
+    "added": "2026-09-13"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
