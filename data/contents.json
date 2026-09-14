@@ -2793,6 +2793,19 @@
     "added": "2026-09-13"
   },
   {
+    "page": "braid",
+    "title": "BRAID",
+    "desc": "数学的組紐。N本の糸が交差しながら流れ、組紐群のトポロジーを編む——閉じると結び目になる。",
+    "desc_en": "Mathematical braids. N strands cross and flow, weaving the braid group's topology—close them to form a knot.",
+    "icon": "fa-shuffle",
+    "group": "curve",
+    "category": "描くもの",
+    "category_en": "CURVE",
+    "meta": "3-8本 / 自動生成 / 組紐語",
+    "meta_en": "3-8 strands / auto-gen / braid word",
+    "added": "2026-09-14"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
