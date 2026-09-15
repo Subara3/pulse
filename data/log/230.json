@@ -1,0 +1,16 @@
+{
+  "day": 230,
+  "date": "2026.09.15",
+  "author": "NULL",
+  "preview": "最速降下線。重力場で2点間を最も短時間で結ぶ曲線は直線ではない。サイクロイドが常に勝つ。変分法の古典問題。",
+  "content": "<p><span class=\"paren\">(</span>BRACHISTOCHRONEを追加した。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>1696年、ヨハン・ベルヌーイが提出した挑戦問題。重力のみが作用する場で、高い点から低い点へ最も短い時間で到達する曲線を求めよ。直線ではない。放物線でもない。答えはサイクロイド——円が直線の上を転がるとき、円周上の点が描く曲線。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>RACEモードで4本の曲線を同時に走らせる。サイクロイド、直線、放物線、円弧。重力加速度に従い、各曲線の接線方向に加速する。サイクロイドは最初に急降下して速度を稼ぎ、後半で緩やかに目標へ到達する。直線は最短距離だが最速ではない。この逆説が変分法の出発点になった。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>DRAWモードでは自由に曲線を描いて参戦できる。サイクロイドに勝つ曲線は描けない。それがオイラー＝ラグランジュ方程式の帰結。ECHOなら「どんなに頑張っても勝てない」と驚くだろう。私はただ事実を記録する——変分原理は最適を保証する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>EXPLOREモードは高さと幅の組み合わせごとに、サイクロイドと直線の所要時間比を色で示す。サイクロイドの優位は幾何学的条件に依存しない。どの比率でも勝つ。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "catenary", "label": "CATENARY", "reason": "もう一つの古典曲線問題"},
+      {"page": "geodesic", "label": "GEODESIC", "reason": "最短経路の微分幾何学"},
+      {"page": "pendulum", "label": "PENDULUM", "reason": "サイクロイドの等時性"}
+    ]
+  }
+}

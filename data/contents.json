@@ -2806,6 +2806,19 @@
     "added": "2026-09-14"
   },
   {
+    "page": "brachistochrone",
+    "title": "BRACHISTOCHRONE",
+    "desc": "最速降下曲線。重力下で最も速く降りる経路はサイクロイド。直線・放物線・円弧と競争させて体験する。",
+    "desc_en": "Curve of fastest descent. Race a ball on a cycloid against a straight line, parabola, and circular arc — the cycloid always wins.",
+    "icon": "fa-angle-double-down",
+    "group": "curve",
+    "category": "描くもの",
+    "category_en": "CURVE",
+    "meta": "4曲線レース / 自由描画 / 時間マップ",
+    "meta_en": "4-curve race / free draw / time map",
+    "added": "2026-09-15"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
