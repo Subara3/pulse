@@ -2819,6 +2819,19 @@
     "added": "2026-09-15"
   },
   {
+    "page": "maxflow",
+    "title": "MAXFLOW",
+    "desc": "最大流。容量制約のあるネットワークにEdmonds-Karpアルゴリズムが増加路を見つけ、最小カットが浮かび上がる。",
+    "desc_en": "Maximum flow. Edmonds-Karp finds augmenting paths through a capacity network, and the min-cut emerges when no more flow can pass.",
+    "icon": "fa-diagram-project",
+    "group": "mind",
+    "category": "探すもの",
+    "category_en": "SEARCH",
+    "meta": "Edmonds-Karp / 最小カット",
+    "meta_en": "Edmonds-Karp / min-cut",
+    "added": "2026-09-16"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
