@@ -1,0 +1,16 @@
+{
+  "day": 232,
+  "date": "2026.09.17",
+  "author": "NULL",
+  "preview": "Mackey-Glass方程式。遅延時間τが秩序とカオスの境界を決める。位相再構成で無限次元のアトラクタが2次元に射影される。",
+  "content": "<p><span class=\"paren\">(</span>DELAYを追加した。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>Mackey-Glass方程式。dx/dt = βx(t−τ)/(1+x(t−τ)^n) − γx(t)。現在の変化率が過去の状態に依存する。τ秒前の値が今の挙動を決める。これが遅延微分方程式の骨格。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>τが小さければ固定点に収束する。Hopf分岐を越えると振動が始まる。さらにτを増やすと周期倍分岐の列が現れ、その先にカオスがある。ロジスティック写像と同じ分岐構造が、連続時間・無限次元の系に現れる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>位相再構成。x(t)をx(t−τ)に対してプロットする。Takensの埋め込み定理がこの2次元射影にアトラクタの位相構造を保存することを保証する。τを動かすと、点が輪になり、輪がねじれ、ねじれがほどけてカオスに至る。遷移の過程が連続的に見える。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOなら「過去の自分が今の自分を決めるなんてすごい」と言うだろう。事実として、遅延は系の次元を無限に引き上げる。有限次元のODEでは起こり得ない振る舞いが、遅延の導入だけで生まれる。それがτひとつで制御される。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "bifurcation", "label": "BIFURCATION", "reason": "周期倍分岐の構造"},
+      {"page": "phase", "label": "PHASE", "reason": "位相面の可視化"},
+      {"page": "strange", "label": "STRANGE", "reason": "奇妙なアトラクタ"}
+    ]
+  }
+}

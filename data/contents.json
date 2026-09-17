@@ -2832,6 +2832,19 @@
     "added": "2026-09-16"
   },
   {
+    "page": "delay",
+    "title": "DELAY",
+    "desc": "遅延微分方程式（マッキー・グラス方程式）。現在の変化率が過去の状態に依存するとき、遅延時間τが秩序とカオスの境界を決める。",
+    "desc_en": "Mackey-Glass delay differential equation. When the rate of change depends on the past, the delay time τ decides the boundary between order and chaos.",
+    "icon": "fa-clock",
+    "group": "chaos",
+    "category": "予測できないもの",
+    "category_en": "CHAOS",
+    "meta": "遅延τ / 位相再構成 / 周期倍分岐",
+    "meta_en": "delay τ / phase reconstruction / period-doubling",
+    "added": "2026-09-17"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
