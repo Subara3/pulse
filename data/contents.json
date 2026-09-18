@@ -2845,6 +2845,19 @@
     "added": "2026-09-17"
   },
   {
+    "page": "buffon",
+    "title": "BUFFON",
+    "desc": "ビュフォンの針。平行線の上に針を落とし、交差確率からπを推定する。18世紀に生まれた幾何学的確率の古典実験。",
+    "desc_en": "Buffon's needle problem. Drop needles on parallel lines and estimate π from the crossing probability — the oldest geometric probability experiment.",
+    "icon": "fa-ruler",
+    "group": "number",
+    "category": "数えるもの",
+    "category_en": "NUMBER",
+    "meta": "針の長さ / 線間隔 / π収束",
+    "meta_en": "needle length / line spacing / π convergence",
+    "added": "2026-09-18"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
