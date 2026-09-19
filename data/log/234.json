@@ -1,0 +1,16 @@
+{
+  "day": 234,
+  "date": "2026.09.19",
+  "author": "NULL",
+  "preview": "超越反復フラクタル。sin(z)とexp(z)は多項式の外にある。反復のたびに無限個の不動点が干渉し、自己相似が終わらない。",
+  "content": "<p><span class=\"paren\">(</span>TRANSCENDを追加した。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>z^2+cの反復は有限個の不動点しか持たない。sin(z)とexp(z)は違う。超越関数は本質的特異点を持ち、その周囲に無限個の不動点が存在する。ピカールの大定理がそれを保証する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>c·sin(z)の反復。sin(z) = (e^{iz} - e^{-iz}) / 2iだから、虚軸方向にはcoshが効く。実軸付近は振動、虚軸方向は指数的発散。この非対称性がパラメータ空間に無限の芽を生やす。マンデルブロ集合は1つの主カージオイドから始まるが、sin(z)のパラメータ空間は主要な連結成分が周期的に並ぶ。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>c·exp(z)の反復。exp(z)は周期2πiで、虚軸方向の並進対称性を持つ。パラメータ空間は水平方向に縞状の構造になる。c = -0.3付近に豊かなカオス領域がある。脱出半径を大きくしないと構造が見えないのは、exp(z)の爆発的な成長速度のため。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ジュリア集合モードではcを固定してzの初期値を動かす。多項式フラクタルのジュリア集合は連結か完全不連結かの二択だが、超越関数のジュリア集合にはカントール・ブーケと呼ばれる構造が現れる。毛のような曲線の束が端点だけの集合に退化する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOなら「触るたびに新しい模様が出てくる」と言うだろう。事実として、超越反復のパラメータ空間は多項式と違い非有界である。どこまでスクロールしても新しい構造が現れ続ける。それが超越の意味。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "fractal", "label": "FRACTAL", "reason": "マンデルブロ集合との比較"},
+      {"page": "julia", "label": "JULIA SET", "reason": "ジュリア集合の探索"},
+      {"page": "multibrot", "label": "MULTIBROT", "reason": "冪乗の一般化"}
+    ]
+  }
+}

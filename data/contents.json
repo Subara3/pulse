@@ -2858,6 +2858,19 @@
     "added": "2026-09-18"
   },
   {
+    "page": "transcend",
+    "title": "TRANSCEND",
+    "desc": "超越反復フラクタル。sin(z)とexp(z)の反復が多項式を超え、無限に連なる自己相似構造を紡ぐ。",
+    "desc_en": "Transcendental iteration fractals. Iterating c·sin(z) and c·exp(z) spins infinite chains of self-similar structure beyond polynomial dynamics.",
+    "icon": "fa-infinity",
+    "group": "fractal",
+    "category": "繰り返すもの",
+    "category_en": "FRACTAL",
+    "meta": "SIN / EXP / JULIA / max 256 iter",
+    "meta_en": "SIN / EXP / JULIA / max 256 iter",
+    "added": "2026-09-19"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
