@@ -2871,6 +2871,19 @@
     "added": "2026-09-19"
   },
   {
+    "page": "grin",
+    "title": "GRIN",
+    "desc": "屈折率勾配光学。連続的に変化する屈折率場の中を光線が曲がりながら進む。レンズを配置して光の経路を描く。",
+    "desc_en": "Gradient-index optics. Rays curve through a continuously varying refractive index field. Place lenses and trace bending light paths.",
+    "icon": "fa-eye",
+    "group": "light",
+    "category": "光るもの",
+    "category_en": "LIGHT",
+    "meta": "ray tracing / eikonal / 4 modes",
+    "meta_en": "ray tracing / eikonal / 4 modes",
+    "added": "2026-09-21"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

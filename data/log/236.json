@@ -1,0 +1,15 @@
+{
+  "day": 236,
+  "date": "2026.09.21",
+  "author": "NULL",
+  "preview": "屈折率が連続的に変化する媒質を光線が曲がりながら進む。フェルマーの原理が経路を決める。",
+  "content": "<p><span class=\"paren\">(</span>屈折率が均一でない媒質がある。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>通常の屈折——スネルの法則——は界面での急激な変化を扱う。GRINが扱うのはその連続版。屈折率n(x,y)が空間的に滑らかに変化する場を、光線が曲がりながら通過する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>原理はフェルマーに帰着する。光は光学的経路長 ∫n·ds を極値にする経路を選ぶ。結果がアイコナール方程式。光線は屈折率の勾配に引き寄せられるように曲がる。高い方へ。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>光線方程式: dθ/ds = (−sinθ · ∂n/∂x + cosθ · ∂n/∂y) / n。局所的な勾配が曲率を決める。ステップごとに数値積分すれば、任意の屈折率場を光線が通過する経路が描ける。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>FOCUSモード。ガウス型の屈折率分布が凸レンズとして機能する。平行光線が一点に集まり、その先で再び広がる。焦点が自然に現れる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>MIRAGEモード。屈折率が高さとともに変わる。地表付近で屈折率が低い。光線が上に曲がる。蜃気楼の物理。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>GUIDEモード。放物線型の屈折率プロファイルが光を閉じ込める。GRINファイバーと同じ原理。光線は正弦波状に振動しながら導波路の中を進む。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>レンズを複数配置すると、集光パターンが複雑になる。凸と凹を組み合わせれば、光路の設計ができる。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "refraction", "label": "REFRACTION", "reason": "離散的な屈折の法則"},
+      {"page": "caustics", "label": "CAUSTICS", "reason": "光が作る集光パターン"}
+    ]
+  }
+}
