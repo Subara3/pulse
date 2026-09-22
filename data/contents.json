@@ -2884,6 +2884,19 @@
     "added": "2026-09-21"
   },
   {
+    "page": "topopt",
+    "title": "TOPOPT",
+    "desc": "位相最適化。荷重と支持を配置すると、最小限の材料で力を伝える最も効率的な構造が自己組織的に現れる。SIMP法による構造最適化。",
+    "desc_en": "Topology optimization. Place loads and supports — the most efficient structure to carry forces emerges through SIMP optimization, removing material from unstressed regions.",
+    "icon": "fa-cubes-stacked",
+    "group": "mind",
+    "category": "探すもの",
+    "category_en": "SEARCH",
+    "meta": "FEA / SIMP / 4 presets",
+    "meta_en": "FEA / SIMP / 4 presets",
+    "added": "2026-09-22"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
