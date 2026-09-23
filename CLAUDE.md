@@ -313,7 +313,7 @@ P.bright(c, f) // 明るくする
   （ページ自身が鳴らしている間は黙る）
 
 ### オンオフ（`includes/audio-consent.php`）
-- 初回訪問時に全画面で「音を鳴らしますか」を聞く。答えは localStorage `pulse_audio`（`on` / `off`）
+- 初回訪問時に、画面左下の小さな案内で「鳴らす / 鳴らさない」を聞く（ページは覆わない。セッションに 1 回だけ）。答えは localStorage `pulse_audio`（`on` / `off`）。選ばなければ無音
 - 以降は SOUND ボタンで切り替える。Canvasページは floating-nav の列、文書ページはヘッダーナビに入る
 - `m` キーでも切り替わる
 - `?preview=1`（プレビュー撮影）ではオーディオを一切積まない

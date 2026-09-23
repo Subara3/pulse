@@ -1,85 +1,68 @@
 <?php
 /**
- * サウンドの可否をたずねる初回ゲートと、以降の切り替えボタン。
+ * サウンドの可否をたずねる初回の案内と、以降の切り替えボタン。
  *
  * header.php から全ページで読み込まれる。判定は localStorage の pulse_audio。
- *   未選択 → 全画面のゲートを出す
- *   'on' / 'off' → ゲートは出さず、切り替えボタンだけ置く
+ *   未選択 → 画面の隅に小さな案内を出す（ページは隠さない・スクロールも止めない）
+ *            選ばずに進めば無音のまま。案内はセッションに 1 回だけ（sessionStorage
+ *            pulse_audio_prompted）。あとはナビの SOUND ボタンで選べる
+ *   'on' / 'off' → 案内は出さず、切り替えボタンだけ置く
+ *
+ * 2026-09 まではページ全体を覆うゲートだったが、初見の人がヒーローや作品を
+ * 見る前に二択を迫られるので、見せたまま選べる形に変えた。保存キーと値は同じ。
  *
  * ボタンは floating-nav があればその列に挿し、無いページでは単独で左下に置く。
  */
 ?>
-<div class="pa-gate" id="paGate" hidden aria-hidden="true">
-  <div class="pa-card" role="dialog" aria-modal="true" aria-labelledby="paGateTitle">
-    <span class="pa-eyebrow">SOUND</span>
-    <div class="pa-wave" aria-hidden="true">
+<aside class="pa-prompt" id="paPrompt" hidden aria-labelledby="paPromptTitle">
+  <div class="pa-prompt-head">
+    <span class="pa-wave" aria-hidden="true">
       <svg viewBox="0 0 240 40" preserveAspectRatio="none">
         <path d="M0,20 C20,2 40,2 60,20 C80,38 100,38 120,20 C140,2 160,2 180,20 C200,38 220,38 240,20"
-              fill="none" stroke="currentColor" stroke-width="1.5" />
+              fill="none" stroke="currentColor" stroke-width="2" />
       </svg>
-    </div>
-    <h2 id="paGateTitle">音を鳴らしますか</h2>
-    <p class="pa-lead">
-      PULSE のページは、触れると音が返ってきます。<br>
-      音はすべてサイン波で、その場で合成しています。
-    </p>
-    <div class="pa-actions">
-      <button type="button" class="pa-btn pa-btn-on" id="paYes">音ありで見る</button>
-      <button type="button" class="pa-btn" id="paNo">音なしで見る</button>
-    </div>
-    <p class="pa-note">あとから SOUND ボタンでいつでも切り替えられます。</p>
+    </span>
+    <span class="pa-eyebrow">SOUND</span>
   </div>
-</div>
+  <p class="pa-title" id="paPromptTitle">触れると、音が返ってきます。</p>
+  <p class="pa-lead">音はすべてサイン波をその場で合成しています。</p>
+  <div class="pa-actions">
+    <button type="button" class="pa-btn pa-btn-on" id="paYes"><i class="fa-solid fa-volume-high" aria-hidden="true"></i> 鳴らす</button>
+    <button type="button" class="pa-btn" id="paNo">鳴らさない</button>
+  </div>
+</aside>
 
 <style>
-.pa-gate {
+/* ---- 初回の案内。ページの上に「置く」だけで、覆わない ---- */
+.pa-prompt {
   position: fixed;
-  inset: 0;
-  z-index: 12000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
-  background: rgba(7, 7, 11, 0.9);
-  backdrop-filter: blur(10px);
-  animation: paGateIn 0.5s var(--ease, ease) both;
-}
-.pa-gate[hidden] { display: none; }
-.pa-gate.closing { animation: paGateOut 0.4s var(--ease, ease) both; }
-
-@keyframes paGateIn  { from { opacity: 0 } to { opacity: 1 } }
-@keyframes paGateOut { from { opacity: 1 } to { opacity: 0; visibility: hidden } }
-
-.pa-card {
-  width: min(420px, 100%);
-  padding: 2.2rem 1.9rem 1.6rem;
-  background: rgba(16, 16, 23, 0.96);
+  left: 1.5rem;
+  bottom: calc(1.5rem + var(--pulse-ad-h, 0px));
+  z-index: 9500;
+  width: min(330px, calc(100vw - 2rem));
+  padding: 1rem 1.1rem 1.05rem;
+  background: rgba(13, 13, 19, 0.94);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--line-mid, rgba(255,255,255,0.13));
+  border-left: 2px solid var(--teal, #00f5d4);
   border-radius: var(--radius, 4px);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
-  text-align: center;
-  animation: paCardIn 0.55s var(--ease, ease) both 0.06s;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  animation: paIn 0.42s var(--ease, ease) both 0.9s;
 }
-@keyframes paCardIn {
-  from { opacity: 0; transform: translateY(14px) }
-  to   { opacity: 1; transform: none }
-}
+.pa-prompt[hidden] { display: none; }
+.pa-prompt.closing { animation: paOut 0.3s var(--ease, ease) both; }
+/* Canvas ページでは左下に floating-nav の列（幅 46px・left 2rem）がいるので、その右隣に出す */
+.pa-prompt.pa-prompt--canvas { left: calc(2rem + 46px + 0.9rem); bottom: calc(2rem + var(--pulse-ad-h, 0px)); }
 
-.pa-eyebrow {
-  display: block;
-  font-family: var(--font-mono, monospace);
-  font-size: 0.6rem;
-  letter-spacing: 0.32em;
-  color: var(--teal, #00f5d4);
-  text-transform: uppercase;
-}
+@keyframes paIn  { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: none } }
+@keyframes paOut { from { opacity: 1 } to { opacity: 0; transform: translateY(8px); visibility: hidden } }
 
+.pa-prompt-head { display: flex; align-items: center; gap: 0.6rem; }
 .pa-wave {
-  margin: 1.1rem auto 1.3rem;
-  width: 150px;
-  height: 26px;
+  width: 46px;
+  height: 12px;
   color: var(--teal, #00f5d4);
-  opacity: 0.75;
+  flex: none;
 }
 .pa-wave svg { width: 100%; height: 100%; display: block; }
 .pa-wave path {
@@ -88,41 +71,47 @@
 }
 @keyframes paWave { to { stroke-dashoffset: -270 } }
 
-.pa-card h2 {
-  font-family: var(--font-display, sans-serif);
-  font-size: 1.18rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--text, #e9e9ef);
-  margin-bottom: 0.85rem;
+.pa-eyebrow {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  color: var(--teal, #00f5d4);
 }
 
-.pa-lead {
+.pa-title {
+  margin-top: 0.55rem;
   font-family: var(--font-body, sans-serif);
-  font-size: 0.8rem;
-  line-height: 1.95;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.6;
+  color: var(--text, #e9e9ef);
+}
+.pa-lead {
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  line-height: 1.7;
   color: var(--text-2, #9b9baa);
 }
 
-.pa-actions {
-  display: flex;
-  gap: 0.6rem;
-  margin: 1.6rem 0 1rem;
-}
+.pa-actions { display: flex; gap: 0.5rem; margin-top: 0.85rem; }
 
 .pa-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
   flex: 1;
-  padding: 0.75rem 0.5rem;
-  font-family: var(--font-display, sans-serif);
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  padding: 0.55rem 0.5rem;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   color: var(--text-2, #9b9baa);
   background: transparent;
   border: 1px solid var(--line-mid, rgba(255,255,255,0.13));
   border-radius: var(--radius, 4px);
   cursor: pointer;
-  transition: all 0.24s var(--ease, ease);
+  transition: color 0.24s var(--ease, ease), background 0.24s var(--ease, ease), border-color 0.24s var(--ease, ease);
 }
 .pa-btn:hover {
   color: var(--text, #e9e9ef);
@@ -130,21 +119,15 @@
   background: rgba(255, 255, 255, 0.04);
 }
 .pa-btn-on {
-  color: var(--ink-1, #0a0a0f);
+  color: var(--ink-0, #07070b);
   background: var(--teal, #00f5d4);
   border-color: var(--teal, #00f5d4);
+  font-weight: 700;
 }
 .pa-btn-on:hover {
-  color: var(--ink-1, #0a0a0f);
-  background: #4ffbe4;
-  border-color: #4ffbe4;
-}
-
-.pa-note {
-  font-family: var(--font-mono, monospace);
-  font-size: 0.6rem;
-  letter-spacing: 0.06em;
-  color: var(--text-3, #7f7f8d);
+  color: var(--ink-0, #07070b);
+  background: #5affe4;
+  border-color: #5affe4;
 }
 
 /* --- 切り替えボタン：ヘッダーナビに入る場合（文書系ページ） --- */
@@ -195,14 +178,20 @@
 }
 .pa-sound-btn.pa-on { color: var(--teal, #00f5d4); border-color: var(--teal-line, rgba(0,245,212,0.32)); }
 
-@media (max-width: 520px) {
+@media (max-width: 620px) {
+  .site-nav .pa-sound-btn { padding: 0.45rem 0.45rem; }
   .site-nav .pa-sound-btn span { display: none; }
 }
 
 @media (max-width: 768px) {
-  .pa-card { padding: 1.9rem 1.3rem 1.3rem; }
-  .pa-lead { font-size: 0.74rem; line-height: 2.05; }
-  .pa-actions { flex-direction: column; }
+  /* 右端の操作ボタン列（歯車・floating-nav）に被らないよう、右に 4.5rem 空ける */
+  .pa-prompt { left: 1rem; bottom: calc(1rem + var(--pulse-ad-h, 0px)); width: min(330px, calc(100vw - 5.5rem)); }
+  .pa-prompt.pa-prompt--canvas {
+    left: calc(1rem + 40px + 0.6rem);
+    bottom: calc(1rem + var(--pulse-ad-h, 0px));
+    width: min(330px, calc(100vw - 1rem - 40px - 0.6rem - 4.5rem));
+  }
+  .pa-prompt--canvas .pa-lead { display: none; }
   .pa-sound-btn.pa-standalone { bottom: 1rem; left: 1rem; width: 40px; height: 40px; font-size: 0.9rem; }
   /* floating-nav の中に入った場合は、他のボタンと同じ開閉ルールに従う */
   .floating-nav .pa-sound-btn {
@@ -221,42 +210,53 @@
   var PA = window.PulseAudio;
   if (!PA) return;
 
-  var gate = document.getElementById('paGate');
-  var restoreScroll = function () {};
+  var prompt = document.getElementById('paPrompt');
 
-  /* ---- 初回ゲート ---- */
-  if (PA.state() === null && gate) {
-    gate.hidden = false;
-    gate.setAttribute('aria-hidden', 'false');
+  /* ---- 初回の案内 ---- */
+  var prompted = false;
+  try { prompted = sessionStorage.getItem('pulse_audio_prompted') === '1'; } catch (e) {}
 
-    /* 選ぶまでは背後を動かさない */
-    var prevOverflow = document.documentElement.style.overflow;
-    document.documentElement.style.overflow = 'hidden';
-    restoreScroll = function () { document.documentElement.style.overflow = prevOverflow; };
+  if (PA.state() === null && prompt && !prompted) {
+    try { sessionStorage.setItem('pulse_audio_prompted', '1'); } catch (e) {}
+    var place = function () {
+      if (document.getElementById('floatingNav')) prompt.classList.add('pa-prompt--canvas');
+      prompt.hidden = false;
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', place);
+    else place();
 
-    document.getElementById('paYes').addEventListener('click', function () {
+    /* Canvas ページは window / document で押下を拾うものが多い。案内を押したときに
+       背後の作品へ「クリック」が届かないよう、ここで止める */
+    ['pointerdown', 'mousedown', 'touchstart', 'click'].forEach(function (t) {
+      prompt.addEventListener(t, function (e) { e.stopPropagation(); }, { passive: true });
+    });
+
+    document.getElementById('paYes').addEventListener('click', function (e) {
+      e.stopPropagation();
       PA.enable();
       /* 選んだ直後に一度だけ鳴らして、音が出ていることが分かるようにする */
       setTimeout(function () {
         PA.arp([PA.chordSemi(0, 1), PA.chordSemi(2, 1), PA.chordSemi(4, 2)], 0.13,
           { vol: 0.09, dur: 2.4, attack: 0.01, shimmer: true });
       }, 120);
-      closeGate();
     });
-    document.getElementById('paNo').addEventListener('click', function () {
+    document.getElementById('paNo').addEventListener('click', function (e) {
+      e.stopPropagation();
       PA.disable();
-      closeGate();
     });
-  } else if (gate) {
-    gate.remove();
-    gate = null;
+    /* 切り替えボタンや m キーで選んだ場合も、選択が済んだので畳む */
+    PA.onChange(closePrompt);
+  } else if (prompt) {
+    prompt.remove();
+    prompt = null;
   }
 
-  function closeGate() {
-    if (!gate) return;
-    restoreScroll();
-    gate.classList.add('closing');
-    setTimeout(function () { if (gate) { gate.remove(); gate = null; } }, 420);
+  function closePrompt() {
+    if (!prompt) return;
+    var p = prompt;
+    prompt = null;
+    p.classList.add('closing');
+    setTimeout(function () { p.remove(); }, 320);
   }
 
   /* ---- 切り替えボタン ---- */

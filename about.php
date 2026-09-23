@@ -168,7 +168,7 @@ require_once __DIR__ . '/includes/nav.php';
         </div>
         <div class="rule-row">
           <dt>音</dt>
-          <dd>効果音は Web Audio API で<b>その場で合成</b>しています。音声ファイルも BGM もありません。うるさいときはタブをミュートしてください。</dd>
+          <dd>音はすべてサイン波で、Web Audio API で<b>その場で合成</b>しています。音声ファイルはありません。選ぶまでは鳴らさず、SOUND ボタン（または M キー）でいつでも切り替えられます。</dd>
         </div>
         <div class="rule-row">
           <dt>言語</dt>
