@@ -27,7 +27,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <div id="hud">
   MODE <span id="hud-mode">RACE</span><br>
   HEIGHT <span id="hud-h">300</span>px<br>
-  WINNER <span id="hud-winner">—</span>
+  WINNER <span id="hud-winner">—</span><br>
+  YOU <span id="hud-you">draw a curve</span><br>
+  BEST <span id="hud-best">—</span>
 </div>
 <?php
 $interactionHints = [
@@ -124,23 +126,29 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   function computeLayout() {
     var margin = Math.min(W * 0.1, 80);
     startX = margin + 40;
-    startY = H * 0.15;
+    startY = H * (W / dpr < 600 ? 0.24 : 0.15);
     endX = W - margin - 40;
     endY = startY + raceHeight;
   }
 
+  // 始点と終点を通るサイクロイド（= 最速降下線）。
+  // x/y の比を合わせるために片方だけ伸ばすと最速ではなくなるので、
+  // (θ - sinθ)/(1 - cosθ) = dx/dy を満たす終端角 θ を二分法で求める
   function cycloidCurve(n) {
     var dx = endX - startX;
     var dy = endY - startY;
-    var r = dy / Math.PI;
-    var totalAngle = Math.PI;
-    var xScale = dx / (r * (totalAngle - Math.sin(totalAngle)));
+    var ratio = dx / dy;
+    var lo = 1e-4, hi = 2 * Math.PI - 1e-4;
+    for (var k = 0; k < 60; k++) {
+      var mid = (lo + hi) / 2;
+      if ((mid - Math.sin(mid)) / (1 - Math.cos(mid)) < ratio) lo = mid; else hi = mid;
+    }
+    var totalAngle = (lo + hi) / 2;
+    var r = dy / (1 - Math.cos(totalAngle));
     var pts = [];
     for (var i = 0; i <= n; i++) {
       var t = (i / n) * totalAngle;
-      var cx = r * (t - Math.sin(t)) * xScale;
-      var cy = r * (1 - Math.cos(t));
-      pts.push({ x: startX + cx, y: startY + cy });
+      pts.push({ x: startX + r * (t - Math.sin(t)), y: startY + r * (1 - Math.cos(t)) });
     }
     return pts;
   }
@@ -247,11 +255,26 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     var segLen = Math.sqrt(dx * dx + dy * dy);
     var sinA = segLen > 0.01 ? dy / segLen : 0;
 
-    var accel = g * sinA;
-    ball.speed += accel * dt;
-    if (ball.speed < 0) ball.speed = 0;
+    // 摩擦なしなので速さは落ちた高さだけで決まる（エネルギー保存）。
+    // 出発直後の v=0 で止まらないよう、ごく小さな初速を与える
+    var drop = ball.pos.y - startY;
+    ball.speed = Math.sqrt(2 * g * Math.max(drop, 0)) + (drop > -1 ? 4 : 0);
     ball.dist += ball.speed * dt;
     ball.time += dt;
+
+    // 登り坂で止まった（出発点より高く描いた）ら失格。止まったまま待ち続けない
+    if (ball.speed < 1 && ball.time > 0.5) {
+      ball.stall = (ball.stall || 0) + dt;
+      if (ball.stall > 0.6) {
+        ball.done = true;
+        ball.dnf = true;
+        finished[key] = Infinity;
+        if (typeof SFX !== 'undefined') SFX.play('fail');
+        return;
+      }
+    } else {
+      ball.stall = 0;
+    }
 
     if (ball.dist >= totalLen) {
       ball.dist = totalLen;
@@ -338,7 +361,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   function drawTimerLabel(key, x, y, color) {
     if (!balls[key]) return;
     var t = balls[key].time;
-    var text = t.toFixed(2) + 's';
+    var text = (curveNames[key] || key.toUpperCase()) + '  ' + (balls[key].dnf ? 'STALLED' : t.toFixed(2) + 's');
     if (key === winner) text += ' ★';
     ctx.font = '0.55rem "JetBrains Mono", monospace';
     ctx.fillStyle = 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + (balls[key].done ? 0.9 : 0.5) + ')';
@@ -482,7 +505,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
         drawTrail(curves[k], balls[k].dist, col);
       }
       var labelPts = curves[k];
-      var midIdx = Math.floor(labelPts.length * 0.5);
+      var midIdx = Math.floor(labelPts.length * (0.35 + 0.1 * i));
       drawLabel(curveNames[k] || k.toUpperCase(), labelPts[midIdx].x, labelPts[midIdx].y - 10, col);
     }
 
@@ -516,7 +539,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
       if (allDone && !finished._announced) {
         finished._announced = true;
-        if (typeof SFX !== 'undefined') SFX.play('complete');
+        judgeCustom();
       }
     } else {
       for (var i = 0; i < keys.length; i++) {
@@ -544,8 +567,31 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     requestAnimationFrame(render);
   }
 
+  // 自分で描いた曲線とサイクロイドの差。0 に近づけるのが遊び
+  var bestGap = Infinity;
+  function judgeCustom() {
+    var hudYou = document.getElementById('hud-you');
+    if (!balls.custom) {
+      if (typeof SFX !== 'undefined') SFX.play('complete');
+      return;
+    }
+    if (balls.custom.dnf) {
+      hudYou.textContent = 'STALLED';
+      return;
+    }
+    var gap = balls.custom.time - balls.cycloid.time;
+    hudYou.textContent = (gap >= 0 ? '+' : '') + gap.toFixed(3) + 's vs CYCLOID';
+    if (gap < bestGap) {
+      bestGap = gap;
+      document.getElementById('hud-best').textContent = (gap >= 0 ? '+' : '') + gap.toFixed(3) + 's';
+      if (typeof SFX !== 'undefined') SFX.play(gap < 0.01 ? 'correct' : 'success');
+    } else if (typeof SFX !== 'undefined') {
+      SFX.play('complete');
+    }
+  }
+
   function startRace() {
-    if (racing) return;
+    if (racing && !finished._announced) return;
     buildCurves();
     initBalls();
     racing = true;
@@ -579,38 +625,51 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   var pointerDown = false;
   var longPressTimer = null;
 
+  var downAt = null;
+  function beginDraw() {
+    racing = false;
+    drawingCustom = true;
+    customPoints = [{ x: startX, y: startY }];
+    if (typeof SFX !== 'undefined') SFX.play('tick');
+  }
+  function extendDraw(x, y) {
+    var last = customPoints[customPoints.length - 1];
+    // 左から右へ描いた点だけ採る（戻り描きで曲線が折り返さないように）
+    if (x > last.x + 3 && x < endX) customPoints.push({ x: x, y: y });
+  }
+  function finishDraw() {
+    drawingCustom = false;
+    customPoints.push({ x: endX, y: endY });
+    customCurve = smoothCustom(smoothCustom(customPoints));
+    buildCurves();
+    initBalls();
+    if (typeof SFX !== 'undefined') SFX.play('spawn');
+    if (customPoints.length > 4) startRace();
+  }
+
   canvas.addEventListener('mousedown', function(e) {
     if (e.button === 2) { e.preventDefault(); resetRace(); return; }
-    if (mode === 'draw') {
-      drawingCustom = true;
-      customPoints = [{ x: startX, y: startY }];
-      if (typeof SFX !== 'undefined') SFX.play('tick');
-    } else {
-      startRace();
-    }
+    if (mode === 'explore') return;
+    var rect = canvas.getBoundingClientRect();
+    downAt = { x: (e.clientX - rect.left) * dpr, y: (e.clientY - rect.top) * dpr };
+    if (mode === 'draw') beginDraw();
     pointerDown = true;
   });
 
   canvas.addEventListener('mousemove', function(e) {
-    if (!drawingCustom || !pointerDown) return;
+    if (!pointerDown) return;
     var rect = canvas.getBoundingClientRect();
     var x = (e.clientX - rect.left) * dpr;
     var y = (e.clientY - rect.top) * dpr;
-    if (customPoints.length === 0 || Math.abs(x - customPoints[customPoints.length - 1].x) > 3) {
-      customPoints.push({ x: x, y: Math.max(startY, y) });
-    }
+    if (!drawingCustom && downAt && Math.hypot(x - downAt.x, y - downAt.y) > 12 * dpr) beginDraw();
+    if (drawingCustom) extendDraw(x, y);
   });
 
   canvas.addEventListener('mouseup', function() {
-    if (drawingCustom) {
-      drawingCustom = false;
-      customPoints.push({ x: endX, y: endY });
-      customCurve = smoothCustom(smoothCustom(customPoints));
-      buildCurves();
-      initBalls();
-      if (typeof SFX !== 'undefined') SFX.play('spawn');
-    }
+    if (drawingCustom) finishDraw();
+    else if (pointerDown && mode !== 'explore') startRace();
     pointerDown = false;
+    downAt = null;
   });
 
   canvas.addEventListener('contextmenu', function(e) { e.preventDefault(); });
@@ -627,25 +686,22 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       longPressTimer = null;
     }, 500);
 
-    if (mode === 'draw') {
-      drawingCustom = true;
-      customPoints = [{ x: startX, y: startY }];
-      if (typeof SFX !== 'undefined') SFX.play('tick');
-    }
+    downAt = { x: x, y: y };
+    if (mode === 'draw') beginDraw();
     pointerDown = true;
   }, { passive: false });
 
   canvas.addEventListener('touchmove', function(e) {
     e.preventDefault();
-    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
-    if (!drawingCustom) return;
     var touch = e.touches[0];
     var rect = canvas.getBoundingClientRect();
     var x = (touch.clientX - rect.left) * dpr;
     var y = (touch.clientY - rect.top) * dpr;
-    if (customPoints.length === 0 || Math.abs(x - customPoints[customPoints.length - 1].x) > 3) {
-      customPoints.push({ x: x, y: Math.max(startY, y) });
+    if (!drawingCustom && downAt && mode !== 'explore' && Math.hypot(x - downAt.x, y - downAt.y) > 12 * dpr) {
+      if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+      beginDraw();
     }
+    if (drawingCustom) extendDraw(x, y);
   }, { passive: false });
 
   canvas.addEventListener('touchend', function(e) {
@@ -653,17 +709,11 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     if (longPressTimer) {
       clearTimeout(longPressTimer);
       longPressTimer = null;
-      if (!drawingCustom) startRace();
+      if (!drawingCustom && mode !== 'explore') startRace();
     }
-    if (drawingCustom) {
-      drawingCustom = false;
-      customPoints.push({ x: endX, y: endY });
-      customCurve = smoothCustom(smoothCustom(customPoints));
-      buildCurves();
-      initBalls();
-      if (typeof SFX !== 'undefined') SFX.play('spawn');
-    }
+    if (drawingCustom) finishDraw();
     pointerDown = false;
+    downAt = null;
   }, { passive: false });
 
   document.querySelectorAll('.mode-btn').forEach(function(btn) {
