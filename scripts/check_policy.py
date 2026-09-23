@@ -55,6 +55,11 @@ HSL_RE = re.compile(r'hsla?\(\s*(\d{1,3}(?:\.\d+)?)\s*[, ]')
 ALLOW_COLOR_FILE = os.path.join(ROOT, 'scripts', 'palette_allowlist.json')
 
 
+# CLAUDE.md「題材の決め方」を機械的に守らせる。この日以降に added したエントリが対象
+RULES_SINCE = '2026-09-24'
+BANNED_DESC = ('創発', '可視化', '体験する', '深淵', '紡ぐ', '織りなす', '——')
+
+
 def load_allowlist() -> dict:
     if os.path.exists(ALLOW_COLOR_FILE):
         with open(ALLOW_COLOR_FILE, encoding='utf-8') as f:
@@ -138,6 +143,20 @@ def main() -> int:
             for ext in ('mp4', 'webm', 'jpg'):
                 if not os.path.exists(os.path.join(ROOT, 'img', 'previews', f'{p}.{ext}')):
                     warns.append(f'preview欠落: {p}.{ext}')
+
+    # 題材の決め方（CLAUDE.md 2026-09 改訂）: 改訂後に足したエントリだけを検査する
+    dated = sorted((c for c in items if c.get('group') in GROUPS and c.get('added')),
+                   key=lambda c: c['added'])
+    for i, c in enumerate(dated):
+        if c['added'] < RULES_SINCE:
+            continue
+        p = c['page']
+        for w in BANNED_DESC:
+            if w in c.get('desc', ''):
+                errors.append(f'contents.json: {p} の desc に定型句「{w}」がある（CLAUDE.md「説明文の書き方」）')
+        recent = [d['group'] for d in dated[max(0, i - 7):i]]
+        if c['group'] in recent:
+            errors.append(f'contents.json: {p} の group {c["group"]} は直近7件と被っている（CLAUDE.md「題材の決め方」2）')
 
     # contents.json に無いのに残っている .php
     on_disk = {os.path.basename(f)[:-4] for f in glob.glob(os.path.join(ROOT, '*.php'))}
