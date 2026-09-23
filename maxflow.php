@@ -28,7 +28,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <div id="hud">
   MODE <span id="hud-mode">AUTO</span><br>
   FLOW <span id="hud-flow">0</span> / <span class="pur" id="hud-max">?</span><br>
-  ITER <span id="hud-iter">0</span>
+  ITER <span id="hud-iter">0</span><br>
+  <span id="hud-cutline" style="display:none">YOUR CUT <span class="pur" id="hud-cut">0</span> <span id="hud-cutmsg"></span></span>
 </div>
 <?php
 $interactionHints = [
@@ -44,6 +45,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       <button class="mode-btn" data-mode="edit">EDIT</button>
       <button class="mode-btn active" data-mode="auto">AUTO</button>
       <button class="mode-btn" data-mode="step">STEP</button>
+      <button class="mode-btn" data-mode="cut">CUT</button>
     </div>
   </div>
   <div>
@@ -160,6 +162,102 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     selEdge = -1;
     document.getElementById('cap-row').style.display = 'none';
     updateHUD();
+  }
+
+  // ランダムな層状ネットワーク。PRESET を押すたびに別の問題になる
+  var presetCount = 0;
+  function randomPreset() {
+    var layers = [1, 2 + Math.floor(Math.random() * 2), 2 + Math.floor(Math.random() * 2), 1];
+    nodes = []; edges = [];
+    var ids = [];
+    for (var l = 0; l < layers.length; l++) {
+      var row = [];
+      for (var k = 0; k < layers[l]; k++) {
+        var x = (0.12 + 0.76 * l / (layers.length - 1)) * W;
+        var y = (layers[l] === 1 ? 0.5 : 0.2 + 0.6 * k / (layers[l] - 1)) * H;
+        row.push(nodes.length); nodes.push({x: x, y: y});
+      }
+      ids.push(row);
+    }
+    function cap() { return 1 + Math.floor(Math.random() * 9); }
+    for (var l = 0; l < ids.length - 1; l++) {
+      for (var a = 0; a < ids[l].length; a++) {
+        for (var b = 0; b < ids[l + 1].length; b++) {
+          if (ids[l].length === 1 || ids[l + 1].length === 1 || Math.random() < 0.7) {
+            edges.push({from: ids[l][a], to: ids[l + 1][b], cap: cap(), flow: 0});
+          }
+        }
+      }
+    }
+    // 中間層の縦のつなぎを少し足して、カットを一目で分からなくする
+    for (var l = 1; l < ids.length - 1; l++) {
+      for (var a = 0; a < ids[l].length - 1; a++) {
+        if (Math.random() < 0.5) edges.push({from: ids[l][a], to: ids[l][a + 1], cap: cap(), flow: 0});
+      }
+    }
+    src = 0; snk = nodes.length - 1;
+    totalFlow = 0; iter = 0;
+    resetAlgo();
+    selEdge = -1;
+    document.getElementById('cap-row').style.display = 'none';
+    updateHUD();
+  }
+
+  // CUT モード: 辺を選んで S と T を切り離す。選んだ容量の合計が最大流に等しければ最小カット
+  var cutPick = [], cutTarget = 0, cutSolved = false;
+  function solveMaxSilently() {
+    var saved = edges.map(function(e) { return e.flow; });
+    var tf = totalFlow, it = iter;
+    for (var i = 0; i < edges.length; i++) edges[i].flow = 0;
+    totalFlow = 0;
+    for (var guard = 0; guard < 500; guard++) {
+      bfsRes = runBFS();
+      if (!bfsRes.found) break;
+      applyFlow();
+    }
+    var best = totalFlow;
+    for (var i = 0; i < edges.length; i++) edges[i].flow = saved[i];
+    totalFlow = tf; iter = it; bfsRes = null;
+    return best;
+  }
+  function separated() {
+    var vis = new Array(nodes.length).fill(false);
+    vis[src] = true;
+    var q = [src];
+    while (q.length) {
+      var u = q.shift();
+      for (var i = 0; i < edges.length; i++) {
+        var e = edges[i];
+        if (e.from === u && !vis[e.to] && cutPick.indexOf(i) < 0) { vis[e.to] = true; q.push(e.to); }
+      }
+    }
+    return !vis[snk];
+  }
+  function updateCutHUD() {
+    var sum = 0;
+    for (var i = 0; i < cutPick.length; i++) sum += edges[cutPick[i]].cap;
+    document.getElementById('hud-cut').textContent = sum;
+    var msg = '';
+    if (cutPick.length && separated()) {
+      if (sum === cutTarget) {
+        msg = '= MIN CUT';
+        if (!cutSolved) { cutSolved = true; SFX.play('correct'); }
+      } else {
+        msg = '(min is smaller)';
+        cutSolved = false;
+        SFX.play('fail');
+      }
+    } else if (cutPick.length) {
+      msg = '(still connected)';
+      cutSolved = false;
+    }
+    document.getElementById('hud-cutmsg').textContent = msg;
+  }
+  function startCut() {
+    cutPick = []; cutSolved = false;
+    cutTarget = solveMaxSilently();
+    document.getElementById('hud-cutline').style.display = modeStr === 'cut' ? '' : 'none';
+    updateCutHUD();
   }
 
   function resetAlgo() {
@@ -305,7 +403,8 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     var ep = edgePts(e);
     var ratio = e.cap > 0 ? e.flow / e.cap : 0;
     var showHL = (phase === 'path' || phase === 'push' || hlTimer > 0) && isOnPath(idx);
-    var isCut = phase === 'done' && cutSet[e.from] && !cutSet[e.to];
+    var isCut = (phase === 'done' && cutSet[e.from] && !cutSet[e.to]) ||
+                (modeStr === 'cut' && cutPick.indexOf(idx) >= 0);
 
     var alpha = 0.15 + ratio * 0.5;
     var col = TEAL;
@@ -430,7 +529,12 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       ctx.fillStyle = rgba(TEAL, 0.75);
       ctx.fillText('+' + bfsRes.bn, W/2, 28);
     }
-    if (phase === 'done') {
+    if (modeStr === 'cut') {
+      ctx.font = '600 14px "Space Grotesk", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillStyle = rgba(cutSolved ? TEAL : PURPLE, 0.8);
+      ctx.fillText(cutSolved ? 'MIN CUT = MAX FLOW = ' + cutTarget : 'CUT S FROM T  —  CHEAPEST WINS', W/2, 28);
+    } else if (phase === 'done') {
       ctx.font = '600 14px "Space Grotesk", sans-serif';
       ctx.textAlign = 'center';
       ctx.fillStyle = rgba(TEAL, 0.8);
@@ -515,6 +619,17 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       if (ei >= 0) { removeEdge(ei); return; }
       return;
     }
+    if (modeStr === 'cut') {
+      var ce = edgeAt(x, y);
+      if (ce >= 0) {
+        var at = cutPick.indexOf(ce);
+        if (at >= 0) cutPick.splice(at, 1); else cutPick.push(ce);
+        cutSolved = cutSolved && at < 0;
+        SFX.play(at >= 0 ? 'pop' : 'tick');
+        updateCutHUD();
+      }
+      return;
+    }
     var ni = nodeAt(x, y);
     if (ni >= 0) {
       dragFrom = ni; isDrag = false;
@@ -594,6 +709,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     selEdge = -1;
     document.getElementById('cap-row').style.display = 'none';
     if (m === 'auto') { phase = 'bfs'; phaseT = 0; }
+    startCut();
     SFX.play('toggle');
     updateHUD();
   }
@@ -618,11 +734,14 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     phase = 'idle'; phaseT = 0;
     bfsRes = null; cutSet = []; hlTimer = 0;
     if (modeStr === 'auto') { phase = 'bfs'; phaseT = 0; }
+    startCut();
     SFX.play('click'); updateHUD();
   });
 
   document.getElementById('btn-preset').addEventListener('click', function() {
-    preset();
+    presetCount++;
+    if (presetCount % 4 === 0) preset(); else randomPreset();
+    startCut();
     if (modeStr === 'auto') { phase = 'bfs'; phaseT = 0; }
     SFX.play('click'); updateHUD();
   });

@@ -11,7 +11,7 @@ $pageCanonical = 'https://pulse.subara3.com/buffon.php';
 $extraStyle = '
 body{background:#0a0a0f;min-height:100vh;overflow:hidden}
 #canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
-.hud{position:fixed;left:1rem;top:3.5rem;z-index:60;color:rgba(255,255,255,.42);font-family:"JetBrains Mono",monospace;font-size:.62rem;line-height:1.8;letter-spacing:.04em;pointer-events:none}
+.hud{background:rgba(10,10,15,.78);padding:.45rem .7rem;border-radius:6px;position:fixed;left:1rem;top:3.5rem;z-index:60;color:rgba(255,255,255,.42);font-family:"JetBrains Mono",monospace;font-size:.62rem;line-height:1.8;letter-spacing:.04em;pointer-events:none}
 .hud b{color:#00f5d4;font-weight:700}.hud .sub{color:rgba(123,44,191,.92)}
 @media(max-width:768px){.hud{top:3rem;left:.75rem;font-size:.52rem}}
 ';
@@ -25,7 +25,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
   CROSSING <b id="h-cross">0</b><br>
   π ESTIMATE <b id="h-pi">—</b><br>
   <span class="sub">TRUE π</span> <b id="h-true">3.141593</b><br>
-  <span class="sub">ERROR</span> <b id="h-error">—</b>
+  <span class="sub">ERROR</span> <b id="h-error">—</b><br>
+  <span class="sub">YOUR STOP</span> <b id="h-stop">—</b><br>
+  <span class="sub">BEST STOP</span> <b id="h-best">—</b>
 </div>
 <?php
 $interactionHints = [
@@ -37,10 +39,11 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 ?>
 <div id="controls" class="drawer-controls">
   <div><div class="slider-row"><span class="slider-label">NEEDLE LENGTH</span><input type="range" id="sl-len" min="20" max="100" value="50" step="1"><span class="slider-value" id="sv-len">1.00</span></div></div>
-  <div><div class="slider-row"><span class="slider-label">SPEED</span><input type="range" id="sl-speed" min="1" max="100" value="10" step="1"><span class="slider-value" id="sv-speed">10</span></div></div>
+  <div><div class="slider-row"><span class="slider-label">SPEED</span><input type="range" id="sl-speed" min="1" max="100" value="3" step="1"><span class="slider-value" id="sv-speed">3</span></div></div>
   <div><div class="slider-row"><span class="slider-label">LINE GAP</span><input type="range" id="sl-gap" min="30" max="120" value="60" step="1"><span class="slider-value" id="sv-gap">60</span></div></div>
   <div><div class="btn-row">
-    <button class="control-btn" id="btn-auto">AUTO</button>
+    <button class="control-btn active" id="btn-auto">AUTO</button>
+    <button class="control-btn" id="btn-stop">STOP AT π</button>
     <button class="control-btn" id="btn-burst">BURST ×100</button>
     <button class="control-btn" id="btn-reset">RESET</button>
   </div></div>
@@ -54,7 +57,7 @@ var pr = 1;
 
 var needles = [];
 var nTotal = 0, nCross = 0;
-var autoMode = false, dropSpeed = 10;
+var autoMode = true, dropSpeed = 3;
 var dragging = false;
 var lineGap = 60;
 var needleLenRatio = 1.0;
@@ -113,7 +116,8 @@ function dropNeedle(cx, cy) {
 function dropRandom(count) {
   for (var i = 0; i < count; i++) {
     var cx = Math.random() * W;
-    var cy = Math.random() * H;
+    // 縦位置は線の間隔の整数倍の範囲で一様に取る（端の半端な帯で交差確率が偏らないように）
+    var cy = Math.random() * Math.max(1, Math.floor(H / lineGap)) * lineGap;
     dropNeedle(cx, cy);
   }
 }
@@ -150,6 +154,8 @@ function drawNeedles() {
     var n = needles[i];
     var age = now - n.t;
     var alpha = age < 300 ? 0.3 + 0.7 * (age / 300) : 1.0;
+    // 新しい 300 本だけをはっきり描き、古い針は背景に沈める（千本を超えると画面が埋まる）
+    if (i < needles.length - 300) alpha *= 0.2;
 
     var dx = n.halfLen * Math.sin(n.angle);
     var dy = n.halfLen * Math.cos(n.angle);
@@ -403,8 +409,7 @@ slGap.addEventListener('input', function() {
 });
 
 document.getElementById('btn-auto').addEventListener('click', function() {
-  autoMode = !autoMode;
-  this.classList.toggle('active', autoMode);
+  setAuto(!autoMode);
   SFX.play('toggle');
 });
 
@@ -416,6 +421,35 @@ document.getElementById('btn-burst').addEventListener('click', function() {
 document.getElementById('btn-reset').addEventListener('click', function() {
   resetAll();
   dropRandom(30);
+  setAuto(true);
+});
+
+// STOP AT π: 推定値が π に一番近づいた瞬間に止める遊び。
+// 1901 年の Lazzarini は 3408 本で 3.1415929 を「得た」が、都合のいい所で止めただけだと言われている
+var bestStop = Infinity;
+function setAuto(on) {
+  autoMode = on;
+  document.getElementById('btn-auto').classList.toggle('active', on);
+  document.getElementById('btn-stop').textContent = on ? 'STOP AT π' : 'RESUME';
+}
+function stopAtPi() {
+  if (!autoMode) { setAuto(true); SFX.play('toggle'); return; }
+  setAuto(false);
+  if (nCross === 0) return;
+  var est = (2 * needleLenRatio * nTotal) / nCross;
+  var err = Math.abs(est - Math.PI);
+  document.getElementById('h-stop').textContent = est.toFixed(6) + ' @ ' + nTotal.toLocaleString();
+  if (err < bestStop) {
+    bestStop = err;
+    document.getElementById('h-best').textContent = '±' + err.toFixed(6);
+    SFX.play(err < 0.001 ? 'correct' : 'success');
+  } else {
+    SFX.play('fail');
+  }
+}
+document.getElementById('btn-stop').addEventListener('click', stopAtPi);
+window.addEventListener('keydown', function(e) {
+  if (e.code === 'Space') { e.preventDefault(); stopAtPi(); }
 });
 
 })();

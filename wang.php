@@ -8,9 +8,7 @@ $pageTitle = 'WANG TILES - PULSE';
 $pageDesc = 'ワンタイル。辺の色が一致するように正方形を並べると、非周期的パターンが創発する。決定不能性を秘めた敷き詰め問題。';
 $pageCanonical = 'https://pulse.subara3.com/wang.php';
 $extraStyle = '
-  #hud{position:fixed;top:80px;left:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;pointer-events:none;z-index:10;line-height:1.9}
-  #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
+  #hud{position:fixed;top:80px;left:20px;background:rgba(10,10,15,.8);padding:6px 10px;border-radius:6px;color:rgba(0,245,212,.85);font:11px "Space Grotesk",monospace;pointer-events:none;z-index:10;line-height:1.9}
   canvas{cursor:crosshair}
 ';
 
@@ -22,8 +20,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>TILES <span id="hud-tiles">0</span></div>
   <div>SET <span id="hud-set">0</span> / <span id="hud-total">0</span></div>
   <div>SPEED <span id="hud-speed">1</span></div>
+  <div>STUCK <span id="hud-stuck">0</span></div>
+  <div>BACKTRACKS <span id="hud-bt">0</span></div>
 </div>
-<div id="info-label"><span>WANG TILES</span></div>
 <?php
 $interactionHints = [
   ['type' => 'click', 'label' => 'place'],
@@ -46,7 +45,8 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   </div>
   <div>
     <div class="btn-row">
-      <button id="btn-auto" class="mode-btn">AUTO</button>
+      <button id="btn-auto" class="mode-btn active">AUTO</button>
+      <button id="btn-bt" class="mode-btn">BACKTRACK</button>
       <button id="btn-step">STEP</button>
       <button id="btn-reset">RESET</button>
     </div>
@@ -125,7 +125,12 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   var GRID_COLS, GRID_ROWS;
   var grid;
   var placedCount = 0;
-  var autoMode = false;
+  var autoMode = true;
+  // 貪欲に 1 枚ずつ置いていくと、どのタイルも合わない穴（行き詰まり）ができる。
+  // BACKTRACK を入れると、穴の周りを剥がして置き直す
+  var backtrack = false;
+  var stuck = {};
+  var stuckCount = 0, btCount = 0;
   var speed = 5;
   var panX = 0, panY = 0;
   var isPanning = false, panStartX, panStartY, panStartPX, panStartPY;
@@ -141,7 +146,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     hudSet.textContent = currentSet.length;
     hudTotal.textContent = currentSet.length;
     resetGrid();
-    document.querySelectorAll('#controls .btn-row:first-child .mode-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelectorAll('#btn-set1, #btn-set2, #btn-set3').forEach(function(b) { b.classList.remove('active'); });
     document.getElementById('btn-set' + ({'A':'1','B':'2','C':'3'}[key])).classList.add('active');
     SFX.play('toggle');
   }
@@ -158,14 +163,56 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     }
     placedCount = 0;
     fillQueue = [];
+    stuck = {}; stuckCount = 0; btCount = 0;
+    updateStuckHud();
+  }
+
+  function updateStuckHud() {
+    var a = document.getElementById('hud-stuck'), b = document.getElementById('hud-bt');
+    if (a) a.textContent = stuckCount;
+    if (b) b.textContent = btCount;
+  }
+
+  function markStuck(row, col) {
+    var k = row + ',' + col;
+    if (stuck[k]) return;
+    if (backtrack) {
+      // 穴の上下左右を剥がしてキューに戻す（周りの選び方を変えれば埋まることが多い）
+      var nb = [[row - 1, col], [row + 1, col], [row, col - 1], [row, col + 1]];
+      var filled = [];
+      for (var i = 0; i < nb.length; i++) {
+        var r = nb[i][0], c = nb[i][1];
+        if (r < 0 || r >= GRID_ROWS || c < 0 || c >= GRID_COLS) continue;
+        if (grid[r][c] !== null) filled.push([r, c]);
+      }
+      // 周りのうち 1 枚だけを剥がす（剥がしすぎると穴が穴を呼んで収束しない）
+      if (filled.length) {
+        var pick = filled[Math.floor(Math.random() * filled.length)];
+        grid[pick[0]][pick[1]] = null;
+        placedCount--;
+        addToQueue(pick[0], pick[1]);
+      }
+      addToQueue(row, col);
+      btCount++;
+      updateStuckHud();
+      SFX.play('pop', 60);
+      return;
+    }
+    stuck[k] = true;
+    stuckCount++;
+    updateStuckHud();
+    SFX.play('fail', 200);
   }
 
   function resetGrid() {
     initGrid();
-    autoMode = false;
-    document.getElementById('btn-auto').classList.remove('active');
     fillQueue = [];
     hudTiles.textContent = '0';
+    if (autoMode) seedCenter();
+  }
+
+  function seedCenter() {
+    placeTile(Math.floor(GRID_ROWS / 2), Math.floor(GRID_COLS / 2));
   }
 
   function findMatchingTile(row, col) {
@@ -215,12 +262,13 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     while (fillQueue.length > 0 && attempts < 50) {
       var idx = Math.floor(Math.random() * fillQueue.length);
       var pos = fillQueue.splice(idx, 1)[0];
-      if (grid[pos[0]][pos[1]] === null) {
+      if (grid[pos[0]][pos[1]] === null && !stuck[pos[0] + ',' + pos[1]]) {
         var ok = placeTile(pos[0], pos[1]);
         if (ok) {
           SFX.play('tick', 40);
           return true;
         }
+        markStuck(pos[0], pos[1]);
       }
       attempts++;
     }
@@ -304,6 +352,19 @@ require_once __DIR__ . '/includes/interaction-hints.php';
           }
         }
       }
+    }
+
+    // 行き詰まった穴: どのタイルの辺も周りと合わない場所
+    for (var key in stuck) {
+      var rc = key.split(',');
+      var kx = (+rc[1]) * TILE_SIZE + panX, ky = (+rc[0]) * TILE_SIZE + panY;
+      ctx.strokeStyle = 'rgba(181,140,255,0.6)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(kx + 3, ky + 3, TILE_SIZE - 6, TILE_SIZE - 6);
+      ctx.beginPath();
+      ctx.moveTo(kx + 7, ky + 7); ctx.lineTo(kx + TILE_SIZE - 7, ky + TILE_SIZE - 7);
+      ctx.moveTo(kx + TILE_SIZE - 7, ky + 7); ctx.lineTo(kx + 7, ky + TILE_SIZE - 7);
+      ctx.stroke();
     }
 
     if (placedCount === 0) {
@@ -450,6 +511,22 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     draw();
   });
 
+  document.getElementById('btn-bt').addEventListener('click', function() {
+    backtrack = !backtrack;
+    this.classList.toggle('active', backtrack);
+    // 既存の穴も剥がし直しの対象に戻す
+    if (backtrack) {
+      var keys = Object.keys(stuck);
+      stuck = {}; stuckCount = 0;
+      for (var i = 0; i < keys.length; i++) {
+        var rc = keys[i].split(',');
+        markStuck(+rc[0], +rc[1]);
+      }
+      updateStuckHud();
+    }
+    SFX.play('toggle');
+  });
+
   document.getElementById('btn-reset').addEventListener('click', function() {
     resetGrid();
     SFX.play('click');
@@ -481,9 +558,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   hudSet.textContent = currentSet.length;
   hudTotal.textContent = currentSet.length;
 
-  var cr = Math.floor(GRID_ROWS / 2);
-  var cc = Math.floor(GRID_COLS / 2);
-  placeTile(cr, cc);
+  setTileSet('C');
   for (var i = 0; i < 30; i++) stepFill();
   draw();
 

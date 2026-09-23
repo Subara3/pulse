@@ -43,6 +43,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     <span class="slider-value" id="sv-speed">5</span>
   </div>
   <div class="btn-row">
+    <button class="control-btn" id="btn-play">PAINT</button>
     <button class="control-btn" id="btn-solve">SOLVE</button>
     <button class="control-btn" id="btn-scramble">SCRAMBLE</button>
     <button class="control-btn" id="btn-regen">REGENERATE</button>
@@ -82,6 +83,8 @@ var cellMapW = 0, cellMapH = 0;
 var pulseTargets = [];
 var offCanvas = null, offCtx = null;
 var borderPixels = [];
+// PAINT: 自分で 4 色に塗る。隣と同じ色だと境界の線が紫に光る
+var playMode = false, taps = 0, playDone = false;
 
 function rgba(col, a) {
   return 'rgba('+Math.round(col[0])+','+Math.round(col[1])+','+Math.round(col[2])+','+a+')';
@@ -313,7 +316,7 @@ function draw() {
     var off = i * 4;
     if (coloring[owner] >= 0) {
       var col = COLORS[coloring[owner]];
-      var alpha = (owner === currentIdx && solving) ? pulseAlpha : 0.30;
+      var alpha = (owner === currentIdx && solving) ? pulseAlpha : (playMode ? 0.55 : 0.30);
       d[off]   = 10 + (col[0]-10)*alpha;
       d[off+1] = 10 + (col[1]-10)*alpha;
       d[off+2] = 15 + (col[2]-15)*alpha;
@@ -417,6 +420,41 @@ function findNearestSite(px, py) {
   return bestD < 1600 ? best : -1;
 }
 
+function startPlay() {
+  playMode = true; playDone = false; taps = 0;
+  document.getElementById('btn-play').classList.add('active');
+  solving = false; solved = false; currentIdx = -1; pulseTargets = [];
+  stepCount = 0; btCount = 0;
+  for (var i = 0; i < sites.length; i++) coloring[i] = -1;
+  updatePlayState();
+  SFX.play('toggle');
+}
+function updatePlayState() {
+  var filled = 0;
+  for (var i = 0; i < sites.length; i++) if (coloring[i] >= 0) filled++;
+  var conflicts = countConflicts();
+  var el = document.getElementById('h-state');
+  if (filled === sites.length && conflicts === 0) {
+    el.textContent = 'YOU DID IT · ' + taps + ' TAPS';
+    if (!playDone) { playDone = true; SFX.play('complete'); }
+  } else {
+    playDone = false;
+    el.textContent = 'PAINT ' + filled + '/' + sites.length + (conflicts ? ' · ' + conflicts + ' CLASH' : '');
+  }
+}
+function paintAt(px, py) {
+  var cx = Math.min(cellMapW - 1, Math.max(0, Math.floor(px / 3)));
+  var cy = Math.min(cellMapH - 1, Math.max(0, Math.floor(py / 3)));
+  var owner = cellMap[cy * cellMapW + cx];
+  var before = countConflicts();
+  coloring[owner] = coloring[owner] >= 3 ? -1 : coloring[owner] + 1;
+  taps++;
+  pulseTargets.push({idx: owner, time: animPhase});
+  var after = countConflicts();
+  SFX.play(after > before ? 'collide' : 'tick', 40);
+  updatePlayState();
+}
+
 function onDown(e) {
   e.preventDefault();
   var rect = c.getBoundingClientRect();
@@ -430,6 +468,9 @@ function onDown(e) {
     py = e.clientY - rect.top;
     isRight = e.button === 2;
   }
+
+  if (playMode && !isRight) { paintAt(px, py); return; }
+  playMode = false; document.getElementById('btn-play').classList.remove('active');
 
   if (isRight) {
     nTarget = parseInt(document.getElementById('sl-n').value);
@@ -499,17 +540,22 @@ document.getElementById('sl-speed').addEventListener('input', function(){
 });
 
 document.getElementById('btn-solve').addEventListener('click', function(){
+  playMode = false; document.getElementById('btn-play').classList.remove('active');
   startSolve();
+});
+document.getElementById('btn-play').addEventListener('click', function(){
+  startPlay();
 });
 
 document.getElementById('btn-scramble').addEventListener('click', function(){
+  playMode = false; document.getElementById('btn-play').classList.remove('active');
   scrambleColors();
 });
 
 document.getElementById('btn-regen').addEventListener('click', function(){
   nTarget = parseInt(document.getElementById('sl-n').value);
   generateSites(nTarget);
-  startSolve();
+  if (playMode) startPlay(); else startSolve();
 });
 
 function init() {

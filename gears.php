@@ -9,8 +9,6 @@ $pageDesc = '歯車列シミュレーション。噛み合う歯車が回転比�
 $pageCanonical = 'https://pulse.subara3.com/gears.php';
 $extraStyle = '
   #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
-  #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
   canvas{cursor:crosshair}
 ';
 
@@ -22,8 +20,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>GEARS <span id="hud-cnt">2</span></div>
   <div>RATIO <span id="hud-rat">1:1</span></div>
   <div>TEETH <span id="hud-tth">-</span></div>
+  <div>TARGET <span id="hud-tgt">-</span></div>
+  <div><span id="hud-res">make any gear turn like this</span></div>
+  <div>SOLVED <span id="hud-sol">0</span></div>
 </div>
-<div id="info-label"><span>GEARS</span></div>
 <?php
 $interactionHints = [
   ['type' => 'click', 'label' => 'add'],
@@ -41,12 +41,13 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   </div>
   <div class="slider-row">
     <label class="slider-label">SPEED</label>
-    <input type="range" id="sl-speed" min="0" max="100" value="30">
-    <span class="slider-value" id="sv-speed">30</span>
+    <input type="range" id="sl-speed" min="0" max="100" value="80">
+    <span class="slider-value" id="sv-speed">80</span>
   </div>
   <div class="btn-row">
     <button class="ctrl-btn active" id="btn-auto">AUTO</button>
     <button class="ctrl-btn" id="btn-reset">RESET</button>
+    <button class="ctrl-btn" id="btn-target">NEW TARGET</button>
   </div>
   <div class="slider-row"><label class="slider-label">PRESETS</label></div>
   <div class="btn-row" id="preset-btns">
@@ -63,11 +64,11 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 var C=document.getElementById('canvas'),X=C.getContext('2d');
 var W,H,dpr;
 
-var MODULE=5;
+var MODULE=window.innerWidth>900?7:5;
 var gears=[];
 var connections=[];
 var autoRotate=true;
-var speed=0.3;
+var speed=0.8;
 var nextTeeth=20;
 var driverAngle=0;
 var selectedIdx=-1;
@@ -236,13 +237,24 @@ function propagateRotation(){
   }
 }
 
-function tryAutoMesh(idx){
+function tryAutoMesh(idx,loose){
   var g=gears[idx];
+  // 新しく置いた歯車は、いちばん近い歯車に吸い付かせる（指で正確な距離に置くのは難しい）
+  var only=-1;
+  if(loose){
+    var bestD=Infinity;
+    for(var j=0;j<gears.length;j++){
+      if(j===idx)continue;
+      var dd=Math.abs(dist(g,gears[j])-pitchDist(g,gears[j]));
+      if(dd<bestD){bestD=dd;only=j;}
+    }
+    if(only<0||bestD>pitchDist(g,gears[only])*0.6)only=-1;
+  }
   for(var i=0;i<gears.length;i++){
     if(i===idx)continue;
     var d=dist(g,gears[i]);
     var pd=pitchDist(g,gears[i]);
-    if(Math.abs(d-pd)<MODULE*3){
+    if(i===only||Math.abs(d-pd)<MODULE*3){
       var alreadyConnected=false;
       for(var ci=0;ci<connections.length;ci++){
         var c=connections[ci];
@@ -261,12 +273,12 @@ function tryAutoMesh(idx){
 }
 
 function getGearRatio(idx){
-  if(idx===0)return{num:1,den:1};
+  if(idx===0)return{num:1,den:1,dir:1};
   var visited=new Array(gears.length);
   for(var i=0;i<visited.length;i++)visited[i]=false;
   visited[0]=true;
   var ratios=new Array(gears.length);
-  ratios[0]={n:1,d:1};
+  ratios[0]={n:1,d:1,s:1};
   var queue=[0];
   while(queue.length>0){
     var cur=queue.shift();
@@ -277,24 +289,65 @@ function getGearRatio(idx){
       else if(c.b===cur&&!visited[c.a]){neighbor=c.a;nA=gears[c.b].n;nB=gears[c.a].n;}
       if(neighbor>=0){
         visited[neighbor]=true;
-        ratios[neighbor]={n:ratios[cur].n*nA,d:ratios[cur].d*nB};
+        ratios[neighbor]={n:ratios[cur].n*nA,d:ratios[cur].d*nB,s:-ratios[cur].s};
         queue.push(neighbor);
       }
     }
   }
   if(!ratios[idx])return null;
   var g=gcd(Math.abs(ratios[idx].n),Math.abs(ratios[idx].d));
-  return{num:ratios[idx].n/g,den:ratios[idx].d/g};
+  return{num:ratios[idx].n/g,den:ratios[idx].d/g,dir:ratios[idx].s};
+}
+
+// 目標: 「駆動歯車に対して a:b の速さで、同じ/逆向きに回る歯車を作れ」。
+// 歯数比だけで速さが決まり、間に挟んだ歯車（アイドラー）は向きだけを変える
+var target=null,solved=0,solvedNow=false;
+function newTarget(){
+  var n0=gears.length?gears[0].n:20;
+  var cands=[];
+  for(var p=1;p<=4;p++)for(var q=1;q<=4;q++){
+    if(p===q||gcd(p,q)!==1)continue;
+    // 出力の歯数 nOut = n0*q/p が 8..60 の整数になるものだけ
+    if((n0*q)%p!==0)continue;
+    var nOut=n0*q/p;
+    if(nOut>=8&&nOut<=60&&nOut!==n0)cands.push({num:p,den:q});
+  }
+  if(!cands.length)cands.push({num:1,den:1});
+  var t=cands[Math.floor(Math.random()*cands.length)];
+  target={num:t.num,den:t.den,dir:Math.random()<0.5?1:-1};
+  solvedNow=false;
+  document.getElementById('hud-tgt').textContent=t.num+':'+t.den+(target.dir>0?' SAME':' REVERSE');
+  document.getElementById('hud-res').textContent='make any gear turn like this';
+  checkTarget();
+}
+function checkTarget(){
+  if(!target)return;
+  var hit=-1;
+  for(var i=1;i<gears.length;i++){
+    var r=getGearRatio(i);
+    if(r&&r.num===target.num&&r.den===target.den&&r.dir===target.dir){hit=i;break;}
+  }
+  target.hit=hit;
+  if(hit>=0&&!solvedNow){
+    solvedNow=true;solved++;
+    document.getElementById('hud-sol').textContent=solved;
+    document.getElementById('hud-res').textContent='GEAR '+(hit+1)+' HITS IT';
+    if(window.SFX)SFX.play('correct');
+  }else if(hit<0&&solvedNow){
+    solvedNow=false;
+    document.getElementById('hud-res').textContent='make any gear turn like this';
+  }
 }
 function gcd(a,b){while(b){var t=b;b=a%t;a=t;}return a;}
 
 function updateHUD(){
+  checkTarget();
   document.getElementById('hud-cnt').textContent=gears.length;
   if(selectedIdx>=0&&selectedIdx<gears.length){
     var g=gears[selectedIdx];
     document.getElementById('hud-tth').textContent=g.n;
     var r=getGearRatio(selectedIdx);
-    if(r)document.getElementById('hud-rat').textContent=r.num+':'+r.den;
+    if(r)document.getElementById('hud-rat').textContent=r.num+':'+r.den+(r.dir>0?' SAME':' REVERSE');
     else document.getElementById('hud-rat').textContent='-';
   }else{
     document.getElementById('hud-tth').textContent=nextTeeth;
@@ -304,7 +357,7 @@ function updateHUD(){
 
 function initDefault(){
   gears=[];connections=[];driverAngle=0;selectedIdx=-1;
-  var cx=W/2,cy=H/2;
+  var cx=W>900?W*0.4:W/2,cy=H/2;
   var g1=makeGear(cx-60,cy,20,0);
   var g2=makeGear(cx+60,cy,20,1);
   gears.push(g1,g2);
@@ -317,7 +370,7 @@ function initDefault(){
 
 function loadPreset(name){
   gears=[];connections=[];driverAngle=0;selectedIdx=-1;
-  var cx=W/2,cy=H/2;
+  var cx=W>900?W*0.4:W/2,cy=H/2;
   if(name==='pair'){
     gears.push(makeGear(cx-60,cy,16,0));
     gears.push(makeGear(0,cy,32,1));
@@ -384,6 +437,11 @@ function draw(now){
 
   for(var i=0;i<gears.length;i++){
     drawGear(gears[i],i===selectedIdx);
+  }
+  if(target&&target.hit>=0&&gears[target.hit]){
+    var hg=gears[target.hit];
+    X.beginPath();X.arc(hg.x,hg.y,hg.r+MODULE+14,0,Math.PI*2);
+    X.strokeStyle='rgba(0,245,212,0.55)';X.lineWidth=2;X.stroke();
   }
 
   for(var i=0;i<gears.length;i++){
@@ -460,7 +518,7 @@ C.addEventListener('mouseup',function(e){
     if(idx<0){
       var ng=makeGear(p.x,p.y,nextTeeth,gears.length%2);
       gears.push(ng);
-      tryAutoMesh(gears.length-1);
+      tryAutoMesh(gears.length-1,true);
       selectedIdx=gears.length-1;
       updateHUD();
       if(window.SFX)SFX.play('spawn');
@@ -557,7 +615,7 @@ C.addEventListener('touchend',function(e){
     if(idx<0){
       var ng=makeGear(p.x,p.y,nextTeeth,gears.length%2);
       gears.push(ng);
-      tryAutoMesh(gears.length-1);
+      tryAutoMesh(gears.length-1,true);
       selectedIdx=gears.length-1;
       updateHUD();
       if(window.SFX)SFX.play('spawn');
@@ -590,6 +648,10 @@ document.getElementById('btn-reset').addEventListener('click',function(){
   initDefault();
   if(window.SFX)SFX.play('click');
 });
+document.getElementById('btn-target').addEventListener('click',function(){
+  newTarget();
+  if(window.SFX)SFX.play('toggle');
+});
 
 document.querySelectorAll('#preset-btns .ctrl-btn').forEach(function(btn){
   btn.addEventListener('click',function(){
@@ -598,6 +660,7 @@ document.querySelectorAll('#preset-btns .ctrl-btn').forEach(function(btn){
 });
 
 initDefault();
+newTarget();
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
