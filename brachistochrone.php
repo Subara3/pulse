@@ -769,6 +769,8 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   window.addEventListener('resize', resize);
   resize();
   render();
+  // 開いた直後に 1 回走らせて、何を競うページかを見せる
+  setTimeout(function() { if (!racing && mode === 'race') startRace(); }, 900);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
