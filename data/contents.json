@@ -314,13 +314,13 @@
   {
     "page": "network",
     "title": "NETWORK",
-    "desc": "ランダムグラフの相転移。ノードが繋がり、突然ひとつになる。",
-    "desc_en": "Random graph phase transition. Nodes connect and suddenly become one.",
+    "desc": "点と点をでたらめに結んでいくと、ある瞬間に全体がひとつにつながる。HUBS では同じ速さで育つ2つの網を並べ、「誰でもいい」と「人気者を選ぶ」の違いだけで巨大なハブが生まれるのを見比べる。",
+    "desc_en": "Link random pairs of dots and at one moment everything snaps into a single web. In HUBS two networks grow side by side, one picking partners at random and one picking the popular, and only the second grows giant hubs.",
     "icon": "fa-circle-nodes",
     "category": "探すもの",
     "category_en": "SEARCH",
-    "meta": "インタラクティブ",
-    "meta_en": "Interactive",
+    "meta": "GIANT（ランダムグラフの相転移） · HUBS（一様 vs 優先的選択） · 次数分布",
+    "meta_en": "GIANT (random-graph transition) · HUBS (uniform vs preferential) · degree histogram",
     "added": "2026-02-11",
     "group": "mind"
   },
@@ -2142,19 +2142,6 @@
     "meta": "SOM / 競合学習",
     "meta_en": "SOM / competitive",
     "added": "2026-07-24",
-    "group": "mind"
-  },
-  {
-    "page": "scalefree",
-    "title": "SCALE-FREE",
-    "desc": "スケールフリーネットワーク。優先的選択で新ノードがハブに引き寄せられ、べき乗則の次数分布が創発する。",
-    "desc_en": "Scale-free network. Preferential attachment draws new nodes to hubs, and a power-law degree distribution emerges.",
-    "icon": "fa-sitemap",
-    "category": "探すもの",
-    "category_en": "SEARCH",
-    "meta": "BA model / hub emergence",
-    "meta_en": "BA model / hub emergence",
-    "added": "2026-07-25",
     "group": "mind"
   },
   {
