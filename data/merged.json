@@ -113,5 +113,20 @@
     "to": "flowfield",
     "why": "グラデーションの流れ ⊂ ノイズ流れ場",
     "concept": "グラデーションの流れ場"
+  },
+  "burningship": {
+    "to": "fractal",
+    "why": "バーニングシップ = 絶対値つきのマンデルブロ。fractal の SHIP モード",
+    "concept": "バーニングシップ・フラクタル"
+  },
+  "multibrot": {
+    "to": "fractal",
+    "why": "マルチブロ = z^d のマンデルブロ。fractal の z^d モード（d 連続変化）",
+    "concept": "マルチブロ集合（z^d+c）"
+  },
+  "transcend": {
+    "to": "fractal",
+    "why": "sin/exp の脱出時間フラクタル = 式を替えたマンデルブロ。fractal の SIN / EXP モード",
+    "concept": "超越関数（sin・exp）の反復フラクタル"
   }
 }

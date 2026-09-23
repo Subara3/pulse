@@ -119,13 +119,13 @@
   {
     "page": "fractal",
     "title": "FRACTAL",
-    "desc": "マンデルブロ集合を、ズームと色層で探る。",
-    "desc_en": "Explore the Mandelbrot set through zoom and layered color fields.",
+    "desc": "マンデルブロ集合へ潜っていく。式を z^d・絶対値つき（バーニングシップ）・sin・exp に替えると、同じ潜り方で別の海岸線が出てくる。気に入った場所は JULIA でジュリア集合に裏返る。",
+    "desc_en": "Dive into the Mandelbrot set. Swap the formula for z^d, the absolute-value Burning Ship, sin or exp and the same dive reveals a different coastline. JULIA flips any spot into its Julia set.",
     "icon": "fa-snowflake",
     "category": "繰り返すもの",
     "category_en": "FRACTAL",
-    "meta": "ズームフィールド",
-    "meta_en": "Zoom field",
+    "meta": "5つの式 · 見どころ巡り · d 連続変化 · JULIA",
+    "meta_en": "5 formulas · spot tour · morphing d · JULIA",
     "added": "2026-01-29",
     "group": "fractal"
   },
@@ -2546,19 +2546,6 @@
     "added": "2026-08-25"
   },
   {
-    "page": "burningship",
-    "title": "BURNING SHIP",
-    "desc": "バーニングシップフラクタル。絶対値操作が対称性を破り、炎上する船のような非対称フラクタルが現れる。",
-    "desc_en": "Burning Ship fractal. Absolute value operations break the symmetry of the Mandelbrot formula, producing an asymmetric fractal resembling a ship ablaze.",
-    "icon": "fa-fire",
-    "group": "fractal",
-    "category": "繰り返すもの",
-    "category_en": "FRACTAL",
-    "meta": "非対称フラクタル · smooth coloring",
-    "meta_en": "asymmetric fractal · smooth coloring",
-    "added": "2026-08-26"
-  },
-  {
     "page": "gaussprimes",
     "title": "GAUSSIAN PRIMES",
     "desc": "ガウス整数の素数を複素平面に描く。四重対称のパターンが数論の深淵を映し出す。",
@@ -2635,19 +2622,6 @@
     "meta": "複素解析 · 領域彩色 · 臨界線",
     "meta_en": "complex analysis · domain coloring · critical line",
     "added": "2026-09-01"
-  },
-  {
-    "page": "multibrot",
-    "title": "MULTIBROT",
-    "desc": "マルチブロ集合。z^d+cの冪乗dを連続的に変化させると、マンデルブロ集合が(d-1)回対称へ変形していく。",
-    "desc_en": "The Multibrot set. Smoothly vary the exponent d in z^d+c and watch the Mandelbrot set morph into (d-1)-fold symmetry.",
-    "icon": "fa-asterisk",
-    "group": "fractal",
-    "category": "繰り返すもの",
-    "category_en": "FRACTAL",
-    "meta": "d = 2.0–8.0 / Mandelbrot + Julia",
-    "meta_en": "d = 2.0–8.0 / Mandelbrot + Julia",
-    "added": "2026-09-02"
   },
   {
     "page": "cascade",
@@ -2856,19 +2830,6 @@
     "meta": "針の長さ / 線間隔 / π収束",
     "meta_en": "needle length / line spacing / π convergence",
     "added": "2026-09-18"
-  },
-  {
-    "page": "transcend",
-    "title": "TRANSCEND",
-    "desc": "超越反復フラクタル。sin(z)とexp(z)の反復が多項式を超え、無限に連なる自己相似構造を紡ぐ。",
-    "desc_en": "Transcendental iteration fractals. Iterating c·sin(z) and c·exp(z) spins infinite chains of self-similar structure beyond polynomial dynamics.",
-    "icon": "fa-infinity",
-    "group": "fractal",
-    "category": "繰り返すもの",
-    "category_en": "FRACTAL",
-    "meta": "SIN / EXP / JULIA / max 256 iter",
-    "meta_en": "SIN / EXP / JULIA / max 256 iter",
-    "added": "2026-09-19"
   },
   {
     "page": "grin",
