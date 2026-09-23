@@ -10,7 +10,7 @@
     "items": [
       {"page": "collapse", "label": "COLLAPSE", "reason": "制約伝播によるタイル配置"},
       {"page": "pathfind", "label": "PATHFIND", "reason": "探索アルゴリズムの可視化"},
-      {"page": "monotile", "label": "MONOTILE", "reason": "非周期的タイリング"}
+      {"page": "penrose", "label": "PENROSE", "reason": "非周期的タイリング"}
     ]
   }
 }

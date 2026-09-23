@@ -72,6 +72,8 @@ Redirect 301 /transcend.php /fractal.php
 Redirect 301 /lifelike.php /life.php
 # 優先的選択の成長 = ネットワークの育ち方の比較。network の HUBS モード（一様と優先を左右で同時成長）
 Redirect 301 /scalefree.php /network.php
+# 非周期タイル = ペンローズと同じ体験。penrose の HAT モード（本物のメタタイル置換で作り直し）
+Redirect 301 /monotile.php /penrose.php
 # ---- ここまで ----
 
 # Default charset

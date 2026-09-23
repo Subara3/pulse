@@ -275,13 +275,13 @@
   {
     "page": "penrose",
     "title": "PENROSE",
-    "desc": "非周期タイルの向きと階層を観察するPenrose風可視化。",
-    "desc_en": "Explore Penrose-style aperiodic tile orientation and layered patches.",
+    "desc": "三角形を黄金比で切り分け続けると、どこまで行っても同じ並びが繰り返さない床ができる。菱形・カイトとダート・帽子（1種類の形だけで敷き詰める2023年発見のタイル）を切り替え、タップしたタイルがどの大きなタイルから生まれたかをたどる。",
+    "desc_en": "Keep cutting triangles by the golden ratio and you get a floor whose pattern never repeats. Switch between rhombs, kites and darts, and the hat (the 2023 shape that tiles alone), and tap any tile to trace which bigger tiles it came from.",
     "icon": "fa-shapes",
     "category": "敷き詰めるもの",
     "category_en": "TILING",
-    "meta": "非周期タイル",
-    "meta_en": "Aperiodic tiles",
+    "meta": "RHOMB / KITE / HAT · 祖先タイルをたどる · 比率が φ に収束",
+    "meta_en": "RHOMB / KITE / HAT · trace ancestor tiles · ratios converge to φ",
     "added": "2026-01-29",
     "group": "tile"
   },
@@ -2453,19 +2453,6 @@
     "meta_en": "noise-aided detection · bistable dynamics · SNR peak",
     "added": "2026-08-19",
     "group": "chaos"
-  },
-  {
-    "page": "monotile",
-    "title": "MONOTILE",
-    "desc": "非周期的モノタイル。たった1枚の形が平面を周期なく埋め尽くす——2023年に発見されたアインシュタイン・タイル。",
-    "desc_en": "Aperiodic monotile. A single shape tiles the plane without ever repeating. The 2023 einstein tile discovery visualized.",
-    "icon": "fa-gem",
-    "category": "敷き詰めるもの",
-    "category_en": "TILING",
-    "meta": "3 modes / depth control",
-    "meta_en": "3 modes / depth control",
-    "added": "2026-08-20",
-    "group": "tile"
   },
   {
     "page": "motile",
