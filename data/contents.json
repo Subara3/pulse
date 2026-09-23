@@ -119,13 +119,13 @@
   {
     "page": "fractal",
     "title": "FRACTAL",
-    "desc": "マンデルブロ集合を、ズームと色層で探る。",
-    "desc_en": "Explore the Mandelbrot set through zoom and layered color fields.",
+    "desc": "マンデルブロ集合へ潜っていく。式を z^d・絶対値つき（バーニングシップ）・sin・exp に替えると、同じ潜り方で別の海岸線が出てくる。気に入った場所は JULIA でジュリア集合に裏返る。",
+    "desc_en": "Dive into the Mandelbrot set. Swap the formula for z^d, the absolute-value Burning Ship, sin or exp and the same dive reveals a different coastline. JULIA flips any spot into its Julia set.",
     "icon": "fa-snowflake",
     "category": "繰り返すもの",
     "category_en": "FRACTAL",
-    "meta": "ズームフィールド",
-    "meta_en": "Zoom field",
+    "meta": "5つの式 · 見どころ巡り · d 連続変化 · JULIA",
+    "meta_en": "5 formulas · spot tour · morphing d · JULIA",
     "added": "2026-01-29",
     "group": "fractal"
   },
@@ -171,13 +171,13 @@
   {
     "page": "life",
     "title": "LIFE",
-    "desc": "コンウェイのライフゲームを、密度と世代の場として観察する。",
-    "desc_en": "Explore Conway's Game of Life as a field of density and generations.",
+    "desc": "ライフゲームの規則（B3/S23）を1ビットずつ書き換える。生まれる数・生き残る数のスイッチ18個で、爆発する世界・凍る世界・迷路になる世界が切り替わり、個体数の折れ線で違いを見比べられる。",
+    "desc_en": "Rewrite the Game of Life rule (B3/S23) one bit at a time. Eighteen birth/survival switches turn the grid into worlds that explode, freeze or grow mazes, and a population trace lets you compare them.",
     "icon": "fa-bacterium",
     "category": "格子のもの",
     "category_en": "LATTICE",
-    "meta": "生成ルール",
-    "meta_en": "Generative rules",
+    "meta": "B/S スイッチ18個 · 8プリセット · MUTATE · 個体数の折れ線",
+    "meta_en": "18 B/S switches · 8 presets · MUTATE · population trace",
     "added": "2026-01-29",
     "group": "lattice"
   },
@@ -275,13 +275,13 @@
   {
     "page": "penrose",
     "title": "PENROSE",
-    "desc": "非周期タイルの向きと階層を観察するPenrose風可視化。",
-    "desc_en": "Explore Penrose-style aperiodic tile orientation and layered patches.",
+    "desc": "三角形を黄金比で切り分け続けると、どこまで行っても同じ並びが繰り返さない床ができる。菱形・カイトとダート・帽子（1種類の形だけで敷き詰める2023年発見のタイル）を切り替え、タップしたタイルがどの大きなタイルから生まれたかをたどる。",
+    "desc_en": "Keep cutting triangles by the golden ratio and you get a floor whose pattern never repeats. Switch between rhombs, kites and darts, and the hat (the 2023 shape that tiles alone), and tap any tile to trace which bigger tiles it came from.",
     "icon": "fa-shapes",
     "category": "敷き詰めるもの",
     "category_en": "TILING",
-    "meta": "非周期タイル",
-    "meta_en": "Aperiodic tiles",
+    "meta": "RHOMB / KITE / HAT · 祖先タイルをたどる · 比率が φ に収束",
+    "meta_en": "RHOMB / KITE / HAT · trace ancestor tiles · ratios converge to φ",
     "added": "2026-01-29",
     "group": "tile"
   },
@@ -314,13 +314,13 @@
   {
     "page": "network",
     "title": "NETWORK",
-    "desc": "ランダムグラフの相転移。ノードが繋がり、突然ひとつになる。",
-    "desc_en": "Random graph phase transition. Nodes connect and suddenly become one.",
+    "desc": "点と点をでたらめに結んでいくと、ある瞬間に全体がひとつにつながる。HUBS では同じ速さで育つ2つの網を並べ、「誰でもいい」と「人気者を選ぶ」の違いだけで巨大なハブが生まれるのを見比べる。",
+    "desc_en": "Link random pairs of dots and at one moment everything snaps into a single web. In HUBS two networks grow side by side, one picking partners at random and one picking the popular, and only the second grows giant hubs.",
     "icon": "fa-circle-nodes",
     "category": "探すもの",
     "category_en": "SEARCH",
-    "meta": "インタラクティブ",
-    "meta_en": "Interactive",
+    "meta": "GIANT（ランダムグラフの相転移） · HUBS（一様 vs 優先的選択） · 次数分布",
+    "meta_en": "GIANT (random-graph transition) · HUBS (uniform vs preferential) · degree histogram",
     "added": "2026-02-11",
     "group": "mind"
   },
@@ -2145,19 +2145,6 @@
     "group": "mind"
   },
   {
-    "page": "scalefree",
-    "title": "SCALE-FREE",
-    "desc": "スケールフリーネットワーク。優先的選択で新ノードがハブに引き寄せられ、べき乗則の次数分布が創発する。",
-    "desc_en": "Scale-free network. Preferential attachment draws new nodes to hubs, and a power-law degree distribution emerges.",
-    "icon": "fa-sitemap",
-    "category": "探すもの",
-    "category_en": "SEARCH",
-    "meta": "BA model / hub emergence",
-    "meta_en": "BA model / hub emergence",
-    "added": "2026-07-25",
-    "group": "mind"
-  },
-  {
     "page": "cml",
     "title": "CML",
     "desc": "結合写像格子。ロジスティック写像の格子が拡散結合し、時空間カオスとパターン選択が創発する。",
@@ -2468,19 +2455,6 @@
     "group": "chaos"
   },
   {
-    "page": "monotile",
-    "title": "MONOTILE",
-    "desc": "非周期的モノタイル。たった1枚の形が平面を周期なく埋め尽くす——2023年に発見されたアインシュタイン・タイル。",
-    "desc_en": "Aperiodic monotile. A single shape tiles the plane without ever repeating. The 2023 einstein tile discovery visualized.",
-    "icon": "fa-gem",
-    "category": "敷き詰めるもの",
-    "category_en": "TILING",
-    "meta": "3 modes / depth control",
-    "meta_en": "3 modes / depth control",
-    "added": "2026-08-20",
-    "group": "tile"
-  },
-  {
     "page": "motile",
     "title": "MOTILE",
     "desc": "自己駆動粒子の非平衡相分離。引力なしで密度と持続性だけからクラスタが自発的に形成・融合・蒸発する。",
@@ -2544,19 +2518,6 @@
     "meta": "渦巻き上がり · せん断不安定性 · 渦度法",
     "meta_en": "vortex roll-up · shear instability · vortex method",
     "added": "2026-08-25"
-  },
-  {
-    "page": "burningship",
-    "title": "BURNING SHIP",
-    "desc": "バーニングシップフラクタル。絶対値操作が対称性を破り、炎上する船のような非対称フラクタルが現れる。",
-    "desc_en": "Burning Ship fractal. Absolute value operations break the symmetry of the Mandelbrot formula, producing an asymmetric fractal resembling a ship ablaze.",
-    "icon": "fa-fire",
-    "group": "fractal",
-    "category": "繰り返すもの",
-    "category_en": "FRACTAL",
-    "meta": "非対称フラクタル · smooth coloring",
-    "meta_en": "asymmetric fractal · smooth coloring",
-    "added": "2026-08-26"
   },
   {
     "page": "gaussprimes",
@@ -2637,19 +2598,6 @@
     "added": "2026-09-01"
   },
   {
-    "page": "multibrot",
-    "title": "MULTIBROT",
-    "desc": "マルチブロ集合。z^d+cの冪乗dを連続的に変化させると、マンデルブロ集合が(d-1)回対称へ変形していく。",
-    "desc_en": "The Multibrot set. Smoothly vary the exponent d in z^d+c and watch the Mandelbrot set morph into (d-1)-fold symmetry.",
-    "icon": "fa-asterisk",
-    "group": "fractal",
-    "category": "繰り返すもの",
-    "category_en": "FRACTAL",
-    "meta": "d = 2.0–8.0 / Mandelbrot + Julia",
-    "meta_en": "d = 2.0–8.0 / Mandelbrot + Julia",
-    "added": "2026-09-02"
-  },
-  {
     "page": "cascade",
     "title": "CASCADE",
     "desc": "ネットワーク上のカスケード故障。1つのノードが倒れると負荷が隣へ溢れ、連鎖的に崩壊が広がる。スケールフリーネットワークの構造的脆弱性。",
@@ -2700,19 +2648,6 @@
     "meta": "CUSP / HYSTERESIS / FOLD",
     "meta_en": "CUSP / HYSTERESIS / FOLD",
     "added": "2026-09-06"
-  },
-  {
-    "page": "lifelike",
-    "title": "LIFELIKE",
-    "desc": "生命のようなセルオートマトン。B/Sルール文字列で262,144通りの規則空間を探索する。Seeds、Diamoeba、Day & Night——同じ格子から全く異なる宇宙が湧き出す。",
-    "desc_en": "Lifelike cellular automata. Explore 262,144 birth/survival rules on one grid. Each rule string unlocks a completely different universe of emergent patterns.",
-    "icon": "fa-braille",
-    "group": "lattice",
-    "category": "格子のもの",
-    "category_en": "LATTICE",
-    "meta": "8 RULES / CUSTOM B/S",
-    "meta_en": "8 rules / custom B/S",
-    "added": "2026-09-07"
   },
   {
     "page": "polarize",
@@ -2856,19 +2791,6 @@
     "meta": "針の長さ / 線間隔 / π収束",
     "meta_en": "needle length / line spacing / π convergence",
     "added": "2026-09-18"
-  },
-  {
-    "page": "transcend",
-    "title": "TRANSCEND",
-    "desc": "超越反復フラクタル。sin(z)とexp(z)の反復が多項式を超え、無限に連なる自己相似構造を紡ぐ。",
-    "desc_en": "Transcendental iteration fractals. Iterating c·sin(z) and c·exp(z) spins infinite chains of self-similar structure beyond polynomial dynamics.",
-    "icon": "fa-infinity",
-    "group": "fractal",
-    "category": "繰り返すもの",
-    "category_en": "FRACTAL",
-    "meta": "SIN / EXP / JULIA / max 256 iter",
-    "meta_en": "SIN / EXP / JULIA / max 256 iter",
-    "added": "2026-09-19"
   },
   {
     "page": "grin",

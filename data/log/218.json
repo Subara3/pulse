@@ -9,7 +9,6 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "network", "label": "NETWORK", "reason": "ランダムグラフの相転移"},
-      {"page": "scalefree", "label": "SCALE-FREE", "reason": "べき乗則の次数分布"},
       {"page": "boolean", "label": "BOOLEAN", "reason": "ネットワーク上の動的過程"}
     ]
   }

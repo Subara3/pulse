@@ -62,6 +62,18 @@ Redirect 301 /xymodel.php /ising.php
 # 一覧未掲載のまま残っていた孤児ページ
 Redirect 301 /golden.php /fibonacci.php
 Redirect 301 /flow.php /flowfield.php
+# バーニングシップ = 絶対値つきのマンデルブロ。fractal の SHIP モード
+Redirect 301 /burningship.php /fractal.php
+# マルチブロ = z^d のマンデルブロ。fractal の z^d モード（d 連続変化）
+Redirect 301 /multibrot.php /fractal.php
+# sin/exp の脱出時間フラクタル = 式を替えたマンデルブロ。fractal の SIN / EXP モード
+Redirect 301 /transcend.php /fractal.php
+# B/S 規則の切替 = ライフゲームの規則空間。life に規則スイッチ18個とプリセットを統合
+Redirect 301 /lifelike.php /life.php
+# 優先的選択の成長 = ネットワークの育ち方の比較。network の HUBS モード（一様と優先を左右で同時成長）
+Redirect 301 /scalefree.php /network.php
+# 非周期タイル = ペンローズと同じ体験。penrose の HAT モード（本物のメタタイル置換で作り直し）
+Redirect 301 /monotile.php /penrose.php
 # ---- ここまで ----
 
 # Default charset

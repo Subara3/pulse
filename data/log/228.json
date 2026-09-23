@@ -9,8 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "penrose", "label": "PENROSE", "reason": "非周期的タイリング"},
-      {"page": "collapse", "label": "COLLAPSE", "reason": "制約伝播による充填"},
-      {"page": "monotile", "label": "MONOTILE", "reason": "非周期的モノタイル"}
+      {"page": "collapse", "label": "COLLAPSE", "reason": "制約伝播による充填"}
     ]
   }
 }

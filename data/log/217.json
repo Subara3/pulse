@@ -9,8 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "fractal", "label": "FRACTAL", "reason": "d=2の古典的マンデルブロ集合"},
-      {"page": "julia", "label": "JULIA SET", "reason": "ジュリア集合のパラメータ探索"},
-      {"page": "burningship", "label": "BURNING SHIP", "reason": "マンデルブロ集合の別の変種"}
+      {"page": "julia", "label": "JULIA SET", "reason": "ジュリア集合のパラメータ探索"}
     ]
   }
 }
