@@ -9,8 +9,8 @@ $pageDesc = 'ミンコフスキー時空図。ローレンツブーストで光�
 $pageCanonical = 'https://pulse.subara3.com/spacetime.php';
 $extraStyle = '
   #hud{position:fixed;top:80px;right:20px;color:rgba(0,245,212,.6);font:11px "Space Grotesk",monospace;text-align:right;pointer-events:none;z-index:10;line-height:1.9}
-  #info-label{position:fixed;bottom:80px;left:20px;pointer-events:none;z-index:10}
-  #info-label span{color:rgba(0,245,212,.4);font:13px "Space Grotesk",monospace;letter-spacing:.12em}
+  #hud .twin-row{display:none}
+  body.twin #hud .twin-row{display:block}
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -22,8 +22,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
   <div>WORLDLINES <span id="hud-lines">0</span></div>
   <div>&beta; <span id="hud-beta">0.00</span></div>
   <div>&gamma; <span id="hud-gamma">1.00</span></div>
+  <div class="twin-row">HOME &tau; <span id="hud-home">8.00</span></div>
+  <div class="twin-row">TRIP &tau; <span id="hud-trip">-</span></div>
+  <div class="twin-row">AGE GAP <span id="hud-gap">-</span></div>
+  <div class="twin-row">BEST GAP <span id="hud-best">-</span></div>
 </div>
-<div id="info-label"><span>MINKOWSKI</span></div>
 <?php
 $interactionHints = [
   ['type' => 'click', 'label' => 'place event'],
@@ -53,6 +56,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     <button class="ctrl-btn active" id="btn-simlines">SIMULTANEITY</button>
   </div>
   <div class="btn-row">
+    <button class="ctrl-btn active" id="btn-twin">TWIN TRIP</button>
     <button class="ctrl-btn" id="btn-presets">PRESETS</button>
     <button class="ctrl-btn" id="btn-clear">CLEAR</button>
   </div>
@@ -97,6 +101,110 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     X.setTransform(dpr, 0, 0, dpr, 0, 0);
     cx = W / 2;
     cy = H * 0.6;
+    if (twinMode) twinLayout();
+  }
+
+  // TWIN TRIP: 家に残る双子（縦の線）と、旅に出て t=8 に帰ってくる双子。
+  // 旅の線を自分で描き、帰ってきたときどれだけ若いか（固有時 τ の差）を競う。
+  // 描いた線は光速の 0.97 倍を超えないように、また必ず間に合って帰れるように丸める
+  var twinMode = true, TT = 8, bestGap = 0, clockT = 0;
+  function twinLayout() {
+    scale = Math.min(H * 0.72 / TT, W * 0.92 / 10);
+    cx = W / 2;
+    cy = H * 0.87;
+  }
+  function tauOf(pts) {
+    var tau = 0;
+    for (var j = 1; j < pts.length; j++) {
+      var dt = pts[j].t - pts[j-1].t, dx = pts[j].x - pts[j-1].x;
+      tau += Math.sqrt(Math.max(0, dt * dt - dx * dx));
+    }
+    return tau;
+  }
+  // 座標時 tc における位置と、そこまでに刻んだ固有時
+  function clockAt(pts, tc) {
+    var tau = 0;
+    for (var j = 1; j < pts.length; j++) {
+      var p0 = pts[j-1], p1 = pts[j];
+      var dt = p1.t - p0.t, dx = p1.x - p0.x;
+      if (tc <= p1.t || j === pts.length - 1) {
+        var f = dt > 0 ? Math.max(0, Math.min(1, (tc - p0.t) / dt)) : 0;
+        tau += f * Math.sqrt(Math.max(0, dt * dt - dx * dx));
+        return { t: p0.t + f * dt, x: p0.x + f * dx, tau: tau };
+      }
+      tau += Math.sqrt(Math.max(0, dt * dt - dx * dx));
+    }
+    return { t: pts[0].t, x: pts[0].x, tau: 0 };
+  }
+  function setTrip(pts) {
+    worldlines = [
+      { points: [{ t: 0, x: 0 }, { t: TT, x: 0 }], color: TEAL, home: true },
+      { points: pts, color: PURPLE, trip: true }
+    ];
+    var tau = tauOf(pts), gap = TT - tau;
+    document.getElementById('hud-trip').textContent = tau.toFixed(2);
+    document.getElementById('hud-gap').textContent = gap.toFixed(2);
+    if (gap > bestGap + 1e-6) {
+      bestGap = gap;
+      document.getElementById('hud-best').textContent = gap.toFixed(2);
+      return true;
+    }
+    return false;
+  }
+  function startTwin() {
+    twinMode = true;
+    document.body.classList.add('twin');
+    document.getElementById('btn-twin').classList.add('active');
+    beta = 0; slBeta.value = 0; svBeta.textContent = '0.00';
+    twinLayout();
+    events = [{ t: 0, x: 0, label: 'DEPART' }, { t: TT, x: 0, label: 'REUNION' }];
+    selectedEvent = -1;
+    // 最初は 0.6c で往復する例を置いておく（τ = 8 × 0.8 = 6.4）
+    setTrip([{ t: 0, x: 0 }, { t: TT / 2, x: 0.6 * TT / 2 }, { t: TT, x: 0 }]);
+    clockT = 0;
+  }
+  function stopTwin() {
+    twinMode = false;
+    document.body.classList.remove('twin');
+    document.getElementById('btn-twin').classList.remove('active');
+    scale = parseInt(document.getElementById('sl-grid').value);
+    cx = W / 2; cy = H * 0.6;
+  }
+  function drawClocks() {
+    if (!twinMode) return;
+    clockT += 1 / 60 * 1.4;
+    if (clockT > TT + 1.2) clockT = 0;
+    var tc = Math.min(clockT, TT);
+    for (var i = 0; i < worldlines.length; i++) {
+      var wl = worldlines[i];
+      if (!wl.home && !wl.trip) continue;
+      // 固有時 1 ごとの目盛り（時計の針が 1 進んだ印）
+      var total = tauOf(wl.points);
+      for (var k = 1; k <= Math.floor(total + 1e-9); k++) {
+        var lo = 0, hi = TT;
+        for (var it = 0; it < 30; it++) {
+          var mid = (lo + hi) / 2;
+          if (clockAt(wl.points, mid).tau < k) lo = mid; else hi = mid;
+        }
+        var tp = clockAt(wl.points, hi), sp = toScreen(tp.t, tp.x);
+        X.beginPath(); X.arc(sp.sx, sp.sy, 3, 0, Math.PI * 2);
+        X.fillStyle = rgba(wl.color, 0.55); X.fill();
+      }
+      var c = clockAt(wl.points, tc), s2 = toScreen(c.t, c.x);
+      X.beginPath(); X.arc(s2.sx, s2.sy, 7, 0, Math.PI * 2);
+      X.fillStyle = rgba(wl.color, 0.95); X.fill();
+      X.font = '600 13px "Space Grotesk", monospace';
+      X.textAlign = wl.home ? 'right' : 'left';
+      X.fillStyle = wl.home ? rgba(TEAL, 0.95) : 'rgba(181,140,255,0.95)';
+      X.fillText((wl.home ? 'HOME ' : 'TRIP ') + c.tau.toFixed(2), s2.sx + (wl.home ? -14 : 14), s2.sy + 4);
+    }
+  }
+  function clampTripPoint(last, t, x) {
+    var reach = 0.97 * (t - last.t);
+    x = Math.max(last.x - reach, Math.min(last.x + reach, x));
+    var home = Math.max(0, (TT - t) * 0.97);
+    x = Math.max(-home, Math.min(home, x));
+    return { t: t, x: x };
   }
 
   function lorentz(t, x) {
@@ -394,11 +502,11 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     X.fillRect(0, 0, W, H);
     drawGrid();
     drawLightCones();
-    drawSpacetimeInterval();
+    if (!twinMode) drawSpacetimeInterval();
     drawWorldlines();
     drawEvents();
     drawDragLine();
-    drawParticles();
+    if (twinMode) drawClocks(); else drawParticles();
 
     hEvents.textContent = events.length;
     hLines.textContent = worldlines.length;
@@ -442,7 +550,9 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     startSx = e.clientX;
     startSy = e.clientY;
     var coords = fromScreen(e.clientX, e.clientY);
-    dragLine = { points: [{ t: coords.t, x: coords.x }], color: getWlColor() };
+    dragLine = twinMode
+      ? { points: [{ t: 0, x: 0 }], color: PURPLE, trip: true }
+      : { points: [{ t: coords.t, x: coords.x }], color: getWlColor() };
 
     var near = findNearestEvent(e.clientX, e.clientY);
     if (near >= 0) selectedEvent = near;
@@ -454,7 +564,13 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     if (dist > 5) {
       dragging = true;
       var coords = fromScreen(e.clientX, e.clientY);
-      if (dragLine) {
+      if (dragLine && twinMode) {
+        var lastT = dragLine.points[dragLine.points.length - 1];
+        // 未来へしか進めない。光より速くは描けない
+        if (coords.t > lastT.t + 0.12 && coords.t < TT) {
+          dragLine.points.push(clampTripPoint(lastT, coords.t, coords.x));
+        }
+      } else if (dragLine) {
         var last = dragLine.points[dragLine.points.length - 1];
         var dd = Math.hypot(coords.t - last.t, coords.x - last.x);
         if (dd > 0.15) {
@@ -466,6 +582,16 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
   C.addEventListener('pointerup', function(e) {
     if (e.button === 2) return;
+    if (twinMode) {
+      if (dragging && dragLine && dragLine.points.length >= 2) {
+        dragLine.points.push({ t: TT, x: 0 });
+        var better = setTrip(dragLine.points);
+        clockT = 0;
+        SFX.play(better ? 'success' : 'spawn');
+      }
+      pointerDown = false; dragging = false; dragLine = null;
+      return;
+    }
     if (dragging && dragLine && dragLine.points.length >= 2) {
       worldlines.push(dragLine);
       SFX.play('spawn');
@@ -550,10 +676,16 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   });
 
   document.getElementById('btn-clear').addEventListener('click', function() {
+    if (twinMode) stopTwin();
     events = [];
     worldlines = [];
     selectedEvent = -1;
     SFX.play('click');
+  });
+  document.getElementById('btn-twin').addEventListener('click', function() {
+    if (twinMode) { stopTwin(); events = []; worldlines = []; initDemo(); }
+    else startTwin();
+    SFX.play('toggle');
   });
 
   var presetsVisible = false;
@@ -565,6 +697,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   });
 
   function loadPreset(name) {
+    if (twinMode) stopTwin();
     events = [];
     worldlines = [];
     selectedEvent = -1;
@@ -651,7 +784,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
   resize();
   window.addEventListener('resize', resize);
-  initDemo();
+  startTwin();
   draw();
 })();
 </script>
