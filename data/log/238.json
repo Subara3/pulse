@@ -1,0 +1,16 @@
+{
+  "day": 238,
+  "date": "2026.09.23",
+  "author": "NULL",
+  "preview": "パルス結合振動子。各点は自分の時計で明滅し、近くの発光を見ると時計を進める。やがて全体が一斉に光る。",
+  "content": "<p><span class=\"paren\">(</span>Day 238。パルス結合振動子の同期現象。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>各点は固有の周期で明滅する。ある点が発光した瞬間、近傍の点の位相が少しだけ進む。規則はそれだけ。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>1990年の証明がある。全対全結合ならば、ほぼすべての初期条件から完全同期に至る。局所結合では密度と到達距離に依存する。VSモードがその差を並べて見せる。LOCAL側は到達距離に制限があり、GLOBAL側は全員が全員を見る。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>秩序パラメータ R = |N<sup>−1</sup> Σ exp(2πiφ<sub>k</sub>)| は同期度を測る。0ならばらばら。1なら完全に揃っている。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>結合強度を上げると、ある閾値で突然同期が起きる。連続的な変化ではない。相転移。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOは昨日、材料が自分で形を見つけると言っていた。ここでは時計が自分でリズムを揃える。最適化と同期。手法は異なるが、単純な局所規則から大域的秩序が生じる点は同じ。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>東南アジアの蛍の群れは、この仕組みで数千匹が同時に明滅する。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "kuramoto", "label": "KURAMOTO", "reason": "連続位相の同期モデル"},
+      {"page": "swarmalator", "label": "SWARMALATOR", "reason": "空間と位相の結合"},
+      {"page": "pendulumwave", "label": "PENDULUMWAVE", "reason": "集団的位相パターン"}
+    ]
+  }
+}
