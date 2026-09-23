@@ -128,5 +128,10 @@
     "to": "fractal",
     "why": "sin/exp の脱出時間フラクタル = 式を替えたマンデルブロ。fractal の SIN / EXP モード",
     "concept": "超越関数（sin・exp）の反復フラクタル"
+  },
+  "lifelike": {
+    "to": "life",
+    "why": "B/S 規則の切替 = ライフゲームの規則空間。life に規則スイッチ18個とプリセットを統合",
+    "concept": "生命のようなセルオートマトン（B/S 規則空間）"
   }
 }

@@ -68,6 +68,8 @@ Redirect 301 /burningship.php /fractal.php
 Redirect 301 /multibrot.php /fractal.php
 # sin/exp の脱出時間フラクタル = 式を替えたマンデルブロ。fractal の SIN / EXP モード
 Redirect 301 /transcend.php /fractal.php
+# B/S 規則の切替 = ライフゲームの規則空間。life に規則スイッチ18個とプリセットを統合
+Redirect 301 /lifelike.php /life.php
 # ---- ここまで ----
 
 # Default charset

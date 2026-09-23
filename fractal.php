@@ -10,7 +10,7 @@ $pageCanonical = 'https://pulse.subara3.com/fractal.php';
 $extraStyle = '
 body{background:#0a0a0f;min-height:100vh;overflow:hidden}
 #canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
-.hud{position:fixed;top:1rem;right:1rem;z-index:20;font:12px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;color:rgba(255,255,255,.55);text-align:right;letter-spacing:.08em;background:rgba(10,10,15,.48);border:1px solid rgba(0,245,212,.16);padding:.75rem .85rem;border-radius:8px;backdrop-filter:blur(12px)}
+.hud{position:fixed;top:1rem;left:1rem;z-index:20;font:12px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;color:rgba(255,255,255,.55);text-align:left;letter-spacing:.08em;background:rgba(10,10,15,.48);border:1px solid rgba(0,245,212,.16);padding:.75rem .85rem;border-radius:8px;backdrop-filter:blur(12px)}
 .hud b{color:#00f5d4;font-weight:700}.hud .sub{color:#b58cff}
 .formula{position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:20;display:flex;gap:.35rem;padding:.3rem;background:rgba(10,10,15,.55);border:1px solid rgba(0,245,212,.14);border-radius:999px;backdrop-filter:blur(12px)}
 .formula button{font:600 11px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;color:rgba(255,255,255,.6);background:none;border:0;border-radius:999px;padding:.55rem .8rem;cursor:pointer;transition:color .2s ease-out,background .2s ease-out}
@@ -24,7 +24,8 @@ body{background:#0a0a0f;min-height:100vh;overflow:hidden}
 .slider-value{text-align:right;color:#00f5d4}
 input[type=range]{width:100%;accent-color:#00f5d4}
 .slider-row.off{opacity:.35;pointer-events:none}
-@media(max-width:760px){.hud{top:6.2rem;right:.75rem;font-size:10px;padding:.5rem .6rem}.formula{top:3.3rem;gap:.1rem;padding:.2rem}.formula button{font-size:10px;padding:.5rem .55rem;letter-spacing:.06em}.eq{font-size:10px;left:.75rem;bottom:5.2rem}.slider-row{grid-template-columns:62px 1fr 44px}}
+@media(min-width:769px){#controls{width:300px;background:rgba(10,10,15,.66);padding:.85rem;border-radius:10px;border:1px solid rgba(255,255,255,.07);backdrop-filter:blur(12px)}}
+@media(max-width:760px){.hud{top:6.2rem;left:.75rem;font-size:10px;padding:.5rem .6rem}.formula{top:3.3rem;gap:.1rem;padding:.2rem}.formula button{font-size:10px;padding:.5rem .55rem;letter-spacing:.06em}.eq{font-size:10px;left:.75rem;bottom:5.2rem}.slider-row{grid-template-columns:62px 1fr 44px}}
 ';
 
 require_once __DIR__ . '/includes/header.php';
