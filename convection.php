@@ -16,8 +16,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
 <div id="hud">
-  <div>Ra <span id="hud-ra">10000</span></div>
-  <div>CELLS <span id="hud-cells">0</span></div>
+  <div>Ra <span id="hud-ra">29K</span> / Ra<sub>c</sub> 1708</div>
+  <div>STATE <span id="hud-state">CONDUCTION</span></div>
+  <div>PLUMES <span id="hud-cells">0</span></div>
   <div>T<sub>max</sub> <span id="hud-tmax">1.00</span></div>
 </div>
 <?php
@@ -31,8 +32,8 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 <div class="drawer-controls">
   <div class="slider-row">
     <label class="slider-label">RAYLEIGH</label>
-    <input type="range" id="sl-ra" min="0" max="100" value="40" step="1">
-    <span class="slider-value" id="sv-ra">10K</span>
+    <input type="range" id="sl-ra" min="0" max="100" value="59" step="1">
+    <span class="slider-value" id="sv-ra">29K</span>
   </div>
   <div class="slider-row">
     <label class="slider-label">PARTICLES</label>
@@ -50,7 +51,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   var C = document.getElementById('canvas'), X = C.getContext('2d');
   var W, H, dpr;
 
-  var NX = 100, NY = 60;
+  var NX = 80, NY = 48;
   var aspect = NX / NY;
   var dx = 1.0 / NY, dy = 1.0 / NY;
   var dx2 = dx * dx, dy2 = dy * dy;
@@ -66,7 +67,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
   var Ra = 10000, Pr = 1.0;
   var dt = 1.2e-4;
-  var substeps = 4, poissonIts = 25;
+  var substeps = 14, poissonIts = 20;
 
   var viewMode = 0;
   var numPart = 1200;
@@ -79,6 +80,8 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
   var hudRa = document.getElementById('hud-ra');
   var hudCells = document.getElementById('hud-cells');
+  var hudState = document.getElementById('hud-state');
+  var lastState = '';
   var hudTmax = document.getElementById('hud-tmax');
 
   var lut = new Uint8Array(256 * 3);
@@ -152,7 +155,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       for (var i = 0; i < NX; i++) {
         var k = idx(i, j);
         T[k] = 1.0 - j / (NY - 1);
-        T[k] += 0.02 * (Math.random() - 0.5) * Math.sin(Math.PI * j / (NY - 1));
+        T[k] += (0.1 * (Math.random() - 0.5) + 0.05 * Math.cos(6 * Math.PI * i / NX)) * Math.sin(Math.PI * j / (NY - 1));
         w[k] = 0;
         psi[k] = 0;
         uf[k] = 0;
@@ -249,11 +252,36 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     }
   }
 
+  var dtDiff = dt;
+  // 中心差分どうしの結合で生じる格子スケールの市松模様（odd-even モード）を
+  // 弱いフィルタで潰す。物理スケールのロールにはほぼ影響しない。
+  function smoothOddEven(f) {
+    for (var j = 1; j < NY - 1; j++) {
+      for (var i = 0; i < NX; i++) {
+        var k = idx(i, j);
+        var avg = (f[idx(iw(i + 1), j)] + f[idx(iw(i - 1), j)] + f[idx(i, j + 1)] + f[idx(i, j - 1)]) * 0.25;
+        wn[k] = f[k] * 0.85 + avg * 0.15;
+      }
+    }
+    for (var j = 1; j < NY - 1; j++) for (var i = 0; i < NX; i++) f[idx(i, j)] = wn[idx(i, j)];
+  }
+  var frameT = 0;
   function stepSim() {
+    frameT = 0;
     for (var s = 0; s < substeps; s++) {
       poissonSOR();
       computeVel();
+      // 移流の CFL 条件で dt を絞る（高 Ra で速度が上がると陽解法が発散する）
+      var umax = 1e-6;
+      for (var k = 0; k < n; k++) {
+        var a = Math.abs(uf[k]) + Math.abs(vf[k]);
+        if (a > umax) umax = a;
+      }
+      dt = Math.min(dtDiff, 0.35 * dx / umax);
       advectDiffuse();
+      frameT += dt;
+      smoothOddEven(w);
+      smoothOddEven(T);
     }
   }
 
@@ -267,7 +295,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       var k01 = idx(gi, gj+1), k11 = idx(gi+1, gj+1);
       var pu = uf[k00]*(1-fx)*(1-fy) + uf[k10]*fx*(1-fy) + uf[k01]*(1-fx)*fy + uf[k11]*fx*fy;
       var pv = vf[k00]*(1-fx)*(1-fy) + vf[k10]*fx*(1-fy) + vf[k01]*(1-fx)*fy + vf[k11]*fx*fy;
-      var speed = 0.15 / (dy * NY);
+      var speed = frameT / dx;
       partX[p] += pu * speed;
       partY[p] += pv * speed;
       partAge[p]++;
@@ -296,7 +324,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
     var field = viewMode === 0 ? T : w;
 
     for (var py = 0; py < rH; py++) {
-      var gj = py * (NY - 1) / rH;
+      var gj = (rH - 1 - py) * (NY - 1) / rH;
       var j0 = Math.floor(gj), fy = gj - j0;
       if (j0 >= NY - 1) { j0 = NY - 2; fy = 1; }
       for (var px = 0; px < rW; px++) {
@@ -335,20 +363,27 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       var bright = 0.5 + tv * 0.5;
       var r = Math.round(0 + tv * 0), g = Math.round(150 + tv * 95), b = Math.round(170 + tv * 42);
       X.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha.toFixed(2) + ')';
-      X.fillRect(partX[p] * scX, partY[p] * scY, 2, 2);
+      X.fillRect(partX[p] * scX, (NY - partY[p]) * scY, 2, 2);
     }
 
     var maxT = 0;
     for (var k = 0; k < n; k++) if (T[k] > maxT) maxT = T[k];
     hudTmax.textContent = maxT.toFixed(2);
 
-    var cells = 0;
-    for (var j = 2; j < NY - 2; j++) {
-      for (var i = 1; i < NX - 1; i++) {
-        if (vf[idx(i, j)] > 0 && vf[idx(i + 1, j)] <= 0) cells++;
-      }
+    // 中段の行で上昇流の区間を数える（= 上がっていくプルームの本数）
+    var jm = NY >> 1, cells = 0, umax = 0;
+    for (var i = 0; i < NX; i++) {
+      var v0 = vf[idx(i, jm)], v1 = vf[idx(iw(i + 1), jm)];
+      if (v0 <= 0 && v1 > 0) cells++;
+      var a = Math.abs(v0); if (a > umax) umax = a;
     }
-    hudCells.textContent = cells;
+    var st = umax < 1 ? 'CONDUCTION' : 'CONVECTING';
+    hudCells.textContent = umax < 1 ? 0 : cells;
+    if (st !== lastState) {
+      hudState.textContent = st;
+      if (lastState && typeof SFX !== 'undefined') SFX.play(st === 'CONDUCTION' ? 'pop' : 'grow');
+      lastState = st;
+    }
   }
 
   function resize() {
@@ -366,7 +401,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
   function setRa(val) {
     Ra = val;
-    dt = Math.min(1.5e-4, 0.3 * dx2 / Math.max(1, Pr));
+    dtDiff = dt = 0.2 * dx2 / Math.max(1, Pr);
     hudRa.textContent = Ra >= 1000 ? (Ra / 1000).toFixed(Ra >= 10000 ? 0 : 1) + 'K' : Ra;
     document.getElementById('sv-ra').textContent = hudRa.textContent;
   }
@@ -404,7 +439,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
 
   var pDown = false, rightDown = false;
   function canvasToGrid(cx, cy) {
-    return { i: cx / (W * dpr) * NX, j: cy / (H * dpr) * NY };
+    return { i: cx / (W * dpr) * NX, j: (1 - cy / (H * dpr)) * NY };
   }
   function applyHeat(cx, cy, hot) {
     var g = canvasToGrid(cx, cy);
@@ -473,7 +508,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
   window.addEventListener('resize', resize);
   initFields();
   initParticles();
-  setRa(10000);
+  setRa(Math.round(500 * Math.pow(10, 59 / 33.33)));
   requestAnimationFrame(loop);
 })();
 </script>
