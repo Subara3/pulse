@@ -18,7 +18,7 @@ $navItems = [
     <nav class="site-nav" aria-label="サイト内ナビゲーション">
       <?php foreach ($navItems as $item): ?>
         <a href="<?php echo $item['href']; ?>"
-           class="<?php echo (($pageName ?? '') === $item['page']) ? 'is-current' : ''; ?>"
+           class="<?php echo trim(((($pageName ?? '') === $item['page']) ? 'is-current' : '') . ($item['page'] === 'index' ? ' site-nav-home' : '')); ?>"
            <?php echo (($pageName ?? '') === $item['page']) ? 'aria-current="page"' : ''; ?>><?php echo $item['label']; ?></a>
       <?php endforeach; ?>
       <a href="random.php" class="site-nav-shuffle" title="ランダムに1本ひらく"><i class="fa-solid fa-shuffle" aria-hidden="true"></i> <span>SHUFFLE</span></a>
@@ -28,5 +28,7 @@ $navItems = [
 <style>
 .site-nav-shuffle { color: var(--teal) !important; }
 .site-nav-shuffle:hover { background: var(--teal-soft) !important; }
-@media (max-width: 520px) { .site-nav-shuffle span { display: none; } }
+@media (max-width: 620px) { .site-nav-shuffle span { display: none; } }
+/* 狭い画面ではワードマークがホームを兼ねるので HOME を畳む（390px で横にはみ出していた） */
+@media (max-width: 460px) { .site-nav .site-nav-home { display: none; } }
 </style>

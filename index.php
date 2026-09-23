@@ -19,6 +19,12 @@ $dayNumber = (new DateTime('2026-01-28'))->diff(new DateTime($today))->days;
 $pick = pulsePickOfTheDay($works, $today);
 
 /* ---- ヒーローのチャンネル一覧 ----------------------------------------- */
+/* 一覧用の短い説明。途中で切るときは切ったことが分かるように省略記号を付ける */
+function pulseClip(string $s, int $n): string {
+    $s = trim($s);
+    return mb_strlen($s) > $n ? rtrim(mb_substr($s, 0, $n - 1)) . '…' : $s;
+}
+
 $channelPool = $works;
 shuffle($channelPool);
 // 今日の1本を必ず 1ch に置く
@@ -33,7 +39,7 @@ foreach (array_slice($channelPool, 0, 40) as $c) {
     $channels[] = [
         'p' => $c['page'],
         't' => $c['title'],
-        'd' => mb_substr(strip_tags($c['desc']), 0, 58),
+        'd' => pulseClip(strip_tags($c['desc']), 58),
         'g' => $PULSE_COLLECTIONS[$c['group']]['name'] ?? '',
         'e' => $PULSE_COLLECTIONS[$c['group']]['en'] ?? '',
         'mp4' => $mp4,
@@ -78,7 +84,7 @@ $extraStyle = '
 }
 .hero-mark span { color: var(--teal); }
 .hero-sub {
-  margin-top: 1rem; max-width: 42ch;
+  margin-top: 1rem; max-width: 34em;
   font-size: clamp(.95rem, 1.8vw, 1.1rem); line-height: 2; color: var(--text);
 }
 .hero-sub b { color: var(--teal); font-weight: 700; }
@@ -153,7 +159,7 @@ $extraStyle = '
   border-radius: var(--radius); background: var(--ink-0);
 }
 .today-media video, .today-media img { width: 100%; height: 100%; object-fit: cover; }
-.today h2 { font-size: clamp(1.6rem, 4vw, 2.4rem); margin-block: .7rem .8rem; letter-spacing: .04em; }
+.today-grid h2 { font-size: clamp(1.6rem, 4vw, 2.4rem); margin-block: .7rem .8rem; letter-spacing: .04em; }
 
 /* ===================== ログ ===================== */
 .logcard {
@@ -255,7 +261,8 @@ require_once __DIR__ . '/includes/nav.php';
       <div class="section-head">
         <div>
           <p class="eyebrow">Today's pick</p>
-          <p class="muted" style="margin-top:.55rem;font-size:.84rem">日付で決まる1本です。明日はまた別のものになります。</p>
+          <h2 class="h-md" style="margin-top:.6rem">今日の1本</h2>
+          <p class="muted" style="font-size:.84rem">日付で決まる1本です。明日はまた別のものになります。</p>
         </div>
         <a href="contents.php" class="btn btn--ghost">アーカイブ &rarr;</a>
       </div>
@@ -437,8 +444,10 @@ require_once __DIR__ . '/includes/nav.php';
       es.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('visible'); });
     }, { threshold: 0.08 });
     document.querySelectorAll('.fade-in').forEach(function (el) { io.observe(el); });
-    /* 監視が一度も動かない環境（バックグラウンドタブ等）で本文が消えたままにならないよう保険 */
-    setTimeout(function () { if (!seen) revealAll(); }, 2500);
+    /* 監視が動かない環境（バックグラウンドタブ・全画面キャプチャ・一部のクローラ）で
+       スクロールしていない部分が消えたままにならないよう、少し待ったら全部出す。
+       以前は「一度も監視が動かなかった時だけ」だったため、今日の1本が空白で撮られていた */
+    setTimeout(revealAll, seen ? 3200 : 2500);
   }
 
   if (reduce) return;

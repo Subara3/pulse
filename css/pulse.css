@@ -452,8 +452,8 @@ h1, h2, h3 {
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
-  opacity: 0.42;
-  filter: saturate(0.8);
+  opacity: 0.62;
+  filter: saturate(0.85);
   transition: opacity var(--dur) var(--ease), filter var(--dur) var(--ease);
 }
 .collection:hover .collection-strip img { opacity: 0.95; filter: none; }
@@ -516,7 +516,9 @@ h1, h2, h3 {
 .site-nav a.is-current { color: var(--teal); }
 
 @media (max-width: 620px) {
+  .site-head-in { gap: 0.5rem; }
   .wordmark { letter-spacing: 0.2em; font-size: 0.95rem; }
+  .site-nav { gap: 0.1rem; }
   .site-nav a { padding: 0.45rem 0.5rem; font-size: 0.66rem; letter-spacing: 0.08em; }
 }
 
