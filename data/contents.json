@@ -2820,6 +2820,19 @@
     "added": "2026-09-22"
   },
   {
+    "page": "meander",
+    "title": "MEANDER",
+    "desc": "まっすぐな川に少し曲がりを足すと、曲がりが自分で大きくなり、やがて首がちぎれて三日月湖になる。",
+    "desc_en": "Add a slight bend to a straight river. The bend amplifies on its own until the neck pinches off, leaving an oxbow lake behind.",
+    "icon": "fa-water",
+    "group": "grow",
+    "category": "育つもの",
+    "category_en": "GROWTH",
+    "meta": "蛇行・三日月湖",
+    "meta_en": "Oxbow cutoff",
+    "added": "2026-09-24"
+  },
+  {
     "page": "firefly",
     "title": "FIREFLY",
     "desc": "暗がりで点がばらばらに光っている。隣の発光を見ると自分の時計を少し進めるだけで、やがて全体が一斉に脈打つ。（パルス結合振動子）",
