@@ -2846,6 +2846,19 @@
     "added": "2026-09-23"
   },
   {
+    "page": "coastline",
+    "title": "COASTLINE",
+    "desc": "海岸線の長さは、定規の長さで変わる。短い定規ほど入り組みを拾い、答えが伸びる。その伸び方がフラクタル次元。",
+    "desc_en": "A coastline's length depends on the ruler. Shorter rulers catch more wiggles and give a longer answer. That growth rate is the fractal dimension.",
+    "icon": "fa-water",
+    "group": "fractal",
+    "category": "繰り返すもの",
+    "category_en": "FRACTAL",
+    "meta": "中点変位 / Richardson則 / 次元推定 / PREDICT",
+    "meta_en": "midpoint displacement / Richardson's law / dimension estimation / PREDICT",
+    "added": "2026-09-25"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
