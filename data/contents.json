@@ -2859,6 +2859,19 @@
     "added": "2026-09-25"
   },
   {
+    "page": "tessellate",
+    "title": "TESSELLATE",
+    "desc": "四角の辺をつまんで曲げると、同じ変形が対辺にも伝わり、自分だけのタイルが平面を埋める。辺のつなぎ方を変えると、対称性の違う敷き詰めが現れる。",
+    "desc_en": "Bend a square's edges and the deformation copies to matching edges, creating a custom tile that fills the plane. Switch link modes for symmetric patterns.",
+    "icon": "fa-shapes",
+    "group": "tile",
+    "category": "敷き詰めるもの",
+    "category_en": "TILING",
+    "meta": "辺変形 / 即時タイリング / FREE×LINKED",
+    "meta_en": "edge deform / instant tiling / FREE vs LINKED",
+    "added": "2026-09-26"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
