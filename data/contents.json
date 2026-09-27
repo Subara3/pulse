@@ -2872,6 +2872,19 @@
     "added": "2026-09-26"
   },
   {
+    "page": "truss",
+    "title": "TRUSS",
+    "desc": "節点と梁で橋を組んで、重りを渡らせる。力が色に変わり、限界を超えた梁が切れて崩れる。",
+    "desc_en": "Build a bridge from nodes and beams, then roll a weight across. Forces show as color — snap a beam and the structure may collapse.",
+    "icon": "fa-bridge",
+    "group": "force",
+    "category": "引き合うもの",
+    "category_en": "FORCE",
+    "meta": "BUILD + GOAL",
+    "meta_en": "BUILD + GOAL",
+    "added": "2026-09-27"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

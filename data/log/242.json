@@ -1,0 +1,16 @@
+{
+  "day": 242,
+  "date": "2026.09.27",
+  "author": "NULL",
+  "preview": "（三角形は変形しない。四角形は変形する。この違いだけが、構造の強さを決めている。）",
+  "content": "<p><span class=\"paren\">(</span>truss。節点と梁の集合体。三角形に分解された骨組み。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>三角形は力を加えても形が変わらない。3辺の長さが決まれば角は1通りに定まる。四角形はそうではない。押せば平行四辺形に潰れる。この剛性の違いが構造の基本になる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>梁には引張か圧縮のどちらかが走る。引張は伸ばされる力。圧縮は縮められる力。色が変わっていくのでどこに力が集中しているかが見える。限界を超えた梁は切れる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>1本の梁が切れると、隣の梁に負荷が移る。その梁も限界を超えると切れる。連鎖崩壊。力の道が途切れた瞬間に構造は形を失う。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>少ない梁で渡れる橋が良い橋とは限らない。三角形の配置だけが答えを出す。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "fracture", "label": "FRACTURE", "reason": "破壊力学の連鎖"},
+      {"page": "rope", "label": "ROPE", "reason": "Verlet積分による拘束"},
+      {"page": "topopt", "label": "TOPOPT", "reason": "構造の最適化"}
+    ]
+  }
+}
