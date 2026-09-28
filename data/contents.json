@@ -2885,6 +2885,19 @@
     "added": "2026-09-27"
   },
   {
+    "page": "visible",
+    "title": "VISIBLE",
+    "desc": "原点に立って格子の点を見渡す。手前の点に隠されず見える点は、座標が互いに素な点だけ。その密度はちょうど 6/π²。",
+    "desc_en": "Stand at the origin and look across the integer grid. Only coprime points are unblocked—and their density converges to exactly 6/π².",
+    "icon": "fa-eye",
+    "group": "number",
+    "category": "数えるもの",
+    "category_en": "NUMBER",
+    "meta": "GCD・GUESS",
+    "meta_en": "GCD / GUESS",
+    "added": "2026-09-28"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
