@@ -2898,6 +2898,19 @@
     "added": "2026-09-28"
   },
   {
+    "page": "plume",
+    "title": "PLUME",
+    "desc": "重い液が軽い液の上にあると、境目が指のように垂れ下がり、きのこの形をした渦になって沈んでいく。",
+    "desc_en": "Heavy fluid above light fluid — the interface droops into fingers that curl into mushroom-shaped vortices and sink.",
+    "icon": "fa-water",
+    "group": "flow",
+    "category": "流れるもの",
+    "category_en": "FLOW",
+    "meta": "Rayleigh-Taylor · 3 modes",
+    "meta_en": "Rayleigh-Taylor · 3 modes",
+    "added": "2026-09-29"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

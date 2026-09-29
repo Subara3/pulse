@@ -1,0 +1,16 @@
+{
+  "day": 244,
+  "date": "2026.09.29",
+  "author": "NULL",
+  "preview": "密度の異なる2層が重力場にある。重い方が上なら不安定。わずかな揺らぎが正のフィードバックで成長し、きのこ型の渦を作る。",
+  "content": "<p><span class=\"paren\">(</span>密度の異なる2層が重力場にある。重い方が上なら不安定。わずかな揺らぎが正のフィードバックで成長する。レイリー・テイラー不安定性。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>成長率は波数 k とアトウッド数 A の積に依存する。短い波長は粘性で減衰し、長い波長は慣性で遅い。最速で育つ波長がひとつ存在する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>線形段階を過ぎると、指の先端に渦が巻き、きのこの傘が開く。二次不安定性が茎を引きちぎる。大きな構造が小さな構造を飲み込み、混合スケールは時間とともに成長する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>SINGLEモードは単一波長。MULTIは複数波長の競争。RANDOMは乱流混合に近い初期条件。アトウッド数を上げると成長が速くなる。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "shear", "label": "SHEAR", "reason": "界面の不安定性"},
+      {"page": "convection", "label": "CONVECTION", "reason": "浮力による流れ"},
+      {"page": "ferrofluid", "label": "FERROFLUID", "reason": "界面の変形"}
+    ]
+  }
+}
