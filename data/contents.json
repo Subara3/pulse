@@ -2924,6 +2924,19 @@
     "added": "2026-09-30"
   },
   {
+    "page": "cobweb",
+    "title": "COBWEB",
+    "desc": "関数を1つ決めて初期値を打つと、折れ線が関数と対角線のあいだを跳ねる。固定点に巻きつくか、枠を跳ね回るかはパラメータで決まる。",
+    "desc_en": "Pick a map and a starting point. The cobweb bounces between curve and diagonal — converging to a fixed point or scattering into chaos.",
+    "icon": "fa-chart-line",
+    "group": "chaos",
+    "category": "予測できないもの",
+    "category_en": "CHAOS",
+    "meta": "4 MAPS + DRAW",
+    "meta_en": "4 maps + draw your own",
+    "added": "2026-10-01"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
