@@ -2937,6 +2937,19 @@
     "added": "2026-10-01"
   },
   {
+    "page": "roulette",
+    "title": "ROULETTE",
+    "desc": "多角形が転がると、つけた印が曲線を描く。三角形は激しく跳ね、八角形はなめらかに波打ち、円に近づくとサイクロイドになる。",
+    "desc_en": "A polygon rolls along a line. A dot on it draws a curve — the triangle leaps, the octagon ripples, and the circle traces a cycloid.",
+    "icon": "fa-circle-notch",
+    "group": "curve",
+    "category": "描くもの",
+    "category_en": "CURVES",
+    "meta": "6形状 / マーカー移動 / 比較モード",
+    "meta_en": "6 shapes / movable marker / trace lock",
+    "added": "2026-10-02"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
