@@ -8,8 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "pathfind", "label": "PATHFIND", "reason": "迷路を解くアルゴリズム"},
-      {"page": "maze", "label": "MAZE", "reason": "迷路を遊ぶ"},
+      {"page": "maze", "label": "MAZE", "reason": "迷路を解くアルゴリズム"},
       {"page": "sort", "label": "SORT", "reason": "アルゴリズム可視化"}
     ]
   }

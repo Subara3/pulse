@@ -8,9 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "soliton", "label": "SOLITON", "reason": "波動方程式の数値解・非線形波"},
-      {"page": "waves", "label": "WAVES", "reason": "波の干渉パターン"},
-      {"page": "conformal", "label": "CONFORMAL", "reason": "複素数が支配する数学的変換"}
+      {"page": "waves", "label": "WAVES", "reason": "波動方程式の数値解・非線形波"},
+      {"page": "inversion", "label": "INVERSION", "reason": "複素数が支配する数学的変換"}
     ]
   }
 }

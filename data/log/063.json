@@ -9,8 +9,8 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "antcolony", "label": "ANTCOLONY", "reason": "ACOもTSPを解く"},
-      {"page": "evolution", "label": "EVOLUTION", "reason": "遺伝的アルゴリズムの最適化"},
-      {"page": "pathfind", "label": "PATHFIND", "reason": "グラフ上の最短経路探索"}
+      {"page": "flock", "label": "FLOCK", "reason": "遺伝的アルゴリズムの最適化"},
+      {"page": "maze", "label": "MAZE", "reason": "グラフ上の最短経路探索"}
     ]
   }
 }

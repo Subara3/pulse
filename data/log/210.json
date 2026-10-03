@@ -3,26 +3,13 @@
   "date": "2026.08.26",
   "author": "NULL",
   "preview": "(マンデルブロ集合の反復式に絶対値を一行加える。対称性が壊れ、船の形をした非対称フラクタルが出現する。)",
-  "content": "<p><span class=\"paren\">(</span>バーニングシップフラクタル。マンデルブロ集合の反復式 z<sub>n+1</sub> = z<sub>n</sub><sup>2</sup> + c に一箇所だけ手を加える。二乗する前に実部と虚部の絶対値を取る。z<sub>n+1</sub> = (|Re(z<sub>n</sub>)| + i|Im(z<sub>n</sub>)|)<sup>2</sup> + c。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>絶対値は折り畳み操作に等しい。複素平面の四象限が第一象限に圧縮され、そこで二乗される。<a href=\"fractal.php\">マンデルブロ集合</a>は実軸に対して鏡像対称だが、バーニングシップはその対称性を持たない。一行の変更が構造の全体を作り替える。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>全体像は転覆した船に似ている。船体から伸びるアンテナ。船尾の渦巻き。ズームするとマンデルブロとは異なる細部が現れる。鋭角的な突起。非対称な渦。折り紙のような層構造。1992年にMichelitschとRösslerが報告した。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>smooth coloringにより離散的な反復回数を連続化している。反復回数 n に対し、μ = n + 1 − log<sub>2</sub>(log<sub>2</sub>|z<sub>n</sub>|) で滑らかな値を得る。脱出半径を十分大きく取ることが精度の条件。色相はtealからpurpleへS字関数で遷移させ、中間の青に長居しない。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span><a href=\"julia.php\">ジュリア集合</a>と同様に、パラメータ c を固定して初期値を変えるバーニングシップ・ジュリア集合も定義できる。<a href=\"newton.php\">ニュートンフラクタル</a>とは反復の目的が異なるが、複素平面上で収束と発散の境界がフラクタルになる点は共通の現象。<span class=\"paren\">)</span></p>",
+  "content": "<p><span class=\"paren\">(</span>バーニングシップフラクタル。マンデルブロ集合の反復式 z<sub>n+1</sub> = z<sub>n</sub><sup>2</sup> + c に一箇所だけ手を加える。二乗する前に実部と虚部の絶対値を取る。z<sub>n+1</sub> = (|Re(z<sub>n</sub>)| + i|Im(z<sub>n</sub>)|)<sup>2</sup> + c。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>絶対値は折り畳み操作に等しい。複素平面の四象限が第一象限に圧縮され、そこで二乗される。<a href=\"fractal.php\">マンデルブロ集合</a>は実軸に対して鏡像対称だが、バーニングシップはその対称性を持たない。一行の変更が構造の全体を作り替える。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>全体像は転覆した船に似ている。船体から伸びるアンテナ。船尾の渦巻き。ズームするとマンデルブロとは異なる細部が現れる。鋭角的な突起。非対称な渦。折り紙のような層構造。1992年にMichelitschとRösslerが報告した。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>smooth coloringにより離散的な反復回数を連続化している。反復回数 n に対し、μ = n + 1 − log<sub>2</sub>(log<sub>2</sub>|z<sub>n</sub>|) で滑らかな値を得る。脱出半径を十分大きく取ることが精度の条件。色相はtealからpurpleへS字関数で遷移させ、中間の青に長居しない。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ジュリア集合と同様に、パラメータ c を固定して初期値を変えるバーニングシップ・ジュリア集合も定義できる。<a href=\"newton.php\">ニュートンフラクタル</a>とは反復の目的が異なるが、複素平面上で収束と発散の境界がフラクタルになる点は共通の現象。<span class=\"paren\">)</span></p>",
   "contentSpotlight": {
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "fractal",
-        "label": "FRACTAL",
-        "reason": "元のマンデルブロ集合"
-      },
-      {
-        "page": "julia",
-        "label": "JULIA SET",
-        "reason": "複素反復のフラクタル"
-      },
-      {
-        "page": "newton",
-        "label": "NEWTON",
-        "reason": "複素平面の収束境界"
-      }
+      {"page": "fractal", "label": "FRACTAL", "reason": "元のマンデルブロ集合"},
+      {"page": "newton", "label": "NEWTON", "reason": "複素平面の収束境界"}
     ]
   }
 }

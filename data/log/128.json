@@ -8,21 +8,9 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "levydrift",
-        "label": "LEVY DRIFT",
-        "reason": "方向性のないランダムウォーク"
-      },
-      {
-        "page": "elastic",
-        "label": "ELASTIC",
-        "reason": "熱運動する粒子群"
-      },
-      {
-        "page": "phase",
-        "label": "PHASE",
-        "reason": "力学系の軌道"
-      }
+      {"page": "galton", "label": "GALTON BOARD", "reason": "方向性のないランダムウォーク"},
+      {"page": "nbody", "label": "N-BODY", "reason": "熱運動する粒子群"},
+      {"page": "lorenz", "label": "LORENZ", "reason": "力学系の軌道"}
     ]
   }
 }

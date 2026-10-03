@@ -8,16 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "galton",
-        "label": "GALTON BOARD",
-        "reason": "ランダムが正規分布を生む——確率の収束！"
-      },
-      {
-        "page": "levydrift",
-        "label": "LEVY DRIFT",
-        "reason": "ランダムウォークが描く軌跡の統計！"
-      }
+      {"page": "galton", "label": "GALTON BOARD", "reason": "ランダムが正規分布を生む——確率の収束！"}
     ]
   }
 }

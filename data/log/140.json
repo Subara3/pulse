@@ -8,9 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "delaunay", "label": "DELAUNAY", "reason": "点群から別の構造を生成する"},
-      {"page": "network", "label": "NETWORK", "reason": "グラフの連結成分と相転移"},
-      {"page": "voronoi", "label": "VORONOI", "reason": "点群による空間分割の双対"}
+      {"page": "voronoi", "label": "VORONOI", "reason": "点群から別の構造を生成する"},
+      {"page": "network", "label": "NETWORK", "reason": "グラフの連結成分と相転移"}
     ]
   }
 }

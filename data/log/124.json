@@ -9,7 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "billiard", "label": "BILLIARD", "reason": "カオスビリヤード"},
-      {"page": "elastic", "label": "ELASTIC", "reason": "ボルツマン輸送"},
+      {"page": "nbody", "label": "N-BODY", "reason": "ボルツマン輸送"},
       {"page": "chirikov", "label": "CHIRIKOV", "reason": "位相空間のカオス"}
     ]
   }

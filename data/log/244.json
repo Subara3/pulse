@@ -9,7 +9,6 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "shear", "label": "SHEAR", "reason": "界面の不安定性"},
-      {"page": "convection", "label": "CONVECTION", "reason": "浮力による流れ"},
       {"page": "ferrofluid", "label": "FERROFLUID", "reason": "界面の変形"}
     ]
   }

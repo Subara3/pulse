@@ -9,7 +9,6 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "life", "label": "LIFE", "reason": "B3/S23——262,144のうちの1つ"},
-      {"page": "rule", "label": "RULE", "reason": "1次元の規則空間"},
       {"page": "lenia", "label": "LENIA", "reason": "連続化されたセルオートマトン"}
     ]
   }

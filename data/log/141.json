@@ -9,8 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "langton", "label": "LANGTON'S ANT", "reason": "ターマイトの原型。2色1状態のシンプルなルール"},
-      {"page": "rule", "label": "RULE", "reason": "1次元セルオートマトン。単純なルールからの複雑さの創発"},
-      {"page": "turing", "label": "TURING", "reason": "チューリングマシン。ターマイトは2次元版"}
+      {"page": "life", "label": "LIFE", "reason": "1次元セルオートマトン。単純なルールからの複雑さの創発"}
     ]
   }
 }

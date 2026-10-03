@@ -8,21 +8,9 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "bifurcation",
-        "label": "BIFURCATION",
-        "reason": "ロジスティック写像の分岐図"
-      },
-      {
-        "page": "ising",
-        "label": "ISING",
-        "reason": "格子上の相転移"
-      },
-      {
-        "page": "excitable",
-        "label": "EXCITABLE",
-        "reason": "離散セルオートマトンの渦"
-      }
+      {"page": "bifurcation", "label": "BIFURCATION", "reason": "ロジスティック写像の分岐図"},
+      {"page": "ising", "label": "ISING", "reason": "格子上の相転移"},
+      {"page": "cyclic", "label": "CYCLIC", "reason": "離散セルオートマトンの渦"}
     ]
   }
 }

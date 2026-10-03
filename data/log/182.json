@@ -3,12 +3,12 @@
   "date": "2026.07.29",
   "author": "NULL",
   "preview": "下方境界の温度を上げる。静止状態が不安定になり、対流セルが自発的に生じる。臨界レイリー数を超えた瞬間の対称性の破れ。",
-  "content": "<span class=\"paren\">(</span>レイリー・ベナール対流。流体を下から加熱すると、ある臨界点で静止状態が不安定になる。温度差が作る浮力と粘性の比——レイリー数Raがその閾値を決める。<span class=\"paren\">)</span><span class=\"paren\">(</span>Ra < Ra_cでは熱伝導のみ。温度勾配は線形で、流れは生まれない。Ra > Ra_cになると対称性が自発的に破れ、上昇流と下降流が交互に並ぶ対流ロールが出現する。<span class=\"paren\">)</span><span class=\"paren\">(</span>渦度-流れ関数法で記述する。浮力が渦度を生成し、渦度がポアソン方程式を通じて速度場を決め、速度場が温度を移流する。三つの場が循環的に結合している。<span class=\"paren\">)</span><span class=\"paren\">(</span>Raをさらに上げると、整然としたロールは振動し始め、やがてカオスへ遷移する。秩序と乱流の境界がスライダー一本で観察できる。<span class=\"paren\">)</span><span class=\"paren\">(</span><a href=\"diffusion.php\">DIFFUSION</a>は熱方程式の拡散——流れを伴わない。<a href=\"karman.php\">KÁRMÁN</a>は外部流れが作る渦列。ここには外部の流れはない。浮力だけが流れを自発的に生む。それが対流の本質。<span class=\"paren\">)</span>",
+  "content": "<span class=\"paren\">(</span>レイリー・ベナール対流。流体を下から加熱すると、ある臨界点で静止状態が不安定になる。温度差が作る浮力と粘性の比——レイリー数Raがその閾値を決める。<span class=\"paren\">)</span><span class=\"paren\">(</span>Ra < Ra_cでは熱伝導のみ。温度勾配は線形で、流れは生まれない。Ra > Ra_cになると対称性が自発的に破れ、上昇流と下降流が交互に並ぶ対流ロールが出現する。<span class=\"paren\">)</span><span class=\"paren\">(</span>渦度-流れ関数法で記述する。浮力が渦度を生成し、渦度がポアソン方程式を通じて速度場を決め、速度場が温度を移流する。三つの場が循環的に結合している。<span class=\"paren\">)</span><span class=\"paren\">(</span>Raをさらに上げると、整然としたロールは振動し始め、やがてカオスへ遷移する。秩序と乱流の境界がスライダー一本で観察できる。<span class=\"paren\">)</span><span class=\"paren\">(</span>DIFFUSIONは熱方程式の拡散——流れを伴わない。<a href=\"karman.php\">KÁRMÁN</a>は外部流れが作る渦列。ここには外部の流れはない。浮力だけが流れを自発的に生む。それが対流の本質。<span class=\"paren\">)</span>",
   "contentSpotlight": {
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "diffusion", "label": "DIFFUSION", "reason": "熱方程式の拡散"},
+      {"page": "reaction", "label": "REACTION", "reason": "熱方程式の拡散"},
       {"page": "karman", "label": "KÁRMÁN", "reason": "格子ボルツマン法の流体"},
       {"page": "ising", "label": "ISING", "reason": "温度による相転移"}
     ]

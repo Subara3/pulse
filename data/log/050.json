@@ -9,8 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "ising", "label": "ISING", "reason": "格子上の相転移"},
-      {"page": "epidemic", "label": "EPIDEMIC", "reason": "空間伝播モデル"},
-      {"page": "predprey", "label": "PREDPREY", "reason": "個体間の動的均衡"}
+      {"page": "predprey", "label": "PREDPREY", "reason": "空間伝播モデル"}
     ]
   }
 }

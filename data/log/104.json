@@ -9,8 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "lorenz", "label": "LORENZ", "reason": "散逸カオス系との対比"},
-      {"page": "billiard", "label": "BILLIARD", "reason": "ハミルトン系のカオス"},
-      {"page": "phase", "label": "PHASE", "reason": "位相面の軌道構造"}
+      {"page": "billiard", "label": "BILLIARD", "reason": "ハミルトン系のカオス"}
     ]
   }
 }

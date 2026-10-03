@@ -13,19 +13,6 @@
     "group": "log"
   },
   {
-    "page": "morse",
-    "title": "MORSE",
-    "desc": "モールス信号を、時間波形とスペクトルとして打つトレーナー。",
-    "desc_en": "Practice Morse code as timing waves and signal pulses.",
-    "icon": "fa-signal",
-    "category": "流れるもの",
-    "category_en": "FLOW",
-    "meta": "信号トレーナー",
-    "meta_en": "Signal trainer",
-    "added": "2026-01-29",
-    "group": "flow"
-  },
-  {
     "page": "iss",
     "title": "ISS RACE",
     "desc": "低軌道の地上軌跡と周回速度を、競走のように眺める軌道シミュレーション。",
@@ -50,32 +37,6 @@
     "meta_en": "Boids flocking",
     "added": "2026-02-03",
     "group": "swarm"
-  },
-  {
-    "page": "clock",
-    "title": "CLOCK",
-    "desc": "粒子が7セグメントの時刻へ流れ込む、Canvas粒子時計。",
-    "desc_en": "A Canvas particle clock where points flow into seven-segment time fields.",
-    "icon": "fa-clock",
-    "category": "群れるもの",
-    "category_en": "SWARM",
-    "meta": "粒子時計",
-    "meta_en": "Particle clock",
-    "added": "2026-02-01",
-    "group": "swarm"
-  },
-  {
-    "page": "physics",
-    "title": "PHYSICS",
-    "desc": "重力、引力、衝突、チェーンの動きを触って試す物理場。",
-    "desc_en": "Touch a physics field of gravity, attraction, collisions, and chains.",
-    "icon": "fa-atom",
-    "category": "引き合うもの",
-    "category_en": "FORCE",
-    "meta": "物理場",
-    "meta_en": "Physics field",
-    "added": "2026-01-29",
-    "group": "force"
   },
   {
     "page": "primes",
@@ -104,19 +65,6 @@
     "group": "number"
   },
   {
-    "page": "pi",
-    "title": "PI",
-    "desc": "円周率の数字列を歩行・螺旋・弦として描く。",
-    "desc_en": "Draw digits of pi as walks, spirals, and chords.",
-    "icon": "fa-circle-notch",
-    "category": "数えるもの",
-    "category_en": "NUMBER",
-    "meta": "数字列",
-    "meta_en": "Digit stream",
-    "added": "2026-01-29",
-    "group": "number"
-  },
-  {
     "page": "fractal",
     "title": "FRACTAL",
     "desc": "マンデルブロ集合へ潜っていく。式を z^d・絶対値つき（バーニングシップ）・sin・exp に替えると、同じ潜り方で別の海岸線が出てくる。気に入った場所は JULIA でジュリア集合に裏返る。",
@@ -128,45 +76,6 @@
     "meta_en": "5 formulas · spot tour · morphing d · JULIA",
     "added": "2026-01-29",
     "group": "fractal"
-  },
-  {
-    "page": "julia",
-    "title": "JULIA SET",
-    "desc": "ジュリア集合のパラメータ空間を、ドラッグで連続的に変形する。",
-    "desc_en": "Drag through Julia-set parameter space and watch the field morph continuously.",
-    "icon": "fa-asterisk",
-    "category": "繰り返すもの",
-    "category_en": "FRACTAL",
-    "meta": "パラメータ変形",
-    "meta_en": "Parameter morph",
-    "added": "2026-01-29",
-    "group": "fractal"
-  },
-  {
-    "page": "koch",
-    "title": "KOCH SNOWFLAKE",
-    "desc": "コッホ曲線の再帰生成を、角度と深度を変えながら観察する。",
-    "desc_en": "Explore recursive Koch curve generation with adjustable angle and depth.",
-    "icon": "fa-snowflake",
-    "category": "繰り返すもの",
-    "category_en": "FRACTAL",
-    "meta": "再帰曲線",
-    "meta_en": "Recursive curve",
-    "added": "2026-01-29",
-    "group": "fractal"
-  },
-  {
-    "page": "tree",
-    "title": "TREE",
-    "desc": "分岐角と揺らぎから成長する再帰樹を描く。",
-    "desc_en": "Grow recursive trees from branch angle and wind-like variation.",
-    "icon": "fa-tree",
-    "category": "育つもの",
-    "category_en": "GROWTH",
-    "meta": "再帰樹",
-    "meta_en": "Recursive tree",
-    "added": "2026-01-29",
-    "group": "grow"
   },
   {
     "page": "life",
@@ -182,19 +91,6 @@
     "group": "lattice"
   },
   {
-    "page": "sand",
-    "title": "SAND",
-    "desc": "粒子セルが落下・流動・固定を繰り返す粒状シミュレーション。",
-    "desc_en": "A granular cell simulation for falling, flowing, and fixed matter.",
-    "icon": "fa-hourglass",
-    "category": "流れるもの",
-    "category_en": "FLOW",
-    "meta": "粒状セル",
-    "meta_en": "Granular cells",
-    "added": "2026-01-29",
-    "group": "flow"
-  },
-  {
     "page": "sort",
     "title": "SORT",
     "desc": "ソートアルゴリズムの比較と交換を、光の棒グラフで観察する。",
@@ -206,19 +102,6 @@
     "meta_en": "Comparisons and swaps",
     "added": "2026-01-29",
     "group": "mind"
-  },
-  {
-    "page": "evolution",
-    "title": "EVOLUTION",
-    "desc": "遺伝的アルゴリズムの世代交代を、軌跡と適応度で観察する。",
-    "desc_en": "Observe genetic-algorithm generations through motion trails and fitness.",
-    "icon": "fa-dna",
-    "category": "群れるもの",
-    "category_en": "SWARM",
-    "meta": "適応度と世代",
-    "meta_en": "Fitness and generations",
-    "added": "2026-02-06",
-    "group": "swarm"
   },
   {
     "page": "fourier",
@@ -403,45 +286,6 @@
     "group": "tile"
   },
   {
-    "page": "pathfind",
-    "title": "PATHFIND",
-    "desc": "探索アルゴリズムの可視化。A*、ダイクストラ、BFSがゴールを探す過程を眺める。",
-    "desc_en": "Pathfinding algorithms visualized. Watch A*, Dijkstra, and BFS search for the goal.",
-    "icon": "fa-route",
-    "category": "探すもの",
-    "category_en": "SEARCH",
-    "meta": "3アルゴリズム",
-    "meta_en": "3 algorithms",
-    "added": "2026-02-19",
-    "group": "mind"
-  },
-  {
-    "page": "rule",
-    "title": "RULE",
-    "desc": "1次元セルオートマトン。単純なルールから複雑な模様が生まれる。",
-    "desc_en": "1D Cellular Automaton. Complex patterns emerge from simple rules.",
-    "icon": "fa-code",
-    "category": "格子のもの",
-    "category_en": "LATTICE",
-    "meta": "256ルール",
-    "meta_en": "256 rules",
-    "added": "2026-02-20",
-    "group": "lattice"
-  },
-  {
-    "page": "breathe",
-    "title": "BREATHE",
-    "desc": "呼吸の周期を位相波として描く、静かなCanvasビジュアライゼーション。",
-    "desc_en": "A quiet phase-wave breathing visualization drawn on Canvas.",
-    "icon": "fa-lungs",
-    "category": "流れるもの",
-    "category_en": "FLOW",
-    "meta": "位相波",
-    "meta_en": "Phase waves",
-    "added": "2026-01-29",
-    "group": "flow"
-  },
-  {
     "page": "maze",
     "title": "MAZE",
     "desc": "自動生成される迷路を、光の探索軌跡で進む。",
@@ -585,19 +429,6 @@
     "group": "force"
   },
   {
-    "page": "mobiusflow",
-    "title": "MOBIUS FLOW",
-    "desc": "メビウスの帯を流れる粒子。ねじれた面の上で光の航跡がゆっくり巡る。",
-    "desc_en": "Particles flowing on a Möbius strip. Luminous trails drift slowly across a twisted surface.",
-    "icon": "fa-ring",
-    "category": "描くもの",
-    "category_en": "CURVE",
-    "meta": "インタラクティブ",
-    "meta_en": "Interactive",
-    "added": "2026-03-03",
-    "group": "curve"
-  },
-  {
     "page": "lsystemgarden",
     "title": "L-SYSTEM GARDEN",
     "desc": "Lシステムの枝がゆっくり成長し、風でしなる発光ガーデン。",
@@ -611,32 +442,6 @@
     "group": "grow"
   },
   {
-    "page": "levydrift",
-    "title": "LEVY DRIFT",
-    "desc": "レヴィフライト。短い彷徨いと突然の大跳躍が描く、光の航跡図。",
-    "desc_en": "Lévy flight. Luminous trails shaped by short wanderings and sudden long leaps.",
-    "icon": "fa-shoe-prints",
-    "category": "数えるもの",
-    "category_en": "NUMBER",
-    "meta": "インタラクティブ",
-    "meta_en": "Interactive",
-    "added": "2026-03-05",
-    "group": "number"
-  },
-  {
-    "page": "bezier",
-    "title": "BÉZIER",
-    "desc": "ベジェ曲線。補間の補間が曲線を生む、de Casteljauアルゴリズムの可視化。",
-    "desc_en": "Bézier curves. Interpolation of interpolations — visualizing the de Casteljau algorithm.",
-    "icon": "fa-bezier-curve",
-    "category": "描くもの",
-    "category_en": "CURVE",
-    "meta": "インタラクティブ",
-    "meta_en": "Interactive",
-    "added": "2026-03-06",
-    "group": "curve"
-  },
-  {
     "page": "ising",
     "title": "ISING",
     "desc": "イジングモデル。格子上のスピンがメトロポリス法で反転し、臨界温度付近で美しいドメイン構造を作る。",
@@ -648,19 +453,6 @@
     "meta_en": "Phase transition",
     "added": "2026-03-07",
     "group": "lattice"
-  },
-  {
-    "page": "epidemic",
-    "title": "EPIDEMIC",
-    "desc": "SIR疫病拡散モデル。格子上を感染の波が走る。βで広がり速度が、recoveryで波の幅が変わる。",
-    "desc_en": "SIR epidemic model. Waves of infection sweep across a grid. β controls spread speed, recovery shapes the wave.",
-    "icon": "fa-virus",
-    "category": "群れるもの",
-    "category_en": "SWARM",
-    "meta": "インタラクティブ",
-    "meta_en": "Interactive",
-    "added": "2026-03-08",
-    "group": "swarm"
   },
   {
     "page": "newton",
@@ -712,19 +504,6 @@
     "meta": "円充填フラクタル",
     "meta_en": "Circle-packing fractal",
     "added": "2026-03-12",
-    "group": "fractal"
-  },
-  {
-    "page": "hilbert",
-    "title": "HILBERT",
-    "desc": "ヒルベルト曲線。1次元の曲線が2次元空間を隙間なく埋め尽くす、空間充填曲線の収束過程。",
-    "desc_en": "Hilbert curve. A 1D curve that fills 2D space without gaps — the convergence of a space-filling curve.",
-    "icon": "fa-bezier-curve",
-    "category": "繰り返すもの",
-    "category_en": "FRACTAL",
-    "meta": "空間充填曲線",
-    "meta_en": "Space-filling curve",
-    "added": "2026-03-13",
     "group": "fractal"
   },
   {
@@ -806,19 +585,6 @@
     "group": "swarm"
   },
   {
-    "page": "pursuit",
-    "title": "PURSUIT",
-    "desc": "N点の追跡多角形。各頂点が次の頂点を等速で追い続け、対数螺旋が創発する。",
-    "desc_en": "N-point pursuit polygon. Each vertex chases the next at constant speed, and logarithmic spirals emerge.",
-    "icon": "fa-route",
-    "category": "描くもの",
-    "category_en": "CURVE",
-    "meta": "pursuit curves · logarithmic spiral",
-    "meta_en": "pursuit curves · logarithmic spiral",
-    "added": "2026-03-20",
-    "group": "curve"
-  },
-  {
     "page": "billiard",
     "title": "BILLIARD",
     "desc": "カオスビリヤード。スタジアム型テーブルはエルゴード的カオス系で、楕円・円形は可積分系。形状が軌跡の運命を決める。",
@@ -843,19 +609,6 @@
     "meta_en": "Gielis (2003) · morphology",
     "added": "2026-03-22",
     "group": "curve"
-  },
-  {
-    "page": "soliton",
-    "title": "SOLITON",
-    "desc": "KdV方程式による孤立波。衝突後も形を保って通り抜ける非線形波動現象。",
-    "desc_en": "Solitons from the KdV equation. Waves pass through each other intact after collision — a nonlinear miracle.",
-    "icon": "fa-water",
-    "category": "流れるもの",
-    "category_en": "FLOW",
-    "meta": "KdV · nonlinear waves",
-    "meta_en": "KdV · nonlinear waves",
-    "added": "2026-03-23",
-    "group": "flow"
   },
   {
     "page": "marbling",
@@ -894,19 +647,6 @@
     "meta": "4D · projection · rotation",
     "meta_en": "4D · projection · rotation",
     "added": "2026-03-26",
-    "group": "curve"
-  },
-  {
-    "page": "conformal",
-    "title": "CONFORMAL",
-    "desc": "複素関数による等角写像。格子が滑らかに歪む数学的変換を体験する。",
-    "desc_en": "Conformal mappings via complex functions. Watch a grid distort smoothly through mathematical transformation.",
-    "icon": "fa-wave-square",
-    "category": "描くもの",
-    "category_en": "CURVE",
-    "meta": "5 transforms · blend · complex plane",
-    "meta_en": "5 transforms · blend · complex plane",
-    "added": "2026-03-27",
     "group": "curve"
   },
   {
@@ -949,19 +689,6 @@
     "group": "swarm"
   },
   {
-    "page": "henon",
-    "title": "HENON",
-    "desc": "エノン写像の奇妙なアトラクタ。2次元カオス系の軌道が描くフラクタル構造。パラメータを変えると秩序とカオスの間を行き来する。",
-    "desc_en": "Hénon strange attractor. Fractal orbits of a two-dimensional chaotic map. Tune parameters to cross between order and chaos.",
-    "icon": "fa-infinity",
-    "category": "予測できないもの",
-    "category_en": "CHAOS",
-    "meta": "density map · pan/zoom · a/b params",
-    "meta_en": "density map · pan/zoom · a/b params",
-    "added": "2026-03-31",
-    "group": "chaos"
-  },
-  {
     "page": "anneal",
     "title": "ANNEAL",
     "desc": "シミュレーテッドアニーリングが巡回セールスマン問題を解く。熱から冷えるにつれ経路が最適化される。",
@@ -986,19 +713,6 @@
     "meta_en": "R / μ / σ · paint",
     "added": "2026-04-03",
     "group": "lattice"
-  },
-  {
-    "page": "linkage",
-    "title": "LINKAGE",
-    "desc": "四節リンク機構。クランクが回転するとカプラー上の点が代数曲線を描く。機械工学の基礎原理。",
-    "desc_en": "Four-bar linkage kinematics. A rotating crank drives a coupler whose traced point carves closed algebraic curves.",
-    "icon": "fa-link",
-    "category": "引き合うもの",
-    "category_en": "FORCE",
-    "meta": "Grashof · Freudenstein · coupler curve",
-    "meta_en": "Grashof · Freudenstein · coupler curve",
-    "added": "2026-04-04",
-    "group": "force"
   },
   {
     "page": "moire",
@@ -1027,32 +741,6 @@
     "group": "force"
   },
   {
-    "page": "flowfield",
-    "title": "FLOWFIELD",
-    "desc": "ノイズ場に従うパーティクル。Perlinノイズが生む流れに粒子が乗り、有機的な軌跡を描く。",
-    "desc_en": "Particles follow a Perlin noise flow field, tracing organic paths through an evolving vector landscape.",
-    "icon": "fa-wind",
-    "category": "流れるもの",
-    "category_en": "FLOW",
-    "meta": "Perlin noise · 3 palettes · trails",
-    "meta_en": "Perlin noise · 3 palettes · trails",
-    "added": "2026-04-09",
-    "group": "flow"
-  },
-  {
-    "page": "turing",
-    "title": "TURING",
-    "desc": "チューリングマシン。テープ上を走るヘッドが記号を読み書きし、状態遷移を繰り返す。計算の原型。",
-    "desc_en": "Turing machine. A head reads, writes, and moves on an infinite tape — the archetype of computation.",
-    "icon": "fa-tape",
-    "category": "格子のもの",
-    "category_en": "LATTICE",
-    "meta": "5 programs · busy beaver · tape history",
-    "meta_en": "5 programs · busy beaver · tape history",
-    "added": "2026-04-10",
-    "group": "lattice"
-  },
-  {
     "page": "diffgrow",
     "title": "DIFFGROW",
     "desc": "微分成長。閉曲線が分裂と反発を繰り返し、珊瑚のような有機的形態へ自己組織化する。",
@@ -1064,19 +752,6 @@
     "meta_en": "subdivision · repulsion · organic",
     "added": "2026-04-11",
     "group": "grow"
-  },
-  {
-    "page": "modular",
-    "title": "MODULAR",
-    "desc": "モジュラ乗算。円周上のN点を乗数kで結ぶと、カージオイドやネフロイドが現れる。",
-    "desc_en": "Modular multiplication. Connect N points on a circle by multiplier k — cardioids and nephroids emerge.",
-    "icon": "fa-circle-notch",
-    "category": "数えるもの",
-    "category_en": "NUMBER",
-    "meta": "cardioid · nephroid · times table",
-    "meta_en": "cardioid · nephroid · times table",
-    "added": "2026-04-12",
-    "group": "number"
   },
   {
     "page": "slit",
@@ -1144,19 +819,6 @@
     "group": "light"
   },
   {
-    "page": "elastic",
-    "title": "ELASTIC",
-    "desc": "理想気体の運動論。弾性衝突を繰り返す粒子の速度がマクスウェル・ボルツマン分布に収束する。",
-    "desc_en": "Kinetic theory of ideal gas. Particle speeds converge to the Maxwell-Boltzmann distribution through elastic collisions.",
-    "icon": "fa-temperature-half",
-    "category": "引き合うもの",
-    "category_en": "FORCE",
-    "meta": "Maxwell–Boltzmann",
-    "meta_en": "Maxwell–Boltzmann",
-    "added": "2026-04-20",
-    "group": "force"
-  },
-  {
     "page": "harmonograph",
     "title": "HARMONOGRAPH",
     "desc": "ハーモノグラフ。減衰する振り子が描く繊細な幾何学模様。周波数比と位相が無限の曲線を生む。",
@@ -1170,19 +832,6 @@
     "group": "curve"
   },
   {
-    "page": "traffic",
-    "title": "TRAFFIC",
-    "desc": "Nagel-Schreckenberg交通流モデル。単純な4つのルールから渋滞が自然発生する。",
-    "desc_en": "Nagel-Schreckenberg traffic flow model. Traffic jams emerge spontaneously from four simple rules.",
-    "icon": "fa-car",
-    "category": "群れるもの",
-    "category_en": "SWARM",
-    "meta": "NaSch · phantom jam · space-time",
-    "meta_en": "NaSch · phantom jam · space-time",
-    "added": "2026-04-22",
-    "group": "swarm"
-  },
-  {
     "page": "crystal",
     "title": "CRYSTAL",
     "desc": "六角格子の結晶成長。拡散と凝結で六対称の樹枝状結晶が自己組織的に育つ。",
@@ -1194,19 +843,6 @@
     "meta_en": "Reiter model · 5 morphologies",
     "added": "2026-04-23",
     "group": "grow"
-  },
-  {
-    "page": "phase",
-    "title": "PHASE",
-    "desc": "位相面。2次元力学系の軌道を粒子の流れとして可視化する。固定点・リミットサイクル・セパラトリクスの地図。",
-    "desc_en": "Phase portrait. Visualize 2D dynamical system trajectories as flowing particles. Map of fixed points, limit cycles, and separatrices.",
-    "icon": "fa-arrows-spin",
-    "category": "予測できないもの",
-    "category_en": "CHAOS",
-    "meta": "5 systems · nullclines · RK4",
-    "meta_en": "5 systems · nullclines · RK4",
-    "added": "2026-04-24",
-    "group": "chaos"
   },
   {
     "page": "recaman",
@@ -1248,58 +884,6 @@
     "group": "fractal"
   },
   {
-    "page": "diffusion",
-    "title": "DIFFUSION",
-    "desc": "熱拡散シミュレーション。熱源と冷源を描き、熱方程式に従う温度の拡散を観察する。",
-    "desc_en": "Heat diffusion simulation. Paint hot and cold sources, draw insulating walls, and watch temperature spread by the heat equation.",
-    "icon": "fa-temperature-half",
-    "category": "育つもの",
-    "category_en": "GROWTH",
-    "meta": "heat equation · walls · brush",
-    "meta_en": "heat equation · walls · brush",
-    "added": "2026-04-28",
-    "group": "grow"
-  },
-  {
-    "page": "shadow",
-    "title": "SHADOW",
-    "desc": "2Dレイキャスティング。光源から光線を投射し、壁が作る影と可視領域をリアルタイムに描画する。",
-    "desc_en": "2D raycasting. Cast rays from light sources to compute visibility polygons and paint light and shadow in real time.",
-    "icon": "fa-eye",
-    "category": "光るもの",
-    "category_en": "LIGHT",
-    "meta": "raycasting · visibility · light",
-    "meta_en": "raycasting · visibility · light",
-    "added": "2026-04-30",
-    "group": "light"
-  },
-  {
-    "page": "softbody",
-    "title": "SOFTBODY",
-    "desc": "圧力ベースの軟体シミュレーション。バネと内圧で膨らむ軟体を投げて弾ませる。",
-    "desc_en": "Pressure-based soft body simulation. Throw, bounce, and squish spring-mass bodies inflated by internal pressure.",
-    "icon": "fa-droplet",
-    "category": "引き合うもの",
-    "category_en": "FORCE",
-    "meta": "spring-mass · pressure",
-    "meta_en": "spring-mass · pressure",
-    "added": "2026-05-01",
-    "group": "force"
-  },
-  {
-    "page": "reach",
-    "title": "REACH",
-    "desc": "逆運動学（FABRIK）。鎖状のアームがターゲットに伸びる。前方・後方の反復で解が収束する。",
-    "desc_en": "FABRIK inverse kinematics. Articulated arms reach toward a target through forward-backward iteration.",
-    "icon": "fa-arrows-to-dot",
-    "category": "引き合うもの",
-    "category_en": "FORCE",
-    "meta": "FABRIK · angle constraints",
-    "meta_en": "FABRIK · angle constraints",
-    "added": "2026-05-03",
-    "group": "force"
-  },
-  {
     "page": "collapse",
     "title": "COLLAPSE",
     "desc": "波動関数崩壊（WFC）。制約伝播によりタイルが一枚ずつ確定していく。エントロピー最小のセルから秩序が広がる。",
@@ -1310,32 +894,6 @@
     "meta": "constraint propagation · entropy",
     "meta_en": "constraint propagation · entropy",
     "added": "2026-05-04",
-    "group": "tile"
-  },
-  {
-    "page": "schelling",
-    "title": "SCHELLING",
-    "desc": "シェリング隔離モデル。緩やかな同類選好だけで強い隔離が自然発生する。社会物理学のシミュレーション。",
-    "desc_en": "Schelling segregation model. Mild same-type preference produces strong segregation — emergent social physics.",
-    "icon": "fa-people-group",
-    "category": "群れるもの",
-    "category_en": "SWARM",
-    "meta": "tolerance · segregation index",
-    "meta_en": "tolerance · segregation index",
-    "added": "2026-05-05",
-    "group": "swarm"
-  },
-  {
-    "page": "truchet",
-    "title": "TRUCHET",
-    "desc": "トリュシェタイル。四分円弧のランダム配置が、迷路のように流れるパターンを生む。",
-    "desc_en": "Truchet tiles. Randomly oriented quarter-circle arcs form labyrinthine flowing patterns.",
-    "icon": "fa-grip",
-    "category": "敷き詰めるもの",
-    "category_en": "TILING",
-    "meta": "3 modes · flip tiles",
-    "meta_en": "3 modes · flip tiles",
-    "added": "2026-05-06",
     "group": "tile"
   },
   {
@@ -1365,19 +923,6 @@
     "group": "force"
   },
   {
-    "page": "lightning",
-    "title": "LIGHTNING",
-    "desc": "誘電体破壊モデル。放電パスが分岐しながら走り、リヒテンベルク図形を残す。",
-    "desc_en": "Dielectric breakdown model. Discharge paths branch and race, leaving Lichtenberg figures behind.",
-    "icon": "fa-bolt",
-    "category": "光るもの",
-    "category_en": "LIGHT",
-    "meta": "fractal discharge · Lichtenberg",
-    "meta_en": "fractal discharge · Lichtenberg",
-    "added": "2026-05-11",
-    "group": "light"
-  },
-  {
     "page": "chirikov",
     "title": "CHIRIKOV",
     "desc": "チリコフ標準写像。キックされた回転子の位相空間にKAMトーラスが浮かび、摂動が増すとカオスの海に溶ける。",
@@ -1404,19 +949,6 @@
     "group": "tile"
   },
   {
-    "page": "metaball",
-    "title": "METABALL",
-    "desc": "メタボール。暗黙曲面の等値面が有機的に融合・分裂する。",
-    "desc_en": "Metaballs. Implicit surface isovalues merge and split organically.",
-    "icon": "fa-droplet",
-    "category": "育つもの",
-    "category_en": "GROWTH",
-    "meta": "implicit surface · threshold",
-    "meta_en": "implicit surface · threshold",
-    "added": "2026-05-14",
-    "group": "grow"
-  },
-  {
     "page": "galaxy",
     "title": "GALAXY",
     "desc": "渦巻銀河の密度波シミュレーション。数千の星が差動回転し、腕の構造が創発する。",
@@ -1428,19 +960,6 @@
     "meta_en": "density wave · Lin-Shu",
     "added": "2026-05-16",
     "group": "force"
-  },
-  {
-    "page": "lattice",
-    "title": "LATTICE",
-    "desc": "2D格子振動。離散格子上の波動方程式。タップで波を起こし、ピン留めで壁を作る。",
-    "desc_en": "2D lattice vibration. Wave equation on a discrete grid. Tap to create pulses, pin nodes to build barriers.",
-    "icon": "fa-grip",
-    "category": "流れるもの",
-    "category_en": "FLOW",
-    "meta": "wave equation · phonon",
-    "meta_en": "wave equation · phonon",
-    "added": "2026-05-17",
-    "group": "flow"
   },
   {
     "page": "doppler",
@@ -1456,45 +975,6 @@
     "group": "light"
   },
   {
-    "page": "magnetic",
-    "title": "MAGNETIC",
-    "desc": "磁場の可視化。双極子が作る閉じた磁力線を粒子の流れで描く。棒磁石を配置して場の構造を観察する。",
-    "desc_en": "Magnetic field visualization. Flowing particles trace closed field lines from bar magnet dipoles.",
-    "icon": "fa-magnet",
-    "category": "引き合うもの",
-    "category_en": "FORCE",
-    "meta": "dipole · closed field lines",
-    "meta_en": "dipole · closed field lines",
-    "added": "2026-05-20",
-    "group": "force"
-  },
-  {
-    "page": "toothpick",
-    "title": "TOOTHPICK",
-    "desc": "爪楊枝数列。むき出しの端に直角の枝が生え続け、自己相似フラクタルが現れる。",
-    "desc_en": "Toothpick sequence. Perpendicular branches grow from exposed endpoints, revealing a self-similar fractal.",
-    "icon": "fa-plus",
-    "category": "格子のもの",
-    "category_en": "LATTICE",
-    "meta": "self-similar · endpoint growth",
-    "meta_en": "self-similar · endpoint growth",
-    "added": "2026-05-21",
-    "group": "lattice"
-  },
-  {
-    "page": "pascal",
-    "title": "PASCAL",
-    "desc": "パスカルの三角形。二項係数を mod N で色分けすると、自己相似フラクタルが浮かび上がる。",
-    "desc_en": "Pascal's triangle. Color binomial coefficients by mod N and watch self-similar fractals emerge.",
-    "icon": "fa-shapes",
-    "category": "数えるもの",
-    "category_en": "NUMBER",
-    "meta": "mod N · Sierpinski · fractal",
-    "meta_en": "mod N · Sierpinski · fractal",
-    "added": "2026-05-22",
-    "group": "number"
-  },
-  {
     "page": "neural",
     "title": "NEURAL",
     "desc": "ニューラルネットワークの分類境界をリアルタイムで可視化。データ点を置くと、ネットワークが境界を学習していく。",
@@ -1506,45 +986,6 @@
     "meta_en": "4 presets / adjustable params",
     "added": "2026-05-23",
     "group": "mind"
-  },
-  {
-    "page": "delaunay",
-    "title": "DELAUNAY",
-    "desc": "ドロネー三角形分割。点を配置すると空外接円条件を満たす三角形メッシュが形成される。ボロノイ図との双対関係。",
-    "desc_en": "Delaunay triangulation. Place points and watch a mesh form where no circumcircle contains another point. Voronoi duality.",
-    "icon": "fa-draw-polygon",
-    "category": "敷き詰めるもの",
-    "category_en": "TILING",
-    "meta": "Bowyer-Watson · Voronoi dual",
-    "meta_en": "Bowyer-Watson · Voronoi dual",
-    "added": "2026-05-24",
-    "group": "tile"
-  },
-  {
-    "page": "ford",
-    "title": "FORD",
-    "desc": "フォード円。すべての既約分数 p/q が x 軸上で接する円となり、隣接円はファレイ数列の隣人と一致する。",
-    "desc_en": "Ford circles. Every reduced fraction p/q becomes a circle tangent to the x-axis. Two circles touch iff the fractions are Farey neighbors.",
-    "icon": "fa-circle-dot",
-    "category": "数えるもの",
-    "category_en": "NUMBER",
-    "meta": "Ford (1938) · Farey neighbors",
-    "meta_en": "Ford (1938) · Farey neighbors",
-    "added": "2026-05-25",
-    "group": "number"
-  },
-  {
-    "page": "lyapunov",
-    "title": "LYAPUNOV",
-    "desc": "リャプノフフラクタル。ロジスティック写像のパラメータ空間にリャプノフ指数を描くと、安定とカオスの境界がフラクタル模様を作る。",
-    "desc_en": "Lyapunov fractal. Mapping the Lyapunov exponent across logistic map parameter space reveals fractal boundaries between stability and chaos.",
-    "icon": "fa-wave-square",
-    "category": "予測できないもの",
-    "category_en": "CHAOS",
-    "meta": "Logistic map · λ exponent · sequence patterns",
-    "meta_en": "Logistic map · λ exponent · sequence patterns",
-    "added": "2026-05-26",
-    "group": "chaos"
   },
   {
     "page": "stipple",
@@ -1573,32 +1014,6 @@
     "group": "fractal"
   },
   {
-    "page": "spanning",
-    "title": "SPANNING",
-    "desc": "最小全域木。漂う点群をPrimのアルゴリズムがリアルタイムで最短結合し続ける。生きたネットワーク。",
-    "desc_en": "Minimum Spanning Tree. Prim's algorithm continuously reconnects drifting nodes at minimum cost. A living network.",
-    "icon": "fa-project-diagram",
-    "category": "探すもの",
-    "category_en": "SEARCH",
-    "meta": "Prim's · 3 styles · drift",
-    "meta_en": "Prim's · 3 styles · drift",
-    "added": "2026-05-31",
-    "group": "mind"
-  },
-  {
-    "page": "quadtree",
-    "title": "QUADTREE",
-    "desc": "四分木空間分割。粒子の密度に応じて空間が再帰的に分割され、範囲検索と最近傍探索を加速する。",
-    "desc_en": "Quadtree spatial partitioning. Space recursively subdivides by particle density, accelerating range and nearest-neighbor queries.",
-    "icon": "fa-border-all",
-    "category": "探すもの",
-    "category_en": "SEARCH",
-    "meta": "3 modes · range query · nearest neighbor",
-    "meta_en": "3 modes · range query · nearest neighbor",
-    "added": "2026-06-02",
-    "group": "mind"
-  },
-  {
     "page": "rose",
     "title": "ROSE",
     "desc": "モーラーローズ。バラ曲線上の点を等角間隔で結ぶと、幾何学的な星形パターンが無数に生まれる。",
@@ -1610,19 +1025,6 @@
     "meta_en": "2 params · auto-morph · presets",
     "added": "2026-06-04",
     "group": "curve"
-  },
-  {
-    "page": "ratchet",
-    "title": "RATCHET",
-    "desc": "ブラウニアンラチェット。非対称ポテンシャルと熱雑音が一方向の輸送を生む。ランダムが秩序を作る分子モーターの原理。",
-    "desc_en": "Brownian ratchet. Asymmetric sawtooth potential and thermal noise create directed transport — the principle behind molecular motors.",
-    "icon": "fa-gears",
-    "category": "引き合うもの",
-    "category_en": "FORCE",
-    "meta": "sawtooth · flashing · drift",
-    "meta_en": "sawtooth · flashing · drift",
-    "added": "2026-06-05",
-    "group": "force"
   },
   {
     "page": "symicon",
@@ -1638,97 +1040,6 @@
     "group": "fractal"
   },
   {
-    "page": "excitable",
-    "title": "EXCITABLE",
-    "desc": "興奮性媒質。クリックで波を起こし、波面が途切れるとスパイラル波が自発的に回転し始める。心臓のリズムを支配する数学。",
-    "desc_en": "Excitable medium. Click to ignite waves — when a wavefront breaks, self-sustaining spiral waves emerge. The math governing cardiac rhythm.",
-    "icon": "fa-heart-pulse",
-    "category": "格子のもの",
-    "category_en": "LATTICE",
-    "meta": "Barkley model · spiral waves · breakup",
-    "meta_en": "Barkley model · spiral waves · breakup",
-    "added": "2026-06-09",
-    "group": "lattice"
-  },
-  {
-    "page": "hull",
-    "title": "HULL",
-    "desc": "凸包アルゴリズムの可視化。Graham Scan・Jarvis March・QuickHullが点群の外殻をステップごとに探す。",
-    "desc_en": "Convex hull algorithms visualized. Watch Graham Scan, Jarvis March, and QuickHull trace the outer boundary of a point set step by step.",
-    "icon": "fa-draw-polygon",
-    "category": "探すもの",
-    "category_en": "SEARCH",
-    "meta": "Graham · Jarvis · QuickHull",
-    "meta_en": "Graham · Jarvis · QuickHull",
-    "added": "2026-06-11",
-    "group": "mind"
-  },
-  {
-    "page": "chamber",
-    "title": "CHAMBER",
-    "desc": "荷電粒子の飛跡。磁場中を螺旋する粒子が減速し、崩壊で枝分かれする。泡箱の再現。",
-    "desc_en": "Charged particle tracks. Particles spiral through a magnetic field, lose energy, and branch at decay vertices. A bubble chamber reimagined.",
-    "icon": "fa-atom",
-    "category": "光るもの",
-    "category_en": "LIGHT",
-    "meta": "Lorentz force · ionization · decay",
-    "meta_en": "Lorentz force · ionization · decay",
-    "added": "2026-06-12",
-    "group": "light"
-  },
-  {
-    "page": "qlearn",
-    "title": "QLEARN",
-    "desc": "Q学習。エージェントが試行錯誤から最適経路を学ぶ。価値関数のヒートマップが報酬源からゆっくり広がる。",
-    "desc_en": "Q-Learning. An agent learns optimal paths through trial and error. The value function heat map spreads slowly from the reward.",
-    "icon": "fa-brain",
-    "category": "探すもの",
-    "category_en": "SEARCH",
-    "meta": "ε-greedy · Bellman · value map",
-    "meta_en": "ε-greedy · Bellman · value map",
-    "added": "2026-06-13",
-    "group": "mind"
-  },
-  {
-    "page": "knot",
-    "title": "KNOT",
-    "desc": "トーラス結び目。パラメータp,qで経度・緯度の巻数を変え、3次元の結び目を回転させながら眺める。",
-    "desc_en": "Torus knots. Adjust p and q to wind a curve on a torus, projected with depth-sorted crossings.",
-    "icon": "fa-infinity",
-    "category": "描くもの",
-    "category_en": "CURVE",
-    "meta": "T(p,q) / crossing / link",
-    "meta_en": "T(p,q) / crossing / link",
-    "added": "2026-06-15",
-    "group": "curve"
-  },
-  {
-    "page": "winding",
-    "title": "WINDING",
-    "desc": "巻き数。閉曲線が平面をトポロジカルに分割する——各領域の巻き数が色になる。",
-    "desc_en": "Winding number. A closed curve topologically partitions the plane — each region colored by how many times the curve winds around it.",
-    "icon": "fa-rotate",
-    "category": "描くもの",
-    "category_en": "CURVE",
-    "meta": "6 presets / winding field / custom draw",
-    "meta_en": "6 presets / winding field / custom draw",
-    "added": "2026-06-16",
-    "group": "curve"
-  },
-  {
-    "page": "rips",
-    "title": "RIPS COMPLEX",
-    "desc": "リップス複体。距離パラメータを上げると点群が繋がり、単体複体が成長する。位相的特徴が現れては消える。",
-    "desc_en": "Vietoris–Rips complex. As the distance threshold grows, points connect into edges and triangles — a simplicial complex revealing topological features.",
-    "icon": "fa-circle-nodes",
-    "category": "探すもの",
-    "category_en": "SEARCH",
-    "meta": "β₀ / simplicial / auto-grow",
-    "meta_en": "β₀ / simplicial / auto-grow",
-    "added": "2026-06-17",
-    "group": "mind"
-  },
-  {
     "page": "karman",
     "title": "KÁRMÁN",
     "desc": "カルマン渦列。格子ボルツマン法で流体中の障害物が生む交互の渦を可視化する。",
@@ -1740,19 +1051,6 @@
     "meta_en": "LBM · D2Q9 · Re 30–200",
     "added": "2026-06-19",
     "group": "flow"
-  },
-  {
-    "page": "venation",
-    "title": "VENATION",
-    "desc": "空間植民化アルゴリズム。誘引点に向かって枝が伸び、葉脈のような分岐構造が自己組織的に育つ。",
-    "desc_en": "Space colonization algorithm. Branches grow toward attraction points, self-organizing into leaf-vein-like structures.",
-    "icon": "fa-seedling",
-    "category": "育つもの",
-    "category_en": "GROWTH",
-    "meta": "branching · attraction · organic",
-    "meta_en": "branching · attraction · organic",
-    "added": "2026-06-20",
-    "group": "grow"
   },
   {
     "page": "crowd",
@@ -1768,19 +1066,6 @@
     "group": "swarm"
   },
   {
-    "page": "atoms",
-    "title": "ATOMS",
-    "desc": "レナード・ジョーンズ分子動力学。引力と斥力が織りなす結晶化・融解・気化の相転移を体験する。",
-    "desc_en": "Lennard-Jones molecular dynamics. Attraction and repulsion drive crystallization, melting, and vaporization phase transitions.",
-    "icon": "fa-atom",
-    "category": "育つもの",
-    "category_en": "GROWTH",
-    "meta": "3モード / 相転移",
-    "meta_en": "3 modes / phase transition",
-    "added": "2026-06-22",
-    "group": "grow"
-  },
-  {
     "page": "inversion",
     "title": "INVERSION",
     "desc": "円に関する反転変換。直線は円になり、円は円に写る。反転円を配置して幾何学の魔法を体験する。",
@@ -1792,19 +1077,6 @@
     "meta_en": "3 modes / inversion",
     "added": "2026-06-23",
     "group": "curve"
-  },
-  {
-    "page": "flame",
-    "title": "FLAME",
-    "desc": "フラクタルフレーム。非線形変換の反復が光る有機的形態を紡ぎ出す。ログ密度レンダリングで密度が光に変わる。",
-    "desc_en": "Fractal flames. Nonlinear IFS variations produce luminous organic forms via log-density histogram rendering.",
-    "icon": "fa-fire",
-    "category": "繰り返すもの",
-    "category_en": "FRACTAL",
-    "meta": "10 variations · log-density",
-    "meta_en": "10 variations · log-density",
-    "added": "2026-06-24",
-    "group": "fractal"
   },
   {
     "page": "swarmalator",
@@ -1833,32 +1105,6 @@
     "group": "fractal"
   },
   {
-    "page": "refraction",
-    "title": "REFRACTION",
-    "desc": "屈折の光学シミュレーション。スネルの法則に従い光線が媒質境界で曲がる。臨界角を超えると全反射が起きる。",
-    "desc_en": "Optical refraction simulation. Light rays bend at medium boundaries following Snell's law. Beyond the critical angle, total internal reflection traps the light.",
-    "icon": "fa-diamond",
-    "category": "光るもの",
-    "category_en": "LIGHT",
-    "meta": "Snell's law · TIR · 3 modes",
-    "meta_en": "Snell's law · TIR · 3 modes",
-    "added": "2026-06-27",
-    "group": "light"
-  },
-  {
-    "page": "feedback",
-    "title": "FEEDBACK",
-    "desc": "映像帰還ループ。画面が自身を縮小・回転して再描画し続け、無限後退のパターンが創発する。",
-    "desc_en": "Visual feedback loop. The screen redraws itself scaled and rotated, creating infinite regress patterns.",
-    "icon": "fa-rotate",
-    "category": "予測できないもの",
-    "category_en": "CHAOS",
-    "meta": "iterated transform · 3 modes",
-    "meta_en": "iterated transform · 3 modes",
-    "added": "2026-06-28",
-    "group": "chaos"
-  },
-  {
     "page": "catenary",
     "title": "CATENARY",
     "desc": "懸垂線。重力に吊るされた鎖が描く双曲線余弦の曲線。放物線との違いを体感する。",
@@ -1870,84 +1116,6 @@
     "meta_en": "cosh · 4 modes · compare",
     "added": "2026-06-29",
     "group": "curve"
-  },
-  {
-    "page": "catmap",
-    "title": "CATMAP",
-    "desc": "アーノルドの猫写像。面積保存カオス変換が色のグラデーションを引き裂き混ぜ合わせ、有限ステップで完全に元に戻る。",
-    "desc_en": "Arnold's cat map. An area-preserving chaotic transformation shears and mixes a color gradient, yet it perfectly recurs after finite steps.",
-    "icon": "fa-shuffle",
-    "category": "予測できないもの",
-    "category_en": "CHAOS",
-    "meta": "Poincaré recurrence · torus map",
-    "meta_en": "Poincaré recurrence · torus map",
-    "added": "2026-06-30",
-    "group": "chaos"
-  },
-  {
-    "page": "tomography",
-    "title": "TOMOGRAPHY",
-    "desc": "CTスキャンのRadon変換。回転する投影からシノグラムを作り、逆投影で内部構造を浮かび上がらせる。",
-    "desc_en": "CT-scan Radon transform. Rotating projections form a sinogram, then backprojection reveals the hidden density field.",
-    "icon": "fa-circle-half-stroke",
-    "category": "光るもの",
-    "category_en": "LIGHT",
-    "meta": "Radon transform · backprojection",
-    "meta_en": "Radon transform · backprojection",
-    "added": "2026-07-01",
-    "group": "light"
-  },
-  {
-    "page": "hough",
-    "title": "HOUGH",
-    "desc": "点群を直線のパラメータ空間へ写し、投票の山から線を検出するHough変換。",
-    "desc_en": "Hough transform for line detection. Points become sinusoidal votes, and peaks reveal hidden lines.",
-    "icon": "fa-slash",
-    "category": "探すもの",
-    "category_en": "SEARCH",
-    "meta": "Hough transform / line detection",
-    "meta_en": "Hough transform / line detection",
-    "added": "2026-07-02",
-    "group": "mind"
-  },
-  {
-    "page": "eigen",
-    "title": "EIGEN",
-    "desc": "2x2行列が平面を変形する様子を、基底ベクトル・単位円・固有方向・流れとして観察する。",
-    "desc_en": "2x2 linear transform. Drag basis vectors and watch the unit circle, grid, eigen directions, and flow update.",
-    "icon": "fa-vector-square",
-    "category": "描くもの",
-    "category_en": "CURVE",
-    "meta": "linear transform · eigenvectors · flow",
-    "meta_en": "linear transform · eigenvectors · flow",
-    "added": "2026-07-04",
-    "group": "curve"
-  },
-  {
-    "page": "steiner",
-    "title": "STEINER",
-    "desc": "シュタイナー木。端点を最短で結ぶネットワークが、120°接合点を自ら見つけ出す組合せ最適化。",
-    "desc_en": "Steiner tree. A minimum-length network finds its own 120° junction points to connect terminals optimally.",
-    "icon": "fa-project-diagram",
-    "category": "探すもの",
-    "category_en": "SEARCH",
-    "meta": "Steiner points · 120° junctions · MST comparison",
-    "meta_en": "Steiner points · 120° junctions · MST comparison",
-    "added": "2026-07-05",
-    "group": "mind"
-  },
-  {
-    "page": "fracture",
-    "title": "FRACTURE",
-    "desc": "バネ格子の脆性破壊。応力集中が亀裂の先端に溜まり、ランダムな結合強度が分岐パターンを決める。",
-    "desc_en": "Brittle fracture in a spring lattice. Stress concentrates at crack tips while random bond strengths create branching patterns.",
-    "icon": "fa-burst",
-    "category": "育つもの",
-    "category_en": "GROWTH",
-    "meta": "stress concentration · crack propagation · Verlet",
-    "meta_en": "stress concentration · crack propagation · Verlet",
-    "added": "2026-07-06",
-    "group": "grow"
   },
   {
     "page": "diffract",
@@ -1963,97 +1131,6 @@
     "group": "light"
   },
   {
-    "page": "montecarlo",
-    "title": "MONTECARLO",
-    "desc": "モンテカルロ法。ランダムな点を降らせて面積を推定する。サンプル数が増えるほど真の値に収束していく確率的計算。",
-    "desc_en": "Monte Carlo estimation. Random points rain down to approximate area. Watch convergence as sample count grows.",
-    "icon": "fa-dice",
-    "category": "数えるもの",
-    "category_en": "NUMBER",
-    "meta": "stochastic · convergence · π estimation · area",
-    "meta_en": "stochastic · convergence · π estimation · area",
-    "added": "2026-07-08",
-    "group": "number"
-  },
-  {
-    "page": "pso",
-    "title": "PSO",
-    "desc": "粒子群最適化。群れが適応度の地形を探索し、個体の記憶と集団の知識が最適解へ導く。",
-    "desc_en": "Particle swarm optimization. A swarm explores a fitness landscape — individual memory and collective knowledge guide it toward the global optimum.",
-    "icon": "fa-arrows-to-dot",
-    "category": "探すもの",
-    "category_en": "SEARCH",
-    "meta": "swarm intelligence · metaheuristic · fitness landscape",
-    "meta_en": "swarm intelligence · metaheuristic · fitness landscape",
-    "added": "2026-07-09",
-    "group": "mind"
-  },
-  {
-    "page": "strange",
-    "title": "STRANGE",
-    "desc": "奇妙なアトラクタ探索。Sprottの二次写像パラメータ空間からカオス軌道を発見し、対数密度で描く。",
-    "desc_en": "Strange attractor explorer. Discover chaotic orbits from Sprott's quadratic map parameter space, rendered as log-density accumulation.",
-    "icon": "fa-hurricane",
-    "category": "予測できないもの",
-    "category_en": "CHAOS",
-    "meta": "Sprott quadratic map · Lyapunov · log-density · mutate",
-    "meta_en": "Sprott quadratic map · Lyapunov · log-density · mutate",
-    "added": "2026-07-10",
-    "group": "chaos"
-  },
-  {
-    "page": "biomorph",
-    "title": "BIOMORPH",
-    "desc": "Pickoverバイオモーフ。複素関数の反復にバイオモーフィック判定を適用すると、微生物のような有機的フラクタルが現れる。",
-    "desc_en": "Pickover biomorphs. Apply a biomorphic bailout test to complex iteration — organism-like fractals emerge from pure mathematics.",
-    "icon": "fa-virus",
-    "category": "繰り返すもの",
-    "category_en": "FRACTAL",
-    "meta": "complex iteration · biomorphic bailout · 6 functions · MAP/FORM",
-    "meta_en": "complex iteration · biomorphic bailout · 6 functions · MAP/FORM",
-    "added": "2026-07-11",
-    "group": "fractal"
-  },
-  {
-    "page": "saw",
-    "title": "SAW",
-    "desc": "自己回避歩行。自分の軌跡を二度と踏めないランダムウォークが、やがて自らを閉じ込める。高分子物理の基礎モデル。",
-    "desc_en": "Self-avoiding walk. A random walker that never revisits a site traps itself in its own trail. The foundational model of polymer physics.",
-    "icon": "fa-route",
-    "category": "育つもの",
-    "category_en": "GROWTH",
-    "meta": "polymer scaling · trapping · Flory ν ≈ 3/4",
-    "meta_en": "polymer scaling · trapping · Flory ν ≈ 3/4",
-    "added": "2026-07-12",
-    "group": "grow"
-  },
-  {
-    "page": "tissue",
-    "title": "TISSUE",
-    "desc": "細胞ポッツモデル。格子上の拡張セルが表面張力と微分接着で自己組織化し、異なる型の細胞が自発的に分離する。",
-    "desc_en": "Cellular Potts Model. Extended cells on a lattice self-organize through surface tension and differential adhesion — two cell types spontaneously sort apart.",
-    "icon": "fa-microscope",
-    "category": "育つもの",
-    "category_en": "GROWTH",
-    "meta": "Metropolis Monte Carlo · differential adhesion · cell sorting",
-    "meta_en": "Metropolis Monte Carlo · differential adhesion · cell sorting",
-    "added": "2026-07-13",
-    "group": "grow"
-  },
-  {
-    "page": "orbital",
-    "title": "ORBITAL",
-    "desc": "水素原子の電子軌道。量子数(n,l,m)で決まる波動関数の確率密度を、断面図とモンテカルロ粒子雲で描く。",
-    "desc_en": "Hydrogen electron orbital probability density. Cross-section and Monte Carlo particle cloud visualization of wavefunctions for quantum numbers (n,l,m).",
-    "icon": "fa-atom",
-    "category": "光るもの",
-    "category_en": "LIGHT",
-    "meta": "n=1-5 / s,p,d,f,g",
-    "meta_en": "n=1-5 / s,p,d,f,g",
-    "added": "2026-07-14",
-    "group": "light"
-  },
-  {
     "page": "foam",
     "title": "FOAM",
     "desc": "泡が押し合って境目が曲がり、小さな泡から順に消えていく。泡の形が何角形かで、縮むか育つかが決まっている。",
@@ -2065,32 +1142,6 @@
     "meta_en": "Voronoi · surface tension · coarsening",
     "added": "2026-07-16",
     "group": "tile"
-  },
-  {
-    "page": "coulomb",
-    "title": "COULOMB",
-    "desc": "反発し合う粒を器に閉じこめると、玉ねぎのような同心円の層に並ぶ。粒を足すと、どの層に入るかが組み変わる。",
-    "desc_en": "Trap mutually repelling charges in a bowl and they settle into onion-like rings. Add one more and the rings reshuffle.",
-    "icon": "fa-circle-dot",
-    "category": "引き合うもの",
-    "category_en": "FORCE",
-    "meta": "shell structure · Wigner crystal · harmonic trap",
-    "meta_en": "shell structure · Wigner crystal · harmonic trap",
-    "added": "2026-07-18",
-    "group": "force"
-  },
-  {
-    "page": "domino",
-    "title": "DOMINO",
-    "desc": "ダイヤ形の枠をドミノでランダムに埋めると、角は整列し、真ん中だけが乱れる。その境目がほぼ正確な円になる。",
-    "desc_en": "Fill a diamond with random dominoes: the corners freeze into order, only the middle stays messy, and the border between them is almost a perfect circle.",
-    "icon": "fa-diamond",
-    "category": "格子のもの",
-    "category_en": "LATTICE",
-    "meta": "4 types · arctic circle",
-    "meta_en": "4 types · arctic circle",
-    "added": "2026-07-19",
-    "group": "lattice"
   },
   {
     "page": "ferrofluid",
@@ -2132,84 +1183,6 @@
     "group": "flow"
   },
   {
-    "page": "kohonen",
-    "title": "KOHONEN",
-    "desc": "網をデータの点に向けて何度も引っぱると、網が形になじんで、点の並びの地図になる。（自己組織化写像）",
-    "desc_en": "Keep tugging a mesh toward data points and it molds itself into a map of their shape. (Self-organizing map)",
-    "icon": "fa-brain",
-    "category": "探すもの",
-    "category_en": "SEARCH",
-    "meta": "SOM / 競合学習",
-    "meta_en": "SOM / competitive",
-    "added": "2026-07-24",
-    "group": "mind"
-  },
-  {
-    "page": "cml",
-    "title": "CML",
-    "desc": "隣どうしが少しずつ影響し合うカオスのマスを並べると、つながりの強さしだいで乱れたり、縞や帯に揃ったりする。",
-    "desc_en": "A row of chaotic cells that nudge their neighbors: depending on the coupling, they scramble or lock into stripes and bands.",
-    "icon": "fa-grip",
-    "category": "格子のもの",
-    "category_en": "LATTICE",
-    "meta": "logistic map / spatiotemporal chaos",
-    "meta_en": "logistic map / spatiotemporal chaos",
-    "added": "2026-07-26",
-    "group": "lattice"
-  },
-  {
-    "page": "transport",
-    "title": "TRANSPORT",
-    "desc": "粒の集まりを別の形へ移すとき、全員の移動距離の合計が最短になる組み合わせを探す。線が交差しなくなったら正解に近い。",
-    "desc_en": "Move one cloud of particles into another shape with the least total travel. When the paths stop crossing, you are close to the optimum.",
-    "icon": "fa-route",
-    "category": "流れるもの",
-    "category_en": "FLOW",
-    "meta": "Earth Mover's Distance / W₂",
-    "meta_en": "Earth Mover's Distance / W₂",
-    "added": "2026-07-27",
-    "group": "flow"
-  },
-  {
-    "page": "sdf",
-    "title": "SDF",
-    "desc": "丸や四角を足したり、くり抜いたりして形を作ると、形からの距離が波紋のような等高線になって広がる。",
-    "desc_en": "Add and carve circles and boxes into a shape, and the distance from it spreads out as ripple-like contour lines.",
-    "icon": "fa-shapes",
-    "category": "敷き詰めるもの",
-    "category_en": "TILING",
-    "meta": "CSG · smooth blend · 3 primitives",
-    "meta_en": "CSG · smooth blend · 3 primitives",
-    "added": "2026-07-28",
-    "group": "tile"
-  },
-  {
-    "page": "convection",
-    "title": "CONVECTION",
-    "desc": "下から温めた液体は、温度差がある値を超えた瞬間に転がる筒のような流れに分かれる。つまみを動かして、流れが止まる境目を探す。",
-    "desc_en": "Heat a fluid from below and past a critical temperature gap it splits into rolling cells. Slide the heat and find exactly where the rolls stop.",
-    "icon": "fa-temperature-arrow-up",
-    "category": "流れるもの",
-    "category_en": "FLOW",
-    "meta": "vorticity-stream · Boussinesq · thermal",
-    "meta_en": "vorticity-stream · Boussinesq · thermal",
-    "added": "2026-07-29",
-    "group": "flow"
-  },
-  {
-    "page": "coriolis",
-    "title": "CORIOLIS",
-    "desc": "回る円盤の上でまっすぐ投げたボールが、円盤の上から見ると曲がる。外から見る視点に切り替えると、実はまっすぐだと分かる。",
-    "desc_en": "A ball thrown straight on a spinning disk curves when seen from the disk. Switch to the outside view and it was straight all along.",
-    "icon": "fa-rotate",
-    "category": "流れるもの",
-    "category_en": "FLOW",
-    "meta": "rotating frame · fictitious forces · 2ωv",
-    "meta_en": "rotating frame · fictitious forces · 2ωv",
-    "added": "2026-07-30",
-    "group": "flow"
-  },
-  {
     "page": "lagrange",
     "title": "LAGRANGE",
     "desc": "2つの天体のまわりには、物を置いても落ちていかない点が5つある。狙って物体を打ち出し、留まるか逃げるかを見る。",
@@ -2221,213 +1194,6 @@
     "meta_en": "CR3BP · Jacobi constant · L1-L5 · co-rotating frame",
     "added": "2026-07-31",
     "group": "force"
-  },
-  {
-    "page": "markov",
-    "title": "MARKOV",
-    "desc": "点が矢印の確率に従って状態の間を跳ねる。どこから始めても、各状態に滞在する割合は同じ値に落ち着く。",
-    "desc_en": "Walkers hop between states along weighted arrows. Wherever they start, the share of time spent in each state settles to the same numbers.",
-    "icon": "fa-diagram-project",
-    "category": "数えるもの",
-    "category_en": "NUMBER",
-    "meta": "transition matrix · stationary distribution · ergodic / absorbing / periodic",
-    "meta_en": "transition matrix · stationary distribution · ergodic / absorbing / periodic",
-    "added": "2026-08-01",
-    "group": "number"
-  },
-  {
-    "page": "termite",
-    "title": "TERMITE",
-    "desc": "木片を拾っては別の木片の横に置くだけのシロアリが、誰も指示していないのに散らばった木片を少数の山にまとめる。",
-    "desc_en": "Termites that only pick up a chip and drop it next to another one end up gathering the scattered wood into a few piles, with no one in charge.",
-    "icon": "fa-bugs",
-    "category": "群れるもの",
-    "category_en": "SWARM",
-    "meta": "stigmergy · pick-up/drop · density clustering",
-    "meta_en": "stigmergy · pick-up/drop · density clustering",
-    "added": "2026-08-02",
-    "group": "swarm"
-  },
-  {
-    "page": "spacetime",
-    "title": "SPACETIME",
-    "desc": "双子の片方が光に近い速さで旅をして戻ると、年の取り方がずれる。自分で旅の道筋を描いて、年齢差をどこまで広げられるか。",
-    "desc_en": "One twin travels near light speed and comes home younger. Draw your own trip through spacetime and see how big you can make the age gap.",
-    "icon": "fa-atom",
-    "category": "引き合うもの",
-    "category_en": "FORCE",
-    "meta": "Lorentz変換 · 光円錐 · 世界線 · 固有時間 · 同時性の相対性",
-    "meta_en": "Lorentz transform · light cone · worldline · proper time · relativity of simultaneity",
-    "added": "2026-08-03",
-    "group": "force"
-  },
-  {
-    "page": "roche",
-    "title": "ROCHE",
-    "desc": "衛星を惑星に近づけていくと、ある距離を越えたところで潮の力に引き裂かれ、輪になる。",
-    "desc_en": "Move a moon closer to its planet and past a certain distance the tides tear it apart into a ring.",
-    "icon": "fa-circle-notch",
-    "category": "引き合うもの",
-    "category_en": "FORCE",
-    "meta": "tidal disruption · cohesion · ring formation",
-    "meta_en": "tidal disruption · cohesion · ring formation",
-    "added": "2026-08-04",
-    "group": "force"
-  },
-  {
-    "page": "wavemachine",
-    "title": "WAVE MACHINE",
-    "desc": "棒の列の端をはじくと波が走る。端を固定するか自由にするかで、跳ね返った波が上下逆になるかどうかが変わる。",
-    "desc_en": "Flick one end of a row of rods and a wave runs down it. Whether the far end is fixed or free decides if the echo comes back upside down.",
-    "icon": "fa-wave-square",
-    "category": "流れるもの",
-    "category_en": "FLOW",
-    "meta": "1D波動方程式 · 境界条件 · 定在波 · 時空図",
-    "meta_en": "1D wave equation · boundary conditions · standing waves · spacetime diagram",
-    "added": "2026-08-05",
-    "group": "flow"
-  },
-  {
-    "page": "pid",
-    "title": "PID",
-    "desc": "3つのつまみで、目標の位置へ止まるまでの動き方が変わる。行き過ぎる、揺れ続ける、遅すぎる、をぴたりと止まるまで調整する。",
-    "desc_en": "Three knobs decide how the system reaches its target: overshoot, wobble, or crawl. Tune until it stops dead on the mark.",
-    "icon": "fa-bullseye",
-    "category": "探すもの",
-    "category_en": "SEARCH",
-    "meta": "P · I · D · ステップ応答 · 減衰比 · 外乱補償",
-    "meta_en": "P · I · D · step response · damping ratio · disturbance rejection",
-    "added": "2026-08-06",
-    "group": "mind"
-  },
-  {
-    "page": "plasma",
-    "title": "PLASMA",
-    "desc": "プラスとマイナスの粒が引き合い、反発しながら揺れる。ひとつの電荷のまわりに反対の電荷が集まり、遠くからは見えなくなる。",
-    "icon": "fa-bolt",
-    "category": "流れるもの",
-    "meta": "クーロン力 · デバイ遮蔽 · プラズマ振動 · 電場",
-    "added": "2026-08-07",
-    "group": "flow",
-    "category_en": "FLOW",
-    "desc_en": "Positive and negative particles attract, repel, and ring. Opposite charges crowd around any single charge until it is hidden from afar."
-  },
-  {
-    "page": "stereo",
-    "title": "STEREO",
-    "desc": "球の模様を平面に映すと、球の上の円はどれも平面でも円のまま映る。球を回すと、映った円が大きさを変えながら流れる。",
-    "desc_en": "Project a pattern on a sphere onto a plane: every circle stays a circle. Spin the sphere and the projected circles swell and slide.",
-    "icon": "fa-globe",
-    "category": "光るもの",
-    "category_en": "LIGHT",
-    "meta": "等角写像 · 円円対応 · 航角線 · 正二十面体",
-    "meta_en": "conformal · circle-preserving · loxodrome · icosahedron",
-    "added": "2026-08-08",
-    "group": "light"
-  },
-  {
-    "page": "wallpaper",
-    "title": "WALLPAPER",
-    "desc": "光の粒を1つ放つと、その軌跡が回転や鏡映で平面いっぱいに複製される。壁紙の対称性は17種類しかない。",
-    "desc_en": "Release one glowing particle and its trail is copied across the plane by rotations and mirrors. There are only 17 ways a wallpaper can be symmetric.",
-    "icon": "fa-border-all",
-    "category": "敷き詰めるもの",
-    "category_en": "TILING",
-    "meta": "6 groups / trails",
-    "meta_en": "6 groups / trails",
-    "added": "2026-08-09",
-    "group": "tile"
-  },
-  {
-    "page": "gears",
-    "title": "GEARS",
-    "desc": "大きさの違う歯車をかみ合わせて、「2:3 の速さで同じ向き」のようなお題の回転を作る。間に挟んだ歯車は向きしか変えない。",
-    "desc_en": "Mesh gears of different sizes to hit a target like \"2:3, same direction\". The gears in between only flip the direction.",
-    "icon": "fa-gears",
-    "category": "引き合うもの",
-    "category_en": "FORCE",
-    "meta": "involute teeth / gear ratio / train",
-    "meta_en": "involute teeth / gear ratio / train",
-    "added": "2026-08-10",
-    "group": "force"
-  },
-  {
-    "page": "braitenberg",
-    "title": "BRAITENBERG",
-    "desc": "光センサーと車輪のつなぎ方が違うだけで、同じ車が光から逃げたり、突っこんだり、寄り添ったりする。光を置いて試す。",
-    "desc_en": "Wire the light sensors to the wheels differently and the same little vehicle flees the light, charges it, or cozies up to it. Place lights and see.",
-    "icon": "fa-car",
-    "category": "群れるもの",
-    "category_en": "SWARM",
-    "meta": "4 types / sensor-motor / emergent behavior",
-    "meta_en": "4 types / sensor-motor / emergent behavior",
-    "added": "2026-08-11",
-    "group": "swarm"
-  },
-  {
-    "page": "fraction",
-    "title": "FRACTION",
-    "desc": "長方形から正方形を切り取り続けると、切り取れた数の並びがその比の連分数になる。黄金比では毎回1つずつになる。",
-    "desc_en": "Keep cutting squares off a rectangle and the counts spell out its continued fraction. For the golden ratio it is one every time.",
-    "icon": "fa-divide",
-    "category": "数えるもの",
-    "category_en": "NUMBER",
-    "meta": "Euclidean algorithm / golden spiral / CF expansion",
-    "meta_en": "Euclidean algorithm / golden spiral / CF expansion",
-    "added": "2026-08-12",
-    "group": "number"
-  },
-  {
-    "page": "boolean",
-    "title": "BOOLEAN",
-    "desc": "点がそれぞれ、つながった点の ON/OFF で次の自分を決める。つながりが少ないと固まり、多いと乱れ、その間でちょうど生きた動きになる。",
-    "desc_en": "Each node switches ON or OFF based on the nodes wired into it. Too few links and it freezes, too many and it scrambles; in between it comes alive.",
-    "icon": "fa-circle-nodes",
-    "category": "予測できないもの",
-    "category_en": "CHAOS",
-    "meta": "Kauffman network / order-chaos transition / attractor cycles",
-    "meta_en": "Kauffman network / order-chaos transition / attractor cycles",
-    "added": "2026-08-13",
-    "group": "chaos"
-  },
-  {
-    "page": "pedal",
-    "title": "PEDAL",
-    "desc": "曲線の接線に、決めた点から垂線を下ろす。その足の跡をたどると、元とは違う新しい曲線が現れる。",
-    "desc_en": "Drop a perpendicular from a fixed point onto each tangent of a curve. Follow its foot and a different curve appears.",
-    "icon": "fa-bezier-curve",
-    "category": "描くもの",
-    "category_en": "CURVE",
-    "meta": "5 base curves / pedal point drag / cardioid-limaçon presets",
-    "meta_en": "5 base curves / pedal point drag / cardioid-limaçon presets",
-    "added": "2026-08-15",
-    "group": "curve"
-  },
-  {
-    "page": "tongues",
-    "title": "ARNOLD TONGUES",
-    "desc": "揺れを周期的に押すと、押す速さに合わせて揺れのリズムが揃う範囲がある。その範囲を地図にすると、舌の形が並ぶ。",
-    "desc_en": "Kick an oscillator periodically and in some ranges its rhythm locks to the kicks. Map those ranges and they form rows of tongues.",
-    "icon": "fa-wave-square",
-    "category": "予測できないもの",
-    "category_en": "CHAOS",
-    "meta": "circle map · mode-locking · devil's staircase · winding number",
-    "meta_en": "circle map · mode-locking · devil's staircase · winding number",
-    "added": "2026-08-16",
-    "group": "chaos"
-  },
-  {
-    "page": "polymerize",
-    "title": "POLYMERIZE",
-    "desc": "小さな粒がぶつかってつながり、鎖になる。つながりが増えていくと、ある瞬間に全体が1つの網になって固まる。",
-    "desc_en": "Small units collide and link into chains. As links pile up, at one moment everything joins into a single net and sets like jelly.",
-    "icon": "fa-link",
-    "category": "育つもの",
-    "category_en": "GROWTH",
-    "meta": "step-growth / gelation",
-    "meta_en": "step-growth / gelation",
-    "added": "2026-08-17",
-    "group": "grow"
   },
   {
     "page": "hopfield",
@@ -2443,32 +1209,6 @@
     "group": "mind"
   },
   {
-    "page": "stochastic",
-    "title": "STOCHASTIC RESONANCE",
-    "desc": "閾値に届かない弱い信号に、ちょうどいい量の雑音を足すと、かえって信号が聞こえるようになる。多すぎても少なすぎてもだめ。",
-    "desc_en": "Add just the right amount of noise to a signal too weak to cross the threshold and it becomes audible. Too much or too little and it is lost.",
-    "icon": "fa-wave-square",
-    "category": "予測できないもの",
-    "category_en": "CHAOS",
-    "meta": "noise-aided detection · bistable dynamics · SNR peak",
-    "meta_en": "noise-aided detection · bistable dynamics · SNR peak",
-    "added": "2026-08-19",
-    "group": "chaos"
-  },
-  {
-    "page": "motile",
-    "title": "MOTILE",
-    "desc": "引き合う力はないのに、自分で進む粒が渋滞して集まり、かたまりができたり消えたりする。",
-    "desc_en": "No attraction at all, yet self-propelled particles jam into each other and form clumps that merge and dissolve.",
-    "icon": "fa-bacterium",
-    "category": "群れるもの",
-    "category_en": "SWARM",
-    "meta": "MIPS · active matter · non-equilibrium",
-    "meta_en": "MIPS · active matter · non-equilibrium",
-    "added": "2026-08-21",
-    "group": "swarm"
-  },
-  {
     "page": "dune",
     "title": "DUNE",
     "desc": "風が砂を少しずつ運び、斜面が崩れを繰り返すうちに、三日月形の砂丘ができて風下へ歩いていく。",
@@ -2480,19 +1220,6 @@
     "meta_en": "saltation · shadow · barchan",
     "added": "2026-08-22",
     "group": "grow"
-  },
-  {
-    "page": "geodesic",
-    "title": "GEODESIC",
-    "desc": "地面に山や谷を描くと、まっすぐ進むはずの粒の道が曲がる。最短の道は、曲がった地面では曲がって見える。",
-    "desc_en": "Sculpt hills and valleys and particles that go \"straight\" start to curve. On a bent surface the shortest path bends too.",
-    "icon": "fa-route",
-    "category": "描くもの",
-    "category_en": "CURVE",
-    "meta": "Riemannian · Gauss curvature · parallel transport",
-    "meta_en": "Riemannian · Gauss curvature · parallel transport",
-    "added": "2026-08-23",
-    "group": "curve"
   },
   {
     "page": "cyclic",
@@ -2521,19 +1248,6 @@
     "added": "2026-08-25"
   },
   {
-    "page": "gaussprimes",
-    "title": "GAUSSIAN PRIMES",
-    "desc": "複素数にも素数がある。平面に打つと、十字に対称な星座のような模様になる。",
-    "desc_en": "Complex numbers have primes too. Plot them and they form a constellation with fourfold symmetry.",
-    "icon": "fa-atom",
-    "group": "number",
-    "category": "数えるもの",
-    "category_en": "NUMBER",
-    "meta": "複素平面 · 四重対称 · ガウス整数",
-    "meta_en": "complex plane · fourfold symmetry · Gaussian integers",
-    "added": "2026-08-27"
-  },
-  {
     "page": "carpet",
     "title": "CARPET",
     "desc": "マス目のどこをくり抜くかを自分で決めると、それが何段も繰り返され、穴の多さで模様の密度が変わる。",
@@ -2545,45 +1259,6 @@
     "meta": "再帰除去 · 可変フラクタル次元 · パターン設計",
     "meta_en": "recursive removal · variable fractal dimension · pattern design",
     "added": "2026-08-28"
-  },
-  {
-    "page": "resonance",
-    "title": "RESONANCE",
-    "desc": "おもりをいろいろな速さで揺すると、固有の速さに近いものだけが大きく揺れる。並べて揺すると山の形が見える。",
-    "desc_en": "Shake a row of weights at one rate and only the ones tuned near it swing wildly. Side by side they trace out the resonance peak.",
-    "icon": "fa-wave-square",
-    "group": "force",
-    "category": "引き合うもの",
-    "category_en": "FORCE",
-    "meta": "強制振動 · 共振曲線 · Q値",
-    "meta_en": "forced oscillation · resonance curve · Q factor",
-    "added": "2026-08-29"
-  },
-  {
-    "page": "ballistic",
-    "title": "BALLISTIC",
-    "desc": "上から降る粒が、最初に触れた場所にくっついていく。表面はでこぼこに育ち、その荒れ方には決まった法則がある。",
-    "desc_en": "Falling grains stick wherever they first touch. The surface grows ragged, and the raggedness follows a fixed law.",
-    "icon": "fa-layer-group",
-    "group": "grow",
-    "category": "育つもの",
-    "category_en": "GROWTH",
-    "meta": "表面粗さ · KPZスケーリング · 3堆積モード",
-    "meta_en": "surface roughness · KPZ scaling · 3 deposition modes",
-    "added": "2026-08-30"
-  },
-  {
-    "page": "tame",
-    "title": "TAME",
-    "desc": "カオスで暴れる値に、ほんの小さなひと押しを正しいタイミングで加えると、規則正しい周期に落ち着く。",
-    "desc_en": "Give a chaotic value a tiny nudge at exactly the right moment and it settles into a steady cycle.",
-    "icon": "fa-crosshairs",
-    "group": "chaos",
-    "category": "予測できないもの",
-    "category_en": "CHAOS",
-    "meta": "ロジスティック写像 · OGY制御 · コブウェブ図",
-    "meta_en": "logistic map · OGY control · cobweb diagram",
-    "added": "2026-08-31"
   },
   {
     "page": "zeta",
@@ -2599,45 +1274,6 @@
     "added": "2026-09-01"
   },
   {
-    "page": "cascade",
-    "title": "CASCADE",
-    "desc": "1つの点を倒すと、その負荷が隣にあふれて次々と倒れる。適当に倒すより、ハブを狙うほうがずっと早く崩れる。",
-    "desc_en": "Knock out one node and its load spills onto its neighbors, toppling them in turn. Hitting the hubs brings it down far faster than random hits.",
-    "icon": "fa-burst",
-    "group": "mind",
-    "category": "探すもの",
-    "category_en": "MIND",
-    "meta": "3 modes / Barabási-Albert / load redistribution",
-    "meta_en": "3 modes / Barabási-Albert / load redistribution",
-    "added": "2026-09-03"
-  },
-  {
-    "page": "schottky",
-    "title": "SCHOTTKY",
-    "desc": "4つの円が、それぞれ相手の円の中へ全体を映し合う。映し合いを重ねると、円の中に円が限りなく入れ子になる。",
-    "desc_en": "Four circles each map the whole picture into another. Repeat the mapping and circles nest inside circles without end.",
-    "icon": "fa-circle-notch",
-    "group": "fractal",
-    "category": "繰り返すもの",
-    "category_en": "FRACTAL",
-    "meta": "DEPTH 1-10 / Möbius transforms / 4 circles",
-    "meta_en": "DEPTH 1-10 / Möbius transforms / 4 circles",
-    "added": "2026-09-04"
-  },
-  {
-    "page": "dyson",
-    "title": "DYSON",
-    "desc": "でたらめな行列の固有値を点にすると、点どうしが近づきすぎないよう押し合いながら揺れ、半円の形に分布する。",
-    "desc_en": "Eigenvalues of a random matrix, drawn as points, jostle while keeping their distance, and spread out into a semicircle.",
-    "icon": "fa-wave-square",
-    "group": "number",
-    "category": "数えるもの",
-    "category_en": "NUMBER",
-    "meta": "GUE / GOE / Poisson · semicircle law · spacing",
-    "meta_en": "GUE / GOE / Poisson · semicircle law · spacing",
-    "added": "2026-09-05"
-  },
-  {
     "page": "catastrophe",
     "title": "CATASTROPHE",
     "desc": "つまみをなめらかに回しているのに、ある所で状態が急に跳ぶ。戻しても同じ所では戻らない。",
@@ -2649,58 +1285,6 @@
     "meta": "CUSP / HYSTERESIS / FOLD",
     "meta_en": "CUSP / HYSTERESIS / FOLD",
     "added": "2026-09-06"
-  },
-  {
-    "page": "polarize",
-    "title": "POLARIZE",
-    "desc": "偏光板を2枚直角に重ねると光が消える。その間に斜めの1枚を足すと、消えたはずの光が戻ってくる。",
-    "desc_en": "Two polarizers at right angles block all light. Slide a third one in between at a slant and the light comes back.",
-    "icon": "fa-filter",
-    "group": "light",
-    "category": "光るもの",
-    "category_en": "LIGHT",
-    "meta": "SINGLE / CROSSED / RESCUE / SWEEP",
-    "meta_en": "SINGLE / CROSSED / RESCUE / SWEEP",
-    "added": "2026-09-08"
-  },
-  {
-    "page": "polyomino",
-    "title": "POLYOMINO",
-    "desc": "いくつもの形のピースで長方形をすき間なく埋める。置いては行き詰まって戻る、手探りの様子がそのまま見える。",
-    "desc_en": "Fill a rectangle with pieces of different shapes, no gaps. You watch the search place, get stuck, and back up.",
-    "icon": "fa-puzzle-piece",
-    "group": "tile",
-    "category": "敷き詰めるもの",
-    "category_en": "TILING",
-    "meta": "TETRO / PENTO / HEXO",
-    "meta_en": "TETRO / PENTO / HEXO",
-    "added": "2026-09-09"
-  },
-  {
-    "page": "reptile",
-    "title": "REPTILE",
-    "desc": "L字のタイルは、自分と同じ形の小さなタイル4枚にぴったり分けられる。分け続けると、同じ形の模様がどこまでも細かくなる。",
-    "desc_en": "An L-shaped tile splits exactly into four smaller copies of itself. Keep splitting and the same pattern gets finer and finer.",
-    "icon": "fa-clone",
-    "group": "tile",
-    "category": "敷き詰めるもの",
-    "category_en": "TILING",
-    "meta": "L-TROMINO / TRIANGLE / AUTO INFLATE",
-    "meta_en": "L-TROMINO / TRIANGLE / AUTO INFLATE",
-    "added": "2026-09-10"
-  },
-  {
-    "page": "kalman",
-    "title": "KALMAN",
-    "desc": "ノイズだらけの観測から、見えない物体の本当の位置を推定する。予測と観測を合わせるたびに、不確かさの楕円が縮む。",
-    "desc_en": "Guess where a hidden object really is from noisy sightings. Each time the prediction meets a measurement, the uncertainty ellipse shrinks.",
-    "icon": "fa-crosshairs",
-    "group": "mind",
-    "category": "探すもの",
-    "category_en": "SEARCH",
-    "meta": "状態推定 · 観測ノイズ · 不確かさ",
-    "meta_en": "state estimation · sensor noise · uncertainty",
-    "added": "2026-09-11"
   },
   {
     "page": "fourcolor",
@@ -2716,32 +1300,6 @@
     "added": "2026-09-12"
   },
   {
-    "page": "wang",
-    "title": "WANG TILES",
-    "desc": "辺の色が合うようにしか置けない正方形を並べていく。どれも置けない行き詰まりが生まれ、戻って置き直すと少しずつ埋まっていく。",
-    "desc_en": "Lay square tiles that may only touch where their edge colors match. Dead ends appear where nothing fits; backtracking slowly fills them in.",
-    "icon": "fa-square",
-    "group": "tile",
-    "category": "敷き詰めるもの",
-    "category_en": "TILING",
-    "meta": "3セット・辺色マッチング",
-    "meta_en": "3 sets, edge matching",
-    "added": "2026-09-13"
-  },
-  {
-    "page": "braid",
-    "title": "BRAID",
-    "desc": "何本かの糸を順に交差させて編む。編み方を記号で書け、両端を閉じると結び目になる。",
-    "desc_en": "Cross strands over each other in turn to weave a braid. Each braid can be written as symbols, and closing its ends makes a knot.",
-    "icon": "fa-shuffle",
-    "group": "curve",
-    "category": "描くもの",
-    "category_en": "CURVE",
-    "meta": "3-8本 / 自動生成 / 組紐語",
-    "meta_en": "3-8 strands / auto-gen / braid word",
-    "added": "2026-09-14"
-  },
-  {
     "page": "brachistochrone",
     "title": "BRACHISTOCHRONE",
     "desc": "ボールをいちばん早く下へ転がす坂はどれか。自分で坂を描いて、遠回りに見えるサイクロイドに勝てるか競争する。",
@@ -2755,32 +1313,6 @@
     "added": "2026-09-15"
   },
   {
-    "page": "maxflow",
-    "title": "MAXFLOW",
-    "desc": "太さの決まったパイプの網に、流せるだけ流す。自分で辺を切って入口と出口を分け、その合計が流れの最大値と一致すれば正解。",
-    "desc_en": "Push as much as the pipes allow through a network. Then cut edges yourself to separate source from sink; if your cut matches the max flow, you found the bottleneck.",
-    "icon": "fa-diagram-project",
-    "group": "mind",
-    "category": "探すもの",
-    "category_en": "SEARCH",
-    "meta": "Edmonds-Karp / 最小カット",
-    "meta_en": "Edmonds-Karp / min-cut",
-    "added": "2026-09-16"
-  },
-  {
-    "page": "delay",
-    "title": "DELAY",
-    "desc": "今の変化が少し前の自分で決まる式。遅れの長さを伸ばしていくと、穏やかな揺れがやがて乱れる。",
-    "desc_en": "An equation where today's change depends on the past. Stretch the delay and a calm oscillation turns chaotic.",
-    "icon": "fa-clock",
-    "group": "chaos",
-    "category": "予測できないもの",
-    "category_en": "CHAOS",
-    "meta": "遅延τ / 位相再構成 / 周期倍分岐",
-    "meta_en": "delay τ / phase reconstruction / period-doubling",
-    "added": "2026-09-17"
-  },
-  {
     "page": "buffon",
     "title": "BUFFON",
     "desc": "平行線の上に針を落とし、線にかかった割合から円周率を出す。いちばん π に近い瞬間で止められるか試す。",
@@ -2792,19 +1324,6 @@
     "meta": "針の長さ / 線間隔 / π収束",
     "meta_en": "needle length / line spacing / π convergence",
     "added": "2026-09-18"
-  },
-  {
-    "page": "grin",
-    "title": "GRIN",
-    "desc": "場所によって屈折のしかたが違う空間では、光はまっすぐ進まずに曲がる。レンズを置いて光の道を描く。",
-    "desc_en": "Where the bending power of the medium varies from place to place, light does not travel straight. Place lenses and trace its path.",
-    "icon": "fa-eye",
-    "group": "light",
-    "category": "光るもの",
-    "category_en": "LIGHT",
-    "meta": "ray tracing / eikonal / 4 modes",
-    "meta_en": "ray tracing / eikonal / 4 modes",
-    "added": "2026-09-21"
   },
   {
     "page": "topopt",
@@ -2885,32 +1404,6 @@
     "added": "2026-09-27"
   },
   {
-    "page": "visible",
-    "title": "VISIBLE",
-    "desc": "原点に立って格子の点を見渡す。手前の点に隠されず見える点は、座標が互いに素な点だけ。その密度はちょうど 6/π²。",
-    "desc_en": "Stand at the origin and look across the integer grid. Only coprime points are unblocked—and their density converges to exactly 6/π².",
-    "icon": "fa-eye",
-    "group": "number",
-    "category": "数えるもの",
-    "category_en": "NUMBER",
-    "meta": "GCD・GUESS",
-    "meta_en": "GCD / GUESS",
-    "added": "2026-09-28"
-  },
-  {
-    "page": "plume",
-    "title": "PLUME",
-    "desc": "重い液が軽い液の上にあると、境目が指のように垂れ下がり、きのこの形をした渦になって沈んでいく。",
-    "desc_en": "Heavy fluid above light fluid — the interface droops into fingers that curl into mushroom-shaped vortices and sink.",
-    "icon": "fa-water",
-    "group": "flow",
-    "category": "流れるもの",
-    "category_en": "FLOW",
-    "meta": "Rayleigh-Taylor · 3 modes",
-    "meta_en": "Rayleigh-Taylor · 3 modes",
-    "added": "2026-09-29"
-  },
-  {
     "page": "waveguide",
     "title": "WAVEGUIDE",
     "desc": "光の通り道を自分で描く。急に曲げると光が漏れて紫に光る。パルスを出口まで90%以上届けられるか。",
@@ -2935,19 +1428,6 @@
     "meta": "4 MAPS + DRAW",
     "meta_en": "4 maps + draw your own",
     "added": "2026-10-01"
-  },
-  {
-    "page": "roulette",
-    "title": "ROULETTE",
-    "desc": "多角形が転がると、つけた印が曲線を描く。三角形は激しく跳ね、八角形はなめらかに波打ち、円に近づくとサイクロイドになる。",
-    "desc_en": "A polygon rolls along a line. A dot on it draws a curve — the triangle leaps, the octagon ripples, and the circle traces a cycloid.",
-    "icon": "fa-circle-notch",
-    "group": "curve",
-    "category": "描くもの",
-    "category_en": "CURVES",
-    "meta": "6形状 / マーカー移動 / 比較モード",
-    "meta_en": "6 shapes / movable marker / trace lock",
-    "added": "2026-10-02"
   },
   {
     "page": "about",

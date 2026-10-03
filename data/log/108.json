@@ -10,7 +10,7 @@
     "items": [
       {"page": "nbody", "label": "N-BODY", "reason": "重力多体系の軌道"},
       {"page": "kuramoto", "label": "KURAMOTO", "reason": "集団的位相同期"},
-      {"page": "flowfield", "label": "FLOWFIELD", "reason": "場に従う粒子の流れ"}
+      {"page": "fluidveil", "label": "FLUID VEIL", "reason": "場に従う粒子の流れ"}
     ]
   }
 }

@@ -8,7 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "pathfind", "label": "PATHFIND", "reason": "探索アルゴリズムの可視化"},
+      {"page": "maze", "label": "MAZE", "reason": "探索アルゴリズムの可視化"},
       {"page": "gradient", "label": "GRADIENT", "reason": "勾配降下法による最適化"},
       {"page": "antcolony", "label": "ANTCOLONY", "reason": "群知能の経路最適化"}
     ]

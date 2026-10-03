@@ -8,7 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "rule", "label": "RULE", "reason": "セルオートマトンのルール変化"},
+      {"page": "life", "label": "LIFE", "reason": "セルオートマトンのルール変化"},
       {"page": "reaction", "label": "REACTION", "reason": "局所ルールが作る自己組織化"}
     ]
   }

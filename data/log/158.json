@@ -8,16 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "spanning",
-        "label": "SPANNING",
-        "reason": "最小全域木——シュタイナー木の上界"
-      },
-      {
-        "page": "antcolony",
-        "label": "ANTCOLONY",
-        "reason": "組合せ最適化の別アプローチ"
-      }
+      {"page": "network", "label": "NETWORK", "reason": "最小全域木——シュタイナー木の上界"},
+      {"page": "antcolony", "label": "ANTCOLONY", "reason": "組合せ最適化の別アプローチ"}
     ]
   }
 }

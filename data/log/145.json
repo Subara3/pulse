@@ -8,7 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "elastic", "label": "ELASTIC", "reason": "理想気体の運動論。引力なしの弾性衝突"},
+      {"page": "nbody", "label": "N-BODY", "reason": "理想気体の運動論。引力なしの弾性衝突"},
       {"page": "ising", "label": "ISING", "reason": "格子上のスピン。臨界温度の相転移"},
       {"page": "particlelife", "label": "PARTICLE LIFE", "reason": "粒子間ルールが生む自己組織化"}
     ]

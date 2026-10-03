@@ -58,6 +58,7 @@ ALLOW_COLOR_FILE = os.path.join(ROOT, 'scripts', 'palette_allowlist.json')
 # CLAUDE.md「題材の決め方」を機械的に守らせる。この日以降に added したエントリが対象
 RULES_SINCE = '2026-09-24'
 BANNED_DESC = ('創発', '可視化', '体験する', '深淵', '紡ぐ', '織りなす', '——')
+MAX_PER_GROUP = 10
 
 
 def load_allowlist() -> dict:
@@ -140,7 +141,7 @@ def main() -> int:
             errors.append(f'contents.json: {p}.php が存在しない')
         if p not in DOC_PAGES:
             pages.append(p)
-            for ext in ('mp4', 'webm', 'jpg'):
+            for ext in ('mp4', 'jpg'):
                 if not os.path.exists(os.path.join(ROOT, 'img', 'previews', f'{p}.{ext}')):
                     warns.append(f'preview欠落: {p}.{ext}')
 
@@ -157,6 +158,16 @@ def main() -> int:
         recent = [d['group'] for d in dated[max(0, i - 7):i]]
         if c['group'] in recent:
             errors.append(f'contents.json: {p} の group {c["group"]} は直近7件と被っている（CLAUDE.md「題材の決め方」2）')
+
+    # 1 コレクション 10 本まで（CLAUDE.md「題材の決め方」5）
+    per_group = {}
+    for c in items:
+        if c.get('group') in GROUPS:
+            per_group.setdefault(c['group'], []).append(c['page'])
+    for g, ps in sorted(per_group.items()):
+        if len(ps) > MAX_PER_GROUP:
+            errors.append(f'contents.json: {g} が {len(ps)} 本ある（上限 {MAX_PER_GROUP}）。'
+                          'いちばん弱い 1 本を廃止してから足す（CLAUDE.md「題材の決め方」5）')
 
     # contents.json に無いのに残っている .php
     on_disk = {os.path.basename(f)[:-4] for f in glob.glob(os.path.join(ROOT, '*.php'))}

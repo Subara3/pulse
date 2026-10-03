@@ -8,7 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "pathfind", "label": "PATHFIND", "reason": "探索アルゴリズムの可視化"},
+      {"page": "maze", "label": "MAZE", "reason": "探索アルゴリズムの可視化"},
       {"page": "voronoi", "label": "VORONOI", "reason": "空間分割の基盤"},
       {"page": "network", "label": "NETWORK", "reason": "グラフ構造と連結性"}
     ]

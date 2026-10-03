@@ -9,8 +9,8 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "penrose", "label": "PENROSE", "reason": "非周期タイリング"},
-      {"page": "conformal", "label": "CONFORMAL", "reason": "複素関数による写像"},
-      {"page": "mobiusflow", "label": "MOBIUS FLOW", "reason": "メビウス変換の幾何学"}
+      {"page": "inversion", "label": "INVERSION", "reason": "複素関数による写像"},
+      {"page": "tesseract", "label": "TESSERACT", "reason": "メビウス変換の幾何学"}
     ]
   }
 }

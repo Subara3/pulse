@@ -8,21 +8,9 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "julia",
-        "label": "JULIA SET",
-        "reason": "複素平面上の反復写像"
-      },
-      {
-        "page": "newton",
-        "label": "NEWTON",
-        "reason": "複素ニュートン法・収束域の分類"
-      },
-      {
-        "page": "mobiusflow",
-        "label": "MOBIUS FLOW",
-        "reason": "位相的変換の可視化"
-      }
+      {"page": "fractal", "label": "FRACTAL", "reason": "複素平面上の反復写像"},
+      {"page": "newton", "label": "NEWTON", "reason": "複素ニュートン法・収束域の分類"},
+      {"page": "tesseract", "label": "TESSERACT", "reason": "位相的変換の可視化"}
     ]
   }
 }

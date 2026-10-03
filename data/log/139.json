@@ -8,9 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "knot", "label": "KNOT", "reason": "トポロジカルな曲線の構造"},
-      {"page": "mobiusflow", "label": "MOBIUS FLOW", "reason": "位相幾何学のもうひとつの驚き"},
-      {"page": "conformal", "label": "CONFORMAL", "reason": "複素平面での曲線変換"}
+      {"page": "tesseract", "label": "TESSERACT", "reason": "トポロジカルな曲線の構造"},
+      {"page": "inversion", "label": "INVERSION", "reason": "複素平面での曲線変換"}
     ]
   }
 }

@@ -8,8 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "fractal", "label": "FRACTAL", "reason": "マンデルブロ集合との比較"},
-      {"page": "julia", "label": "JULIA SET", "reason": "ジュリア集合の探索"}
+      {"page": "fractal", "label": "FRACTAL", "reason": "マンデルブロ集合との比較"}
     ]
   }
 }

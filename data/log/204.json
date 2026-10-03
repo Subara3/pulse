@@ -10,7 +10,7 @@
     "items": [
       {"page": "penrose", "label": "PENROSE", "reason": "2種の菱形による非周期タイル"},
       {"page": "quasicrystal", "label": "QUASICRYSTAL", "reason": "準周期的秩序"},
-      {"page": "wallpaper", "label": "WALLPAPER", "reason": "周期的対称性との対比"}
+      {"page": "kaleidoscope", "label": "KALEIDOSCOPE", "reason": "周期的対称性との対比"}
     ]
   }
 }

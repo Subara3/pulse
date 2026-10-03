@@ -8,21 +8,9 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "mobiusflow",
-        "label": "MOBIUS FLOW",
-        "reason": "位相幾何学の体験"
-      },
-      {
-        "page": "hilbert",
-        "label": "HILBERT",
-        "reason": "次元を超える空間充填"
-      },
-      {
-        "page": "harmonograph",
-        "label": "HARMONOGRAPH",
-        "reason": "多軸の重ね合わせ"
-      }
+      {"page": "tesseract", "label": "TESSERACT", "reason": "位相幾何学の体験"},
+      {"page": "dragon", "label": "DRAGON", "reason": "次元を超える空間充填"},
+      {"page": "harmonograph", "label": "HARMONOGRAPH", "reason": "多軸の重ね合わせ"}
     ]
   }
 }

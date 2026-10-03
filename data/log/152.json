@@ -9,7 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "rope", "label": "ROPE", "reason": "離散的な鎖の物理"},
-      {"page": "bezier", "label": "BÉZIER", "reason": "曲線の数学的記述"}
+      {"page": "spirograph", "label": "SPIROGRAPH", "reason": "曲線の数学的記述"}
     ]
   }
 }

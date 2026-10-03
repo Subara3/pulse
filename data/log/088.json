@@ -9,7 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "primes", "label": "PRIMES", "reason": "素数の基本的な可視化"},
-      {"page": "modular", "label": "MODULAR", "reason": "円周上の整数パターン"},
+      {"page": "string", "label": "STRING ART", "reason": "円周上の整数パターン"},
       {"page": "recaman", "label": "RECAMÁN", "reason": "整数列の視覚構造"}
     ]
   }

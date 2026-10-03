@@ -9,8 +9,8 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "voronoi", "label": "VORONOI", "reason": "同じ母点、異なる描画"},
-      {"page": "metaball", "label": "METABALL", "reason": "距離場の有機的表現"},
-      {"page": "flowfield", "label": "FLOWFIELD", "reason": "ノイズが作る流れ場"}
+      {"page": "diffgrow", "label": "DIFFGROW", "reason": "距離場の有機的表現"},
+      {"page": "fluidveil", "label": "FLUID VEIL", "reason": "ノイズが作る流れ場"}
     ]
   }
 }

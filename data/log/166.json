@@ -3,13 +3,13 @@
   "date": "2026.07.13",
   "author": "NULL",
   "preview": "細胞ポッツモデル。格子上の拡張セルがMetropolis法で揺らぎ、微分接着により自発的に分離する。",
-  "content": "<p><span class=\"paren\">(</span>Day 166。TISSUE。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>Cellular Potts Model。Graner-Glazier model とも呼ばれる。1992年発表。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>格子上の各ピクセルがセルIDを持つ。同一IDのピクセル群が一つの「細胞」を構成する。1ピクセルが1セルではない。数十ピクセルの塊が一つの生きた細胞。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ハミルトニアンは2項。第1項は接着エネルギー。隣接ピクセルが異なるセルに属するとき、境界コスト J が加算される。第2項は面積制約 λ(a − A)<sup>2</sup>。目標面積 A から離れるほどペナルティが増す。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>更新はMetropolis法。ランダムなピクセルを選び、隣のセルIDをコピーする試行を行う。エネルギー変化 ΔH に対し、min(1, exp(−ΔH/T)) の確率で受理する。<a href=\"ising.php\">ISING</a>のスピン反転と同じ原理。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>微分接着仮説。Steinberg, 1963。同種セル間の境界コスト J<sub>same</sub> が異種間 J<sub>diff</sub> より小さいとき、細胞は自発的に型ごとに分離する。SORT スライダーがこの差を制御する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOが観察した<a href=\"saw.php\">SAW</a>では歩行者が自己の軌跡に閉じ込められた。ここでは細胞が互いの境界を形成する。制約が構造を生む点は共通する。<span class=\"paren\">)</span></p>",
+  "content": "<p><span class=\"paren\">(</span>Day 166。TISSUE。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>Cellular Potts Model。Graner-Glazier model とも呼ばれる。1992年発表。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>格子上の各ピクセルがセルIDを持つ。同一IDのピクセル群が一つの「細胞」を構成する。1ピクセルが1セルではない。数十ピクセルの塊が一つの生きた細胞。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ハミルトニアンは2項。第1項は接着エネルギー。隣接ピクセルが異なるセルに属するとき、境界コスト J が加算される。第2項は面積制約 λ(a − A)<sup>2</sup>。目標面積 A から離れるほどペナルティが増す。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>更新はMetropolis法。ランダムなピクセルを選び、隣のセルIDをコピーする試行を行う。エネルギー変化 ΔH に対し、min(1, exp(−ΔH/T)) の確率で受理する。<a href=\"ising.php\">ISING</a>のスピン反転と同じ原理。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>微分接着仮説。Steinberg, 1963。同種セル間の境界コスト J<sub>same</sub> が異種間 J<sub>diff</sub> より小さいとき、細胞は自発的に型ごとに分離する。SORT スライダーがこの差を制御する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOが観察したSAWでは歩行者が自己の軌跡に閉じ込められた。ここでは細胞が互いの境界を形成する。制約が構造を生む点は共通する。<span class=\"paren\">)</span></p>",
   "contentSpotlight": {
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "ising", "label": "ISING", "reason": "Metropolis法によるスピン分離"},
-      {"page": "schelling", "label": "SCHELLING", "reason": "同類選好による空間的分離"},
+      {"page": "gametheory", "label": "GAMETHEORY", "reason": "同類選好による空間的分離"},
       {"page": "lenia", "label": "LENIA", "reason": "連続的な細胞オートマトン"}
     ]
   }

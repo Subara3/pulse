@@ -8,9 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "eigen", "label": "EIGEN", "reason": "行列の固有値の幾何学"},
-      {"page": "galton", "label": "GALTON BOARD", "reason": "確率分布の創発"},
-      {"page": "markov", "label": "MARKOV", "reason": "確率過程の可視化"}
+      {"page": "inversion", "label": "INVERSION", "reason": "行列の固有値の幾何学"},
+      {"page": "galton", "label": "GALTON BOARD", "reason": "確率分布の創発"}
     ]
   }
 }

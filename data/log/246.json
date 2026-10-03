@@ -9,8 +9,8 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "bifurcation", "label": "BIFURCATION", "reason": "パラメータ空間の分岐図"},
-      {"page": "phase", "label": "PHASE", "reason": "2次元力学系の軌道"},
-      {"page": "delay", "label": "DELAY", "reason": "遅れのある反復の軌道"}
+      {"page": "lorenz", "label": "LORENZ", "reason": "2次元力学系の軌道"},
+      {"page": "cobweb", "label": "COBWEB", "reason": "遅れのある反復の軌道"}
     ]
   }
 }

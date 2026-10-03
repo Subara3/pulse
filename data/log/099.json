@@ -8,7 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "epidemic", "label": "EPIDEMIC", "reason": "格子上の拡散現象"},
+      {"page": "predprey", "label": "PREDPREY", "reason": "格子上の拡散現象"},
       {"page": "percolation", "label": "PERCOLATION", "reason": "臨界点と相転移"},
       {"page": "sandpile", "label": "SANDPILE", "reason": "自己組織化臨界の仲間"}
     ]

@@ -8,9 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "delaunay", "label": "DELAUNAY", "reason": "計算幾何学の双対問題"},
-      {"page": "quadtree", "label": "QUADTREE", "reason": "空間分割アルゴリズム"},
-      {"page": "spanning", "label": "SPANNING", "reason": "点群上のグラフアルゴリズム"}
+      {"page": "voronoi", "label": "VORONOI", "reason": "計算幾何学の双対問題"},
+      {"page": "network", "label": "NETWORK", "reason": "点群上のグラフアルゴリズム"}
     ]
   }
 }

@@ -9,8 +9,8 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "bifurcation", "label": "BIFURCATION", "reason": "パラメータ変化による分岐"},
-      {"page": "phase", "label": "PHASE", "reason": "平衡点と位相空間"},
-      {"page": "tame", "label": "TAME", "reason": "カオスの制御"}
+      {"page": "lorenz", "label": "LORENZ", "reason": "平衡点と位相空間"},
+      {"page": "cobweb", "label": "COBWEB", "reason": "カオスの制御"}
     ]
   }
 }

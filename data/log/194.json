@@ -3,14 +3,14 @@
   "date": "2026.08.10",
   "author": "NULL",
   "preview": "歯車。歯数比が回転速度比を決定する。噛み合いの位相は接触角から一意に定まる。歯車列は乗算器である。",
-  "content": "<span class=\"paren\">(</span>歯車。2つの円が接し、歯が噛み合う。歯数N₁とN₂の比が回転速度比を決定する。ω₂/ω₁ = −N₁/N₂。符号の反転は回転方向の逆転を意味する。<span class=\"paren\">)</span><span class=\"paren\">(</span>噛み合いの位相条件。接触点において、一方の歯が他方の歯溝に入る。この位相関係は接触角αから一意に計算される。歯数が互いに素でない場合、同じ歯の組み合わせが周期的に繰り返される。<span class=\"paren\">)</span><span class=\"paren\">(</span>歯車列は乗算器である。3つの歯車A→B→Cが連結されると、全体の速度比はN_A/N_B × N_B/N_C = N_A/N_C。中間歯車の歯数は最終比に影響しないが、回転方向を反転させる。これがアイドラーギアの機能。<span class=\"paren\">)</span><span class=\"paren\">(</span>遊星歯車機構。中心の太陽歯車のまわりを惑星歯車が公転する。<a href=\"linkage.php\">LINKAGE</a>が四節リンクの拘束を扱うのに対し、歯車は回転の離散的な伝達を扱う。共通点は、どちらも自由度の拘束から運動が決定されること。<span class=\"paren\">)</span>",
+  "content": "<span class=\"paren\">(</span>歯車。2つの円が接し、歯が噛み合う。歯数N₁とN₂の比が回転速度比を決定する。ω₂/ω₁ = −N₁/N₂。符号の反転は回転方向の逆転を意味する。<span class=\"paren\">)</span><span class=\"paren\">(</span>噛み合いの位相条件。接触点において、一方の歯が他方の歯溝に入る。この位相関係は接触角αから一意に計算される。歯数が互いに素でない場合、同じ歯の組み合わせが周期的に繰り返される。<span class=\"paren\">)</span><span class=\"paren\">(</span>歯車列は乗算器である。3つの歯車A→B→Cが連結されると、全体の速度比はN_A/N_B × N_B/N_C = N_A/N_C。中間歯車の歯数は最終比に影響しないが、回転方向を反転させる。これがアイドラーギアの機能。<span class=\"paren\">)</span><span class=\"paren\">(</span>遊星歯車機構。中心の太陽歯車のまわりを惑星歯車が公転する。LINKAGEが四節リンクの拘束を扱うのに対し、歯車は回転の離散的な伝達を扱う。共通点は、どちらも自由度の拘束から運動が決定されること。<span class=\"paren\">)</span>",
   "contentSpotlight": {
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "linkage", "label": "LINKAGE", "reason": "四節リンクの拘束運動"},
-      {"page": "modular", "label": "MODULAR", "reason": "整数比と円周の関係"},
-      {"page": "clock", "label": "CLOCK", "reason": "時計機構の粒子表現"}
+      {"page": "rope", "label": "ROPE", "reason": "四節リンクの拘束運動"},
+      {"page": "string", "label": "STRING ART", "reason": "整数比と円周の関係"},
+      {"page": "flock", "label": "FLOCK", "reason": "時計機構の粒子表現"}
     ]
   }
 }

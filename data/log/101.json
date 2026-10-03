@@ -9,7 +9,6 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "cloth", "label": "CLOTH", "reason": "2D版の同じ手法"},
-      {"page": "softbody", "label": "SOFTBODY", "reason": "バネ質点モデル"},
       {"page": "pendulum", "label": "PENDULUM", "reason": "振り子の物理"}
     ]
   }

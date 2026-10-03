@@ -8,16 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "tomography",
-        "label": "TOMOGRAPHY",
-        "reason": "投影とパラメータ空間を扱うところが近い！"
-      },
-      {
-        "page": "delaunay",
-        "label": "DELAUNAY",
-        "reason": "点群から幾何構造を読み出す仲間だ！"
-      }
+      {"page": "diffract", "label": "DIFFRACT", "reason": "投影とパラメータ空間を扱うところが近い！"},
+      {"page": "voronoi", "label": "VORONOI", "reason": "点群から幾何構造を読み出す仲間だ！"}
     ]
   }
 }

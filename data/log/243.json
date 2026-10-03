@@ -8,8 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "gaussprimes", "label": "GAUSSIAN PRIMES", "reason": "整数格子上の素数"},
-      {"page": "ford", "label": "FORD", "reason": "既約分数の幾何学"},
+      {"page": "ulam", "label": "ULAM", "reason": "整数格子上の素数"},
+      {"page": "recaman", "label": "RECAMÁN", "reason": "既約分数の幾何学"},
       {"page": "buffon", "label": "BUFFON", "reason": "πが現れる確率実験"}
     ]
   }

@@ -8,8 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "epidemic", "label": "EPIDEMIC", "reason": "個体群ダイナミクス・SIRモデル"},
-      {"page": "evolution", "label": "EVOLUTION", "reason": "生態系シミュレーション"},
+      {"page": "predprey", "label": "PREDPREY", "reason": "個体群ダイナミクス・SIRモデル"},
+      {"page": "flock", "label": "FLOCK", "reason": "生態系シミュレーション"},
       {"page": "antcolony", "label": "ANTCOLONY", "reason": "エージェントベース・創発"}
     ]
   }

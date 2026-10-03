@@ -10,7 +10,7 @@
     "items": [
       {"page": "dla", "label": "DLA", "reason": "拡散律速凝集——別の堆積成長モデル"},
       {"page": "erosion", "label": "EROSION", "reason": "堆積の逆——水が表面を削る"},
-      {"page": "sand", "label": "SAND", "reason": "粒子の落下と堆積のシミュレーション"}
+      {"page": "granular", "label": "GRANULAR", "reason": "粒子の落下と堆積のシミュレーション"}
     ]
   }
 }

@@ -9,8 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "penrose", "label": "PENROSE", "reason": "対称性とタイリング"},
-      {"page": "string", "label": "STRING ART", "reason": "幾何学模様"},
-      {"page": "modular", "label": "MODULAR", "reason": "円周上の数学模様"}
+      {"page": "string", "label": "STRING ART", "reason": "幾何学模様"}
     ]
   }
 }

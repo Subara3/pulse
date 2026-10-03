@@ -8,9 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "delaunay", "label": "DELAUNAY", "reason": "点集合の空間構造"},
-      {"page": "voronoi", "label": "VORONOI", "reason": "空間の分割法"},
-      {"page": "pathfind", "label": "PATHFIND", "reason": "探索の加速"}
+      {"page": "voronoi", "label": "VORONOI", "reason": "点集合の空間構造"},
+      {"page": "maze", "label": "MAZE", "reason": "探索の加速"}
     ]
   }
 }

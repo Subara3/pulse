@@ -8,7 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "conformal", "label": "CONFORMAL", "reason": "等角写像の可視化"},
+      {"page": "inversion", "label": "INVERSION", "reason": "等角写像の可視化"},
       {"page": "apollonian", "label": "APOLLONIAN", "reason": "反転で生成されるフラクタル"},
       {"page": "moire", "label": "MOIRÉ", "reason": "格子の変換が生む干渉"}
     ]

@@ -8,9 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "network", "label": "NETWORK", "reason": "Erdős-Rényiランダムグラフ"},
-      {"page": "spanning", "label": "SPANNING", "reason": "動的グラフの最小全域木"},
-      {"page": "steiner", "label": "STEINER", "reason": "最短結合ネットワーク"}
+      {"page": "network", "label": "NETWORK", "reason": "Erdős-Rényiランダムグラフ"}
     ]
   }
 }

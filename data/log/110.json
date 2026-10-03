@@ -8,16 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "waves",
-        "label": "WAVES",
-        "reason": "波の干渉パターン"
-      },
-      {
-        "page": "lattice",
-        "label": "LATTICE",
-        "reason": "格子上の波動方程式"
-      }
+      {"page": "waves", "label": "WAVES", "reason": "波の干渉パターン"}
     ]
   }
 }

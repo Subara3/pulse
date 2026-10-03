@@ -10,7 +10,7 @@
     "items": [
       {"page": "penrose", "label": "PENROSE", "reason": "非周期タイリングの世界"},
       {"page": "voronoi", "label": "VORONOI", "reason": "点による空間分割"},
-      {"page": "truchet", "label": "TRUCHET", "reason": "タイルの模様生成"}
+      {"page": "collapse", "label": "COLLAPSE", "reason": "タイルの模様生成"}
     ]
   }
 }

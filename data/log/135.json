@@ -9,8 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "efield", "label": "EFIELD", "reason": "電場の力線の可視化"},
-      {"page": "magnetic", "label": "MAGNETIC", "reason": "磁場の構造を観察"},
-      {"page": "elastic", "label": "ELASTIC", "reason": "粒子の運動とエネルギー"}
+      {"page": "nbody", "label": "N-BODY", "reason": "粒子の運動とエネルギー"}
     ]
   }
 }

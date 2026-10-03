@@ -8,21 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "rule",
-        "label": "RULE",
-        "reason": "1次元CA・Wolframルール"
-      },
-      {
-        "page": "langton",
-        "label": "LANGTON'S ANT",
-        "reason": "2次元チューリング機械"
-      },
-      {
-        "page": "life",
-        "label": "LIFE",
-        "reason": "Moore近傍セルオートマトン"
-      }
+      {"page": "life", "label": "LIFE", "reason": "1次元CA・Wolframルール"},
+      {"page": "langton", "label": "LANGTON'S ANT", "reason": "2次元チューリング機械"}
     ]
   }
 }

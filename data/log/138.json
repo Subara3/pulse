@@ -8,21 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "mobiusflow",
-        "label": "MOBIUS FLOW",
-        "reason": "トポロジカルな曲面上の流れ"
-      },
-      {
-        "page": "harmonograph",
-        "label": "HARMONOGRAPH",
-        "reason": "パラメトリック曲線"
-      },
-      {
-        "page": "tesseract",
-        "label": "TESSERACT",
-        "reason": "高次元の射影"
-      }
+      {"page": "tesseract", "label": "TESSERACT", "reason": "トポロジカルな曲面上の流れ"},
+      {"page": "harmonograph", "label": "HARMONOGRAPH", "reason": "パラメトリック曲線"}
     ]
   }
 }

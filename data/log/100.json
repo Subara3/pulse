@@ -9,7 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "anneal", "label": "ANNEAL", "reason": "最適化アルゴリズム"},
-      {"page": "phase", "label": "PHASE", "reason": "力学系の軌道描画"},
+      {"page": "lorenz", "label": "LORENZ", "reason": "力学系の軌道描画"},
       {"page": "bifurcation", "label": "BIFURCATION", "reason": "パラメータと挙動の関係"}
     ]
   }

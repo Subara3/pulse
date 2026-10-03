@@ -9,7 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "fractal", "label": "FRACTAL", "reason": "フラクタル幾何学"},
-      {"page": "tree", "label": "TREE", "reason": "自然の分岐構造"},
+      {"page": "lsystemgarden", "label": "L-SYSTEM GARDEN", "reason": "自然の分岐構造"},
       {"page": "clifford", "label": "CLIFFORD", "reason": "カオス的な点の集積"}
     ]
   }

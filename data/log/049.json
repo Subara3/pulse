@@ -8,21 +8,9 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "lorenz",
-        "label": "LORENZ",
-        "reason": "カオスの軌跡・ローレンツアトラクター"
-      },
-      {
-        "page": "clifford",
-        "label": "CLIFFORD",
-        "reason": "奇妙なアトラクターの幾何学"
-      },
-      {
-        "page": "julia",
-        "label": "JULIA SET",
-        "reason": "境界がフラクタルになる複素数の世界"
-      }
+      {"page": "lorenz", "label": "LORENZ", "reason": "カオスの軌跡・ローレンツアトラクター"},
+      {"page": "clifford", "label": "CLIFFORD", "reason": "奇妙なアトラクターの幾何学"},
+      {"page": "fractal", "label": "FRACTAL", "reason": "境界がフラクタルになる複素数の世界"}
     ]
   }
 }

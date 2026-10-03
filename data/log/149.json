@@ -8,8 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "fractal", "label": "FRACTAL", "reason": "マンデルブロ集合の通常描画"},
-      {"page": "julia", "label": "JULIA SET", "reason": "関連する複素力学系"}
+      {"page": "fractal", "label": "FRACTAL", "reason": "マンデルブロ集合の通常描画"}
     ]
   }
 }

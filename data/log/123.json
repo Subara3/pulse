@@ -9,8 +9,8 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "network", "label": "NETWORK", "reason": "グラフの相転移"},
-      {"page": "pathfind", "label": "PATHFIND", "reason": "グラフ上の探索"},
-      {"page": "delaunay", "label": "DELAUNAY", "reason": "点群の幾何構造"}
+      {"page": "maze", "label": "MAZE", "reason": "グラフ上の探索"},
+      {"page": "voronoi", "label": "VORONOI", "reason": "点群の幾何構造"}
     ]
   }
 }

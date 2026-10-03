@@ -8,16 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "cloth",
-        "label": "CLOTH",
-        "reason": "同じバネ格子でも壊れない仲間だ！"
-      },
-      {
-        "page": "lattice",
-        "label": "LATTICE",
-        "reason": "格子上の波動、FRACTUREでは応力波が走る！"
-      }
+      {"page": "cloth", "label": "CLOTH", "reason": "同じバネ格子でも壊れない仲間だ！"},
+      {"page": "waves", "label": "WAVES", "reason": "格子上の波動、FRACTUREでは応力波が走る！"}
     ]
   }
 }

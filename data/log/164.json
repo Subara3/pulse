@@ -8,8 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "fractal", "label": "FRACTAL", "reason": "同じz²+c反復の標準的描画"},
-      {"page": "julia", "label": "JULIA SET", "reason": "パラメータと形態の対応"}
+      {"page": "fractal", "label": "FRACTAL", "reason": "同じz²+c反復の標準的描画"}
     ]
   }
 }

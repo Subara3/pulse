@@ -8,9 +8,9 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "gaussprimes", "label": "GAUSSIAN PRIMES", "reason": "複素平面上の素数の分布"},
+      {"page": "ulam", "label": "ULAM", "reason": "複素平面上の素数の分布"},
       {"page": "primes", "label": "PRIMES", "reason": "素数の間隔の可視化"},
-      {"page": "conformal", "label": "CONFORMAL", "reason": "複素関数による等角写像"}
+      {"page": "inversion", "label": "INVERSION", "reason": "複素関数による等角写像"}
     ]
   }
 }

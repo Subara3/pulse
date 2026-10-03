@@ -8,8 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "flowfield", "label": "FLOWFIELD", "reason": "ノイズが作る流れ場"},
-      {"page": "sand", "label": "SAND", "reason": "粒子の落下と堆積"},
+      {"page": "fluidveil", "label": "FLUID VEIL", "reason": "ノイズが作る流れ場"},
+      {"page": "granular", "label": "GRANULAR", "reason": "粒子の落下と堆積"},
       {"page": "sandpile", "label": "SANDPILE", "reason": "自己組織化と崩壊"}
     ]
   }

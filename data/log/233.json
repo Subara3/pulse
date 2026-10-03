@@ -8,8 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "montecarlo", "label": "MONTECARLO", "reason": "ランダムからπを推定"},
-      {"page": "pi", "label": "PI", "reason": "円周率の可視化"},
+      {"page": "buffon", "label": "BUFFON", "reason": "ランダムからπを推定"},
+      {"page": "primes", "label": "PRIMES", "reason": "円周率の可視化"},
       {"page": "galton", "label": "GALTON BOARD", "reason": "確率の収束"}
     ]
   }

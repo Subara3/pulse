@@ -8,21 +8,8 @@
     "enabled": true,
     "title": "関連コンテンツ",
     "items": [
-      {
-        "page": "julia",
-        "label": "JULIA SET",
-        "reason": "複素平面のフラクタル"
-      },
-      {
-        "page": "fractal",
-        "label": "FRACTAL",
-        "reason": "反復による境界"
-      },
-      {
-        "page": "percolation",
-        "label": "PERCOLATION",
-        "reason": "境界と臨界"
-      }
+      {"page": "fractal", "label": "FRACTAL", "reason": "複素平面のフラクタル"},
+      {"page": "percolation", "label": "PERCOLATION", "reason": "境界と臨界"}
     ]
   }
 }

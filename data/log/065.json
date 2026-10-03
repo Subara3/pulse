@@ -8,21 +8,9 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "life",
-        "label": "LIFE",
-        "reason": "離散版ライフゲーム"
-      },
-      {
-        "page": "reaction",
-        "label": "REACTION",
-        "reason": "反応拡散系・チューリングパターン"
-      },
-      {
-        "page": "excitable",
-        "label": "EXCITABLE",
-        "reason": "別の連続的CAの変種"
-      }
+      {"page": "life", "label": "LIFE", "reason": "離散版ライフゲーム"},
+      {"page": "reaction", "label": "REACTION", "reason": "反応拡散系・チューリングパターン"},
+      {"page": "cyclic", "label": "CYCLIC", "reason": "別の連続的CAの変種"}
     ]
   }
 }

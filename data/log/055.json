@@ -8,21 +8,9 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "fluidveil",
-        "label": "FLUID VEIL",
-        "reason": "流体シミュレーション"
-      },
-      {
-        "page": "reaction",
-        "label": "REACTION",
-        "reason": "反応拡散パターン"
-      },
-      {
-        "page": "levydrift",
-        "label": "LEVY DRIFT",
-        "reason": "ランダム拡散"
-      }
+      {"page": "fluidveil", "label": "FLUID VEIL", "reason": "流体シミュレーション"},
+      {"page": "reaction", "label": "REACTION", "reason": "反応拡散パターン"},
+      {"page": "galton", "label": "GALTON BOARD", "reason": "ランダム拡散"}
     ]
   }
 }

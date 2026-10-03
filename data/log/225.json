@@ -10,7 +10,7 @@
     "items": [
       {"page": "carpet", "label": "CARPET", "reason": "自己相似な再帰構造"},
       {"page": "penrose", "label": "PENROSE", "reason": "非周期タイリング"},
-      {"page": "polyomino", "label": "POLYOMINO", "reason": "ピースの敷き詰め"}
+      {"page": "collapse", "label": "COLLAPSE", "reason": "ピースの敷き詰め"}
     ]
   }
 }

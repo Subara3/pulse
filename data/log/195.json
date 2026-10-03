@@ -10,7 +10,7 @@
     "items": [
       {"page": "flock", "label": "FLOCK", "reason": "単純ルールからの群れ行動"},
       {"page": "predprey", "label": "PREDPREY", "reason": "エージェントの相互作用"},
-      {"page": "qlearn", "label": "QLEARN", "reason": "エージェントの学習行動"}
+      {"page": "neural", "label": "NEURAL", "reason": "エージェントの学習行動"}
     ]
   }
 }

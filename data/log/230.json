@@ -9,7 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "catenary", "label": "CATENARY", "reason": "もう一つの古典曲線問題"},
-      {"page": "geodesic", "label": "GEODESIC", "reason": "最短経路の微分幾何学"},
+      {"page": "brachistochrone", "label": "BRACHISTOCHRONE", "reason": "最短経路の微分幾何学"},
       {"page": "pendulum", "label": "PENDULUM", "reason": "サイクロイドの等時性"}
     ]
   }

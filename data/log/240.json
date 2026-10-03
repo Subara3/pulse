@@ -8,7 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "koch", "label": "KOCH SNOWFLAKE", "reason": "再帰的に折れ曲がるフラクタル曲線"},
+      {"page": "dragon", "label": "DRAGON", "reason": "再帰的に折れ曲がるフラクタル曲線"},
       {"page": "fractal", "label": "FRACTAL", "reason": "拡大しても終わらない境界"},
       {"page": "ifs", "label": "IFS", "reason": "確率的反復で自己相似を生む"}
     ]

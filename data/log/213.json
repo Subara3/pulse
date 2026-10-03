@@ -10,7 +10,7 @@
     "items": [
       {"page": "pendulumwave", "label": "PENDULUMWAVE", "reason": "振動の集団パターン"},
       {"page": "chladni", "label": "CHLADNI", "reason": "共振が描く節線の模様"},
-      {"page": "wavemachine", "label": "WAVE MACHINE", "reason": "波の伝播と反射"}
+      {"page": "waves", "label": "WAVES", "reason": "波の伝播と反射"}
     ]
   }
 }

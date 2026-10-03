@@ -8,7 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "fracture", "label": "FRACTURE", "reason": "破壊力学の連鎖"},
+      {"page": "dla", "label": "DLA", "reason": "破壊力学の連鎖"},
       {"page": "rope", "label": "ROPE", "reason": "Verlet積分による拘束"},
       {"page": "topopt", "label": "TOPOPT", "reason": "構造の最適化"}
     ]

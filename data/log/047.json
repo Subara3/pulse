@@ -10,7 +10,7 @@
     "items": [
       {"page": "flock", "label": "FLOCK", "reason": "群れの自律行動"},
       {"page": "mycelium", "label": "MYCELIUM", "reason": "菌糸ネットワークの経路探索"},
-      {"page": "pathfind", "label": "PATHFIND", "reason": "最短経路探索アルゴリズム"}
+      {"page": "maze", "label": "MAZE", "reason": "最短経路探索アルゴリズム"}
     ]
   }
 }

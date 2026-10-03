@@ -8,8 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "refraction", "label": "REFRACTION", "reason": "離散的な屈折の法則"},
-      {"page": "caustics", "label": "CAUSTICS", "reason": "光が作る集光パターン"}
+      {"page": "caustics", "label": "CAUSTICS", "reason": "離散的な屈折の法則"}
     ]
   }
 }

@@ -8,16 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "catmap",
-        "label": "CATMAP",
-        "reason": "行列で平面を混ぜる仲間だ！"
-      },
-      {
-        "page": "phase",
-        "label": "PHASE",
-        "reason": "ベクトル場の流れを読むところが近い！"
-      }
+      {"page": "chirikov", "label": "CHIRIKOV", "reason": "行列で平面を混ぜる仲間だ！"},
+      {"page": "lorenz", "label": "LORENZ", "reason": "ベクトル場の流れを読むところが近い！"}
     ]
   }
 }

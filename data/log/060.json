@@ -8,7 +8,7 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "physics", "label": "PHYSICS", "reason": "2D物理シミュレーション"},
+      {"page": "nbody", "label": "N-BODY", "reason": "2D物理シミュレーション"},
       {"page": "pendulum", "label": "PENDULUM", "reason": "力学系の軌道と周期運動"},
       {"page": "lorenz", "label": "LORENZ", "reason": "カオス軌道の可視化"}
     ]

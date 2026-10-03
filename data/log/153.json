@@ -9,7 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "chirikov", "label": "CHIRIKOV", "reason": "面積保存写像の仲間"},
-      {"page": "henon", "label": "HENON", "reason": "2次元カオス写像"}
+      {"page": "clifford", "label": "CLIFFORD", "reason": "2次元カオス写像"}
     ]
   }
 }

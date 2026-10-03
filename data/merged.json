@@ -40,7 +40,7 @@
     "concept": "カオスゲーム"
   },
   "drift": {
-    "to": "levydrift",
+    "to": "galton",
     "why": "単純ランダムウォーク ⊂ レヴィフライト",
     "concept": "単純ランダムウォーク"
   },
@@ -75,7 +75,7 @@
     "concept": "円形膜の振動モード"
   },
   "optics": {
-    "to": "refraction",
+    "to": "caustics",
     "why": "幾何光線の反射/屈折で二重",
     "concept": "幾何光学の鏡面反射"
   },
@@ -85,7 +85,7 @@
     "concept": "点渦の流体力学"
   },
   "isofield": {
-    "to": "metaball",
+    "to": "diffgrow",
     "why": "等高線場 = メタボールの等値面",
     "concept": "等高線フィールド"
   },
@@ -110,7 +110,7 @@
     "concept": "黄金比・黄金角"
   },
   "flow": {
-    "to": "flowfield",
+    "to": "fluidveil",
     "why": "グラデーションの流れ ⊂ ノイズ流れ場",
     "concept": "グラデーションの流れ場"
   },
@@ -143,5 +143,590 @@
     "to": "penrose",
     "why": "非周期タイル = ペンローズと同じ体験。penrose の HAT モード（本物のメタタイル置換で作り直し）",
     "concept": "非周期モノタイル（帽子タイル・アインシュタインタイル）"
+  },
+  "morse": {
+    "to": "waves",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "MORSE — モールス信号を、時間波形とスペクトルとして打つトレーナー"
+  },
+  "clock": {
+    "to": "flock",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "CLOCK — 粒子が7セグメントの時刻へ流れ込む、Canvas粒子時計"
+  },
+  "physics": {
+    "to": "nbody",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "PHYSICS — 重力、引力、衝突、チェーンの動きを触って試す物理場"
+  },
+  "pi": {
+    "to": "primes",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "PI — 円周率の数字列を歩行・螺旋・弦として描く"
+  },
+  "julia": {
+    "to": "fractal",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "JULIA SET — ジュリア集合のパラメータ空間を、ドラッグで連続的に変形する"
+  },
+  "koch": {
+    "to": "dragon",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "KOCH SNOWFLAKE — コッホ曲線の再帰生成を、角度と深度を変えながら観察する"
+  },
+  "tree": {
+    "to": "lsystemgarden",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "TREE — 分岐角と揺らぎから成長する再帰樹を描く"
+  },
+  "sand": {
+    "to": "granular",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "SAND — 粒子セルが落下・流動・固定を繰り返す粒状シミュレーション"
+  },
+  "evolution": {
+    "to": "flock",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "EVOLUTION — 遺伝的アルゴリズムの世代交代を、軌跡と適応度で観察する"
+  },
+  "pathfind": {
+    "to": "maze",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "PATHFIND — 探索アルゴリズムの可視化"
+  },
+  "rule": {
+    "to": "life",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "RULE — 1次元セルオートマトン"
+  },
+  "breathe": {
+    "to": "waves",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "BREATHE — 呼吸の周期を位相波として描く、静かなCanvasビジュアライゼーション"
+  },
+  "mobiusflow": {
+    "to": "tesseract",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "MOBIUS FLOW — メビウスの帯を流れる粒子"
+  },
+  "levydrift": {
+    "to": "galton",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "LEVY DRIFT — レヴィフライト"
+  },
+  "bezier": {
+    "to": "spirograph",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "BÉZIER — ベジェ曲線"
+  },
+  "epidemic": {
+    "to": "predprey",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "EPIDEMIC — SIR疫病拡散モデル"
+  },
+  "hilbert": {
+    "to": "dragon",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "HILBERT — ヒルベルト曲線"
+  },
+  "pursuit": {
+    "to": "spirograph",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "PURSUIT — N点の追跡多角形"
+  },
+  "soliton": {
+    "to": "waves",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "SOLITON — KdV方程式による孤立波"
+  },
+  "conformal": {
+    "to": "inversion",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "CONFORMAL — 複素関数による等角写像"
+  },
+  "henon": {
+    "to": "clifford",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "HENON — エノン写像の奇妙なアトラクタ"
+  },
+  "linkage": {
+    "to": "rope",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "LINKAGE — 四節リンク機構"
+  },
+  "flowfield": {
+    "to": "fluidveil",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "FLOWFIELD — ノイズ場に従うパーティクル"
+  },
+  "turing": {
+    "to": "life",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "TURING — チューリングマシン"
+  },
+  "modular": {
+    "to": "string",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "MODULAR — モジュラ乗算"
+  },
+  "elastic": {
+    "to": "nbody",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "ELASTIC — 理想気体の運動論"
+  },
+  "traffic": {
+    "to": "crowd",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "TRAFFIC — Nagel-Schreckenberg交通流モデル"
+  },
+  "phase": {
+    "to": "lorenz",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "PHASE — 位相面"
+  },
+  "diffusion": {
+    "to": "reaction",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "DIFFUSION — 熱拡散シミュレーション"
+  },
+  "shadow": {
+    "to": "caustics",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "SHADOW — 2Dレイキャスティング"
+  },
+  "softbody": {
+    "to": "cloth",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "SOFTBODY — 圧力ベースの軟体シミュレーション"
+  },
+  "reach": {
+    "to": "rope",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "REACH — 逆運動学（FABRIK）"
+  },
+  "schelling": {
+    "to": "gametheory",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "SCHELLING — シェリング隔離モデル"
+  },
+  "truchet": {
+    "to": "collapse",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "TRUCHET — トリュシェタイル"
+  },
+  "lightning": {
+    "to": "dla",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "LIGHTNING — 誘電体破壊モデル"
+  },
+  "metaball": {
+    "to": "diffgrow",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "METABALL — メタボール"
+  },
+  "lattice": {
+    "to": "waves",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "LATTICE — 2D格子振動"
+  },
+  "magnetic": {
+    "to": "efield",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "MAGNETIC — 磁場の可視化"
+  },
+  "toothpick": {
+    "to": "life",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "TOOTHPICK — 爪楊枝数列"
+  },
+  "pascal": {
+    "to": "galton",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "PASCAL — パスカルの三角形"
+  },
+  "delaunay": {
+    "to": "voronoi",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "DELAUNAY — ドロネー三角形分割"
+  },
+  "ford": {
+    "to": "recaman",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "FORD — フォード円"
+  },
+  "lyapunov": {
+    "to": "bifurcation",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "LYAPUNOV — リャプノフフラクタル"
+  },
+  "spanning": {
+    "to": "network",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "SPANNING — 最小全域木"
+  },
+  "quadtree": {
+    "to": "voronoi",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "QUADTREE — 四分木空間分割"
+  },
+  "ratchet": {
+    "to": "galton",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "RATCHET — ブラウニアンラチェット"
+  },
+  "excitable": {
+    "to": "cyclic",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "EXCITABLE — 興奮性媒質"
+  },
+  "hull": {
+    "to": "network",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "HULL — 凸包アルゴリズムの可視化"
+  },
+  "chamber": {
+    "to": "doppler",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "CHAMBER — 荷電粒子の飛跡"
+  },
+  "qlearn": {
+    "to": "neural",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "QLEARN — Q学習"
+  },
+  "knot": {
+    "to": "tesseract",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "KNOT — トーラス結び目"
+  },
+  "winding": {
+    "to": "inversion",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "WINDING — 巻き数"
+  },
+  "rips": {
+    "to": "network",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "RIPS COMPLEX — リップス複体"
+  },
+  "venation": {
+    "to": "lsystemgarden",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "VENATION — 空間植民化アルゴリズム"
+  },
+  "atoms": {
+    "to": "crystal",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "ATOMS — レナード・ジョーンズ分子動力学"
+  },
+  "flame": {
+    "to": "ifs",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "FLAME — フラクタルフレーム"
+  },
+  "refraction": {
+    "to": "caustics",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "REFRACTION — 屈折の光学シミュレーション"
+  },
+  "feedback": {
+    "to": "clifford",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "FEEDBACK — 映像帰還ループ"
+  },
+  "catmap": {
+    "to": "chirikov",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "CATMAP — アーノルドの猫写像"
+  },
+  "tomography": {
+    "to": "diffract",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "TOMOGRAPHY — CTスキャンのRadon変換"
+  },
+  "hough": {
+    "to": "gradient",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "HOUGH — 点群を直線のパラメータ空間へ写し、投票の山から線を検出するHough変換"
+  },
+  "eigen": {
+    "to": "inversion",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "EIGEN — 2x2行列が平面を変形する様子を、基底ベクトル・単位円・固有方向・流れとして観察する"
+  },
+  "steiner": {
+    "to": "network",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "STEINER — シュタイナー木"
+  },
+  "fracture": {
+    "to": "dla",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "FRACTURE — バネ格子の脆性破壊"
+  },
+  "montecarlo": {
+    "to": "buffon",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "MONTECARLO — モンテカルロ法"
+  },
+  "pso": {
+    "to": "gradient",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "PSO — 粒子群最適化"
+  },
+  "strange": {
+    "to": "clifford",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "STRANGE — 奇妙なアトラクタ探索"
+  },
+  "biomorph": {
+    "to": "fractal",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "BIOMORPH — Pickoverバイオモーフ"
+  },
+  "saw": {
+    "to": "dla",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "SAW — 自己回避歩行"
+  },
+  "tissue": {
+    "to": "crystallize",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "TISSUE — 細胞ポッツモデル"
+  },
+  "orbital": {
+    "to": "quantum",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "ORBITAL — 水素原子の電子軌道"
+  },
+  "coulomb": {
+    "to": "efield",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "COULOMB — 反発し合う粒を器に閉じこめると、玉ねぎのような同心円の層に並ぶ"
+  },
+  "domino": {
+    "to": "percolation",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "DOMINO — ダイヤ形の枠をドミノでランダムに埋めると、角は整列し、真ん中だけが乱れる"
+  },
+  "kohonen": {
+    "to": "neural",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "KOHONEN — 網をデータの点に向けて何度も引っぱると、網が形になじんで、点の並びの地図になる"
+  },
+  "cml": {
+    "to": "cyclic",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "CML — 隣どうしが少しずつ影響し合うカオスのマスを並べると、つながりの強さしだいで乱れたり、縞や帯に揃ったりする"
+  },
+  "transport": {
+    "to": "fluidveil",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "TRANSPORT — 粒の集まりを別の形へ移すとき、全員の移動距離の合計が最短になる組み合わせを探す"
+  },
+  "sdf": {
+    "to": "voronoi",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "SDF — 丸や四角を足したり、くり抜いたりして形を作ると、形からの距離が波紋のような等高線になって広がる"
+  },
+  "convection": {
+    "to": "shear",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "CONVECTION — 下から温めた液体は、温度差がある値を超えた瞬間に転がる筒のような流れに分かれる"
+  },
+  "coriolis": {
+    "to": "fluidveil",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "CORIOLIS — 回る円盤の上でまっすぐ投げたボールが、円盤の上から見ると曲がる"
+  },
+  "markov": {
+    "to": "galton",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "MARKOV — 点が矢印の確率に従って状態の間を跳ねる"
+  },
+  "termite": {
+    "to": "antcolony",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "TERMITE — 木片を拾っては別の木片の横に置くだけのシロアリが、誰も指示していないのに散らばった木片を少数の山にまとめる"
+  },
+  "spacetime": {
+    "to": "gravlens",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "SPACETIME — 双子の片方が光に近い速さで旅をして戻ると、年の取り方がずれる"
+  },
+  "roche": {
+    "to": "lagrange",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "ROCHE — 衛星を惑星に近づけていくと、ある距離を越えたところで潮の力に引き裂かれ、輪になる"
+  },
+  "wavemachine": {
+    "to": "waves",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "WAVE MACHINE — 棒の列の端をはじくと波が走る"
+  },
+  "pid": {
+    "to": "gradient",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "PID — 3つのつまみで、目標の位置へ止まるまでの動き方が変わる"
+  },
+  "plasma": {
+    "to": "efield",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "PLASMA — プラスとマイナスの粒が引き合い、反発しながら揺れる"
+  },
+  "stereo": {
+    "to": "inversion",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "STEREO — 球の模様を平面に映すと、球の上の円はどれも平面でも円のまま映る"
+  },
+  "wallpaper": {
+    "to": "kaleidoscope",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "WALLPAPER — 光の粒を1つ放つと、その軌跡が回転や鏡映で平面いっぱいに複製される"
+  },
+  "gears": {
+    "to": "truss",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "GEARS — 大きさの違う歯車をかみ合わせて、「2:3 の速さで同じ向き」のようなお題の回転を作る"
+  },
+  "braitenberg": {
+    "to": "flock",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "BRAITENBERG — 光センサーと車輪のつなぎ方が違うだけで、同じ車が光から逃げたり、突っこんだり、寄り添ったりする"
+  },
+  "fraction": {
+    "to": "fibonacci",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "FRACTION — 長方形から正方形を切り取り続けると、切り取れた数の並びがその比の連分数になる"
+  },
+  "boolean": {
+    "to": "life",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "BOOLEAN — 点がそれぞれ、つながった点の ON/OFF で次の自分を決める"
+  },
+  "pedal": {
+    "to": "spirograph",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "PEDAL — 曲線の接線に、決めた点から垂線を下ろす"
+  },
+  "tongues": {
+    "to": "bifurcation",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "ARNOLD TONGUES — 揺れを周期的に押すと、押す速さに合わせて揺れのリズムが揃う範囲がある"
+  },
+  "polymerize": {
+    "to": "dla",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "POLYMERIZE — 小さな粒がぶつかってつながり、鎖になる"
+  },
+  "stochastic": {
+    "to": "catastrophe",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "STOCHASTIC RESONANCE — 閾値に届かない弱い信号に、ちょうどいい量の雑音を足すと、かえって信号が聞こえるようになる"
+  },
+  "motile": {
+    "to": "flock",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "MOTILE — 引き合う力はないのに、自分で進む粒が渋滞して集まり、かたまりができたり消えたりする"
+  },
+  "geodesic": {
+    "to": "brachistochrone",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "GEODESIC — 地面に山や谷を描くと、まっすぐ進むはずの粒の道が曲がる"
+  },
+  "gaussprimes": {
+    "to": "ulam",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "GAUSSIAN PRIMES — 複素数にも素数がある"
+  },
+  "resonance": {
+    "to": "pendulumwave",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "RESONANCE — おもりをいろいろな速さで揺すると、固有の速さに近いものだけが大きく揺れる"
+  },
+  "ballistic": {
+    "to": "dla",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "BALLISTIC — 上から降る粒が、最初に触れた場所にくっついていく"
+  },
+  "tame": {
+    "to": "cobweb",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "TAME — カオスで暴れる値に、ほんの小さなひと押しを正しいタイミングで加えると、規則正しい周期に落ち着く"
+  },
+  "cascade": {
+    "to": "network",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "CASCADE — 1つの点を倒すと、その負荷が隣にあふれて次々と倒れる"
+  },
+  "schottky": {
+    "to": "apollonian",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "SCHOTTKY — 4つの円が、それぞれ相手の円の中へ全体を映し合う"
+  },
+  "dyson": {
+    "to": "zeta",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "DYSON — でたらめな行列の固有値を点にすると、点どうしが近づきすぎないよう押し合いながら揺れ、半円の形に分布する"
+  },
+  "polarize": {
+    "to": "slit",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "POLARIZE — 偏光板を2枚直角に重ねると光が消える"
+  },
+  "polyomino": {
+    "to": "collapse",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "POLYOMINO — いくつもの形のピースで長方形をすき間なく埋める"
+  },
+  "reptile": {
+    "to": "penrose",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "REPTILE — L字のタイルは、自分と同じ形の小さなタイル4枚にぴったり分けられる"
+  },
+  "kalman": {
+    "to": "gradient",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "KALMAN — ノイズだらけの観測から、見えない物体の本当の位置を推定する"
+  },
+  "wang": {
+    "to": "collapse",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "WANG TILES — 辺の色が合うようにしか置けない正方形を並べていく"
+  },
+  "braid": {
+    "to": "spirograph",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "BRAID — 何本かの糸を順に交差させて編む"
+  },
+  "maxflow": {
+    "to": "network",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "MAXFLOW — 太さの決まったパイプの網に、流せるだけ流す"
+  },
+  "delay": {
+    "to": "cobweb",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "DELAY — 今の変化が少し前の自分で決まる式"
+  },
+  "grin": {
+    "to": "gravlens",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "GRIN — 場所によって屈折のしかたが違う空間では、光はまっすぐ進まずに曲がる"
+  },
+  "visible": {
+    "to": "ulam",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "VISIBLE — 原点に立って格子の点を見渡す"
+  },
+  "plume": {
+    "to": "shear",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "PLUME — 重い液が軽い液の上にあると、境目が指のように垂れ下がり、きのこの形をした渦になって沈んでいく"
+  },
+  "roulette": {
+    "to": "spirograph",
+    "why": "2026-10 の 100 本絞り込みで廃止（品質・被り）",
+    "concept": "ROULETTE — 多角形が転がると、つけた印が曲線を描く"
   }
 }

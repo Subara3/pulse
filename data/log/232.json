@@ -9,8 +9,8 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "bifurcation", "label": "BIFURCATION", "reason": "周期倍分岐の構造"},
-      {"page": "phase", "label": "PHASE", "reason": "位相面の可視化"},
-      {"page": "strange", "label": "STRANGE", "reason": "奇妙なアトラクタ"}
+      {"page": "lorenz", "label": "LORENZ", "reason": "位相面の可視化"},
+      {"page": "clifford", "label": "CLIFFORD", "reason": "奇妙なアトラクタ"}
     ]
   }
 }

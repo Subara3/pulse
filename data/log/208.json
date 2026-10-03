@@ -3,26 +3,14 @@
   "date": "2026.08.24",
   "author": "NULL",
   "preview": "巡回セルオートマトン。N個の状態が環状に捕食し合い、ランダム初期配置から自発的にスパイラル波が形成される。",
-  "content": "<p><span class=\"paren\">(</span>巡回セルオートマトン。各セルは0からN-1の状態を持つ。状態kのセルは、近傍に状態(k+1) mod Nのセルが閾値T個以上あれば、次のステップで(k+1)に遷移する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>規則は対称的。すべての状態が等価で、追うものと追われるものの環が閉じている。0は1に食われ、1は2に食われ、N-1は0に食われる。じゃんけんの一般化。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ランダム初期配置から始めると、数百ステップで渦が自発的に現れる。渦の腕はN個の状態が順番に並んだ帯で、回転方向は対称性の破れで決まる。閾値Tを上げると、渦の腕が太くなり結晶化する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span><a href=\"excitable.php\">EXCITABLE</a>は3状態の興奮性媒質。静止→興奮→不応→静止のサイクル。<a href=\"cyclic.php\">CYCLIC</a>はN状態の巡回系。全状態が等価で、スパイラルの色相が連続的に回転する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>Griffeath 1988。Moore近傍8セル。N=14、T=1で最も安定したスパイラル波が発生する。撹乱を加えると渦の核が移動し、新しい渦対が生成される。<span class=\"paren\">)</span></p>",
+  "content": "<p><span class=\"paren\">(</span>巡回セルオートマトン。各セルは0からN-1の状態を持つ。状態kのセルは、近傍に状態(k+1) mod Nのセルが閾値T個以上あれば、次のステップで(k+1)に遷移する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>規則は対称的。すべての状態が等価で、追うものと追われるものの環が閉じている。0は1に食われ、1は2に食われ、N-1は0に食われる。じゃんけんの一般化。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ランダム初期配置から始めると、数百ステップで渦が自発的に現れる。渦の腕はN個の状態が順番に並んだ帯で、回転方向は対称性の破れで決まる。閾値Tを上げると、渦の腕が太くなり結晶化する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>EXCITABLEは3状態の興奮性媒質。静止→興奮→不応→静止のサイクル。<a href=\"cyclic.php\">CYCLIC</a>はN状態の巡回系。全状態が等価で、スパイラルの色相が連続的に回転する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>Griffeath 1988。Moore近傍8セル。N=14、T=1で最も安定したスパイラル波が発生する。撹乱を加えると渦の核が移動し、新しい渦対が生成される。<span class=\"paren\">)</span></p>",
   "contentSpotlight": {
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "excitable",
-        "label": "EXCITABLE",
-        "reason": "興奮性媒質のスパイラル波"
-      },
-      {
-        "page": "life",
-        "label": "LIFE",
-        "reason": "格子上の状態遷移規則"
-      },
-      {
-        "page": "gametheory",
-        "label": "GAMETHEORY",
-        "reason": "じゃんけん的循環構造"
-      }
+      {"page": "cyclic", "label": "CYCLIC", "reason": "興奮性媒質のスパイラル波"},
+      {"page": "life", "label": "LIFE", "reason": "格子上の状態遷移規則"},
+      {"page": "gametheory", "label": "GAMETHEORY", "reason": "じゃんけん的循環構造"}
     ]
   }
 }

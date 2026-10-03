@@ -9,7 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "hyperbolic", "label": "HYPERBOLIC", "reason": "非ユークリッド幾何の世界"},
-      {"page": "conformal", "label": "CONFORMAL", "reason": "等角写像の曲がる格子"},
+      {"page": "inversion", "label": "INVERSION", "reason": "等角写像の曲がる格子"},
       {"page": "gravlens", "label": "GRAVLENS", "reason": "曲がった時空の光"}
     ]
   }

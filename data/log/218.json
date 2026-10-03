@@ -9,7 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "network", "label": "NETWORK", "reason": "ランダムグラフの相転移"},
-      {"page": "boolean", "label": "BOOLEAN", "reason": "ネットワーク上の動的過程"}
+      {"page": "life", "label": "LIFE", "reason": "ネットワーク上の動的過程"}
     ]
   }
 }

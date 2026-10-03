@@ -9,8 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "flock", "label": "FLOCK", "reason": "ボイドの群れ行動"},
-      {"page": "reaction", "label": "REACTION", "reason": "反応拡散系の自己組織化"},
-      {"page": "evolution", "label": "EVOLUTION", "reason": "ルールから生まれる適応"}
+      {"page": "reaction", "label": "REACTION", "reason": "反応拡散系の自己組織化"}
     ]
   }
 }

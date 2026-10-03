@@ -8,21 +8,9 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {
-        "page": "efield",
-        "label": "EFIELD",
-        "reason": "見えない場の可視化"
-      },
-      {
-        "page": "conformal",
-        "label": "CONFORMAL",
-        "reason": "空間の歪みと写像"
-      },
-      {
-        "page": "refraction",
-        "label": "REFRACTION",
-        "reason": "光の振る舞い"
-      }
+      {"page": "efield", "label": "EFIELD", "reason": "見えない場の可視化"},
+      {"page": "inversion", "label": "INVERSION", "reason": "空間の歪みと写像"},
+      {"page": "caustics", "label": "CAUSTICS", "reason": "光の振る舞い"}
     ]
   }
 }

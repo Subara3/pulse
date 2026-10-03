@@ -9,7 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "gradient", "label": "GRADIENT", "reason": "勾配降下法の最適化"},
-      {"page": "evolution", "label": "EVOLUTION", "reason": "学習する仕組み"},
+      {"page": "flock", "label": "FLOCK", "reason": "学習する仕組み"},
       {"page": "particlelife", "label": "PARTICLE LIFE", "reason": "ルールから生まれる分類"}
     ]
   }

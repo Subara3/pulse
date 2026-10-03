@@ -9,7 +9,7 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "antcolony", "label": "ANTCOLONY", "reason": "フェロモンベースの間接協調"},
-      {"page": "schelling", "label": "SCHELLING", "reason": "局所ルールからの大域パターン"},
+      {"page": "gametheory", "label": "GAMETHEORY", "reason": "局所ルールからの大域パターン"},
       {"page": "particlelife", "label": "PARTICLE LIFE", "reason": "ルールベースの自己組織化"}
     ]
   }

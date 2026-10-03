@@ -9,8 +9,8 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "fibonacci", "label": "FIBONACCI", "reason": "黄金比と葉序"},
-      {"page": "modular", "label": "MODULAR", "reason": "数の幾何学的構造"},
-      {"page": "ford", "label": "FORD", "reason": "有理数の近似と接円"}
+      {"page": "string", "label": "STRING ART", "reason": "数の幾何学的構造"},
+      {"page": "recaman", "label": "RECAMÁN", "reason": "有理数の近似と接円"}
     ]
   }
 }

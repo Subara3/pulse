@@ -10,7 +10,7 @@
     "items": [
       {"page": "kuramoto", "label": "KURAMOTO", "reason": "ノイズと同期の関係"},
       {"page": "bifurcation", "label": "BIFURCATION", "reason": "パラメータ変化による質的変化"},
-      {"page": "ratchet", "label": "RATCHET", "reason": "ノイズが秩序を生む現象"}
+      {"page": "galton", "label": "GALTON BOARD", "reason": "ノイズが秩序を生む現象"}
     ]
   }
 }

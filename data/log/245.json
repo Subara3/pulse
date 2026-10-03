@@ -8,9 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "grin", "label": "GRIN", "reason": "屈折率で光が曲がる"},
-      {"page": "refraction", "label": "REFRACTION", "reason": "境界での光の振る舞い"},
-      {"page": "shadow", "label": "SHADOW", "reason": "光線の追跡"}
+      {"page": "gravlens", "label": "GRAVLENS", "reason": "屈折率で光が曲がる"},
+      {"page": "caustics", "label": "CAUSTICS", "reason": "境界での光の振る舞い"}
     ]
   }
 }

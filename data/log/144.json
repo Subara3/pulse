@@ -9,8 +9,8 @@
     "title": "今日の関連コンテンツ",
     "items": [
       {"page": "flock", "label": "FLOCK", "reason": "群れの自己組織化。引力ベースの集団行動"},
-      {"page": "traffic", "label": "TRAFFIC", "reason": "交通流モデル。渋滞の自然発生"},
-      {"page": "schelling", "label": "SCHELLING", "reason": "社会物理学。個の選好から集団パターンが創発"}
+      {"page": "crowd", "label": "CROWD", "reason": "交通流モデル。渋滞の自然発生"},
+      {"page": "gametheory", "label": "GAMETHEORY", "reason": "社会物理学。個の選好から集団パターンが創発"}
     ]
   }
 }

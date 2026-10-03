@@ -10,7 +10,7 @@
     "items": [
       {"page": "voronoi", "label": "VORONOI", "reason": "泡の壁の数学的基盤"},
       {"page": "packing", "label": "CIRCLE PACKING", "reason": "空間を埋める別のアプローチ"},
-      {"page": "tissue", "label": "TISSUE", "reason": "セル構造の自己組織化"}
+      {"page": "crystallize", "label": "SPINODAL", "reason": "セル構造の自己組織化"}
     ]
   }
 }

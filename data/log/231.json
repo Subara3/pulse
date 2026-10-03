@@ -8,9 +8,9 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "pathfind", "label": "PATHFIND", "reason": "BFSで探索する仲間"},
-      {"page": "steiner", "label": "STEINER", "reason": "ネットワーク最適化"},
-      {"page": "transport", "label": "TRANSPORT", "reason": "最適な流れの配分"}
+      {"page": "maze", "label": "MAZE", "reason": "BFSで探索する仲間"},
+      {"page": "network", "label": "NETWORK", "reason": "ネットワーク最適化"},
+      {"page": "fluidveil", "label": "FLUID VEIL", "reason": "最適な流れの配分"}
     ]
   }
 }

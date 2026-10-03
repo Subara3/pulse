@@ -8,9 +8,8 @@
     "enabled": true,
     "title": "今日の関連コンテンツ",
     "items": [
-      {"page": "stochastic", "label": "STOCHASTIC RESONANCE", "reason": "ノイズを情報処理に組み込む現象"},
-      {"page": "pid", "label": "PID", "reason": "観測値と目標値の差を制御に使う"},
-      {"page": "gradient", "label": "GRADIENT", "reason": "誤差を小さくする反復的な更新"}
+      {"page": "catastrophe", "label": "CATASTROPHE", "reason": "ノイズを情報処理に組み込む現象"},
+      {"page": "gradient", "label": "GRADIENT", "reason": "観測値と目標値の差を制御に使う"}
     ]
   }
 }

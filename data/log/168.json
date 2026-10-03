@@ -10,7 +10,7 @@
     "items": [
       {"page": "ising", "label": "ISING", "reason": "離散スピンの格子模型"},
       {"page": "kuramoto", "label": "KURAMOTO", "reason": "位相の同期転移"},
-      {"page": "excitable", "label": "EXCITABLE", "reason": "位相場の渦構造"}
+      {"page": "cyclic", "label": "CYCLIC", "reason": "位相場の渦構造"}
     ]
   }
 }
