@@ -585,6 +585,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       bestGap = gap;
       document.getElementById('hud-best').textContent = (gap >= 0 ? '+' : '') + gap.toFixed(3) + 's';
       if (typeof SFX !== 'undefined') SFX.play(gap < 0.01 ? 'correct' : 'success');
+      if (gap < 0.01) if (window.PULSE) PULSE.clear();
     } else if (typeof SFX !== 'undefined') {
       SFX.play('complete');
     }

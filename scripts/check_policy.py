@@ -169,6 +169,18 @@ def main() -> int:
             errors.append(f'contents.json: {g} が {len(ps)} 本ある（上限 {MAX_PER_GROUP}）。'
                           'いちばん弱い 1 本を廃止してから足す（CLAUDE.md「題材の決め方」5）')
 
+    # 挑戦の記録（CLAUDE.md「題材の決め方」3）: challenge と PULSE.clear() は対で入れる
+    for c in items:
+        p = c.get('page')
+        path = os.path.join(ROOT, f'{p}.php')
+        if p in DOC_PAGES or not os.path.exists(path):
+            continue
+        calls = 'PULSE.clear(' in open(path, encoding='utf-8').read()
+        if c.get('challenge') and not calls:
+            errors.append(f'{p}.php: contents.json に challenge があるのに PULSE.clear() を呼んでいない')
+        if calls and not c.get('challenge'):
+            errors.append(f'contents.json: {p} は PULSE.clear() を呼ぶのに challenge が無い')
+
     # contents.json に無いのに残っている .php
     on_disk = {os.path.basename(f)[:-4] for f in glob.glob(os.path.join(ROOT, '*.php'))}
     orphan = on_disk - seen - DOC_PAGES

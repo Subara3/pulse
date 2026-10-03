@@ -96,7 +96,6 @@ require_once __DIR__ . '/includes/nav.php';
 <main class="paper">
 
   <div class="wrap wrap--narrow about-hero">
-    <p class="eyebrow">About</p>
     <h1 style="margin-top:.9rem">読ませないサイトを<br>作っています。</h1>
     <p class="lede" style="margin-top:1.2rem;max-width:none">
       PULSE は、数式や規則が<b style="color:var(--teal);font-weight:500">動いているところ</b>だけを集めたアーカイブです。
@@ -110,7 +109,6 @@ require_once __DIR__ . '/includes/nav.php';
     <div class="wrap">
       <div class="section-head">
         <div>
-          <p class="eyebrow">Promise</p>
           <h2 class="h-md" style="margin-top:.6rem">このサイトが約束すること</h2>
         </div>
       </div>
@@ -145,7 +143,6 @@ require_once __DIR__ . '/includes/nav.php';
     <div class="wrap wrap--narrow" style="margin-inline:auto">
       <div class="section-head">
         <div>
-          <p class="eyebrow">House rules</p>
           <h2 class="h-md" style="margin-top:.6rem">全ページ共通の決めごと</h2>
           <p class="muted" style="margin-top:.6rem;font-size:.84rem">
             見た目がばらけないように、作る前から決めてあることです。
@@ -187,7 +184,6 @@ require_once __DIR__ . '/includes/nav.php';
     <div class="wrap">
       <div class="section-head">
         <div>
-          <p class="eyebrow">Voices</p>
           <h2 class="h-lg" style="margin-top:.6rem">ECHO と NULL</h2>
           <p class="muted" style="margin-top:.6rem;font-size:.86rem;max-width:56ch">
             毎日のログを交互に書いている 2 つの声です。どちらも同じものを見て、まったく違う書き方をします。
@@ -239,10 +235,9 @@ require_once __DIR__ . '/includes/nav.php';
     <div class="wrap">
       <div class="section-head">
         <div>
-          <p class="eyebrow">12 collections</p>
           <h2 class="h-md" style="margin-top:.6rem">分け方の一覧</h2>
         </div>
-        <a href="contents.php" class="btn btn--ghost">アーカイブへ &rarr;</a>
+        <a href="contents.php" class="btn btn--ghost">作品をさがす &rarr;</a>
       </div>
 
       <div class="coll-list">
@@ -263,7 +258,6 @@ require_once __DIR__ . '/includes/nav.php';
     <div class="wrap wrap--narrow" style="margin-inline:auto">
       <div class="section-head">
         <div>
-          <p class="eyebrow">Site</p>
           <h2 class="h-md" style="margin-top:.6rem">このサイトについて</h2>
         </div>
       </div>
@@ -276,7 +270,7 @@ require_once __DIR__ . '/includes/nav.php';
 
       <div style="display:flex;gap:.7rem;flex-wrap:wrap;margin-top:2rem">
         <a href="random.php" class="btn btn--primary"><i class="fa-solid fa-shuffle"></i> ランダムに1本ひらく</a>
-        <a href="contents.php" class="btn">アーカイブを見る</a>
+        <a href="contents.php" class="btn">作品をさがす</a>
       </div>
     </div>
   </section>

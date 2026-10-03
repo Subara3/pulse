@@ -266,7 +266,7 @@ function updateBall() {
 
   if (ball.x >= pRX + BALL_R * 2) {
     ball.active = false; ball.success = true;
-    if (!ballDone) { SFX.play('complete'); ballDone = true; }
+    if (!ballDone) { SFX.play('complete'); ballDone = true; if (window.PULSE) PULSE.clear(); }
   }
   if (ball.y > H + 50) {
     ball.active = false; ball.failed = true;

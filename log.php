@@ -129,7 +129,6 @@ require_once __DIR__ . '/includes/nav.php';
 
 <main class="paper">
   <div class="wrap log-hero">
-    <p class="eyebrow">Daily log</p>
     <?php if ($singleDay !== null && $first): ?>
       <h1 style="margin-top:.9rem">Day <?php echo str_pad((string)$first['day'], 3, '0', STR_PAD_LEFT); ?></h1>
       <p class="lede" style="margin-top:.8rem"><?php echo htmlspecialchars($first['date'] ?? ''); ?> — <?php echo htmlspecialchars($first['author'] ?? ''); ?> の記録</p>
@@ -201,7 +200,6 @@ require_once __DIR__ . '/includes/nav.php';
     <section class="section section--tight">
       <div class="section-head">
         <div>
-          <p class="eyebrow eyebrow--muted">Index</p>
           <h2 class="h-sm" style="margin-top:.5rem">Day で直接ひらく</h2>
         </div>
       </div>

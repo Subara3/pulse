@@ -5,6 +5,7 @@ recordPageView('index');
 
 require_once __DIR__ . '/includes/contents-data.php';
 require_once __DIR__ . '/includes/latest-log.php';
+require_once __DIR__ . '/includes/work-tile.php';
 
 $pageName = 'index';
 $workCount = count($works);
@@ -18,174 +19,158 @@ $today = date('Y-m-d');
 $dayNumber = (new DateTime('2026-01-28'))->diff(new DateTime($today))->days;
 $pick = pulsePickOfTheDay($works, $today);
 
-/* ---- ヒーローのチャンネル一覧 ----------------------------------------- */
 /* 一覧用の短い説明。途中で切るときは切ったことが分かるように省略記号を付ける */
 function pulseClip(string $s, int $n): string {
     $s = trim($s);
     return mb_strlen($s) > $n ? rtrim(mb_substr($s, 0, $n - 1)) . '…' : $s;
 }
 
+/* ---- 入口で映すもの。1 本目は今日の1本、あとは毎回まぜる ------------- */
 $channelPool = $works;
 shuffle($channelPool);
-// 今日の1本を必ず 1ch に置く
 if ($pick) {
     $channelPool = array_values(array_filter($channelPool, fn($c) => $c['page'] !== $pick['page']));
     array_unshift($channelPool, $pick);
 }
 $channels = [];
-foreach (array_slice($channelPool, 0, 40) as $c) {
+foreach (array_slice($channelPool, 0, 24) as $c) {
     $mp4 = pulsePreview($c['page'], 'mp4');
     if (!$mp4) continue;
     $channels[] = [
         'p' => $c['page'],
         't' => $c['title'],
-        'd' => pulseClip(strip_tags($c['desc']), 58),
+        'd' => pulseClip(strip_tags($c['desc']), 64),
         'g' => $PULSE_COLLECTIONS[$c['group']]['name'] ?? '',
-        'e' => $PULSE_COLLECTIONS[$c['group']]['en'] ?? '',
         'mp4' => $mp4,
         'jpg' => pulsePreview($c['page'], 'jpg'),
     ];
 }
 
-$newWorks = array_slice($worksByNew, 0, 10);
+/* ---- コレクションごとの並び。大きく見せる 1 本は日付で入れ替わる -------- */
+$rooms = [];
+foreach ($PULSE_COLLECTIONS as $key => $col) {
+    $items = pulseByCollection($worksByNew, $key);
+    if (!$items) continue;
+    $fi = crc32($today . $key) % count($items);
+    $feature = $items[$fi];
+    array_splice($items, $fi, 1);
+    $rooms[$key] = ['col' => $col, 'feature' => $feature, 'rest' => $items];
+}
 
 $extraStyle = '
-/* ===================== HERO / PULSE CHANNEL ===================== */
-.hero {
+/* ===================== 入口 ===================== */
+.stage {
   position: relative;
-  min-height: min(88vh, 760px);
-  display: grid;
-  align-items: end;
+  height: calc(100svh - 53px);
+  min-height: 520px;
+  max-height: 980px;
   overflow: hidden;
   background: var(--ink-0);
-  border-bottom: 1px solid var(--line);
 }
-.hero-stage { position: absolute; inset: 0; }
-.hero-stage video, .hero-stage img {
+.stage video {
+  position: absolute; inset: 0;
   width: 100%; height: 100%; object-fit: cover;
-  opacity: .5; filter: saturate(1.05) contrast(1.05);
-  transition: opacity .5s var(--ease);
+  transition: opacity .6s var(--ease);
 }
-.hero-stage.is-switching video { opacity: .12; }
-.hero-veil {
+.stage.is-switching video { opacity: 0; }
+.stage-veil {
   position: absolute; inset: 0; pointer-events: none;
   background:
-    linear-gradient(to top, var(--ink-0) 2%, rgba(7,7,11,.72) 34%, rgba(7,7,11,.28) 62%, rgba(7,7,11,.72) 100%),
-    repeating-linear-gradient(0deg, rgba(0,0,0,.22) 0 1px, transparent 1px 3px);
+    linear-gradient(to top, rgba(7,7,11,.96) 0%, rgba(7,7,11,.55) 26%, rgba(7,7,11,0) 52%),
+    linear-gradient(to right, rgba(7,7,11,.55) 0%, rgba(7,7,11,0) 45%);
 }
-
-.hero-in { position: relative; padding-block: clamp(2.5rem, 7vw, 4.5rem) clamp(2rem, 5vw, 3.2rem); width: 100%; }
-
-.hero-mark {
+.stage-in {
+  position: absolute; inset: auto 0 0 0;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end; gap: 2rem;
+  padding: 0 var(--gutter) clamp(1.6rem, 4.5vw, 3rem);
+  max-width: calc(var(--maxw) + 2 * var(--gutter)); margin: 0 auto;
+}
+.stage-when { font-size: .78rem; color: var(--text-2); letter-spacing: .06em; }
+.stage-when .mono { color: var(--text-3); margin-left: .5rem; }
+.stage-title {
+  margin-top: .5rem;
   font-family: var(--font-display); font-weight: 700;
-  font-size: clamp(3.6rem, 13vw, 8.5rem); line-height: .9;
-  letter-spacing: .12em; margin-left: -.06em;
+  font-size: clamp(2.4rem, 7.5vw, 5.4rem); line-height: 1; letter-spacing: .04em;
 }
-.hero-mark span { color: var(--teal); }
-.hero-sub {
-  margin-top: 1rem; max-width: 34em;
-  font-size: clamp(.95rem, 1.8vw, 1.1rem); line-height: 2; color: var(--text);
-}
-.hero-sub b { color: var(--teal); font-weight: 700; }
-.hero-sub .nb { white-space: nowrap; }
-
-.hero-actions { display: flex; flex-wrap: wrap; gap: .7rem; margin-top: 1.7rem; }
-
-/* チャンネル表示 */
-.ch {
-  position: absolute; top: clamp(1rem, 4vw, 2.2rem); right: var(--gutter);
-  text-align: right; font-family: var(--font-mono);
-}
-.ch-num { font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 700; color: var(--teal); line-height: 1; }
-.ch-num small { font-size: .42em; letter-spacing: .2em; color: var(--text-3); display: block; margin-bottom: .2rem; }
-.ch-of { font-size: .68rem; letter-spacing: .16em; color: var(--text-3); margin-top: .35rem; }
-
-.now {
-  display: flex; align-items: flex-end; gap: 1.2rem; flex-wrap: wrap;
-  margin-top: clamp(1.8rem, 5vw, 3rem);
-  padding-top: 1.1rem; border-top: 1px solid var(--line-mid);
-}
-.now-label {
-  font-family: var(--font-mono); font-size: .64rem; letter-spacing: .24em;
-  color: var(--teal); text-transform: uppercase;
-}
-.now-title {
-  font-family: var(--font-display); font-weight: 700;
-  font-size: clamp(1.3rem, 3.4vw, 2rem); letter-spacing: .04em;
-}
-.now-title a { text-decoration: none; }
-.now-title a:hover { color: var(--teal); }
-.now-desc { font-size: .82rem; color: var(--text-2); max-width: 52ch; }
-.now-meta { font-family: var(--font-mono); font-size: .66rem; letter-spacing: .16em; color: var(--text-3); }
-.ch-ctrl { display: flex; gap: .5rem; margin-left: auto; }
-.ch-btn {
-  width: 42px; height: 42px; display: grid; place-items: center;
-  border: 1px solid var(--line-mid); border-radius: var(--radius);
-  background: rgba(7,7,11,.6); color: var(--text-2); cursor: pointer;
+.stage-title a { text-decoration: none; }
+.stage-title a:hover { color: var(--teal); }
+.stage-desc { margin-top: 1rem; max-width: 40ch; font-size: .92rem; line-height: 1.95; color: var(--text); }
+.stage-actions { display: flex; align-items: center; flex-wrap: wrap; gap: .6rem; margin-top: 1.5rem; }
+.stage-btn {
+  width: 44px; height: 44px; display: grid; place-items: center;
+  border: 1px solid var(--line-mid); border-radius: 50%;
+  background: rgba(7,7,11,.55); color: var(--text-2); cursor: pointer;
   transition: all var(--dur) var(--ease);
 }
-.ch-btn:hover { color: var(--teal); border-color: var(--teal-line); background: var(--teal-soft); }
-.ch-hint {
-  font-family: var(--font-mono); font-size: .6rem; letter-spacing: .14em;
-  color: var(--text-3); margin-top: .6rem;
+.stage-btn:hover { color: var(--teal); border-color: var(--teal-line); }
+.stage-count { font-size: .7rem; letter-spacing: .12em; color: var(--text-3); margin-left: .4rem; }
+
+.stage-intro { text-align: right; max-width: 30em; }
+.stage-intro h1 {
+  font-family: var(--font-body); font-weight: 500;
+  font-size: clamp(.95rem, 1.5vw, 1.08rem); line-height: 2; letter-spacing: .06em; color: var(--text);
+}
+.stage-intro h1 b { color: var(--teal); font-weight: 700; }
+.stage-intro p { font-size: .8rem; color: var(--text-3); margin-top: .3rem; }
+.stage-down {
+  display: inline-flex; align-items: center; gap: .5rem; margin-top: 1rem;
+  font-size: .78rem; color: var(--text-2); text-decoration: none;
+}
+.stage-down:hover { color: var(--teal); }
+
+@media (max-width: 760px) {
+  .stage { height: calc(100svh - 53px); }
+  .stage-in { grid-template-columns: 1fr; gap: 1.4rem; }
+  .stage-intro { text-align: left; order: -1; }
+  .stage-intro p, .stage-down { display: none; }
+  .stage-veil { background: linear-gradient(to top, rgba(7,7,11,.97) 0%, rgba(7,7,11,.6) 40%, rgba(7,7,11,.1) 70%); }
 }
 
-/* ===================== 統計ストリップ ===================== */
-.stats {
-  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1px; background: var(--line);
-  border-block: 1px solid var(--line);
+/* ===================== 目次 ===================== */
+.toc {
+  display: flex; flex-wrap: wrap; gap: .3rem 1.4rem;
+  padding-block: 1.4rem; border-bottom: 1px solid var(--line);
 }
-.stat { background: var(--ink-1); padding: 1.4rem var(--gutter); }
-.stat dt {
-  font-family: var(--font-mono); font-size: .62rem; letter-spacing: .22em;
-  color: var(--text-3); text-transform: uppercase;
-}
-.stat dd {
-  font-family: var(--font-display); font-weight: 700;
-  font-size: 1.7rem; margin-top: .3rem; letter-spacing: .02em;
-}
-.stat dd small { font-size: .5em; color: var(--text-3); font-weight: 500; margin-left: .3em; }
+.toc a { font-size: .8rem; color: var(--text-3); text-decoration: none; transition: color var(--dur) var(--ease); }
+.toc a:hover { color: var(--teal); }
+.toc .mono { font-size: .64rem; margin-right: .35rem; }
 
-/* ===================== 今日の1本 ===================== */
-.today-grid {
-  display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  gap: clamp(1.2rem, 3vw, 2.4rem); align-items: center;
-}
-@media (max-width: 820px) { .today-grid { grid-template-columns: 1fr; } }
-.today-media {
-  aspect-ratio: 16/9; overflow: hidden; border: 1px solid var(--line-mid);
-  border-radius: var(--radius); background: var(--ink-0);
-}
-.today-media video, .today-media img { width: 100%; height: 100%; object-fit: cover; }
-.today-grid h2 { font-size: clamp(1.6rem, 4vw, 2.4rem); margin-block: .7rem .8rem; letter-spacing: .04em; }
+/* ===================== お気に入り ===================== */
+.fav-room { padding-block: clamp(2.5rem, 6vw, 4rem) 0; }
+.fav-head { display: flex; align-items: baseline; gap: 1rem; margin-bottom: 1.4rem; }
+.fav-head h2 { font-family: var(--font-body); font-size: 1.15rem; letter-spacing: .06em; }
+.fav-head h2 i { color: var(--teal); font-size: .85rem; margin-right: .4rem; }
+.fav-head a { margin-left: auto; font-size: .78rem; color: var(--text-3); text-decoration: none; }
+.fav-head a:hover { color: var(--teal); }
 
-/* ===================== ログ ===================== */
-.logcard {
-  display: grid; grid-template-columns: auto 1fr; gap: 1.3rem;
-  padding: clamp(1.2rem, 3vw, 2rem);
-  background: var(--ink-2); border: 1px solid var(--line); border-radius: var(--radius);
-  border-left: 3px solid var(--echo-color);
+/* ===================== 日記と声 ===================== */
+.after {
+  display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  padding-block: clamp(3rem, 7vw, 5rem);
+  border-top: 1px solid var(--line);
 }
-.logcard.is-null { border-left-color: var(--null-color); }
-.logcard-who {
-  font-family: var(--font-mono); font-size: .7rem; letter-spacing: .16em;
-  writing-mode: vertical-rl; text-orientation: sideways;
-  color: var(--echo-color); padding-block: .2rem;
-}
-.logcard.is-null .logcard-who { color: var(--null-color); }
-.logcard-date { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .14em; color: var(--text-3); }
-.logcard p { margin-top: .7rem; color: var(--text); line-height: 2.05; }
+@media (max-width: 860px) { .after { grid-template-columns: 1fr; } }
+.after h2 { font-family: var(--font-body); font-size: 1.05rem; letter-spacing: .06em; }
+.after-sub { font-size: .8rem; color: var(--text-3); margin-top: .4rem; }
 
-/* ===================== フィードバック ===================== */
-.fb { display: grid; gap: .8rem; max-width: 640px; }
+.logline { display: block; margin-top: 1.3rem; text-decoration: none; padding-left: 1.1rem; border-left: 2px solid var(--echo-color); }
+.logline.is-null { border-left-color: var(--null-color); }
+.logline-who { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .12em; color: var(--echo-color); }
+.logline.is-null .logline-who { color: var(--null-color); }
+.logline-who span { color: var(--text-3); margin-left: .6rem; }
+.logline p { margin-top: .5rem; line-height: 2.05; color: var(--text); }
+.logline:hover p { color: var(--teal); }
+
+.fb { display: grid; gap: .8rem; margin-top: 1.3rem; }
 .fb textarea {
-  width: 100%; min-height: 110px; padding: .9rem 1rem; resize: vertical;
-  font-family: var(--font-body); font-size: .9rem; line-height: 1.9; color: var(--text);
-  background: var(--ink-2); border: 1px solid var(--line-mid); border-radius: var(--radius);
+  width: 100%; min-height: 96px; padding: .85rem 1rem; resize: vertical;
+  font-family: var(--font-body); font-size: .88rem; line-height: 1.9; color: var(--text);
+  background: var(--ink-1); border: 1px solid var(--line-mid); border-radius: var(--radius);
 }
 .fb textarea::placeholder { color: var(--text-3); }
-.fb-row { display: flex; align-items: center; gap: 1rem; }
+.fb-row { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .fb-note { font-size: .74rem; color: var(--text-3); }
 .fb-ok { color: var(--teal); font-size: .82rem; display: none; }
 .fb-ok.show { display: block; }
@@ -195,195 +180,104 @@ require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/nav.php';
 ?>
 
-<!-- ============================ HERO ============================ -->
-<section class="hero" id="hero">
-  <div class="hero-stage" id="stage">
+<!-- ============================ 入口 ============================ -->
+<section class="stage" id="stage" aria-label="今日の1本">
+  <?php if ($channels): ?>
+  <video id="heroVideo" muted loop playsinline autoplay preload="auto"
+         poster="<?php echo $channels[0]['jpg']; ?>" aria-hidden="true">
+    <source src="<?php echo $channels[0]['mp4']; ?>" type="video/mp4">
+  </video>
+  <?php endif; ?>
+  <div class="stage-veil"></div>
+
+  <div class="stage-in">
     <?php if ($channels): ?>
-      <video id="heroVideo" muted loop playsinline autoplay preload="auto"
-             poster="<?php echo $channels[0]['jpg']; ?>"
-             aria-hidden="true"></video>
-    <?php endif; ?>
-  </div>
-  <div class="hero-veil"></div>
-
-  <div class="ch" aria-hidden="true">
-    <div class="ch-num"><small>CH</small><span id="chNum">01</span></div>
-    <div class="ch-of">/ <?php echo count($channels); ?></div>
-  </div>
-
-  <div class="hero-in wrap">
-    <p class="eyebrow">Day <?php echo str_pad((string)$dayNumber, 3, '0', STR_PAD_LEFT); ?> &nbsp;·&nbsp; <?php echo str_replace('-', '.', $today); ?></p>
-    <h1 class="hero-mark">PULSE<span>.</span></h1>
-    <p class="hero-sub">
-      数式と規則が<b>動いているところ</b>だけを、<b class="nb"><?php echo $workCount; ?>本</b>。<br>
-      読まなくていい。触ればわかる。
-    </p>
-
-    <div class="hero-actions">
-      <a href="random.php" class="btn btn--primary"><i class="fa-solid fa-shuffle"></i> ランダムに1本ひらく</a>
-      <a href="contents.php" class="btn"><i class="fa-solid fa-grip"></i> <?php echo $workCount; ?>本を一覧で見る</a>
-    </div>
-
-    <?php if ($channels): ?>
-    <div class="now">
-      <div>
-        <div class="now-label" id="nowLabel">今日の1本</div>
-        <div class="now-title"><a href="<?php echo $channels[0]['p']; ?>.php" id="nowLink"><?php echo htmlspecialchars($channels[0]['t'], ENT_QUOTES, 'UTF-8'); ?></a></div>
-        <p class="now-desc" id="nowDesc"><?php echo htmlspecialchars($channels[0]['d'], ENT_QUOTES, 'UTF-8'); ?></p>
-        <p class="now-meta" id="nowMeta"><?php echo $channels[0]['e']; ?> — <?php echo $channels[0]['g']; ?></p>
+    <div>
+      <p class="stage-when"><span id="nowLabel">今日の1本</span><span class="mono" id="nowMeta"><?php echo htmlspecialchars($channels[0]['g'], ENT_QUOTES, 'UTF-8'); ?></span></p>
+      <h2 class="stage-title"><a href="<?php echo $channels[0]['p']; ?>.php" id="nowLink"><?php echo htmlspecialchars($channels[0]['t'], ENT_QUOTES, 'UTF-8'); ?></a></h2>
+      <p class="stage-desc" id="nowDesc"><?php echo htmlspecialchars($channels[0]['d'], ENT_QUOTES, 'UTF-8'); ?></p>
+      <div class="stage-actions">
+        <a class="btn btn--primary" id="chOpen" href="<?php echo $channels[0]['p']; ?>.php">ひらく <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
+        <button class="stage-btn" id="chPrev" type="button" aria-label="前の作品を映す"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+        <button class="stage-btn" id="chNext" type="button" aria-label="次の作品を映す"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
+        <span class="stage-count mono" aria-hidden="true"><span id="chNum">01</span> / <?php echo count($channels); ?></span>
       </div>
-      <div class="ch-ctrl">
-        <button class="ch-btn" id="chPrev" aria-label="前のチャンネル"><i class="fa-solid fa-chevron-left"></i></button>
-        <button class="ch-btn" id="chNext" aria-label="次のチャンネル"><i class="fa-solid fa-chevron-right"></i></button>
-        <a class="ch-btn" id="chOpen" href="<?php echo $channels[0]['p']; ?>.php" aria-label="このページをひらく" style="color:var(--teal);border-color:var(--teal-line)"><i class="fa-solid fa-arrow-right"></i></a>
-      </div>
-      <p class="ch-hint" style="flex:1 1 100%">← → でチャンネルを変える &nbsp;/&nbsp; ENTER でひらく</p>
     </div>
     <?php endif; ?>
+
+    <div class="stage-intro">
+      <h1>数式と規則が<b>動いているところ</b>だけを、<?php echo $workCount; ?>本。</h1>
+      <p>読まなくていい。触ればわかる。</p>
+      <a class="stage-down" href="#rooms"><?php echo count($rooms); ?>のコレクションを見る <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
+    </div>
   </div>
 </section>
 
-<!-- ============================ 統計 ============================ -->
-<dl class="stats">
-  <div class="stat"><dt>作品数</dt><dd><?php echo $workCount; ?><small>works</small></dd></div>
-  <div class="stat"><dt>コレクション</dt><dd>12<small>collections</small></dd></div>
-  <div class="stat"><dt>継続</dt><dd>Day <?php echo $dayNumber; ?></dd></div>
-  <div class="stat"><dt>更新</dt><dd>毎日<small>1本ずつ</small></dd></div>
-</dl>
-
 <main class="paper">
+  <div class="wrap">
 
-  <!-- ======================= 今日の1本 ======================= -->
-  <?php if ($pick): $pj = pulsePreview($pick['page'], 'jpg'); $pm = pulsePreview($pick['page'], 'mp4'); ?>
-  <section class="section today">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Today's pick</p>
-          <h2 class="h-md" style="margin-top:.6rem">今日の1本</h2>
-          <p class="muted" style="font-size:.84rem">日付で決まる1本です。明日はまた別のものになります。</p>
-        </div>
-        <a href="contents.php" class="btn btn--ghost">アーカイブ &rarr;</a>
+    <nav class="toc" aria-label="コレクション">
+      <?php $n = 0; foreach ($rooms as $key => $r): $n++; ?>
+        <a href="#<?php echo $key; ?>"><span class="mono"><?php echo str_pad((string)$n, 2, '0', STR_PAD_LEFT); ?></span><?php echo $r['col']['name']; ?></a>
+      <?php endforeach; ?>
+    </nav>
+
+    <section class="fav-room" id="favRoom" hidden aria-labelledby="favTitle">
+      <div class="fav-head">
+        <h2 id="favTitle"><i class="fa-solid fa-star" aria-hidden="true"></i>お気に入り</h2>
+        <a href="contents.php?fav=1">一覧で見る &rarr;</a>
       </div>
+      <div class="work-grid" id="favGrid"></div>
+    </section>
 
-      <div class="today-grid fade-in">
-        <a class="today-media" href="<?php echo $pick['page']; ?>.php">
-          <?php if ($pm): ?>
-          <video muted loop playsinline preload="none" poster="<?php echo $pj; ?>" data-lazyvideo
-                 data-mp4="<?php echo $pm; ?>"></video>
-          <?php elseif ($pj): ?><img src="<?php echo $pj; ?>" alt=""><?php endif; ?>
-        </a>
-        <div>
-          <p class="eyebrow eyebrow--muted"><?php echo $PULSE_COLLECTIONS[$pick['group']]['en'] ?? ''; ?> — <?php echo $PULSE_COLLECTIONS[$pick['group']]['name'] ?? ''; ?></p>
-          <h2><a href="<?php echo $pick['page']; ?>.php" style="text-decoration:none"><?php echo $pick['title']; ?></a></h2>
-          <p class="lede" style="font-size:.92rem"><?php echo $pick['desc']; ?></p>
-          <div style="display:flex;gap:.6rem;margin-top:1.4rem;flex-wrap:wrap">
-            <a href="<?php echo $pick['page']; ?>.php" class="btn btn--primary">ひらく</a>
-            <a href="random.php" class="btn">別のを見る</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-  <?php endif; ?>
-
-  <!-- ======================= 新着 ======================= -->
-  <section class="section section--tight">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">New</p>
-          <h2 class="h-md" style="margin-top:.6rem">最近ふえたもの</h2>
-        </div>
-        <a href="contents.php" class="btn btn--ghost">すべて &rarr;</a>
-      </div>
-
-      <div class="rail">
-        <?php foreach ($newWorks as $c):
-          $j = pulsePreview($c['page'], 'jpg'); $m = pulsePreview($c['page'], 'mp4'); ?>
-        <a class="tile" href="<?php echo $c['page']; ?>.php">
-          <div class="tile-media<?php echo $j ? '' : ' tile-media--empty'; ?>">
-            <?php if ($m): ?>
-              <video muted loop playsinline preload="none" poster="<?php echo $j; ?>" data-lazyvideo
-                     data-mp4="<?php echo $m; ?>"></video>
-            <?php else: ?><i class="fa-solid <?php echo $c['icon']; ?>"></i><?php endif; ?>
-          </div>
-          <div class="tile-body">
-            <div class="tile-title"><?php echo $c['title']; ?><?php if (!empty($c['isNew'])): ?><span class="badge badge--new">NEW</span><?php endif; ?></div>
-            <p class="tile-desc"><?php echo $c['desc']; ?></p>
-            <div class="tile-foot">
-              <span><?php echo $PULSE_COLLECTIONS[$c['group']]['en'] ?? ''; ?></span>
-              <span><?php echo str_replace('-', '.', $c['added'] ?? ''); ?></span>
-            </div>
-          </div>
-        </a>
-        <?php endforeach; ?>
-      </div>
-    </div>
-  </section>
-
-  <!-- ======================= コレクション ======================= -->
-  <section class="section">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Collections</p>
-          <h2 class="h-lg" style="margin-top:.6rem">見たい気分から入る</h2>
-          <p class="muted" style="margin-top:.6rem;font-size:.86rem;max-width:52ch">
-            <?php echo $workCount; ?>本を、分野の名前ではなく「何が起きるか」で12に分けました。
+    <div id="rooms">
+      <?php $n = 0; foreach ($rooms as $key => $r): $n++; $col = $r['col']; ?>
+      <section class="room" id="<?php echo $key; ?>" aria-labelledby="room-<?php echo $key; ?>">
+        <div class="room-head">
+          <p class="room-no"><b><?php echo str_pad((string)$n, 2, '0', STR_PAD_LEFT); ?></b> / <?php echo str_pad((string)count($rooms), 2, '0', STR_PAD_LEFT); ?></p>
+          <h2 class="room-name" id="room-<?php echo $key; ?>"><?php echo $col['name']; ?></h2>
+          <p class="room-promise"><?php echo $col['promise']; ?></p>
+          <p class="room-links">
+            <a href="random.php?g=<?php echo $key; ?>"><i class="fa-solid fa-shuffle" aria-hidden="true"></i> この中から1本</a>
           </p>
         </div>
-      </div>
-
-      <div class="collections fade-in">
-        <?php foreach ($PULSE_COLLECTIONS as $key => $col):
-          $items = pulseByCollection($worksByNew, $key);
-          if (!$items) continue;
-          $thumbs = array_slice($items, 0, 3); ?>
-        <a class="collection" href="contents.php?g=<?php echo $key; ?>#<?php echo $key; ?>">
-          <span class="collection-key">
-            <span><i class="fa-solid <?php echo $col['icon']; ?>" aria-hidden="true"></i> <?php echo $col['en']; ?></span>
-            <span><?php echo count($items); ?></span>
-          </span>
-          <span class="collection-name"><?php echo $col['name']; ?></span>
-          <span class="collection-promise"><?php echo $col['promise']; ?></span>
-          <span class="collection-strip">
-            <?php foreach ($thumbs as $t): $tj = pulsePreview($t['page'], 'jpg'); ?>
-              <?php if ($tj): ?><img src="<?php echo $tj; ?>" alt="" loading="lazy" decoding="async"><?php endif; ?>
-            <?php endforeach; ?>
-          </span>
-        </a>
-        <?php endforeach; ?>
-      </div>
-    </div>
-  </section>
-
-  <!-- ======================= ログ ======================= -->
-  <?php
-    $isEcho = (($latestLog['author'] ?? 'ECHO') === 'ECHO');
-    $dayStr = str_pad((string)($latestLog['day'] ?? 0), 3, '0', STR_PAD_LEFT);
-  ?>
-  <section class="section section--tight">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Daily log</p>
-          <h2 class="h-md" style="margin-top:.6rem">その日つくったものの話</h2>
+        <div class="room-grid">
+          <?php echo pulseWorkTile($r['feature'], ['big' => true, 'autoplay' => true]); ?>
+          <?php foreach ($r['rest'] as $c) echo pulseWorkTile($c, ['sub' => false]); ?>
         </div>
-        <a href="log.php" class="btn btn--ghost">ログ全部 &rarr;</a>
-      </div>
-
-      <a href="log.php" class="logcard fade-in <?php echo $isEcho ? '' : 'is-null'; ?>" style="text-decoration:none">
-        <span class="logcard-who"><?php echo htmlspecialchars($latestLog['author'] ?? ''); ?></span>
-        <span>
-          <span class="logcard-date">Day <?php echo $dayStr; ?> &nbsp;·&nbsp; <?php echo htmlspecialchars($latestLog['date'] ?? ''); ?></span>
-          <p><?php echo htmlspecialchars($latestLog['preview'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
-        </span>
-      </a>
+      </section>
+      <?php endforeach; ?>
     </div>
-  </section>
 
-  <!-- ======================= 広告 ======================= -->
+    <?php
+      $isEcho = (($latestLog['author'] ?? 'ECHO') === 'ECHO');
+      $dayStr = str_pad((string)($latestLog['day'] ?? 0), 3, '0', STR_PAD_LEFT);
+    ?>
+    <section class="after">
+      <div>
+        <h2>その日つくったものの話</h2>
+        <a href="log.php" class="logline <?php echo $isEcho ? '' : 'is-null'; ?>">
+          <span class="logline-who"><?php echo htmlspecialchars($latestLog['author'] ?? ''); ?><span>Day <?php echo $dayStr; ?> · <?php echo htmlspecialchars($latestLog['date'] ?? ''); ?></span></span>
+          <p><?php echo htmlspecialchars($latestLog['preview'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
+        </a>
+      </div>
+      <div id="feedback">
+        <h2>見たいものを教えてください</h2>
+        <p class="after-sub">「こういう現象を見たい」「あのページのここが分かりにくい」、どちらも歓迎です。</p>
+        <form class="fb" id="feedbackForm">
+          <textarea id="feedbackMessage" required aria-label="見たいもの・気になったこと"
+            placeholder="例：three-body の軌道が見たい / SORT の速度を落としたい"></textarea>
+          <div class="fb-row">
+            <button type="submit" class="btn btn--primary" id="feedbackSubmit">送る</button>
+            <span class="fb-note">返信はできませんが、全部読んでいます。</span>
+          </div>
+          <p class="fb-ok" id="feedbackSuccess">受け取りました。ありがとうございます。</p>
+        </form>
+      </div>
+    </section>
+
+  </div>
+
   <div class="wrap ad-slot">
     <div class="ad-label">AD</div>
     <ins class="adsbygoogle" style="display:block"
@@ -393,137 +287,82 @@ require_once __DIR__ . '/includes/nav.php';
          data-full-width-responsive="true"></ins>
     <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
   </div>
-
-  <!-- ======================= フィードバック ======================= -->
-  <section class="section section--tight" id="feedback">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Feedback</p>
-          <h2 class="h-md" style="margin-top:.6rem">見たいものを教えてください</h2>
-          <p class="muted" style="margin-top:.6rem;font-size:.84rem">
-            「こういう現象を見たい」「あのページのここが分かりにくい」——どちらも歓迎です。
-          </p>
-        </div>
-      </div>
-
-      <form class="fb" id="feedbackForm">
-        <textarea id="feedbackMessage" required
-          placeholder="例：three-body の軌道が見たい / SORT の速度を落としたい"></textarea>
-        <div class="fb-row">
-          <button type="submit" class="btn btn--primary" id="feedbackSubmit">
-            <i class="fa-solid fa-paper-plane"></i> 送る
-          </button>
-          <span class="fb-note">返信はできませんが、全部読んでいます。</span>
-        </div>
-        <p class="fb-ok" id="feedbackSuccess"><i class="fa-solid fa-check"></i> 受け取りました。ありがとうございます。</p>
-      </form>
-    </div>
-  </section>
-
 </main>
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
 <script>
-/* ---------- 画面に入ったものだけ動かす ---------- */
-(function () {
-  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  function revealAll() {
-    document.querySelectorAll('.fade-in').forEach(function (el) { el.classList.add('visible'); });
-  }
-
-  if (!('IntersectionObserver' in window) || reduce) {
-    revealAll();
-  } else {
-    var seen = false;
-    var io = new IntersectionObserver(function (es) {
-      seen = true;
-      es.forEach(function (e) { if (e.isIntersecting) e.target.classList.add('visible'); });
-    }, { threshold: 0.08 });
-    document.querySelectorAll('.fade-in').forEach(function (el) { io.observe(el); });
-    /* 監視が動かない環境（バックグラウンドタブ・全画面キャプチャ・一部のクローラ）で
-       スクロールしていない部分が消えたままにならないよう、少し待ったら全部出す。
-       以前は「一度も監視が動かなかった時だけ」だったため、今日の1本が空白で撮られていた */
-    setTimeout(revealAll, seen ? 3200 : 2500);
-  }
-
-  if (reduce) return;
-  var vio = new IntersectionObserver(function (es) {
-    es.forEach(function (e) {
-      var v = e.target;
-      if (e.isIntersecting) {
-        if (!v.dataset.loaded) {
-          v.dataset.loaded = '1';
-          if (v.dataset.mp4) { var b = document.createElement('source'); b.src = v.dataset.mp4; b.type = 'video/mp4'; v.appendChild(b); }
-          v.load();
-        }
-        var p = v.play(); if (p && p.catch) p.catch(function () {});
-      } else if (!v.paused) { v.pause(); }
-    });
-  }, { rootMargin: '140px 0px' });
-  document.querySelectorAll('video[data-lazyvideo]').forEach(function (v) { vio.observe(v); });
-})();
-
-/* ---------- PULSE CHANNEL ---------- */
+/* ---------- 入口：今日の1本から始めて、ほかの作品も映せる ---------- */
 (function () {
   var CH = <?php echo json_encode($channels, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
   if (!CH.length) return;
-
   var video = document.getElementById('heroVideo');
   var stage = document.getElementById('stage');
   var i = 0, timer = null, touched = false;
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function (id) { return document.getElementById(id); };
 
-  var els = {
-    num: document.getElementById('chNum'),
-    label: document.getElementById('nowLabel'),
-    link: document.getElementById('nowLink'),
-    desc: document.getElementById('nowDesc'),
-    meta: document.getElementById('nowMeta'),
-    open: document.getElementById('chOpen')
-  };
-
-  function render(n, immediate) {
+  function render(n) {
     i = (n + CH.length) % CH.length;
     var c = CH[i];
     stage.classList.add('is-switching');
-    video.innerHTML = '';
-    var b = document.createElement('source'); b.src = c.mp4; b.type = 'video/mp4'; video.appendChild(b);
-    if (c.jpg) video.poster = c.jpg;
-    video.load();
-    var p = video.play(); if (p && p.catch) p.catch(function () {});
-    setTimeout(function () { stage.classList.remove('is-switching'); }, immediate ? 0 : 220);
-
-    els.num.textContent = String(i + 1).padStart(2, '0');
-    els.label.textContent = (i === 0 && !touched) ? '今日の1本' : 'いま映っているもの';
-    els.link.textContent = c.t;
-    els.link.href = c.p + '.php';
-    els.desc.textContent = c.d;
-    els.meta.textContent = c.e + ' — ' + c.g;
-    els.open.href = c.p + '.php';
+    setTimeout(function () {
+      video.innerHTML = '';
+      var s = document.createElement('source'); s.src = c.mp4; s.type = 'video/mp4'; video.appendChild(s);
+      if (c.jpg) video.poster = c.jpg;
+      video.load();
+      var p = video.play(); if (p && p.catch) p.catch(function () {});
+      stage.classList.remove('is-switching');
+    }, 260);
+    $('chNum').textContent = String(i + 1).padStart(2, '0');
+    $('nowLabel').textContent = (i === 0 && !touched) ? '今日の1本' : 'いま映っているもの';
+    $('nowMeta').textContent = c.g;
+    $('nowLink').textContent = c.t;
+    $('nowLink').href = $('chOpen').href = c.p + '.php';
+    $('nowDesc').textContent = c.d;
   }
-
-  function step(d) { touched = true; render(i + d); schedule(); }
   function schedule() {
     clearTimeout(timer);
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    timer = setTimeout(function () { render(i + 1); schedule(); }, 8000);
+    if (reduce) return;
+    timer = setTimeout(function () { render(i + 1); schedule(); }, 12000);
   }
-
-  document.getElementById('chPrev').addEventListener('click', function () { step(-1); });
-  document.getElementById('chNext').addEventListener('click', function () { step(1); });
-
+  function step(d) { touched = true; render(i + d); schedule(); }
+  $('chPrev').addEventListener('click', function () { step(-1); });
+  $('chNext').addEventListener('click', function () { step(1); });
   document.addEventListener('keydown', function (e) {
     var t = e.target.tagName;
-    if (t === 'INPUT' || t === 'TEXTAREA') return;
+    if (t === 'INPUT' || t === 'TEXTAREA' || scrollY > innerHeight * 0.6) return;
     if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
     else if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
-    else if (e.key === 'Enter' && scrollY < innerHeight * 0.7) { location.href = CH[i].p + '.php'; }
+    else if (e.key === 'Enter') { location.href = CH[i].p + '.php'; }
   });
-
-  render(0, true);
   schedule();
+})();
+
+/* ---------- お気に入り：コレクションの中のタイルを写して並べる ---------- */
+(function () {
+  var room = document.getElementById('favRoom');
+  var grid = document.getElementById('favGrid');
+  function render() {
+    if (!window.PULSE || !PULSE.fav) return;
+    var list = PULSE.fav.list();
+    grid.innerHTML = '';
+    list.forEach(function (p) {
+      var src = document.querySelector('#rooms .work[data-page="' + p + '"]');
+      if (!src) return;
+      var t = src.cloneNode(true);
+      t.classList.remove('work--big');
+      delete t.dataset.bound;
+      var v = t.querySelector('video');
+      if (v) { v.removeAttribute('data-autoplay'); delete v.dataset.loaded; v.innerHTML = ''; }
+      t.querySelectorAll('.work-desc, .work-goal').forEach(function (x) { x.remove(); });
+      grid.appendChild(t);
+    });
+    room.hidden = grid.children.length === 0;
+    PULSE.tiles(grid);
+  }
+  document.addEventListener('DOMContentLoaded', render);
+  document.addEventListener('pulse:fav', render);
 })();
 
 /* ---------- フィードバック ---------- */
@@ -535,23 +374,23 @@ require_once __DIR__ . '/includes/nav.php';
     var msg = document.getElementById('feedbackMessage');
     var btn = document.getElementById('feedbackSubmit');
     var ok = document.getElementById('feedbackSuccess');
-    var html = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 送信中';
+    btn.textContent = '送信中';
     try {
       var res = await fetch('api/feedback.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: msg.value, page: 'index' })
       });
-      if (res.ok) { msg.value = ''; ok.classList.add('show'); setTimeout(function () { ok.classList.remove('show'); }, 6000); }
-      else { ok.textContent = '送れませんでした。時間をおいてもう一度お願いします。'; ok.classList.add('show'); }
+      if (res.ok) { msg.value = ''; ok.textContent = '受け取りました。ありがとうございます。'; }
+      else { ok.textContent = '送れませんでした。時間をおいてもう一度お願いします。'; }
     } catch (err) {
       ok.textContent = '通信に失敗しました。';
-      ok.classList.add('show');
     }
+    ok.classList.add('show');
+    setTimeout(function () { ok.classList.remove('show'); }, 6000);
     btn.disabled = false;
-    btn.innerHTML = html;
+    btn.textContent = '送る';
   });
 })();
 </script>

@@ -28,8 +28,8 @@ $_footCollections = array_slice(array_keys($PULSE_COLLECTIONS), 0, 6);
         <h4>サイト</h4>
         <ul>
           <li><a href="index.php">ホーム</a></li>
-          <li><a href="contents.php">アーカイブ（全<?php echo $_workCount; ?>本）</a></li>
-          <li><a href="log.php">デイリーログ</a></li>
+          <li><a href="contents.php">作品をさがす（全<?php echo $_workCount; ?>本）</a></li>
+          <li><a href="log.php">日記</a></li>
           <li><a href="about.php">PULSE について</a></li>
           <li><a href="random.php">ランダムに1本</a></li>
         </ul>
@@ -39,9 +39,9 @@ $_footCollections = array_slice(array_keys($PULSE_COLLECTIONS), 0, 6);
         <h4>コレクション</h4>
         <ul>
           <?php foreach ($_footCollections as $k): ?>
-            <li><a href="contents.php#<?php echo $k; ?>"><?php echo $PULSE_COLLECTIONS[$k]['name']; ?></a></li>
+            <li><a href="index.php#<?php echo $k; ?>"><?php echo $PULSE_COLLECTIONS[$k]['name']; ?></a></li>
           <?php endforeach; ?>
-          <li><a href="contents.php" class="mono" style="font-size:.72rem;letter-spacing:.1em">ALL 12 &rarr;</a></li>
+          <li><a href="index.php#rooms">12 のコレクションすべて &rarr;</a></li>
         </ul>
       </div>
 

@@ -1,5 +1,5 @@
 /* =========================================================================
-   PULSE Design System  —  2026-08 リフォーム版
+   PULSE Design System  —  2026-10 展示室版（2026-08 リフォーム版を下敷きにしている）
    ここがサイト全体の唯一の基準。ページ側の $extraStyle はここを上書きせず、
    ここに無いページ固有の装飾だけを足すこと。
    ========================================================================= */
@@ -92,15 +92,11 @@ a { color: inherit; }
 
 img, video { max-width: 100%; display: block; }
 
-/* ------------------------------------------------------------ 方眼の地色 */
-/* 実験ノートの方眼。主張しない濃度で、暗闇に「面」があることだけ伝える。 */
+/* ---------------------------------------------------------------- 地 */
+/* 2026-10: 方眼をやめた。作品の映像だけが光って見えるよう、地は暗いまま置く。 */
 .paper {
   position: relative;
-  background-color: var(--ink-1);
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
-  background-size: 44px 44px;
+  background-color: var(--ink-0);
 }
 .paper::after {
   /* 粒状ノイズ。平坦なダークUIの「のっぺり」を殺す */
@@ -133,27 +129,18 @@ h1, h2, h3 {
 .h-md { font-size: clamp(1.2rem, 2.6vw, 1.55rem); }
 .h-sm { font-size: clamp(1rem, 2vw, 1.15rem); }
 
-/* 計測ラベル。セクション見出しの上に置く小さなモノスペース */
+/* 見出しの上に置く小さな札。英字の飾り見出しには使わない（日本語か、日付・番号だけ） */
 .eyebrow {
   display: flex;
   align-items: center;
-  gap: 0.7rem;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
+  gap: 0.6rem;
+  font-family: var(--font-body);
+  font-size: 0.74rem;
   font-weight: 500;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: var(--teal);
-}
-.eyebrow::before {
-  content: '';
-  width: 22px;
-  height: 1px;
-  background: var(--teal);
-  flex: none;
+  letter-spacing: 0.08em;
+  color: var(--text-3);
 }
 .eyebrow--muted { color: var(--text-3); }
-.eyebrow--muted::before { background: var(--text-3); }
 
 .mono {
   font-family: var(--font-mono);
@@ -463,7 +450,7 @@ h1, h2, h3 {
   position: sticky;
   top: 0;
   z-index: 900;
-  background: rgba(10, 10, 15, 0.82);
+  background: rgba(7, 7, 11, 0.86);
   backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--line);
 }
@@ -503,10 +490,9 @@ h1, h2, h3 {
 .site-nav { display: flex; align-items: center; gap: 0.35rem; }
 .site-nav a {
   padding: 0.5rem 0.85rem;
-  font-family: var(--font-mono);
-  font-size: 0.73rem;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
   color: var(--text-2);
   text-decoration: none;
   border-radius: var(--radius);
@@ -519,7 +505,7 @@ h1, h2, h3 {
   .site-head-in { gap: 0.5rem; }
   .wordmark { letter-spacing: 0.2em; font-size: 0.95rem; }
   .site-nav { gap: 0.1rem; }
-  .site-nav a { padding: 0.45rem 0.5rem; font-size: 0.66rem; letter-spacing: 0.08em; }
+  .site-nav a { padding: 0.45rem 0.5rem; font-size: 0.74rem; letter-spacing: 0.02em; }
 }
 
 /* ------------------------------------------------------------- フッター */
@@ -534,11 +520,10 @@ h1, h2, h3 {
   gap: 2rem;
 }
 .foot-col h4 {
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-family: var(--font-body);
+  font-size: 0.74rem;
   font-weight: 500;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
+  letter-spacing: 0.08em;
   color: var(--text-3);
   margin-bottom: 0.9rem;
 }
@@ -599,6 +584,204 @@ h1, h2, h3 {
   }
   .fade-in { opacity: 1; transform: none; }
 }
+
+/* ============================================================ 展示室 (2026-10) */
+/* 作品の映像を主役にする。文字は札（キャプション）程度に抑える。 */
+
+/* ---------------------------------------------------------- 作品タイル */
+.work {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+.work[hidden] { display: none; }
+.work-media {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  background: var(--ink-1);
+  overflow: hidden;
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px var(--line);
+  transition: box-shadow var(--dur) var(--ease);
+}
+.work-media video,
+.work-noimg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.8;
+  transition: opacity 0.45s var(--ease);
+}
+.work-noimg { display: grid; place-items: center; color: var(--text-3); font-size: 1.6rem; }
+.work:hover .work-media,
+.work:focus-within .work-media { box-shadow: 0 0 0 1px var(--teal-line); }
+.work:hover .work-media video,
+.work:focus-within .work-media video { opacity: 1; }
+
+.work-cap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+  text-decoration: none;
+  color: var(--text);
+}
+.work-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.86rem;
+  letter-spacing: 0.08em;
+  transition: color var(--dur) var(--ease);
+}
+.work:hover .work-title,
+.work-cap:focus-visible .work-title { color: var(--teal); }
+.work-marks { display: inline-flex; gap: 0.3rem; }
+.work-sub { font-size: 0.72rem; color: var(--text-3); margin-top: -0.35rem; }
+.work-desc { font-size: 0.86rem; line-height: 1.95; color: var(--text-2); max-width: 44ch; }
+.work-goal {
+  font-size: 0.78rem;
+  color: var(--violet-lit);
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+}
+.work-goal::before { content: '挑戦'; font-size: 0.66rem; padding: 0 0.35rem; border: 1px solid currentColor; border-radius: 2px; flex: none; }
+.work.is-cleared .work-goal { color: var(--teal); }
+.work.is-cleared .work-goal::before { content: '達成'; }
+
+.work--big .work-title { font-size: clamp(1.05rem, 2vw, 1.35rem); }
+
+.wk-mark {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  padding: 0.25rem 0.38rem;
+  border-radius: 2px;
+  border: 1px solid var(--line-mid);
+  color: var(--text-3);
+}
+.wk-mark--new { background: var(--teal); border-color: var(--teal); color: var(--ink-0); font-weight: 700; }
+.wk-mark--challenge { font-family: var(--font-body); color: var(--violet-lit); border-color: rgba(181, 140, 255, 0.4); }
+.wk-mark--cleared { font-family: var(--font-body); color: var(--teal); border-color: var(--teal-line); display: none; }
+.work.is-cleared .wk-mark--challenge { display: none; }
+.work.is-cleared .wk-mark--cleared { display: inline-block; }
+
+/* お気に入り。ホバーで出す。入れたものは常に出しておく */
+.work-fav {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(7, 7, 11, 0.72);
+  color: var(--text-2);
+  font-size: 0.82rem;
+  cursor: pointer;
+  opacity: 0;
+  transform: scale(0.85);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.work-fav .fa-solid { display: none; }
+.work:hover .work-fav,
+.work-fav:focus-visible { opacity: 1; transform: none; }
+.work-fav:hover { color: var(--teal); }
+.work.is-fav .work-fav { opacity: 1; transform: none; color: var(--teal); }
+.work.is-fav .work-fav .fa-solid { display: inline; }
+.work.is-fav .work-fav .fa-regular { display: none; }
+@media (hover: none) {
+  .work-fav { opacity: 0.85; transform: none; }
+}
+
+/* 一覧用のグリッド */
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: clamp(1.4rem, 3vw, 2.2rem) clamp(0.8rem, 1.6vw, 1.2rem);
+}
+
+/* ------------------------------------------------- コレクションの並び */
+.room {
+  display: grid;
+  grid-template-columns: minmax(190px, 270px) minmax(0, 1fr);
+  gap: clamp(1.5rem, 4vw, 4.5rem);
+  padding-block: clamp(3rem, 7vw, 5.5rem);
+  border-top: 1px solid var(--line);
+  scroll-margin-top: 60px;
+}
+.room-head { position: sticky; top: 84px; align-self: start; }
+.room-no {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  color: var(--text-3);
+}
+.room-no b { color: var(--teal); font-weight: 500; }
+.room-name {
+  margin-top: 0.7rem;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: clamp(1.45rem, 2.6vw, 2rem);
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+}
+.room-promise { margin-top: 0.9rem; font-size: 0.86rem; line-height: 2; color: var(--text-2); }
+.room-links { margin-top: 1.4rem; display: grid; gap: 0.35rem; }
+.room-links a {
+  font-size: 0.78rem;
+  color: var(--text-3);
+  text-decoration: none;
+  transition: color var(--dur) var(--ease);
+}
+.room-links a:hover { color: var(--teal); }
+
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-flow: dense;
+  gap: clamp(1.3rem, 2.4vw, 1.9rem) clamp(0.7rem, 1.4vw, 1.1rem);
+  align-content: start;
+}
+.room-grid .work--big { grid-column: 1 / span 2; grid-row: span 2; }
+.work--big .work-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.room:nth-of-type(even) .room-grid .work--big { grid-column: 3 / span 2; }
+
+@media (max-width: 960px) {
+  .room { grid-template-columns: 1fr; }
+  .room-head { position: static; }
+  .room-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .room-grid .work--big,
+  .room:nth-of-type(even) .room-grid .work--big { grid-column: 1 / -1; grid-row: auto; }
+}
+
+/* ---------------------------------------------------------- トースト */
+.pulse-toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(6.2rem + var(--pulse-ad-h, 0px));
+  z-index: 9700;
+  transform: translate(-50%, 10px);
+  padding: 0.7rem 1.1rem;
+  font-size: 0.82rem;
+  color: var(--text);
+  background: rgba(13, 13, 19, 0.96);
+  border: 1px solid var(--line-mid);
+  border-radius: var(--radius);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+}
+.pulse-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+.pulse-toast.is-clear { border-color: var(--teal-line); color: var(--teal); }
+
 
 /* ------------------------------------------- 旧テンプレ互換（段階的撤去） */
 footer:not(.site-foot) {

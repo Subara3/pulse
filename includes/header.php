@@ -131,14 +131,15 @@ if (isset($pageName) && !in_array($pageName, ['index', 'about', 'contents'])) {
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 
 <!-- PULSE デザインシステム（唯一の基準。ページ固有の装飾は $extraStyle へ） -->
-<link href="<?php echo $basePath; ?>css/pulse.css?v=20260825" rel="stylesheet">
+<link href="<?php echo $basePath; ?>css/pulse.css?v=20261004" rel="stylesheet">
+<script src="<?php echo $basePath; ?>js/pulse-kit.js?v=20261004" defer></script>
 <noscript><style>.fade-in{opacity:1!important;transform:none!important}</style></noscript>
 <?php if (isset($extraHead)) echo $extraHead; ?>
 
 <?php if ($isPreview): ?>
 <style>
 /* Embedded live-preview mode */
-.floating-nav, nav, header, footer, .info, .hud, .controls, .content-controls, .drawer-controls,
+.floating-nav, nav, header, footer, .info, .hud, .interaction-hints, .pulse-toast, .controls, .content-controls, .drawer-controls,
 #controls, .ui, .ad-section, .ad-container, .share-buttons, .feedback-section {
   display: none !important;
 }

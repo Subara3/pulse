@@ -436,7 +436,7 @@ function updatePlayState() {
   var el = document.getElementById('h-state');
   if (filled === sites.length && conflicts === 0) {
     el.textContent = 'YOU DID IT · ' + taps + ' TAPS';
-    if (!playDone) { playDone = true; SFX.play('complete'); }
+    if (!playDone) { playDone = true; SFX.play('complete'); if (window.PULSE) PULSE.clear(); }
   } else {
     playDone = false;
     el.textContent = 'PAINT ' + filled + '/' + sites.length + (conflicts ? ' · ' + conflicts + ' CLASH' : '');

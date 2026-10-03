@@ -1,10 +1,14 @@
 <?php
 /**
- * 全画面Canvasページ用のフローティングナビ。
+ * 全画面Canvasページ用のナビ（左下のプレート）。
  *
- * 方針: 1本見たあと「次の1本」に必ず辿り着けること。
- *  - HOME / SHUFFLE は従来どおり
- *  - メニューを開くと「同じコレクションの隣のもの」をサムネ付きで出す
+ * 2026-10 展示室版。丸ボタンの縦列をやめ、作品の札のように 1 枚にまとめた。
+ *  - 作品名とコレクション、コレクション内の前後
+ *  - お気に入り / この状態を共有 / ランダム / 音（audio-consent.php が #fnActions に差し込む）
+ *  - メニューを開くと同じコレクションの全作品とサイト内リンク
+ * 狭い画面では作品名とメニューだけを出し、ほかの操作はメニューの中に入れる。
+ *
+ * お気に入り・達成・共有の中身は js/pulse-kit.js。ここでは PULSE.page を置くだけ。
  */
 require_once __DIR__ . '/contents-data.php';
 
@@ -16,52 +20,71 @@ foreach ($allContents as $c) {
 }
 $_navGroup = $_navCurrent['group'] ?? '';
 $_navGroupLabel = $PULSE_COLLECTIONS[$_navGroup]['name'] ?? '';
-$_navGroupEn = $PULSE_COLLECTIONS[$_navGroup]['en'] ?? '';
 
-// 同じコレクションから6本
-$_siblings = [];
-if ($_navGroup) {
-    $_siblings = pulseByCollection($_navPool, $_navGroup);
-    shuffle($_siblings);
-    $_siblings = array_slice($_siblings, 0, 6);
-}
+// 同じコレクションの全作品（トップ・アーカイブと同じ新しい順）
+$_siblings = $_navGroup ? pulseByCollection($worksByNew, $_navGroup) : [];
+$_pos = 0;
+foreach ($_siblings as $i => $s) { if ($s['page'] === $_navSelf) { $_pos = $i; break; } }
+$_n = count($_siblings);
+$_prev = $_n > 1 ? $_siblings[($_pos - 1 + $_n) % $_n] : null;
+$_next = $_n > 1 ? $_siblings[($_pos + 1) % $_n] : null;
 $_navPages = array_map(fn($c) => $c['page'], $_navPool);
+$_h = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
+$_challenge = $_navCurrent['challenge'] ?? '';
 ?>
+<script>window.PULSE = window.PULSE || {}; PULSE.page = <?php echo json_encode($_navSelf); ?>;</script>
 
 <div class="floating-nav" id="floatingNav">
-  <a href="index.php" class="float-btn float-back" title="ホームへ" aria-label="ホームへ">
-    <i class="fa-solid fa-house"></i>
+  <a href="index.php<?php echo $_navGroup ? '#' . $_navGroup : ''; ?>" class="fn-home" aria-label="PULSE トップへ" title="PULSE トップへ">
+    <span class="fn-dot" aria-hidden="true"></span>
   </a>
-  <button class="float-btn float-random" id="randomBtn" title="ランダムに次の1本" aria-label="ランダムに次の1本">
-    <i class="fa-solid fa-shuffle"></i>
-  </button>
-  <button class="float-btn float-menu" id="floatMenuBtn" title="ほかのページ" aria-label="ほかのページ" aria-expanded="false">
-    <i class="fa-solid fa-ellipsis"></i>
-  </button>
 
-  <div class="float-panel" id="floatSubmenu" role="dialog" aria-label="ほかのページ">
-    <?php if ($_navCurrent): ?>
-    <div class="fp-head">
-      <span class="fp-en"><?php echo $_navGroupEn; ?></span>
-      <span class="fp-ja"><?php echo $_navGroupLabel; ?></span>
+  <div class="fn-label">
+    <span class="fn-title"><?php echo $_h($_navCurrent['title'] ?? strtoupper($_navSelf)); ?><i class="fa-solid fa-check fn-clear" aria-label="達成済み" hidden></i></span>
+    <?php if ($_navGroup): ?>
+    <span class="fn-sub"><?php echo $_h($_navGroupLabel); ?> <span class="fn-pos"><?php echo $_pos + 1; ?> / <?php echo $_n; ?></span></span>
+    <?php endif; ?>
+  </div>
+
+  <div class="fn-actions" id="fnActions">
+    <?php if ($_prev): ?>
+    <a class="float-btn fn-wide" href="<?php echo $_h($_prev['page']); ?>.php" title="前：<?php echo $_h($_prev['title']); ?>" aria-label="前の作品 <?php echo $_h($_prev['title']); ?>"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></a>
+    <a class="float-btn fn-wide" href="<?php echo $_h($_next['page']); ?>.php" title="次：<?php echo $_h($_next['title']); ?>" aria-label="次の作品 <?php echo $_h($_next['title']); ?>"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></a>
+    <?php endif; ?>
+    <span class="fn-sep fn-wide" aria-hidden="true"></span>
+    <button class="float-btn fn-wide" type="button" data-act="fav" aria-pressed="false" title="お気に入り" aria-label="お気に入りに入れる"><i class="fa-regular fa-star" aria-hidden="true"></i></button>
+    <button class="float-btn fn-wide" type="button" data-act="share" title="この状態を共有" aria-label="この状態のリンクを共有"><i class="fa-solid fa-link" aria-hidden="true"></i></button>
+    <button class="float-btn fn-wide" type="button" data-act="random" title="ランダムに次の1本" aria-label="ランダムに次の1本"><i class="fa-solid fa-shuffle" aria-hidden="true"></i></button>
+    <button class="float-btn" type="button" id="floatMenuBtn" title="同じコレクションの作品" aria-label="同じコレクションの作品" aria-expanded="false" aria-controls="floatSubmenu"><i class="fa-solid fa-grip" aria-hidden="true"></i></button>
+  </div>
+
+  <div class="float-panel" id="floatSubmenu" role="dialog" aria-label="同じコレクションの作品">
+    <div class="fp-acts" aria-label="この作品">
+      <button type="button" data-act="fav" aria-pressed="false"><i class="fa-regular fa-star" aria-hidden="true"></i><span>お気に入り</span></button>
+      <button type="button" data-act="share"><i class="fa-solid fa-link" aria-hidden="true"></i><span>共有</span></button>
+      <button type="button" data-act="random"><i class="fa-solid fa-shuffle" aria-hidden="true"></i><span>ランダム</span></button>
     </div>
+
+    <?php if ($_challenge): ?>
+    <p class="fp-goal" id="fpGoal"><span class="fp-goal-tag">挑戦</span><?php echo $_h($_challenge); ?></p>
     <?php endif; ?>
 
     <?php if ($_siblings): ?>
+    <p class="fp-head"><?php echo $_h($_navGroupLabel); ?></p>
     <div class="fp-list">
-      <?php foreach ($_siblings as $s): $t = pulsePreview($s['page'], 'jpg'); ?>
-      <a class="fp-item" href="<?php echo $s['page']; ?>.php">
-        <?php if ($t): ?><img src="<?php echo $t; ?>" alt="" loading="lazy" decoding="async"><?php else: ?><span class="fp-noimg"></span><?php endif; ?>
-        <span class="fp-name"><?php echo htmlspecialchars($s['title'], ENT_QUOTES, 'UTF-8'); ?></span>
+      <?php foreach ($_siblings as $s): $t = pulsePreview($s['page'], 'jpg'); $me = $s['page'] === $_navSelf; ?>
+      <a class="fp-item<?php echo $me ? ' is-current' : ''; ?>" href="<?php echo $_h($s['page']); ?>.php"<?php echo $me ? ' aria-current="page"' : ''; ?>>
+        <?php if ($t): ?><img src="<?php echo $_h($t); ?>" alt="" loading="lazy" decoding="async"><?php else: ?><span class="fp-noimg"></span><?php endif; ?>
+        <span class="fp-name"><?php echo $_h($s['title']); ?></span>
       </a>
       <?php endforeach; ?>
     </div>
     <?php endif; ?>
 
     <div class="fp-foot">
-      <a href="contents.php<?php echo $_navGroup ? '?g=' . $_navGroup . '#' . $_navGroup : ''; ?>">ARCHIVE</a>
-      <a href="log.php">LOG</a>
-      <a href="about.php">ABOUT</a>
+      <a href="contents.php">さがす</a>
+      <a href="log.php">日記</a>
+      <a href="about.php">PULSE について</a>
     </div>
   </div>
 </div>
@@ -69,167 +92,187 @@ $_navPages = array_map(fn($c) => $c['page'], $_navPool);
 <style>
 .floating-nav {
   position: fixed;
-  bottom: 2rem;
-  left: 2rem;
-  display: flex;
-  flex-direction: column-reverse;
-  gap: 0.7rem;
+  left: 1.25rem;
+  bottom: 1.25rem;
   z-index: 1000;
-}
-
-.float-btn {
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: rgba(16, 16, 23, 0.86);
-  backdrop-filter: blur(8px);
-  border: 1px solid var(--line-mid);
-  color: var(--text-2);
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 1.05rem;
+  gap: 0.2rem;
+  max-width: calc(100vw - 2.5rem);
+  padding: 0.35rem 0.4rem 0.35rem 0.35rem;
+  background: rgba(10, 10, 15, 0.84);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--line-mid);
+  border-radius: 999px;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.45);
+}
+.fn-home {
+  width: 38px; height: 38px; flex: none;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  transition: background var(--dur) var(--ease);
+}
+.fn-home:hover { background: var(--teal-soft); }
+.fn-dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--teal); box-shadow: 0 0 10px var(--teal);
+  animation: beat 2.4s var(--ease) infinite;
+}
+.fn-label { display: flex; flex-direction: column; min-width: 0; padding: 0 0.7rem 0 0.15rem; line-height: 1.25; }
+.fn-title {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: 0.86rem; letter-spacing: 0.08em; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.fn-clear { color: var(--teal); font-size: 0.7rem; }
+.fn-clear[hidden] { display: none; }
+.fn-sub { font-size: 0.66rem; color: var(--text-3); white-space: nowrap; }
+.fn-pos { font-family: var(--font-mono); margin-left: 0.3rem; }
+.fn-actions { display: flex; align-items: center; gap: 0.15rem; }
+.fn-sep { width: 1px; height: 18px; background: var(--line-mid); margin: 0 0.25rem; }
+
+.float-btn {
+  width: 36px; height: 36px; flex: none;
+  display: grid; place-items: center;
+  border: 0; border-radius: 50%;
+  background: transparent;
+  color: var(--text-2);
+  font-size: 0.86rem;
   cursor: pointer;
-  transition: all 0.3s var(--ease);
   text-decoration: none;
+  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
 }
-.float-btn:hover {
-  background: var(--teal);
-  color: var(--ink-0);
-  border-color: var(--teal);
-  transform: scale(1.07);
-}
-.float-back { color: var(--teal); border-color: var(--teal-line); }
-.float-random { color: var(--null-color); border-color: rgba(155, 108, 255, 0.35); }
-.float-random:hover { background: var(--null-color); color: #fff; border-color: var(--null-color); }
+.float-btn:hover { background: var(--teal-soft); color: var(--teal); }
+.float-btn[aria-pressed="true"], .float-btn[aria-expanded="true"] { color: var(--teal); }
+.floating-nav .pa-sound-btn { width: 36px; height: 36px; border: 0; background: transparent; }
 
 /* --- パネル --- */
 .float-panel {
   position: absolute;
-  bottom: 0;
-  left: 56px;
-  width: 268px;
-  padding: 0.85rem;
-  background: rgba(12, 12, 18, 0.96);
+  left: 0;
+  bottom: calc(100% + 0.6rem);
+  width: 300px;
+  max-width: calc(100vw - 2.5rem);
+  padding: 0.9rem;
+  background: rgba(12, 12, 18, 0.97);
   backdrop-filter: blur(14px);
   border: 1px solid var(--line-mid);
-  border-radius: 6px;
+  border-radius: 10px;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.55);
   opacity: 0;
   visibility: hidden;
-  transform: translateX(-8px);
-  transition: all 0.28s var(--ease);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+  transform: translateY(6px);
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease), visibility 0.25s;
 }
 .float-panel.open { opacity: 1; visibility: visible; transform: none; }
-
-.fp-head {
-  display: flex; align-items: baseline; gap: 0.5rem;
-  padding-bottom: 0.6rem; margin-bottom: 0.6rem;
-  border-bottom: 1px solid var(--line);
+.fp-acts { display: none; gap: 0.4rem; margin-bottom: 0.8rem; }
+.fp-acts button {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.3rem;
+  padding: 0.55rem 0.2rem; font-size: 0.7rem; color: var(--text-2);
+  background: var(--ink-2); border: 1px solid var(--line); border-radius: 6px; cursor: pointer;
 }
-.fp-en {
-  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.2em;
-  color: var(--teal); text-transform: uppercase;
+.fp-acts button[aria-pressed="true"] { color: var(--teal); border-color: var(--teal-line); }
+.fp-goal {
+  display: flex; gap: 0.5rem; align-items: baseline;
+  font-size: 0.76rem; line-height: 1.7; color: var(--violet-lit);
+  padding-bottom: 0.75rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--line);
 }
-.fp-ja { font-size: 0.78rem; color: var(--text-2); }
-
-.fp-list { display: grid; gap: 0.25rem; max-height: 46vh; overflow-y: auto; }
+.fp-goal-tag { flex: none; font-size: 0.64rem; padding: 0 0.35rem; border: 1px solid currentColor; border-radius: 2px; }
+.fp-goal.is-cleared { color: var(--teal); }
+.fp-head { font-size: 0.72rem; color: var(--text-3); margin-bottom: 0.45rem; }
+.fp-list { display: grid; gap: 0.2rem; max-height: 44vh; overflow-y: auto; }
 .fp-item {
-  display: flex; align-items: center; gap: 0.6rem;
-  padding: 0.3rem; border-radius: 4px;
+  display: flex; align-items: center; gap: 0.65rem;
+  padding: 0.3rem; border-radius: 5px;
   text-decoration: none; color: var(--text-2);
   transition: background 0.2s var(--ease), color 0.2s var(--ease);
 }
-.fp-item:hover { background: rgba(0, 245, 212, 0.1); color: var(--teal); }
+.fp-item:hover { background: var(--teal-soft); color: var(--teal); }
+.fp-item.is-current { color: var(--teal); background: rgba(0, 245, 212, 0.06); }
 .fp-item img, .fp-noimg {
-  width: 54px; height: 31px; flex: none; object-fit: cover;
-  border-radius: 2px; background: var(--ink-0); opacity: 0.75;
+  width: 56px; height: 32px; flex: none; object-fit: cover;
+  border-radius: 2px; background: var(--ink-0); opacity: 0.8;
 }
-.fp-item:hover img { opacity: 1; }
+.fp-item:hover img, .fp-item.is-current img { opacity: 1; }
 .fp-name {
   font-family: var(--font-display); font-weight: 700;
-  font-size: 0.72rem; letter-spacing: 0.04em;
+  font-size: 0.74rem; letter-spacing: 0.06em;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-
 .fp-foot {
-  display: flex; gap: 0.4rem; margin-top: 0.7rem;
+  display: flex; gap: 0.3rem; margin-top: 0.75rem;
   padding-top: 0.6rem; border-top: 1px solid var(--line);
 }
 .fp-foot a {
-  flex: 1; text-align: center; padding: 0.4rem 0.2rem;
-  font-family: var(--font-mono); font-size: 0.6rem; letter-spacing: 0.1em;
-  color: var(--text-3); text-decoration: none; border-radius: 3px;
+  flex: 1 1 auto; text-align: center; padding: 0.4rem 0.2rem; white-space: nowrap;
+  font-size: 0.7rem; color: var(--text-3); text-decoration: none; border-radius: 4px;
   transition: all 0.2s var(--ease);
 }
-.fp-foot a:hover { color: var(--teal); background: rgba(0, 245, 212, 0.08); }
+.fp-foot a:hover { color: var(--teal); background: var(--teal-soft); }
 
 @media (max-width: 768px) {
-  .floating-nav { bottom: 1rem; left: 1rem; gap: 0.5rem; }
-  .float-btn { width: 40px; height: 40px; font-size: 0.9rem; }
-
-  .floating-nav .float-back,
-  .floating-nav .float-random {
-    opacity: 0; transform: scale(0.5); pointer-events: none;
-    transition: all 0.28s var(--ease);
-  }
-  .floating-nav.expanded .float-back,
-  .floating-nav.expanded .float-random {
-    opacity: 1; transform: scale(1); pointer-events: auto;
-  }
-  .floating-nav .float-menu i::before { content: "\f0c9"; }
-  .floating-nav.expanded .float-menu i::before { content: "\f00d"; }
-
-  .float-panel { bottom: 48px; left: 0; width: min(78vw, 268px); }
+  .floating-nav { left: 0.75rem; bottom: 0.75rem; max-width: calc(100vw - 5.5rem); }
+  .fn-wide { display: none; }
+  .fn-title { font-size: 0.78rem; }
+  .fp-acts { display: flex; }
+  .float-panel { width: min(86vw, 300px); }
 }
 </style>
-
 <script>
 (function () {
   var pages = <?php echo json_encode($_navPages); ?>;
-  var randomBtn = document.getElementById('randomBtn');
-  if (randomBtn && pages.length) {
-    randomBtn.addEventListener('click', function () {
-      location.href = pages[Math.floor(Math.random() * pages.length)] + '.php';
-    });
-  }
-
+  var nav = document.getElementById('floatingNav');
   var menuBtn = document.getElementById('floatMenuBtn');
   var panel = document.getElementById('floatSubmenu');
-  var nav = document.getElementById('floatingNav');
-  var isMobile = window.innerWidth <= 768;
 
-  function closeAll() {
-    if (panel) panel.classList.remove('open');
-    if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
-    if (isMobile && nav) nav.classList.remove('expanded');
-  }
-
-  if (menuBtn && nav) {
-    menuBtn.addEventListener('click', function (e) {
-      e.stopPropagation();
-      if (isMobile && !nav.classList.contains('expanded')) {
-        nav.classList.add('expanded');
-        return;
-      }
-      var open = panel.classList.toggle('open');
-      menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-    });
-    document.addEventListener('click', function (e) {
-      if (!nav.contains(e.target)) closeAll();
-    });
-  }
-
-  document.addEventListener('keydown', function (e) {
-    var t = e.target.tagName;
-    if (t === 'INPUT' || t === 'TEXTAREA') return;
-    if (e.key === 'Escape') {
-      if (panel && panel.classList.contains('open')) { closeAll(); return; }
-      location.href = 'index.php';
+  function act(name) {
+    if (name === 'random' && pages.length) {
+      location.href = pages[Math.floor(Math.random() * pages.length)] + '.php';
+    } else if (name === 'fav' && window.PULSE && PULSE.fav) {
+      var on = PULSE.fav.toggle(PULSE.page);
+      PULSE.toast(on ? 'お気に入りに入れました' : 'お気に入りから外しました');
+    } else if (name === 'share' && window.PULSE && PULSE.share) {
+      PULSE.share();
     }
-    /* r でランダム、a でアーカイブ */
-    if (e.key === 'r' && pages.length) location.href = pages[Math.floor(Math.random() * pages.length)] + '.php';
-    if (e.key === 'a') location.href = 'contents.php';
+  }
+  nav.querySelectorAll('[data-act]').forEach(function (b) {
+    b.addEventListener('click', function (e) { e.stopPropagation(); act(b.dataset.act); });
   });
+
+  function paint() {
+    if (!window.PULSE || !PULSE.fav) return;
+    var fav = PULSE.fav.has(PULSE.page);
+    nav.querySelectorAll('[data-act="fav"]').forEach(function (b) {
+      b.setAttribute('aria-pressed', fav ? 'true' : 'false');
+      b.setAttribute('aria-label', fav ? 'お気に入りから外す' : 'お気に入りに入れる');
+      var i = b.querySelector('i');
+      i.className = (fav ? 'fa-solid' : 'fa-regular') + ' fa-star';
+    });
+    var done = PULSE.cleared(PULSE.page);
+    nav.querySelector('.fn-clear').hidden = !done;
+    var g = document.getElementById('fpGoal');
+    if (g) {
+      g.classList.toggle('is-cleared', done);
+      g.querySelector('.fp-goal-tag').textContent = done ? '達成' : '挑戦';
+    }
+  }
+  document.addEventListener('DOMContentLoaded', paint);
+  document.addEventListener('pulse:fav', paint);
+  document.addEventListener('pulse:clear', paint);
+
+  function close() { panel.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); }
+  menuBtn.addEventListener('click', function (e) {
+    e.stopPropagation();
+    var open = panel.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) {
+      var cur = panel.querySelector('.fp-item.is-current');
+      if (cur) cur.scrollIntoView({ block: 'nearest' });
+    }
+  });
+  document.addEventListener('click', function (e) { if (!nav.contains(e.target)) close(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
 })();
 </script>

@@ -443,6 +443,7 @@ function stopAtPi() {
     bestStop = err;
     document.getElementById('h-best').textContent = '±' + err.toFixed(6);
     SFX.play(err < 0.001 ? 'correct' : 'success');
+    if (err < 0.001) if (window.PULSE) PULSE.clear();
   } else {
     SFX.play('fail');
   }

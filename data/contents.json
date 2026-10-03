@@ -1297,7 +1297,8 @@
     "category_en": "SEARCH",
     "meta": "グラフ彩色 · バックトラッキング · 制約充足",
     "meta_en": "graph coloring · backtracking · constraint satisfaction",
-    "added": "2026-09-12"
+    "added": "2026-09-12",
+    "challenge": "自分の手で 4 色に塗り分ける"
   },
   {
     "page": "brachistochrone",
@@ -1310,7 +1311,8 @@
     "category_en": "CURVE",
     "meta": "4曲線レース / 自由描画 / 時間マップ",
     "meta_en": "4-curve race / free draw / time map",
-    "added": "2026-09-15"
+    "added": "2026-09-15",
+    "challenge": "サイクロイドと 0.01 秒差以内の坂を描く"
   },
   {
     "page": "buffon",
@@ -1323,7 +1325,8 @@
     "category_en": "NUMBER",
     "meta": "針の長さ / 線間隔 / π収束",
     "meta_en": "needle length / line spacing / π convergence",
-    "added": "2026-09-18"
+    "added": "2026-09-18",
+    "challenge": "π との差 0.001 未満で止める"
   },
   {
     "page": "topopt",
@@ -1401,7 +1404,8 @@
     "category_en": "FORCE",
     "meta": "BUILD + GOAL",
     "meta_en": "BUILD + GOAL",
-    "added": "2026-09-27"
+    "added": "2026-09-27",
+    "challenge": "重りを向こう岸まで渡らせる"
   },
   {
     "page": "waveguide",
@@ -1414,7 +1418,8 @@
     "category_en": "LIGHT",
     "meta": "全内反射 / 漏れ光",
     "meta_en": "total internal reflection / evanescent leak",
-    "added": "2026-09-30"
+    "added": "2026-09-30",
+    "challenge": "光を 90% 以上届ける"
   },
   {
     "page": "cobweb",

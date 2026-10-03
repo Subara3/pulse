@@ -124,6 +124,7 @@ require_once __DIR__ . '/includes/interaction-hints.php';
       var pct = totalSent > 0 ? Math.round(100 * totalDelivered / totalSent) : 0;
       var c = pct >= 90 ? 'rgba(0,245,212,.8)' : 'rgba(123,44,191,.7)';
       el.innerHTML = '<div style="color:' + c + '">' + (pct >= 90 ? 'GOAL ✓' : 'GOAL: 90%') + '</div>';
+      if (pct >= 90 && totalSent >= 3) if (window.PULSE) PULSE.clear();
     } else {
       el.innerHTML = '';
     }

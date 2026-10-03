@@ -4,10 +4,12 @@ require_once __DIR__ . '/includes/access_log.php';
 recordPageView('contents');
 
 require_once __DIR__ . '/includes/contents-data.php';
+require_once __DIR__ . '/includes/work-tile.php';
 
 $pageName = 'contents';
 $workCount = count($works);
-$pageTitle = 'ARCHIVE — ' . $workCount . '本の数学・物理ビジュアライゼーション一覧 | PULSE';
+$pageTitle = '作品をさがす — ' . $workCount . '本の数学・物理ビジュアライゼーション一覧 | PULSE';
+$challengeCount = count(array_filter($works, fn($c) => !empty($c['challenge'])));
 $pageDesc = 'ライフゲーム、マンデルブロ集合、ローレンツ方程式、反応拡散、群れ、非周期タイリング——PULSEの'
     . $workCount . '本を12のコレクションに分けて、検索・絞り込みしながら探せる一覧。';
 $pageCanonical = 'https://pulse.subara3.com/contents.php';
@@ -23,7 +25,7 @@ $extraStyle = '
 .archive-hero { padding-block: clamp(2.5rem, 7vw, 4.5rem) clamp(1.5rem, 4vw, 2.5rem); }
 .archive-hero h1 { font-size: clamp(2.1rem, 7vw, 3.6rem); letter-spacing: .04em; }
 .archive-count {
-  font-family: var(--font-mono); font-size: .8rem; letter-spacing: .14em;
+  font-size: .84rem; letter-spacing: .06em;
   color: var(--text-3); margin-top: 1rem;
 }
 .archive-count b { color: var(--teal); font-size: 1.5rem; font-weight: 700; }
@@ -65,7 +67,6 @@ $extraStyle = '
 @media (min-width: 900px) { .chips { flex-wrap: wrap; overflow: visible; } }
 
 .no-hit { padding: 4rem 0; text-align: center; color: var(--text-3); }
-.no-hit .mono { display: block; margin-bottom: .8rem; color: var(--teal); letter-spacing: .2em; font-size: .72rem; }
 
 /* --- コレクション見出し --- */
 .coll-block { padding-block: clamp(2rem, 5vw, 3.2rem); scroll-margin-top: 130px; }
@@ -75,18 +76,17 @@ $extraStyle = '
   border-bottom: 1px solid var(--line);
 }
 .coll-head h2 { font-size: clamp(1.25rem, 3vw, 1.7rem); }
-.coll-head .en {
-  font-family: var(--font-mono); font-size: .68rem; letter-spacing: .24em;
-  color: var(--teal); text-transform: uppercase;
-}
 .coll-head .promise { color: var(--text-2); font-size: .82rem; flex: 1 1 100%; }
 .coll-head .shuffle {
-  margin-left: auto; font-family: var(--font-mono); font-size: .68rem;
-  letter-spacing: .12em; color: var(--text-3); text-decoration: none;
+  margin-left: auto; font-size: .76rem; color: var(--text-3); text-decoration: none;
 }
 .coll-head .shuffle:hover { color: var(--teal); }
 
-.tile[hidden] { display: none; }
+.toggles { display: flex; gap: .4rem; flex: none; }
+.toggles .chip i { font-size: .62rem; color: var(--teal); }
+.toggles .chip.is-on i { color: var(--ink-0); }
+.coll-block[hidden] { display: none; }
+@media (max-width: 620px) { .filter-row { flex-wrap: wrap; } .search { max-width: none; } }
 ';
 
 require_once __DIR__ . '/includes/header.php';
@@ -95,13 +95,8 @@ require_once __DIR__ . '/includes/nav.php';
 
 <main class="paper">
   <div class="wrap archive-hero">
-    <p class="eyebrow">ARCHIVE</p>
-    <h1 style="margin-top:.9rem">動いている数学、<br>ぜんぶここに。</h1>
-    <p class="lede" style="margin-top:1.1rem">
-      読むものではなく、触って眺めるものだけを集めています。
-      どれも 1 ページ完結・全画面 Canvas・その場で操作できます。
-    </p>
-    <p class="archive-count"><b><?php echo $workCount; ?></b> WORKS &nbsp;/&nbsp; 12 COLLECTIONS</p>
+    <h1>動いている数学、<br>ぜんぶここに。</h1>
+    <p class="archive-count"><b><?php echo $workCount; ?></b> 本 / 12 のコレクション</p>
   </div>
 
   <div class="filterbar">
@@ -110,10 +105,13 @@ require_once __DIR__ . '/includes/nav.php';
         <label class="search">
           <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
           <input type="search" id="q" placeholder="名前・キーワードで探す（例: 波、フラクタル、ising）"
-                 autocomplete="off" aria-label="コンテンツを検索">
+                 autocomplete="off" aria-label="作品を検索">
           <kbd>/</kbd>
         </label>
-        <a href="random.php" class="btn btn--primary" style="flex:none"><i class="fa-solid fa-shuffle"></i> ランダム</a>
+        <div class="toggles" role="group" aria-label="しるしで絞り込む">
+          <button class="chip" type="button" id="fFav" aria-pressed="false"><i class="fa-solid fa-star" aria-hidden="true"></i> お気に入り <span class="n" id="fFavN">0</span></button>
+          <button class="chip" type="button" id="fCh" aria-pressed="false">挑戦 <span class="n"><?php echo $challengeCount; ?></span></button>
+        </div>
       </div>
       <div class="chips" role="group" aria-label="コレクションで絞り込む">
         <button class="chip is-on" data-group="" aria-pressed="true">すべて <span class="n"><?php echo $workCount; ?></span></button>
@@ -128,52 +126,22 @@ require_once __DIR__ . '/includes/nav.php';
 
   <div class="wrap">
     <p class="no-hit" id="noHit" hidden>
-      <span class="mono">NO MATCH</span>
-      その言葉にあたるものはまだありません。別の言い方か、コレクションから探してみてください。
+      <span id="noHitMsg">その言葉にあたるものはまだありません。別の言い方か、コレクションから探してみてください。</span>
     </p>
 
     <?php foreach ($grouped as $key => $items):
       $col = $PULSE_COLLECTIONS[$key]; ?>
     <section class="coll-block" id="<?php echo $key; ?>" data-block="<?php echo $key; ?>">
       <div class="coll-head">
-        <span class="en"><i class="fa-solid <?php echo $col['icon']; ?>" aria-hidden="true"></i> <?php echo $col['en']; ?></span>
         <h2><?php echo $col['name']; ?></h2>
-        <span class="mono dim" style="font-size:.7rem"><?php echo count($items); ?> works</span>
-        <a class="shuffle" href="random.php?g=<?php echo $key; ?>">この中から1本 &rarr;</a>
         <p class="promise"><?php echo $col['promise']; ?></p>
+        <a class="shuffle" href="random.php?g=<?php echo $key; ?>"><i class="fa-solid fa-shuffle" aria-hidden="true"></i> この中から1本</a>
       </div>
-
-      <div class="tile-grid">
+      <div class="work-grid">
         <?php foreach ($items as $c):
-          $mp4 = pulsePreview($c['page'], 'mp4');
-          $jpg = pulsePreview($c['page'], 'jpg');
-          $needle = mb_strtolower($c['page'] . ' ' . $c['title'] . ' ' . $c['desc'] . ' ' . ($c['meta'] ?? '') . ' ' . $col['name'] . ' ' . $col['en']);
-        ?>
-        <a class="tile" href="<?php echo $c['page']; ?>.php"
-           data-group="<?php echo $key; ?>"
-           data-search="<?php echo htmlspecialchars($needle, ENT_QUOTES, 'UTF-8'); ?>">
-          <div class="tile-media<?php echo $jpg ? '' : ' tile-media--empty'; ?>">
-            <?php if ($jpg): ?>
-              <video muted loop playsinline preload="none" poster="<?php echo $jpg; ?>"
-                     aria-label="<?php echo htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8'); ?> のプレビュー"
-                     <?php if ($mp4): ?>data-mp4="<?php echo $mp4; ?>"<?php endif; ?>></video>
-            <?php else: ?>
-              <i class="fa-solid <?php echo $c['icon']; ?>" aria-hidden="true"></i>
-            <?php endif; ?>
-          </div>
-          <div class="tile-body">
-            <div class="tile-title">
-              <?php echo $c['title']; ?>
-              <?php if (!empty($c['isNew'])): ?><span class="badge badge--new">NEW</span><?php endif; ?>
-            </div>
-            <p class="tile-desc"><?php echo $c['desc']; ?></p>
-            <div class="tile-foot">
-              <span><?php echo $col['en']; ?></span>
-              <span><?php echo str_replace('-', '.', $c['added'] ?? ''); ?></span>
-            </div>
-          </div>
-        </a>
-        <?php endforeach; ?>
+          $needle = mb_strtolower($c['page'] . ' ' . $c['title'] . ' ' . $c['desc'] . ' ' . ($c['meta'] ?? '') . ' ' . ($c['challenge'] ?? '') . ' ' . $col['name'] . ' ' . $col['en']);
+          echo pulseWorkTile($c, ['sub' => false, 'search' => $needle]);
+        endforeach; ?>
       </div>
     </section>
     <?php endforeach; ?>
@@ -184,99 +152,83 @@ require_once __DIR__ . '/includes/nav.php';
 
 <script>
 (function () {
-  /* ---- プレビュー動画は「見えている間だけ」再生する ------------------ */
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var saveData = navigator.connection && navigator.connection.saveData;
-  var autoplay = !reduce && !saveData;
-
-  function attach(v) {
-    if (v.dataset.loaded) return;
-    v.dataset.loaded = '1';
-    if (v.dataset.mp4)  { var s2 = document.createElement('source'); s2.src = v.dataset.mp4;  s2.type = 'video/mp4';  v.appendChild(s2); }
-    v.load();
-  }
-
-  if (autoplay && 'IntersectionObserver' in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        var v = e.target;
-        if (e.isIntersecting) { attach(v); var p = v.play(); if (p && p.catch) p.catch(function () {}); }
-        else if (!v.paused) { v.pause(); }
-      });
-    }, { rootMargin: '160px 0px' });
-    document.querySelectorAll('.tile-media video').forEach(function (v) {
-      io.observe(v);
-      /* IntersectionObserver が発火しない状況（バックグラウンドタブ等）でも
-         ホバーすれば必ず動くようにしておく。ポスター画像が常に出ているので
-         再生されなくても「真っ黒なタイル」にはならない。 */
-      v.addEventListener('mouseenter', function () {
-        attach(v); var p = v.play(); if (p && p.catch) p.catch(function () {});
-      });
-    });
-  } else {
-    /* 動画を再生しない環境ではポスター画像のまま置く（何も見えない状態は作らない） */
-    document.querySelectorAll('.tile-media video').forEach(function (v) {
-      v.addEventListener('mouseenter', function () { attach(v); v.play().catch(function(){}); }, { once: true });
-    });
-  }
-
-  /* ---- 検索とコレクション絞り込み ------------------------------------ */
+  /* ---- 検索・コレクション・しるし（お気に入り / 挑戦）で絞り込む ---- */
   var q = document.getElementById('q');
-  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
-  var tiles = Array.prototype.slice.call(document.querySelectorAll('.tile[data-search]'));
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.chips .chip'));
+  var tiles = Array.prototype.slice.call(document.querySelectorAll('.work[data-search]'));
   var blocks = Array.prototype.slice.call(document.querySelectorAll('[data-block]'));
   var noHit = document.getElementById('noHit');
-  var group = '';
+  var noHitMsg = document.getElementById('noHitMsg');
+  var fFav = document.getElementById('fFav'), fCh = document.getElementById('fCh');
+  var group = '', onlyFav = false, onlyCh = false;
+  var MSG_WORD = noHitMsg.textContent;
 
-  function apply() {
+  function favs() { return (window.PULSE && PULSE.fav) ? PULSE.fav.list() : []; }
+
+  function apply(keepUrl) {
     var term = (q.value || '').trim().toLowerCase();
-    var hits = 0;
+    var fl = favs(), hits = 0;
     tiles.forEach(function (t) {
       var ok = (!group || t.dataset.group === group) &&
-               (!term || t.dataset.search.indexOf(term) !== -1);
+               (!term || t.dataset.search.indexOf(term) !== -1) &&
+               (!onlyFav || fl.indexOf(t.dataset.page) !== -1) &&
+               (!onlyCh || t.dataset.challenge === '1');
       t.hidden = !ok;
       if (ok) hits++;
     });
-    blocks.forEach(function (b) {
-      b.hidden = !b.querySelector('.tile:not([hidden])');
-    });
+    blocks.forEach(function (b) { b.hidden = !b.querySelector('.work:not([hidden])'); });
     noHit.hidden = hits > 0;
-
+    noHitMsg.textContent = (onlyFav && !fl.length)
+      ? 'まだお気に入りがありません。'
+      : MSG_WORD;
+    if (keepUrl) return;
     var url = new URL(location.href);
-    if (group) url.searchParams.set('g', group); else url.searchParams.delete('g');
-    if (term) url.searchParams.set('q', term); else url.searchParams.delete('q');
+    [['g', group], ['q', term], ['fav', onlyFav ? '1' : ''], ['ch', onlyCh ? '1' : '']].forEach(function (kv) {
+      if (kv[1]) url.searchParams.set(kv[0], kv[1]); else url.searchParams.delete(kv[0]);
+    });
     history.replaceState(null, '', url.pathname + url.search);
   }
 
+  function press(btn, on) { btn.setAttribute('aria-pressed', on ? 'true' : 'false'); btn.classList.toggle('is-on', on); }
+
   chips.forEach(function (c) {
     c.addEventListener('click', function () {
-      chips.forEach(function (o) { o.classList.remove('is-on'); o.setAttribute('aria-pressed', 'false'); });
-      c.classList.add('is-on'); c.setAttribute('aria-pressed', 'true');
+      chips.forEach(function (o) { press(o, false); });
+      press(c, true);
       group = c.dataset.group;
       apply();
       if (group) {
         var b = document.getElementById(group);
-        if (b) window.scrollTo({ top: b.offsetTop - 120, behavior: 'smooth' });
+        if (b) window.scrollTo({ top: b.offsetTop - 140, behavior: 'smooth' });
       }
     });
   });
+  fFav.addEventListener('click', function () { onlyFav = !onlyFav; press(fFav, onlyFav); apply(); });
+  fCh.addEventListener('click', function () { onlyCh = !onlyCh; press(fCh, onlyCh); apply(); });
+
+  function paintFavCount() { document.getElementById('fFavN').textContent = favs().length; }
+  document.addEventListener('pulse:fav', function () { paintFavCount(); if (onlyFav) apply(true); });
 
   var t = null;
   q.addEventListener('input', function () { clearTimeout(t); t = setTimeout(apply, 110); });
-
   document.addEventListener('keydown', function (e) {
     if (e.key === '/' && document.activeElement !== q) { e.preventDefault(); q.focus(); }
     if (e.key === 'Escape' && document.activeElement === q) { q.value = ''; apply(); q.blur(); }
   });
 
-  /* URL からの復元 */
-  var params = new URLSearchParams(location.search);
-  if (params.get('q')) q.value = params.get('q');
-  if (params.get('g')) {
-    var c = chips.filter(function (x) { return x.dataset.group === params.get('g'); })[0];
-    if (c) { chips.forEach(function (o) { o.classList.remove('is-on'); }); c.classList.add('is-on'); group = c.dataset.group; }
-  }
-  if (params.get('q') || params.get('g')) apply();
+  /* URL からの復元。お気に入りは保存を読むので、pulse-kit.js の後で当てる */
+  document.addEventListener('DOMContentLoaded', function () {
+    paintFavCount();
+    var params = new URLSearchParams(location.search);
+    if (params.get('q')) q.value = params.get('q');
+    if (params.get('g')) {
+      var c = chips.filter(function (x) { return x.dataset.group === params.get('g'); })[0];
+      if (c) { chips.forEach(function (o) { press(o, false); }); press(c, true); group = c.dataset.group; }
+    }
+    if (params.get('fav') === '1') { onlyFav = true; press(fFav, true); }
+    if (params.get('ch') === '1') { onlyCh = true; press(fCh, true); }
+    if (params.toString()) apply(true);
+  });
 })();
 </script>
 

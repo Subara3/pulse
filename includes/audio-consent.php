@@ -51,8 +51,8 @@
 }
 .pa-prompt[hidden] { display: none; }
 .pa-prompt.closing { animation: paOut 0.3s var(--ease, ease) both; }
-/* Canvas ページでは左下に floating-nav の列（幅 46px・left 2rem）がいるので、その右隣に出す */
-.pa-prompt.pa-prompt--canvas { left: calc(2rem + 46px + 0.9rem); bottom: calc(2rem + var(--pulse-ad-h, 0px)); }
+/* Canvas ページでは左下にナビのプレート（高さ約 48px）がいるので、その上に出す */
+.pa-prompt.pa-prompt--canvas { left: 1.25rem; bottom: calc(1.25rem + 58px + var(--pulse-ad-h, 0px)); }
 
 @keyframes paIn  { from { opacity: 0; transform: translateY(12px) } to { opacity: 1; transform: none } }
 @keyframes paOut { from { opacity: 1 } to { opacity: 0; transform: translateY(8px); visibility: hidden } }
@@ -187,20 +187,12 @@
   /* 右端の操作ボタン列（歯車・floating-nav）に被らないよう、右に 4.5rem 空ける */
   .pa-prompt { left: 1rem; bottom: calc(1rem + var(--pulse-ad-h, 0px)); width: min(330px, calc(100vw - 5.5rem)); }
   .pa-prompt.pa-prompt--canvas {
-    left: calc(1rem + 40px + 0.6rem);
-    bottom: calc(1rem + var(--pulse-ad-h, 0px));
-    width: min(330px, calc(100vw - 1rem - 40px - 0.6rem - 4.5rem));
+    left: 0.75rem;
+    bottom: calc(0.75rem + 56px + var(--pulse-ad-h, 0px));
+    width: min(330px, calc(100vw - 1.5rem - 4.5rem));
   }
   .pa-prompt--canvas .pa-lead { display: none; }
   .pa-sound-btn.pa-standalone { bottom: 1rem; left: 1rem; width: 40px; height: 40px; font-size: 0.9rem; }
-  /* floating-nav の中に入った場合は、他のボタンと同じ開閉ルールに従う */
-  .floating-nav .pa-sound-btn {
-    opacity: 0; transform: scale(0.5); pointer-events: none;
-    transition: all 0.28s var(--ease, ease);
-  }
-  .floating-nav.expanded .pa-sound-btn {
-    opacity: 1; transform: scale(1); pointer-events: auto;
-  }
 }
 </style>
 
@@ -269,7 +261,7 @@
   function paint() {
     var on = PA.isEnabled();
     var icon = '<i class="fa-solid ' + (on ? 'fa-volume-high' : 'fa-volume-xmark') + '" aria-hidden="true"></i>';
-    btn.innerHTML = withLabel ? icon + ' <span>SOUND</span>' : icon;
+    btn.innerHTML = withLabel ? icon + ' <span>音</span>' : icon;
     btn.title = on ? '音を止める' : '音を鳴らす';
     btn.setAttribute('aria-label', btn.title);
     btn.setAttribute('aria-pressed', on ? 'true' : 'false');
@@ -281,7 +273,10 @@
     var siteNav = document.querySelector('.site-nav');
     if (floating) {
       btn.classList.add('float-btn');
-      floating.appendChild(btn);   /* column-reverse なので列の先頭に出る */
+      /* ナビのプレートの操作列（メニューボタンの手前）に入れる */
+      var acts = document.getElementById('fnActions');
+      var menu = document.getElementById('floatMenuBtn');
+      if (acts && menu) acts.insertBefore(btn, menu); else floating.appendChild(btn);
     } else if (siteNav) {
       withLabel = true;
       siteNav.appendChild(btn);
