@@ -4,7 +4,11 @@ import json
 import re
 import shlex
 import subprocess
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from preview_codec import VF, X264_ARGS, JPG_ARGS  # noqa: E402
 
 YAVG_RE = re.compile(r"lavfi\.signalstats\.YAVG=([0-9.]+)")
 
@@ -85,11 +89,8 @@ def reencode_fix(path: Path, trim_start: float, trim_end: float):
         "ffmpeg", "-y",
         "-ss", f"{trim_start:.2f}", "-t", f"{keep:.2f}", "-i", str(path),
         "-an",
-        "-vf", "fps=24,scale=640:360:flags=lanczos,format=yuv420p",
-        "-c:v", "libx264", "-profile:v", "baseline", "-level", "3.0",
-        "-pix_fmt", "yuv420p",
-        "-g", "24", "-keyint_min", "24", "-sc_threshold", "0", "-bf", "0",
-        "-movflags", "+faststart",
+        "-vf", VF,
+        *X264_ARGS,
         str(tmp)
     ]
     rc, out, err = run(cmd)
@@ -100,7 +101,7 @@ def reencode_fix(path: Path, trim_start: float, trim_end: float):
     jpg = path.with_suffix('.jpg')
     cmd2 = [
         "ffmpeg", "-y", "-ss", "0.30", "-i", str(path),
-        "-vframes", "1", "-q:v", "3", str(jpg)
+        *JPG_ARGS, str(jpg)
     ]
     run(cmd2)
 

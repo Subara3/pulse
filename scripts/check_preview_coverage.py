@@ -15,13 +15,11 @@ def main():
         if not page or page in ('about', 'contents', 'log'):
             continue
         mp4 = PREVIEWS / f'{page}.mp4'
-        webm = PREVIEWS / f'{page}.webm'
         jpg = PREVIEWS / f'{page}.jpg'
-        if not mp4.exists() or not webm.exists() or not jpg.exists():
+        if not mp4.exists() or not jpg.exists():
             missing.append({
                 'page': page,
                 'mp4': mp4.exists(),
-                'webm': webm.exists(),
                 'jpg': jpg.exists(),
             })
 

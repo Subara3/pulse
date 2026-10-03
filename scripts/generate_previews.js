@@ -23,12 +23,23 @@ const BASE_URL = process.env.PULSE_PREVIEW_BASE_URL || 'http://127.0.0.1:8787';
 const WARMUP_SEC = 5.6;
 const CLIP_SEC = 5.4;
 
+// エンコード設定。scripts/preview_codec.py と同じ値にしておくこと。
+// 2026-10: webm をやめて mp4(H.264) 1 本にし、ビットレートに上限をつけた。
+// ノイズの多いページが 1 本 3MB に膨らみ、repo の履歴が 4GB を超えたため。
+const X264_ARGS = [
+  '-c:v', 'libx264', '-preset', 'slow',
+  '-crf', '28', '-maxrate', '900k', '-bufsize', '1800k',
+  '-profile:v', 'main', '-level', '3.1', '-pix_fmt', 'yuv420p',
+  '-g', '40', '-keyint_min', '40', '-sc_threshold', '0',
+  '-movflags', '+faststart',
+];
+
 // 時間が経つほど画面が塗りつぶされるページは、早い時点を切り出す。
 // 放置すると一覧に「単色のタイル」が並ぶ。
 const WARMUP_OVERRIDES = {
-  langton: 1.4, atoms: 1.6, caustics: 1.6, erosion: 2.0,
-  marbling: 2.0, sand: 1.6, quasicrystal: 2.2, newton: 2.0,
-  quantum: 2.0, tongues: 2.4, reaction: 3.0, cyclic: 2.0,
+  langton: 1.4, caustics: 1.6, erosion: 2.0, marbling: 2.0,
+  quasicrystal: 2.2, newton: 2.0, quantum: 2.0, reaction: 3.0,
+  cyclic: 2.0,
 };
 
 // Per-page tone fixes to reduce highlight clipping (白飛び) on specific renders.
@@ -39,52 +50,10 @@ const TONE_FILTERS = {
 };
 
 const INTERACTION_PRESETS = {
-  convection: [
-    { kind: 'drag', from: [200, 460], to: [760, 460], steps: 30 },
-    { kind: 'click', x: 300, y: 430 }, { kind: 'click', x: 660, y: 430 },
-  ],
-  excitable: [
-    { kind: 'click', x: 480, y: 270 }, { kind: 'click', x: 300, y: 180 },
-    { kind: 'click', x: 660, y: 360 }, { kind: 'drag', from: [420, 240], to: [540, 300], steps: 16 },
-  ],
-  venation: [
-    { kind: 'click', x: 480, y: 300 }, { kind: 'drag', from: [260, 160], to: [700, 400], steps: 30 },
-  ],
-  lightning: [
-    { kind: 'click', x: 300, y: 120 }, { kind: 'click', x: 660, y: 120 },
-    { kind: 'click', x: 480, y: 100 },
-  ],
-  evolution: [
-    { kind: 'click', x: 520, y: 500 }, { kind: 'click', x: 480, y: 270 },
-  ],
-  saw: [
-    { kind: 'click', x: 480, y: 270 }, { kind: 'click', x: 360, y: 200 },
-    { kind: 'click', x: 600, y: 340 },
-  ],
-  physics: [
-    { kind: 'click', x: 480, y: 200 }, { kind: 'click', x: 380, y: 160 },
-    { kind: 'click', x: 580, y: 160 },
-    { kind: 'drag', from: [420, 240], to: [620, 300], steps: 16 },
-  ],
-  orbital: [
-    { kind: 'click', x: 480, y: 270 }, { kind: 'click', x: 360, y: 220 },
-  ],
-  steiner: [
-    { kind: 'click', x: 360, y: 200 }, { kind: 'click', x: 620, y: 200 },
-    { kind: 'click', x: 480, y: 380 },
-  ],
-  domino: [
-    { kind: 'click', x: 480, y: 270 },
-  ],
   voronoi: [
     { kind: 'click', x: 480, y: 270 },
     { kind: 'click', x: 320, y: 220 },
     { kind: 'click', x: 640, y: 320 },
-  ],
-  sand: [
-    { kind: 'click', x: 480, y: 270 },
-    { kind: 'drag', from: [300, 180], to: [660, 360], steps: 26 },
-    { kind: 'drag', from: [660, 180], to: [300, 360], steps: 26 },
   ],
   fluidveil: [
     { kind: 'drag', from: [320, 200], to: [640, 320], steps: 24 },
@@ -118,22 +87,9 @@ const INTERACTION_PRESETS = {
     { kind: 'click', x: 420, y: 500 },
     { kind: 'click', x: 480, y: 270 },
   ],
-  pathfind: [
-    { kind: 'click', x: 520, y: 500 },
-    { kind: 'click', x: 420, y: 500 },
-    { kind: 'drag', from: [300, 220], to: [640, 320], steps: 24 },
-  ],
   spirograph: [
     { kind: 'click', x: 520, y: 500 },
     { kind: 'drag', from: [360, 260], to: [620, 260], steps: 18 },
-  ],
-  tree: [
-    { kind: 'click', x: 520, y: 500 },
-    { kind: 'click', x: 420, y: 500 },
-  ],
-  pi: [
-    { kind: 'click', x: 520, y: 500 },
-    { kind: 'click', x: 420, y: 500 },
   ],
   flock: [
     { kind: 'click', x: 480, y: 270 },
@@ -151,15 +107,6 @@ const INTERACTION_PRESETS = {
     { kind: 'click', x: 300, y: 270 },
     { kind: 'click', x: 600, y: 200 },
     { kind: 'click', x: 450, y: 350 },
-  ],
-  conformal: [
-    { kind: 'drag', from: [320, 200], to: [640, 320], steps: 24 },
-    { kind: 'click', x: 480, y: 270 },
-  ],
-  pursuit: [
-    { kind: 'click', x: 480, y: 270 },
-    { kind: 'click', x: 300, y: 200 },
-    { kind: 'click', x: 650, y: 350 },
   ],
 };
 
@@ -228,9 +175,8 @@ function pagesFromContents() {
 
   const missing = base.filter((p) => {
     const mp4 = path.join(OUT_DIR, `${p}.mp4`);
-    const webm = path.join(OUT_DIR, `${p}.webm`);
     const jpg = path.join(OUT_DIR, `${p}.jpg`);
-    return !fs.existsSync(mp4) || !fs.existsSync(webm) || !fs.existsSync(jpg);
+    return !fs.existsSync(mp4) || !fs.existsSync(jpg);
   });
   console.log(`mode=missing-only. ${missing.length}/${base.length} pages need rendering.`);
   return missing;
@@ -290,7 +236,7 @@ function pagesFromContents() {
       const webm = await v.path();
 
       const vfParts = [
-        'fps=24,scale=640:360:force_original_aspect_ratio=increase,crop=640:360',
+        'fps=20,scale=640:360:force_original_aspect_ratio=increase,crop=640:360',
         TONE_FILTERS[pageName] || '',
         // Fade in/out for smooth loop (black → content → black)
         'fade=t=in:st=0:d=0.3,fade=t=out:st=4.8:d=0.4',
@@ -309,41 +255,13 @@ function pagesFromContents() {
         '-an',
         '-vf',
         vf,
-        '-c:v',
-        'libx264',
-        '-profile:v',
-        'baseline',
-        '-level',
-        '3.0',
-        '-pix_fmt',
-        'yuv420p',
-        '-movflags',
-        '+faststart',
+        ...X264_ARGS,
         outMp4,
       ]);
 
-      const outWebm = path.join(OUT_DIR, `${pageName}.webm`);
       const outJpg = path.join(OUT_DIR, `${pageName}.jpg`);
-
-      run('ffmpeg', [
-        '-y',
-        '-i',
-        outMp4,
-        '-an',
-        '-vf',
-        'fps=24,scale=640:360:flags=lanczos,format=yuv420p',
-        '-c:v',
-        'libvpx-vp9',
-        '-b:v',
-        '0',
-        '-crf',
-        '36',
-        '-row-mt',
-        '1',
-        '-deadline',
-        'good',
-        outWebm,
-      ]);
+      // 旧形式の webm が残っていれば消す（2026-10 から mp4 のみ）
+      fs.rmSync(path.join(OUT_DIR, `${pageName}.webm`), { force: true });
 
       // Pick a mid-preview frame for thumbnails; early frames are often still fading in.
       run('ffmpeg', [
@@ -355,7 +273,7 @@ function pagesFromContents() {
         '-vframes',
         '1',
         '-q:v',
-        '3',
+        '5',
         outJpg,
       ]);
 

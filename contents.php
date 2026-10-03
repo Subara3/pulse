@@ -146,7 +146,6 @@ require_once __DIR__ . '/includes/nav.php';
       <div class="tile-grid">
         <?php foreach ($items as $c):
           $mp4 = pulsePreview($c['page'], 'mp4');
-          $webm = pulsePreview($c['page'], 'webm');
           $jpg = pulsePreview($c['page'], 'jpg');
           $needle = mb_strtolower($c['page'] . ' ' . $c['title'] . ' ' . $c['desc'] . ' ' . ($c['meta'] ?? '') . ' ' . $col['name'] . ' ' . $col['en']);
         ?>
@@ -157,7 +156,6 @@ require_once __DIR__ . '/includes/nav.php';
             <?php if ($jpg): ?>
               <video muted loop playsinline preload="none" poster="<?php echo $jpg; ?>"
                      aria-label="<?php echo htmlspecialchars($c['title'], ENT_QUOTES, 'UTF-8'); ?> のプレビュー"
-                     <?php if ($webm): ?>data-webm="<?php echo $webm; ?>"<?php endif; ?>
                      <?php if ($mp4): ?>data-mp4="<?php echo $mp4; ?>"<?php endif; ?>></video>
             <?php else: ?>
               <i class="fa-solid <?php echo $c['icon']; ?>" aria-hidden="true"></i>
@@ -194,7 +192,6 @@ require_once __DIR__ . '/includes/nav.php';
   function attach(v) {
     if (v.dataset.loaded) return;
     v.dataset.loaded = '1';
-    if (v.dataset.webm) { var s1 = document.createElement('source'); s1.src = v.dataset.webm; s1.type = 'video/webm'; v.appendChild(s1); }
     if (v.dataset.mp4)  { var s2 = document.createElement('source'); s2.src = v.dataset.mp4;  s2.type = 'video/mp4';  v.appendChild(s2); }
     v.load();
   }

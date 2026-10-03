@@ -2,7 +2,11 @@
 import json
 import math
 import subprocess
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from preview_codec import VF, X264_ARGS, JPG_ARGS  # noqa: E402
 
 
 def run(cmd, text=True):
@@ -105,10 +109,8 @@ def reencode_mp4(path: Path, trim_start: float, trim_end: float):
         'ffmpeg', '-y',
         '-ss', f'{trim_start:.2f}', '-t', f'{keep:.2f}', '-i', str(path),
         '-an',
-        '-vf', 'fps=24,scale=640:360:flags=lanczos,format=yuv420p',
-        '-c:v', 'libx264', '-profile:v', 'baseline', '-level', '3.0',
-        '-pix_fmt', 'yuv420p', '-g', '24', '-keyint_min', '24', '-sc_threshold', '0', '-bf', '0',
-        '-movflags', '+faststart',
+        '-vf', VF,
+        *X264_ARGS,
         str(tmp)
     ])
     if rc != 0:
@@ -116,22 +118,9 @@ def reencode_mp4(path: Path, trim_start: float, trim_end: float):
     tmp.replace(path)
 
 
-def build_webm(path: Path):
-    webm = path.with_suffix('.webm')
-    rc, out, err = run([
-        'ffmpeg', '-y', '-i', str(path), '-an',
-        '-vf', 'fps=24,scale=640:360:flags=lanczos,format=yuv420p',
-        '-c:v', 'libvpx-vp9', '-b:v', '0', '-crf', '36',
-        '-row-mt', '1', '-deadline', 'good',
-        str(webm)
-    ])
-    if rc != 0:
-        raise RuntimeError(err.strip() or out.strip())
-
-
 def build_poster(path: Path):
     jpg = path.with_suffix('.jpg')
-    run(['ffmpeg', '-y', '-ss', '0.35', '-i', str(path), '-vframes', '1', '-q:v', '3', str(jpg)])
+    run(['ffmpeg', '-y', '-ss', '0.35', '-i', str(path), *JPG_ARGS, str(jpg)])
 
 
 def main():
@@ -162,7 +151,6 @@ def main():
         trim_end = 0.30 if a.get('end_spike') else 0.15
         try:
             reencode_mp4(mp4, trim_start, trim_end)
-            build_webm(mp4)
             build_poster(mp4)
             b = analyze(mp4)
             item['fixed'] = b

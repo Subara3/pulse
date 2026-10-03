@@ -43,7 +43,6 @@ foreach (array_slice($channelPool, 0, 40) as $c) {
         'g' => $PULSE_COLLECTIONS[$c['group']]['name'] ?? '',
         'e' => $PULSE_COLLECTIONS[$c['group']]['en'] ?? '',
         'mp4' => $mp4,
-        'webm' => pulsePreview($c['page'], 'webm'),
         'jpg' => pulsePreview($c['page'], 'jpg'),
     ];
 }
@@ -255,7 +254,7 @@ require_once __DIR__ . '/includes/nav.php';
 <main class="paper">
 
   <!-- ======================= 今日の1本 ======================= -->
-  <?php if ($pick): $pj = pulsePreview($pick['page'], 'jpg'); $pm = pulsePreview($pick['page'], 'mp4'); $pw = pulsePreview($pick['page'], 'webm'); ?>
+  <?php if ($pick): $pj = pulsePreview($pick['page'], 'jpg'); $pm = pulsePreview($pick['page'], 'mp4'); ?>
   <section class="section today">
     <div class="wrap">
       <div class="section-head">
@@ -271,7 +270,7 @@ require_once __DIR__ . '/includes/nav.php';
         <a class="today-media" href="<?php echo $pick['page']; ?>.php">
           <?php if ($pm): ?>
           <video muted loop playsinline preload="none" poster="<?php echo $pj; ?>" data-lazyvideo
-                 <?php if ($pw): ?>data-webm="<?php echo $pw; ?>"<?php endif; ?> data-mp4="<?php echo $pm; ?>"></video>
+                 data-mp4="<?php echo $pm; ?>"></video>
           <?php elseif ($pj): ?><img src="<?php echo $pj; ?>" alt=""><?php endif; ?>
         </a>
         <div>
@@ -301,12 +300,12 @@ require_once __DIR__ . '/includes/nav.php';
 
       <div class="rail">
         <?php foreach ($newWorks as $c):
-          $j = pulsePreview($c['page'], 'jpg'); $m = pulsePreview($c['page'], 'mp4'); $w = pulsePreview($c['page'], 'webm'); ?>
+          $j = pulsePreview($c['page'], 'jpg'); $m = pulsePreview($c['page'], 'mp4'); ?>
         <a class="tile" href="<?php echo $c['page']; ?>.php">
           <div class="tile-media<?php echo $j ? '' : ' tile-media--empty'; ?>">
             <?php if ($m): ?>
               <video muted loop playsinline preload="none" poster="<?php echo $j; ?>" data-lazyvideo
-                     <?php if ($w): ?>data-webm="<?php echo $w; ?>"<?php endif; ?> data-mp4="<?php echo $m; ?>"></video>
+                     data-mp4="<?php echo $m; ?>"></video>
             <?php else: ?><i class="fa-solid <?php echo $c['icon']; ?>"></i><?php endif; ?>
           </div>
           <div class="tile-body">
@@ -457,7 +456,6 @@ require_once __DIR__ . '/includes/nav.php';
       if (e.isIntersecting) {
         if (!v.dataset.loaded) {
           v.dataset.loaded = '1';
-          if (v.dataset.webm) { var a = document.createElement('source'); a.src = v.dataset.webm; a.type = 'video/webm'; v.appendChild(a); }
           if (v.dataset.mp4) { var b = document.createElement('source'); b.src = v.dataset.mp4; b.type = 'video/mp4'; v.appendChild(b); }
           v.load();
         }
@@ -491,7 +489,6 @@ require_once __DIR__ . '/includes/nav.php';
     var c = CH[i];
     stage.classList.add('is-switching');
     video.innerHTML = '';
-    if (c.webm) { var a = document.createElement('source'); a.src = c.webm; a.type = 'video/webm'; video.appendChild(a); }
     var b = document.createElement('source'); b.src = c.mp4; b.type = 'video/mp4'; video.appendChild(b);
     if (c.jpg) video.poster = c.jpg;
     video.load();
