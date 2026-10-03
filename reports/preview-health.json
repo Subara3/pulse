@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-03T05:31:06.872840Z",
+  "generatedAt": "2026-10-03T12:26:35.187473Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok iss\nok flock\nok primes\nok fibonacci\nok fractal\nok life\nok sort\nok fourier\nok langton\nok reaction\nok lorenz\nok penrose\nok waves\nok sandpile\nok network\nok collatz\nok voronoi\nok string\nok dla\nok percolation\nok packing\nok maze\nok pendulum\nok spirograph\nok cloth\nok mycelium\nok caustics\nok chladni\nok fluidveil\nok galton\nok nbody\nok lsystemgarden\nok ising\nok newton\nok clifford\nok bifurcation\nok apollonian\nok kuramoto\nok wireworld\nok antcolony\nok predprey\nok magnetpendulum\nok gametheory\nok billiard\nok superformula\nok marbling\nok pendulumwave\nok tesseract\nok quantum\nok crystallize\nok particlelife\nok anneal\nok lenia\nok moire\nok efield\nok diffgrow\nok slit\nok erosion\nok hyperbolic\nok kaleidoscope\nok gravlens\nok harmonograph\nok crystal\nok recaman\nok ulam\nok dragon\nok collapse\nok gradient\nok rope\nok chirikov\nok quasicrystal\nok galaxy\nok doppler\nok neural\nok stipple\nok ifs\nok rose\nok symicon\nok karman\nok crowd\nok inversion\nok swarmalator\nok buddhabrot\nok catenary\nok diffract\nok foam\nok ferrofluid\nok viscous\nok granular\nok lagrange\nok hopfield\nok dune\nok cyclic\nok shear\nok carpet\nok zeta\nok catastrophe\nok fourcolor\nok brachistochrone\nok buffon\nok topopt\nok meander\nok firefly\nok coastline\nok tessellate\nok truss\nok waveguide\nok cobweb\n\nDone. success=108, failed=0, jsErrors=0\n",
+      "stdoutTail": "mode=missing-only. 0/108 pages need rendering.\nNo target pages to render.\n",
       "stderrTail": ""
     },
     {
