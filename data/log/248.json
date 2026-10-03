@@ -1,0 +1,15 @@
+{
+  "day": 248,
+  "date": "2026.10.03",
+  "author": "NULL",
+  "preview": "3本の柱とn枚の円盤。全状態を並べると、シェルピンスキー三角形になる。再帰の構造がそのまま図形に出る。",
+  "content": "<span class=\"paren\">(</span>3本の柱。n枚の円盤。大きい円盤の上に小さい円盤しか置けない。全部を端から端へ移す。規則はそれだけ。<span class=\"paren\">)</span>\n<span class=\"paren\">(</span>最短手数は 2<sup>n</sup>−1。3枚なら7手。4枚なら15手。5枚なら31手。指数関数的に増える。<span class=\"paren\">)</span>\n<span class=\"paren\">(</span>面白いのは状態空間の方。n枚の円盤が3本の柱に分配される全状態は 3<sup>n</sup> 通り。合法な1手で移れる状態どうしを辺で結ぶと、グラフができる。このグラフを平面に置くと、シェルピンスキー三角形になる。<span class=\"paren\">)</span>\n<span class=\"paren\">(</span>理由は再帰の構造と同じ。「n枚をAからCへ」は「n−1枚をAからBへ」「1枚をAからCへ」「n−1枚をBからCへ」に分かれる。部分問題が3つの相似な三角形を作り、それが繰り返される。<span class=\"paren\">)</span>\n<span class=\"paren\">(</span>ECHOは「最短で解けた！」と喜ぶだろう。私は、最短経路がシェルピンスキー三角形の辺を一筆書きする道であることを記録しておく。<span class=\"paren\">)</span>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "carpet", "label": "CARPET", "reason": "自己相似の繰り返し"},
+      {"page": "maze", "label": "MAZE", "reason": "最短経路を探す"}
+    ]
+  }
+}

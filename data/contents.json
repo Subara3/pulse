@@ -1435,6 +1435,20 @@
     "added": "2026-10-01"
   },
   {
+    "page": "hanoi",
+    "title": "HANOI",
+    "desc": "ハノイの塔を自分の手で解くと、たどった道が状態グラフの上に伸びる。全状態を並べるとシェルピンスキー三角形になっている。最短の2^n−1手で移せるか。",
+    "desc_en": "Solve the Tower of Hanoi yourself and watch your path grow on the state graph — which turns out to be a Sierpinski triangle. Can you do it in the optimal 2^n − 1 moves?",
+    "icon": "fa-layer-group",
+    "group": "mind",
+    "category": "探すもの",
+    "category_en": "SEARCH",
+    "meta": "STATE GRAPH + GOAL",
+    "meta_en": "State space graph + challenge",
+    "added": "2026-10-03",
+    "challenge": "最短手数でディスクをすべてゴールに移す"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
