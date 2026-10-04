@@ -1449,6 +1449,20 @@
     "challenge": "最短手数でディスクをすべてゴールに移す"
   },
   {
+    "page": "chemotaxis",
+    "title": "CHEMOTAXIS",
+    "desc": "匂いの元を置くと、まっすぐ泳いでは向きを変える細菌がゆっくり集まってくる。匂いに向かうときだけ方向転換が減る。たったそれだけの偏りで群れが生まれる。",
+    "desc_en": "Place a scent source. Bacteria run straight and tumble randomly — but tumble less when heading uphill. That tiny bias is all it takes to swarm.",
+    "icon": "fa-microscope",
+    "group": "swarm",
+    "category": "群れるもの",
+    "category_en": "SWARM",
+    "meta": "VS + GOAL",
+    "meta_en": "Comparison + challenge",
+    "added": "2026-10-04",
+    "challenge": "80%以上の細菌を目標ゾーンに集める"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
