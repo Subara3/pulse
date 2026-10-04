@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-03T20:21:57.697390Z",
+  "generatedAt": "2026-10-04T20:28:12.714026Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok hanoi\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok chemotaxis\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "hanoi.mp4",
+            "file": "chemotaxis.mp4",
             "initial": {
               "ok": true,
               "start": [
                 16.0,
-                17.1127,
-                19.2189,
-                20.334,
-                22.4424,
-                23.568,
-                25.6899,
-                25.6899,
-                25.6908,
-                25.6889,
-                25.6907,
-                25.6905,
-                25.6905,
-                25.6891
+                20.6602,
+                25.644,
+                30.2735,
+                35.2431,
+                39.8175,
+                44.6273,
+                44.6616,
+                44.5786,
+                44.6659,
+                44.6608,
+                44.6758,
+                44.5983,
+                44.5686
               ],
               "end": [
-                22.4402,
-                21.3259,
-                19.8564,
-                18.3516,
-                17.1568,
+                32.6109,
+                29.3357,
+                26.1995,
+                22.7989,
+                19.4702,
                 16.0,
                 16.0,
                 16.0,
                 16.0
               ],
-              "start_max": 25.6908,
-              "end_max": 22.4402,
-              "start_med": 25.6891,
-              "end_med": 17.1568
+              "start_max": 44.6758,
+              "end_max": 32.6109,
+              "start_med": 44.5786,
+              "end_med": 19.4702
             }
           }
         ]
@@ -62,22 +62,20 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 1,
-        "flagged_pages": [
-          "hanoi"
-        ],
+        "flagged_count": 0,
+        "flagged_pages": [],
         "results": [
           {
-            "file": "hanoi.mp4",
-            "ok": false,
-            "too_dark": true,
-            "too_static": true,
+            "file": "chemotaxis.mp4",
+            "ok": true,
+            "too_dark": false,
+            "too_static": false,
             "luma": [
-              10.83,
-              10.82,
-              10.82
+              33.35,
+              30.55,
+              30.48
             ],
-            "motion": 0.118
+            "motion": 5.389
           }
         ]
       }
@@ -92,12 +90,12 @@
         "failed": [],
         "details": [
           {
-            "file": "hanoi.mp4",
+            "file": "chemotaxis.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 16.0,
-              "y1": 22.4424,
+              "y1": 35.2431,
               "y2": 16.0,
               "y3": null,
               "seam_diff": 0.0,
