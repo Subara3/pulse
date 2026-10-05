@@ -1463,6 +1463,20 @@
     "challenge": "80%以上の細菌を目標ゾーンに集める"
   },
   {
+    "page": "demon",
+    "title": "DEMON",
+    "desc": "壁の小窓を開け閉めして、速い粒と遅い粒をより分ける。マクスウェルの悪魔になって、片方を熱く、もう片方を冷たくできるか。",
+    "desc_en": "Open and close a gate in a wall to sort fast and slow particles. Play Maxwell's demon and try to make one side hot and the other cold.",
+    "icon": "fa-door-open",
+    "group": "flow",
+    "category": "流れるもの",
+    "category_en": "FLOW",
+    "meta": "挑戦あり / 温度比ゲーム",
+    "meta_en": "challenge / temperature ratio",
+    "added": "2026-10-05",
+    "challenge": "温度比を2倍にする"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
