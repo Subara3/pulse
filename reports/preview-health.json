@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-04T20:28:12.714026Z",
+  "generatedAt": "2026-10-05T20:24:18.153129Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok chemotaxis\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok demon\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "chemotaxis.mp4",
+            "file": "demon.mp4",
             "initial": {
               "ok": true,
               "start": [
                 16.0,
-                20.6602,
-                25.644,
-                30.2735,
-                35.2431,
-                39.8175,
-                44.6273,
-                44.6616,
-                44.5786,
-                44.6659,
-                44.6608,
-                44.6758,
-                44.5983,
-                44.5686
+                17.175,
+                18.8624,
+                20.7013,
+                23.0021,
+                24.1393,
+                26.3061,
+                26.3139,
+                26.3116,
+                26.3252,
+                26.3375,
+                26.3366,
+                26.3962,
+                26.4014
               ],
               "end": [
-                32.6109,
-                29.3357,
-                26.1995,
-                22.7989,
-                19.4702,
+                22.0959,
+                21.2069,
+                19.6513,
+                18.6522,
+                17.0675,
                 16.0,
                 16.0,
                 16.0,
                 16.0
               ],
-              "start_max": 44.6758,
-              "end_max": 32.6109,
-              "start_med": 44.5786,
-              "end_med": 19.4702
+              "start_max": 26.4014,
+              "end_max": 22.0959,
+              "start_med": 26.3116,
+              "end_med": 17.0675
             }
           }
         ]
@@ -62,20 +62,22 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 0,
-        "flagged_pages": [],
+        "flagged_count": 1,
+        "flagged_pages": [
+          "demon"
+        ],
         "results": [
           {
-            "file": "chemotaxis.mp4",
-            "ok": true,
-            "too_dark": false,
-            "too_static": false,
+            "file": "demon.mp4",
+            "ok": false,
+            "too_dark": true,
+            "too_static": true,
             "luma": [
-              33.35,
-              30.55,
-              30.48
+              11.97,
+              12.05,
+              12.03
             ],
-            "motion": 5.389
+            "motion": 1.785
           }
         ]
       }
@@ -90,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "chemotaxis.mp4",
+            "file": "demon.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 16.0,
-              "y1": 35.2431,
+              "y1": 23.0021,
               "y2": 16.0,
               "y3": null,
               "seam_diff": 0.0,
