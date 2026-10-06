@@ -1477,6 +1477,20 @@
     "challenge": "温度比を2倍にする"
   },
   {
+    "page": "clack",
+    "title": "CLACK",
+    "desc": "質量の違うブロックが壁との間で弾む。跳ね返りの回数を当ててみる。答えには円周率が隠れている。",
+    "desc_en": "Blocks of different mass bounce between each other and a wall. Guess how many times they collide. The answer hides π.",
+    "icon": "fa-cubes",
+    "group": "number",
+    "category": "数えるもの",
+    "category_en": "NUMBER",
+    "meta": "予想あり / π計数",
+    "meta_en": "prediction / π in collision count",
+    "added": "2026-10-06",
+    "challenge": "GUESSモードで衝突回数をぴったり当てる"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
