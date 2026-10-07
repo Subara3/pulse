@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-06T20:36:54.956417Z",
+  "generatedAt": "2026-10-07T20:43:31.710897Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok clack\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok grain\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "clack.mp4",
+            "file": "grain.mp4",
             "initial": {
               "ok": true,
               "start": [
                 16.0,
-                17.2331,
-                19.4761,
-                20.7182,
-                22.9515,
-                24.2276,
-                26.4359,
-                26.4357,
-                26.4472,
-                26.4517,
-                26.448,
-                26.447,
-                26.4474,
-                26.4489
+                26.1237,
+                36.5928,
+                46.4021,
+                56.7555,
+                67.3746,
+                77.4472,
+                77.5667,
+                77.6296,
+                77.559,
+                77.6863,
+                77.6607,
+                77.6957,
+                77.6842
               ],
               "end": [
-                22.9187,
-                21.7094,
-                20.1099,
-                18.4346,
-                17.2441,
+                54.7309,
+                47.4274,
+                39.5211,
+                31.9214,
+                23.7549,
                 16.0,
                 16.0,
                 16.0,
                 16.0
               ],
-              "start_max": 26.4517,
-              "end_max": 22.9187,
-              "start_med": 26.4359,
-              "end_med": 17.2441
+              "start_max": 77.6957,
+              "end_max": 54.7309,
+              "start_med": 77.559,
+              "end_med": 23.7549
             }
           }
         ]
@@ -62,22 +62,20 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 1,
-        "flagged_pages": [
-          "clack"
-        ],
+        "flagged_count": 0,
+        "flagged_pages": [],
         "results": [
           {
-            "file": "clack.mp4",
-            "ok": false,
-            "too_dark": true,
-            "too_static": true,
+            "file": "grain.mp4",
+            "ok": true,
+            "too_dark": false,
+            "too_static": false,
             "luma": [
-              11.72,
-              11.71,
-              11.71
+              71.85,
+              71.98,
+              71.71
             ],
-            "motion": 0.155
+            "motion": 2.058
           }
         ]
       }
@@ -92,12 +90,12 @@
         "failed": [],
         "details": [
           {
-            "file": "clack.mp4",
+            "file": "grain.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 16.0,
-              "y1": 22.9515,
+              "y1": 56.7555,
               "y2": 16.0,
               "y3": null,
               "seam_diff": 0.0,
