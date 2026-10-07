@@ -1491,6 +1491,20 @@
     "challenge": "GUESSモードで衝突回数をぴったり当てる"
   },
   {
+    "page": "grain",
+    "title": "GRAIN",
+    "desc": "種を置くと結晶が四方に育ち、ぶつかった所に光る境界が走る。粒の大きさを揃えられるか。",
+    "desc_en": "Place crystal seeds and watch grains grow until they collide, leaving bright boundaries. Can you make them all the same size?",
+    "icon": "fa-gem",
+    "group": "grow",
+    "category": "育つもの",
+    "category_en": "GROWTH",
+    "meta": "多結晶凝固 / 均一度チャレンジ",
+    "meta_en": "Polycrystal solidification / Uniformity challenge",
+    "added": "2026-10-07",
+    "challenge": "5粒以上で揃い90%を超える"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
