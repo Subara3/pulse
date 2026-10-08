@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-07T20:43:31.710897Z",
+  "generatedAt": "2026-10-08T20:40:12.494109Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok grain\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok cassini\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "grain.mp4",
+            "file": "cassini.mp4",
             "initial": {
               "ok": true,
               "start": [
                 16.0,
-                26.1237,
-                36.5928,
-                46.4021,
-                56.7555,
-                67.3746,
-                77.4472,
-                77.5667,
-                77.6296,
-                77.559,
-                77.6863,
-                77.6607,
-                77.6957,
-                77.6842
+                18.2202,
+                21.3426,
+                23.5716,
+                26.7254,
+                28.9291,
+                32.0511,
+                32.0561,
+                32.0589,
+                32.0561,
+                32.0628,
+                32.0607,
+                32.0611,
+                32.0529
               ],
               "end": [
-                54.7309,
-                47.4274,
-                39.5211,
-                31.9214,
-                23.7549,
+                26.6188,
+                24.4536,
+                22.3451,
+                20.1421,
+                18.1689,
                 16.0,
                 16.0,
                 16.0,
                 16.0
               ],
-              "start_max": 77.6957,
-              "end_max": 54.7309,
-              "start_med": 77.559,
-              "end_med": 23.7549
+              "start_max": 32.0628,
+              "end_max": 26.6188,
+              "start_med": 32.0529,
+              "end_med": 18.1689
             }
           }
         ]
@@ -62,20 +62,22 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 0,
-        "flagged_pages": [],
+        "flagged_count": 1,
+        "flagged_pages": [
+          "cassini"
+        ],
         "results": [
           {
-            "file": "grain.mp4",
-            "ok": true,
+            "file": "cassini.mp4",
+            "ok": false,
             "too_dark": false,
-            "too_static": false,
+            "too_static": true,
             "luma": [
-              71.85,
-              71.98,
-              71.71
+              18.34,
+              18.31,
+              18.35
             ],
-            "motion": 2.058
+            "motion": 1.228
           }
         ]
       }
@@ -90,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "grain.mp4",
+            "file": "cassini.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 16.0,
-              "y1": 56.7555,
+              "y1": 26.7254,
               "y2": 16.0,
               "y3": null,
               "seam_diff": 0.0,
