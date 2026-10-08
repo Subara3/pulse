@@ -1505,6 +1505,19 @@
     "challenge": "5粒以上で揃い90%を超える"
   },
   {
+    "page": "cassini",
+    "title": "CASSINI",
+    "desc": "つまみを回すと、2つの輪がゆっくり近づき、8の字でつながり、1つの曲線に溶ける。焦点からの距離の積が形を決めている。",
+    "desc_en": "Turn the dial and two loops slowly approach, join at a figure-8, then merge into one. The product of distances from two foci decides the shape.",
+    "icon": "fa-infinity",
+    "group": "curve",
+    "category": "描くもの",
+    "category_en": "CURVE",
+    "meta": "4指標 / 距離場",
+    "meta_en": "4 METRICS / DISTANCE FIELD",
+    "added": "2026-10-08"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
