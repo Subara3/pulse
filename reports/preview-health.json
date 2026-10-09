@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-08T20:40:12.494109Z",
+  "generatedAt": "2026-10-09T20:42:50.364485Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok cassini\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok rolling\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "cassini.mp4",
+            "file": "rolling.mp4",
             "initial": {
               "ok": true,
               "start": [
                 16.0,
-                18.2202,
-                21.3426,
-                23.5716,
-                26.7254,
-                28.9291,
-                32.0511,
-                32.0561,
-                32.0589,
-                32.0561,
-                32.0628,
-                32.0607,
-                32.0611,
-                32.0529
+                17.1311,
+                19.3014,
+                20.4669,
+                22.6367,
+                23.793,
+                25.9599,
+                25.9549,
+                25.9674,
+                25.9617,
+                25.9772,
+                25.9752,
+                25.6766,
+                25.6646
               ],
               "end": [
-                26.6188,
-                24.4536,
-                22.3451,
-                20.1421,
-                18.1689,
+                22.6528,
+                21.4776,
+                20.3396,
+                18.2658,
+                17.1522,
                 16.0,
                 16.0,
                 16.0,
                 16.0
               ],
-              "start_max": 32.0628,
-              "end_max": 26.6188,
-              "start_med": 32.0529,
-              "end_med": 18.1689
+              "start_max": 25.9772,
+              "end_max": 22.6528,
+              "start_med": 25.6766,
+              "end_med": 17.1522
             }
           }
         ]
@@ -64,20 +64,20 @@
         "checked": 1,
         "flagged_count": 1,
         "flagged_pages": [
-          "cassini"
+          "rolling"
         ],
         "results": [
           {
-            "file": "cassini.mp4",
+            "file": "rolling.mp4",
             "ok": false,
-            "too_dark": false,
+            "too_dark": true,
             "too_static": true,
             "luma": [
-              18.34,
-              18.31,
-              18.35
+              11.2,
+              11.11,
+              11.23
             ],
-            "motion": 1.228
+            "motion": 1.478
           }
         ]
       }
@@ -92,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "cassini.mp4",
+            "file": "rolling.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 16.0,
-              "y1": 26.7254,
+              "y1": 22.6367,
               "y2": 16.0,
               "y3": null,
               "seam_diff": 0.0,
