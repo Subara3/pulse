@@ -1518,6 +1518,20 @@
     "added": "2026-10-08"
   },
   {
+    "page": "rolling",
+    "title": "ROLLING",
+    "desc": "同じ坂でも球・円盤・球殻・リングで着く順が違う。回転に取られるエネルギーの配分が速さを決めている。勝者を当ててみる。",
+    "desc_en": "Same slope, different shapes — sphere, disk, shell, ring. The one that wastes less energy spinning arrives first. Predict the winner.",
+    "icon": "fa-circle",
+    "group": "force",
+    "category": "引き合うもの",
+    "category_en": "FORCE",
+    "meta": "慣性モーメント・4形状レース",
+    "meta_en": "Moment of inertia / 4-shape race",
+    "added": "2026-10-09",
+    "challenge": "PREDICTモードで3回連続正解する"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",

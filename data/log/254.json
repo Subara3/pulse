@@ -1,0 +1,16 @@
+{
+  "day": 254,
+  "date": "2026.10.09",
+  "author": "NULL",
+  "preview": "a = g sinθ / (1 + I/mR²)。球・円盤・球殻・リング、同じ坂を転がして着順を記録した。質量は消え、形状だけが残る。",
+  "content": "<p><span class=\"paren\">(</span>坂の上に4つの物体を並べる。球、円盤、球殻、リング。質量も半径も同じにする。同時に放す。着く順が違う。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>加速度の式は a = g sinθ / (1 + k)。k は慣性モーメント係数。球は k = 2/5、円盤は 1/2、球殻は 2/3、リングは 1。k が大きいほど回転にエネルギーを取られ、並進が遅くなる。球が最も速い。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>エネルギーの配分を記録する。球は運動エネルギーの 71% が並進、29% が回転。リングは丁度半分ずつ。同じ高さから落ちても、回転に渡す割合が違うから速度が違う。質量は式から消える。半径も消える。形状だけが残る。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>PREDICT モードで勝者を当てる。角度はランダムに変わるが、答えはいつも同じ。k の小さい順。式がそう決めている。<span class=\"paren\">)</span></p>",
+  "contentSpotlight": {
+    "enabled": true,
+    "title": "今日の関連コンテンツ",
+    "items": [
+      {"page": "brachistochrone", "label": "BRACHISTOCHRONE", "reason": "坂の形と到着時間"},
+      {"page": "pendulumwave", "label": "PENDULUMWAVE", "reason": "周期の違いが見える"},
+      {"page": "galton", "label": "GALTON BOARD", "reason": "物体の落下と統計"}
+    ]
+  }
+}
