@@ -15,7 +15,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <canvas id="canvas"></canvas>
 
 <div id="controls" class="drawer-controls">
-  <div class="ctl-row"><label for="k-rain">RAIN</label><input type="range" id="k-rain" min="0" max="100" value="35"></div>
+  <div class="ctl-row"><label for="k-rain">RAIN</label><input type="range" id="k-rain" min="0" max="100" value="60"></div>
   <div class="ctl-row"><label for="k-calm">CALM</label><input type="range" id="k-calm" min="0" max="100" value="55"></div>
   <div class="ctl-btns"><button type="button" class="active" data-look="light">LIGHT</button><button type="button" data-look="lines">LINES</button></div>
   <div class="ctl-btns"><button type="button" id="k-still">STILL</button></div>
@@ -32,7 +32,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var NX, NY, cur, prev, img, buf, bctx;
   var rings = [];
   var look = 'light';
-  var rain = 0.35, damp = 0.992;
+  var rain = 0.6, damp = 0.992;
 
   function alloc() {
     NX = Math.max(140, Math.min(320, Math.round(W / 4)));
@@ -47,8 +47,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* 水滴: 小さなくぼみを置く。輪の見た目は格子の波が勝手に作る */
-  function drop(x, y, power, mark) {
-    var cx = x / W * NX, cy = y / H * NY, r = 2.6;
+  function drop(x, y, power, mark, rad) {
+    var cx = x / W * NX, cy = y / H * NY, r = rad || 2.6;
     for (var j = Math.max(1, Math.floor(cy - r)); j < Math.min(NY - 1, Math.ceil(cy + r)); j++) {
       for (var i = Math.max(1, Math.floor(cx - r)); i < Math.min(NX - 1, Math.ceil(cx + r)); i++) {
         var d = Math.hypot(i - cx, j - cy) / r;
@@ -81,7 +81,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
         var k = j * NX + i, o = k * 4;
         var gx = (i > 0 && i < NX - 1) ? cur[k + 1] - cur[k - 1] : 0;
         var gy = (j > 0 && j < NY - 1) ? cur[k + NX] - cur[k - NX] : 0;
-        var s = (gx * 0.8 - gy * 0.6) * 6;
+        var s = (gx * 0.8 - gy * 0.6) * 10;
         var r, g, b;
         if (look === 'lines') {
           /* 等高線: 高さを細かく刻んで、刻み目だけを線にする */
@@ -129,7 +129,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function pos(e) { return { x: e.clientX, y: e.clientY }; }
   canvas.addEventListener('pointerdown', function (e) {
     down = true; last = pos(e);
-    drop(last.x, last.y, 1.4, true);
+    drop(last.x, last.y, 4.5, true, 6);   /* 指の下は大きく深く。押した瞬間に輪が立つ */
     SFX.play('ripple');
     canvas.setPointerCapture(e.pointerId);
   });
@@ -138,7 +138,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var p = pos(e), dist = Math.hypot(p.x - last.x, p.y - last.y);
     if (dist < 10) return;
     var n = Math.ceil(dist / 14);
-    for (var i = 1; i <= n; i++) drop(last.x + (p.x - last.x) * i / n, last.y + (p.y - last.y) * i / n, 0.35, false);
+    for (var i = 1; i <= n; i++) drop(last.x + (p.x - last.x) * i / n, last.y + (p.y - last.y) * i / n, 1.1, false, 3.5);
     last = p;
     SFX.play('move', 140);
   });
@@ -171,7 +171,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     rainAcc += dt * (0.4 + rain * 5);
     while (rainAcc > 1) {
       rainAcc -= 1;
-      drop(Math.random() * W, Math.random() * H, 0.5 + Math.random() * 0.7, false);
+      drop(Math.random() * W, Math.random() * H, 0.9 + Math.random() * 1.1, false, 3);
       if (Math.random() < 0.35) SFX.play('ripple', 900);
     }
     step(); step();

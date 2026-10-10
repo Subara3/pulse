@@ -95,4 +95,91 @@ const P = (function () {
 
   return { bg, deep, line, accent, steel, rgba, hex, mix, ramp, rampAccent, fill, grid, fit };
 })();
+
+/* 手ざわりの層（全作品共通）。
+   画面に文字を出さない代わりに、指やマウスの位置へ水色の小さな輪を出し、
+   押した瞬間に輪を広げ、なぞった跡を短く残す。作品の canvas の上に重ねる別の canvas に描くので、
+   作品側の描画には一切触れない。QA で作品そのものの反応を測るときは ?noring=1 で消せる。 */
+(function () {
+  if (/[?&]noring=1/.test(location.search)) return;
+  var A = P.accent;
+  var fx, c, W = 0, H = 0, dpr = 1;
+  var hover = null, down = false, rings = [], trail = [], raf = 0, last = 0;
+
+  function boot() {
+    var art = document.getElementById('canvas');
+    if (!art) return;
+    fx = document.createElement('canvas');
+    fx.setAttribute('aria-hidden', 'true');
+    fx.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:5';
+    document.body.appendChild(fx);
+    c = fx.getContext('2d');
+    art.style.cursor = 'none';   /* 輪がカーソルの代わり。JS が動かないときは CSS の十字のまま */
+    size();
+    window.addEventListener('resize', size);
+    /* 作品の canvas の上で起きたものだけ拾う（ナビや設定パネルの操作では出さない） */
+    art.addEventListener('pointermove', function (e) {
+      if (e.pointerType === 'mouse') hover = { x: e.clientX, y: e.clientY };
+      if (down) {
+        var p = trail[trail.length - 1];
+        if (!p || Math.hypot(e.clientX - p.x, e.clientY - p.y) > 6) trail.push({ x: e.clientX, y: e.clientY, t: 0 });
+      }
+      kick();
+    });
+    art.addEventListener('pointerdown', function (e) {
+      down = true;
+      rings.push({ x: e.clientX, y: e.clientY, t: 0 });
+      trail.push({ x: e.clientX, y: e.clientY, t: 0 });
+      kick();
+    });
+    function up() { down = false; kick(); }
+    window.addEventListener('pointerup', up);
+    window.addEventListener('pointercancel', up);
+    art.addEventListener('pointerleave', function () { hover = null; kick(); });
+  }
+  function size() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    fx.width = Math.round(W * dpr); fx.height = Math.round(H * dpr);
+    c.setTransform(dpr, 0, 0, dpr, 0, 0);
+    kick();
+  }
+  function kick() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
+  function frame(now) {
+    var dt = Math.min(0.05, (now - last) / 1000); last = now;
+    c.clearRect(0, 0, W, H);
+    var busy = false;
+    /* なぞった跡: 0.5 秒で消える点線 */
+    for (var i = trail.length - 1; i >= 0; i--) {
+      var q = trail[i]; q.t += dt;
+      var a = 1 - q.t / 0.5;
+      if (a <= 0) { trail.splice(i, 1); continue; }
+      c.fillStyle = P.rgba(A, 0.55 * a);
+      c.beginPath(); c.arc(q.x, q.y, 1.6 + a * 1.2, 0, 6.2832); c.fill();
+      busy = true;
+    }
+    /* 押した瞬間: 0.7 秒で広がって消える輪 */
+    for (var j = rings.length - 1; j >= 0; j--) {
+      var r = rings[j]; r.t += dt;
+      var k = r.t / 0.7;
+      if (k >= 1) { rings.splice(j, 1); continue; }
+      var e = 1 - Math.pow(1 - k, 3);
+      c.strokeStyle = P.rgba(A, 0.8 * (1 - k));
+      c.lineWidth = 1.5;
+      c.beginPath(); c.arc(r.x, r.y, 10 + e * 48, 0, 6.2832); c.stroke();
+      busy = true;
+    }
+    /* マウスの位置: 小さな輪。押している間は少し縮んで濃くなる */
+    if (hover) {
+      c.strokeStyle = P.rgba(A, down ? 0.9 : 0.5);
+      c.lineWidth = 1.2;
+      c.beginPath(); c.arc(hover.x, hover.y, down ? 7 : 11, 0, 6.2832); c.stroke();
+      c.fillStyle = P.rgba(A, 0.9);
+      c.beginPath(); c.arc(hover.x, hover.y, 1.4, 0, 6.2832); c.fill();
+    }
+    if (busy) raf = requestAnimationFrame(frame); else raf = 0;
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
 </script>
