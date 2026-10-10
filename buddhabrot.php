@@ -5,7 +5,7 @@ recordPageView('buddhabrot');
 
 $pageName = 'buddhabrot';
 $pageTitle = 'BUDDHABROT - PULSE';
-$pageDesc = 'たくさんの点が飛び去った道筋を重ねると、ぼんやり光る左右対称の形が浮かび、時間とともにゆっくり形が変わる。触ったところから出発した点の道筋だけが水色で表示される。';
+$pageDesc = 'たくさんの点が飛び去った道筋を重ねると、ぼんやり光る左右対称の形が浮かび、時間とともにゆっくり形が変わる。押すとそこが押し広げられて水色に光り、なぞると光の雲が指の向きに流される。';
 $pageCanonical = 'https://pulse.subara3.com/buddhabrot.php';
 $extraStyle = '';
 
@@ -109,7 +109,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
         zi = 2 * zr * zi + ci; zr = zr2 - zi2 + cr;
         zr2 = zr * zr; zi2 = zi * zi;
         if (zr2 + zi2 > 4) break;
-        plot(acc, zr, zi, cr, ci, 1);
+        plot(acc, zr, zi, cr, ci, n < 3 ? 4 : 1);   // 出発点のまわりを濃く
       }
     }
   }
@@ -123,7 +123,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (v > mx) mx = v;
       if (a > amx) amx = a;
       den[k] = v * 0.988;
-      acc[k] = a * 0.9;
+      acc[k] = a * 0.965;
       var q = (v * inv * 1023) | 0; if (q > 1023) q = 1023;
       var li = TONE[q], l = TL[q];
       if (a > 0.01) {
@@ -137,21 +137,87 @@ require_once __DIR__ . '/includes/floating-nav.php';
     /* 明るさの基準は「ほぼ最大」をゆっくり追う。真ん中の芯だけが白くなる */
     peak += (Math.max(1, mx * 0.62) - peak) * 0.12;
     apeak += (Math.max(1, amx * 0.5) - apeak) * 0.2;
+    warpPass(function (v, o, w) {
+      var q = (v * inv * (1 + 2.2 * w) * 1023) | 0; if (q > 1023) q = 1023;
+      var li = TONE[q], ww = w * 0.75;
+      d[o] = LUT[li] + (LUTA[li] - LUT[li]) * ww; d[o + 1] = LUT[li + 1] + (LUTA[li + 1] - LUT[li + 1]) * ww; d[o + 2] = LUT[li + 2] + (LUTA[li + 2] - LUT[li + 2]) * ww;
+    });
     bctx.putImageData(img, 0, 0);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(buf, 0, 0, W, H);
   }
 
+  /* ---------------------------------------------------------- 指でずらす場（描いた後の見え方だけを動かす） */
+  /* 粗い格子の各点に「ずらし量」を持たせる。押すとそこが押し広げられ、なぞると点が指の向きに流される。
+     ずらしは 1 秒ほどで元に戻る。描き終えた濃さの画像を読み替えるだけなので、押した瞬間に効く */
+  var FS = 12, FW = 0, FH = 0, FDX = null, FDY = null, FG = null, fLast = performance.now(), fActive = false;
+  function fieldFit() {
+    var w = Math.ceil(NX / FS) + 2, h = Math.ceil(NY / FS) + 2;
+    if (w !== FW || h !== FH) { FW = w; FH = h; FDX = new Float32Array(FW * FH); FDY = new Float32Array(FW * FH); FG = new Float32Array(FW * FH); }
+  }
+  function fieldAdd(sx, sy, vx, vy, bulge) {
+    fieldFit();
+    var gx = sx / W * NX, gy = sy / H * NY, sc = NX / W, R = 130 * sc;
+    var kx = vx * sc, ky = vy * sc;
+    for (var j = 0; j < FH; j++) for (var i = 0; i < FW; i++) {
+      var dx = i * FS - gx, dy = j * FS - gy, r = Math.sqrt(dx * dx + dy * dy);
+      if (r >= R) continue;
+      var f = 1 - r / R; f *= f;
+      var k = j * FW + i, tx = FDX[k] + kx * f, ty = FDY[k] + ky * f;
+      if (bulge && r > 0.5) { tx += dx / r * bulge * sc * f; ty += dy / r * bulge * sc * f; }
+      var m = Math.sqrt(tx * tx + ty * ty), lim = 55 * sc;
+      if (m > lim) { tx *= lim / m; ty *= lim / m; }
+      FDX[k] = tx; FDY[k] = ty;
+      FG[k] = Math.min(1, FG[k] + Math.sqrt(f) * 1.6);          // 触ったところの模様を明るく灯す
+    }
+    fActive = true;
+  }
+  function warpPass(paint) {
+    var now = performance.now(), dt = Math.min(0.05, (now - fLast) / 1000); fLast = now;
+    if (!fActive) return;
+    fieldFit();
+    var dec = Math.exp(-dt * 1.5), any = false;
+    var gdec = Math.exp(-dt * 0.9);
+    for (var n = 0; n < FW * FH; n++) { FDX[n] *= dec; FDY[n] *= dec; FG[n] *= gdec; if (FDX[n] * FDX[n] + FDY[n] * FDY[n] > 0.09 || FG[n] > 0.01) any = true; }
+    if (!any) { fActive = false; return; }
+    var lim = 55 * NX / W;
+    for (var cj = 0; cj < FH - 1; cj++) for (var ci = 0; ci < FW - 1; ci++) {
+      var k0 = cj * FW + ci, k1 = k0 + 1, k2 = k0 + FW, k3 = k2 + 1;
+      var big = Math.max(Math.abs(FDX[k0]), Math.abs(FDY[k0]), Math.abs(FDX[k1]), Math.abs(FDY[k1]),
+                         Math.abs(FDX[k2]), Math.abs(FDY[k2]), Math.abs(FDX[k3]), Math.abs(FDY[k3]));
+      var gmax = Math.max(FG[k0], FG[k1], FG[k2], FG[k3]);
+      if (big < 0.3 && gmax < 0.01) continue;
+      var x0 = ci * FS, y0 = cj * FS;
+      for (var yy = y0; yy < y0 + FS && yy < NY; yy++) {
+        var v = (yy - y0) / FS;
+        for (var xx = x0; xx < x0 + FS && xx < NX; xx++) {
+          var u = (xx - x0) / FS;
+          var ddx = (FDX[k0] * (1 - u) + FDX[k1] * u) * (1 - v) + (FDX[k2] * (1 - u) + FDX[k3] * u) * v;
+          var ddy = (FDY[k0] * (1 - u) + FDY[k1] * u) * (1 - v) + (FDY[k2] * (1 - u) + FDY[k3] * u) * v;
+          var qx = Math.round(xx - ddx), qy = Math.round(yy - ddy);
+          var val = (qx >= 0 && qy >= 0 && qx < NX && qy < NY) ? den[qy * NX + qx] : 0;
+          var gg = (FG[k0] * (1 - u) + FG[k1] * u) * (1 - v) + (FG[k2] * (1 - u) + FG[k3] * u) * v;
+          paint(val, (yy * NX + xx) * 4, gg);
+        }
+      }
+    }
+  }
+
   /* ---------------------------------------------------------- 操作 */
   canvas.addEventListener('pointerdown', function (e) {
     touch.on = true; touch.x = e.clientX; touch.y = e.clientY;
+    touch.s = Math.max(touch.s, 0.6);
+    fieldAdd(e.clientX, e.clientY, 0, 0, 46);
+    sampleTouch(1800);                   // 押した瞬間に道筋をまとめて描く
     canvas.setPointerCapture(e.pointerId);
     SFX.play('spawn', 250);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!touch.on) return;
+    fieldAdd(e.clientX, e.clientY, (e.clientX - touch.x) * 0.9, (e.clientY - touch.y) * 0.9, 6);
     touch.x = e.clientX; touch.y = e.clientY;
+    sampleTouch(260);
     SFX.play('move', 260);
   });
   function up() { touch.on = false; }
@@ -174,9 +240,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
     /* ゆっくり傾けては戻す（約 70 秒で一往復） */
     theta = turn * 0.75 * (0.5 - 0.5 * Math.cos(t * 0.09));
     cosT = Math.cos(theta); sinT = Math.sin(theta);
-    touch.s += ((touch.on ? 1 : 0) - touch.s) * Math.min(1, dt * (touch.on ? 6 : 1.2));
+    touch.s += ((touch.on ? 1 : 0) - touch.s) * Math.min(1, dt * (touch.on ? 12 : 0.9));
     sample(4.5);
-    if (touch.on) sampleTouch(160);
+    if (touch.on) sampleTouch(420);
     shade();
     requestAnimationFrame(frame);
   }

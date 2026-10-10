@@ -5,7 +5,7 @@ recordPageView('rose');
 
 $pageName = 'rose';
 $pageTitle = 'ROSE - PULSE';
-$pageDesc = '花びらの形の曲線の上を一定の角度ずつ進んだ点を、細い線で順に結んで図形を描く。しばらくすると次の図形に入れ替わる。押すとすぐ次の図形に移り、横になぞると角度が少しずれて線の並びが変わる。';
+$pageDesc = '花びらの形の曲線の上を一定の角度ずつ進んだ点を、細い線で順に結んで図形を描く。しばらくすると次の図形に入れ替わる。押すと指のまわりの線が外へ押しのけられ、なぞると指の通った跡に沿って線が曲がる。離すと元に戻る。';
 $pageCanonical = 'https://pulse.subara3.com/rose.php';
 $extraStyle = '';
 
@@ -53,15 +53,44 @@ require_once __DIR__ . '/includes/floating-nav.php';
       ys[k] = cy + Math.sin(th + rot) * r;
     }
   }
+  /* 指のまわりでは線が外へ押しのけられる。線は細かく刻んでから曲げる */
+  var wells = [], RW = 140;
+  function warp(x, y, out) {
+    var ox = x, oy = y, wsum = 0;
+    for (var i = 0; i < wells.length; i++) {
+      var w = wells[i], dx = x - w.x, dy = y - w.y, d = Math.sqrt(dx * dx + dy * dy) + 1e-3;
+      var q = d / RW, f = w.s * Math.exp(-q * q * 1.6);
+      if (f < 0.002) continue;
+      var push = f * RW * 0.9;
+      ox += dx / d * push; oy += dy / d * push; wsum += f;
+    }
+    /* いくつ重なっても、押しのける量は 1 か所ぶんを超えない */
+    if (wsum > 1) { ox = x + (ox - x) / wsum; oy = y + (oy - y) / wsum; }
+    out[0] = ox; out[1] = oy; out[2] = wsum;
+  }
+  var wo = [0, 0, 0];
   function lace(xs, ys, a) {
     if (a <= 0.01) return;
-    ctx.strokeStyle = P.rgba(P.line, 0.36 * a);
-    ctx.lineWidth = 0.8;
+    var plain = new Path2D(), lit = new Path2D(), SUB = wells.length ? 8 : 1;
+    for (var k = 0; k < 360; k++) {
+      var x0 = xs[k], y0 = ys[k], x1 = xs[k + 1], y1 = ys[k + 1];
+      warp(x0, y0, wo);
+      var px = wo[0], py = wo[1], pw = wo[2];
+      for (var s = 1; s <= SUB; s++) {
+        var t = s / SUB;
+        warp(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, wo);
+        var path = (pw + wo[2]) > 0.5 ? lit : plain;
+        path.moveTo(px, py); path.lineTo(wo[0], wo[1]);
+        px = wo[0]; py = wo[1]; pw = wo[2];
+      }
+    }
     ctx.lineJoin = 'round';
-    ctx.beginPath();
-    ctx.moveTo(xs[0], ys[0]);
-    for (var k = 1; k <= 360; k++) ctx.lineTo(xs[k], ys[k]);
-    ctx.stroke();
+    ctx.strokeStyle = P.rgba(P.line, 0.62 * a);
+    ctx.lineWidth = 1.15;
+    ctx.stroke(plain);
+    ctx.strokeStyle = P.rgba(P.accent, 0.8 * a);
+    ctx.lineWidth = 1.5;
+    ctx.stroke(lit);
   }
   function petals(nn, a) {
     if (a <= 0.01) return;
@@ -81,8 +110,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   /* ---------------------------------------------------------- 操作 */
   var down = false, last = null, moved = 0, glow = 0;
+  var well = null;
   canvas.addEventListener('pointerdown', function (e) {
     down = true; moved = 0; last = { x: e.clientX, y: e.clientY };
+    well = { x: last.x, y: last.y, s: 0.35, held: true };
+    wells.push(well);
+    SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
@@ -90,17 +123,23 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var dx = e.clientX - last.x, dy = e.clientY - last.y;
     moved += Math.abs(dx) + Math.abs(dy);
     last = { x: e.clientX, y: e.clientY };
-    /* 横になぞると跳ぶ角度がずれる。離すとゆっくり戻る */
-    nudge = Math.max(-0.9, Math.min(0.9, nudge + dx * 0.003));
+    /* 押しのける場所が指についてくる。通った跡は少しのあいだ曲がったまま残る */
+    if (well) {
+      if (Math.hypot(last.x - well.x, last.y - well.y) > 40) {
+        well.held = false;
+        well = { x: last.x, y: last.y, s: 0.7, held: true };
+        wells.push(well);
+      } else { well.x = last.x; well.y = last.y; }
+    }
     glow = 1;
     if (Math.abs(dx) > 1) SFX.play('move', 160);
   });
   function up() {
-    if (down && moved < 6) { next(); glow = 1; SFX.play('spawn'); }
-    down = false;
+    if (well) well.held = false;
+    well = null; down = false;
   }
   canvas.addEventListener('pointerup', up);
-  canvas.addEventListener('pointercancel', function () { down = false; });
+  canvas.addEventListener('pointercancel', up);
 
   var kPace = document.getElementById('k-pace'), kTrail = document.getElementById('k-trail');
   kPace.addEventListener('input', function () { pace = this.value / 100; });
@@ -123,11 +162,17 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (hold > 24 - pace * 16) next();
     }
     var e = ease(tr);
-    /* 止まって見えないよう、角度はごくわずかに揺れ続ける */
-    var wob = Math.sin(T * 0.09) * 0.05;
+    var wob = 0;
     if (!down) nudge *= Math.pow(0.4, dt);
-    rot += dt * 0.012;
+    rot += dt * 0.002;
     glow = Math.max(0, glow - dt * 0.6);
+    /* 押しているあいだはすぐ深く押しのけ、離すとゆっくり戻る */
+    for (var wi = wells.length - 1; wi >= 0; wi--) {
+      var wl = wells[wi];
+      if (wl.held) wl.s = Math.min(1, wl.s + dt * 6);
+      else { wl.s -= dt * (down ? 1.4 : 0.8); if (wl.s <= 0) wells.splice(wi, 1); }
+    }
+    if (wells.length > 24) wells.splice(0, wells.length - 24);
     points(n1, d1 + wob + nudge, XS, YS);
     points(n0, d0 + wob + nudge, XP, YP);
 
@@ -136,26 +181,6 @@ require_once __DIR__ . '/includes/floating-nav.php';
     petals(n0, 1 - e); petals(n1, e);
     lace(XP, YP, 1 - e); lace(XS, YS, e);
 
-    /* 線をたどる 1 点だけを、シアンで灯す */
-    pen = (pen + dt * (14 + pace * 18)) % 360;
-    var pk = Math.floor(pen), seg = 14;
-    ctx.lineWidth = 1.4;
-    for (var s = 0; s < seg; s++) {
-      var a = pk - s, b = a + 1;
-      if (a < 0) break;
-      ctx.strokeStyle = P.rgba(P.accent, (1 - s / seg) * (0.55 + glow * 0.4));
-      ctx.beginPath();
-      ctx.moveTo(XS[a], YS[a]);
-      var f = s === 0 ? pen - pk : 1;
-      ctx.lineTo(XS[a] + (XS[b] - XS[a]) * f, YS[a] + (YS[b] - YS[a]) * f);
-      ctx.stroke();
-    }
-    var fp = pen - pk, hx = XS[pk] + (XS[pk + 1] - XS[pk]) * fp, hy = YS[pk] + (YS[pk + 1] - YS[pk]) * fp;
-    ctx.fillStyle = P.rgba(P.accent, 0.95);
-    ctx.beginPath();
-    ctx.arc(hx, hy, 2.2, 0, Math.PI * 2);
-    ctx.fill();
-    if (pk === 0 && fp < dt * 30) SFX.play('tick', 4000);
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);

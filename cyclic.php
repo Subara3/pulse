@@ -5,7 +5,7 @@ recordPageView('cyclic');
 
 $pageName = 'cyclic';
 $pageTitle = 'CYCLIC - PULSE';
-$pageDesc = '短い線が画面いっぱいに並び、明るい帯が渦を巻きながら外へ広がっていく。触ったところに新しい渦の中心ができ、そこからも帯が広がる。';
+$pageDesc = '短い線が画面いっぱいに並び、明るい帯が渦を巻きながら外へ広がっていく。押したところに新しい渦の中心ができ、なぞった跡からは新しい波が両側へ広がる。';
 $pageCanonical = 'https://pulse.subara3.com/cyclic.php';
 $extraStyle = '';
 
@@ -111,6 +111,18 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
   }
 
+  function front(cx, cy, r) {
+    for (var j = Math.floor(cy - r); j <= cy + r; j++) {
+      for (var i = Math.floor(cx - r); i <= cx + r; i++) {
+        var d = Math.hypot(i - cx, j - cy);
+        if (d > r) continue;
+        var k = ((j % NY + NY) % NY) * NX + (i % NX + NX) % NX;
+        cur[k] = d < 1.6 ? 0 : N - 1; moved[k] = 0;
+        mark[k] = 1;
+      }
+    }
+  }
+
   /* 一部をでたらめに戻す。ばらばらになった所から新しい渦の芯が生まれる */
   function scramble(cx, cy, r, touched) {
     for (var j = Math.floor(cy - r); j <= cy + r; j++) {
@@ -161,6 +173,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
         var dx, dy;
         if (g < 0.5) { flat.push(i * S, y); continue; }
         dx = -gy / g * len; dy = gx / g * len;
+        if (mark[k] > 0.12) { var mlum = 0.55 + 0.45 * mark[k]; if (lum < mlum) lum = mlum; }
         b = Math.min(BK - 1, (lum * lum * BK) | 0);
         var x = i * S;
         (mark[k] > 0.12 ? hot : groups)[b].push(x - dx, y - dy, x + dx, y + dy);
@@ -173,9 +186,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ctx.fill();
     ctx.lineCap = 'round';
     for (b = 0; b < BK; b++) {
-      var a = 0.14 + 0.82 * (b / (BK - 1));
-      stroke(groups[b], P.rgba(b < 2 ? P.steel : P.line, a), b < 2 ? 0.9 : 1.15);
-      stroke(hot[b], P.rgba(P.accent, 0.3 + 0.7 * (b / (BK - 1))), 1.15);
+      var a = 0.22 + 0.76 * (b / (BK - 1));
+      stroke(groups[b], P.rgba(b < 2 ? P.steel : P.line, a), b < 2 ? 1 : 1.35);
+      stroke(hot[b], P.rgba(P.accent, 0.45 + 0.55 * (b / (BK - 1))), 1.6);
     }
   }
   function stroke(list, style, w) {
@@ -191,16 +204,17 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function cellOf(e) { return { x: e.clientX / S, y: e.clientY / S, px: e.clientX, py: e.clientY }; }
   canvas.addEventListener('pointerdown', function (e) {
     down = true; last = cellOf(e);
-    vortex(last.x, last.y, 6, Math.random() < 0.5 ? 1 : -1, true);
+    vortex(last.x, last.y, 105 / S, Math.random() < 0.5 ? 1 : -1, true);
     SFX.play('ripple');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
     var p = cellOf(e), dist = Math.hypot(p.px - last.px, p.py - last.py);
-    if (dist < S * 1.5) return;
-    var n = Math.ceil(dist / (S * 1.5));
-    for (var i = 1; i <= n; i++) scramble(last.x + (p.x - last.x) * i / n, last.y + (p.y - last.y) * i / n, 2.2, true);
+    if (dist < S * 0.6) return;
+    /* なぞった跡には波の先頭を引く。その線から両側へ新しい波が広がっていく */
+    var n = Math.ceil(dist / (S * 0.6));
+    for (var i = 1; i <= n; i++) front(last.x + (p.x - last.x) * i / n, last.y + (p.y - last.y) * i / n, 3.6);
     last = p;
     SFX.play('move', 160);
   });

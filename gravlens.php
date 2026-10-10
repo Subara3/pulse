@@ -5,7 +5,7 @@ recordPageView('gravlens');
 
 $pageName = 'gravlens';
 $pageTitle = 'GRAVLENS - PULSE';
-$pageDesc = '星と方眼が右から左へゆっくり流れ、見えない重い点のまわりで方眼が曲がって見える。その点の真後ろを通る星は、輪の形に引き伸ばされる。指でなぞると、重い点が指についてくる。';
+$pageDesc = '方眼と星の手前に見えない重い点があり、そのまわりで方眼が曲がって見える。点の真後ろにある星は輪の形に引き伸ばされる。押すと重い点が指の下へ移り、なぞると指についてくる。';
 $pageCanonical = 'https://pulse.subara3.com/gravlens.php';
 $extraStyle = '';
 
@@ -16,7 +16,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
 <div id="controls" class="drawer-controls">
   <div class="ctl-row"><label for="k-mass">MASS</label><input type="range" id="k-mass" min="0" max="100" value="50"></div>
-  <div class="ctl-row"><label for="k-drift">DRIFT</label><input type="range" id="k-drift" min="0" max="100" value="35"></div>
+  <div class="ctl-row"><label for="k-drift">DRIFT</label><input type="range" id="k-drift" min="0" max="100" value="0"></div>
   <div class="ctl-btns"><button type="button" class="active" data-lens="one">ONE</button><button type="button" data-lens="pair">PAIR</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
@@ -30,7 +30,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* 重力レンズ。画面の各点から、光が曲げられて来た「元の位置」を逆にたどって、背景の絵を引いてくる。
      点の質量のレンズでは、元の位置 = 見えている位置 − θE² × (位置 − レンズ) / 距離² */
   var RS = 2, RW, RH, src, img, buf, bctx, lut;
-  var mass = 0.5, drift = 0.35, mode = 'one';
+  var mass = 0.5, drift = 0, mode = 'one';
 
   function alloc() {
     RS = W * H > 1600000 ? 3 : W * H > 600000 ? 2.4 : 2;
@@ -92,9 +92,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ---------------------------------------------------------- レンズ */
-  var lens = { x: 0, y: 0, tx: 0, ty: 0 }, anchor = { x: 0, y: 0 }, held = false, clock = 0, scroll = 0;
+  var swell = 0, lens = { x: 0, y: 0, tx: 0, ty: 0 }, anchor = { x: 0, y: 0 }, held = false, clock = 0, scroll = 0;
   function masses() {
-    var rE = Math.min(W, H) * (0.07 + mass * 0.13);
+    var rE = Math.min(W, H) * (0.07 + mass * 0.13) * (1 + 0.5 * swell);
     if (mode === 'one') return [{ x: lens.x, y: lens.y, e2: rE * rE }];
     var a = clock * 0.35, d = rE * 0.55;
     return [
@@ -155,13 +155,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   /* ---------------------------------------------------------- 操作 */
   canvas.addEventListener('pointerdown', function (e) {
-    held = true; lens.tx = e.clientX; lens.ty = e.clientY;
+    /* 押した瞬間に重い点が指の下へ移り、押しているあいだ少しずつ重くなる（輪が広がる） */
+    held = true; lens.tx = lens.x = e.clientX; lens.ty = lens.y = e.clientY;
     SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!held) return;
-    lens.tx = e.clientX; lens.ty = e.clientY;
+    lens.tx = lens.x = e.clientX; lens.ty = lens.y = e.clientY;
     SFX.play('move', 220);
   });
   function up() {
@@ -191,15 +192,16 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
     clock += dt; wanderT += dt;
-    scroll += dt * (2 + drift * 26) / RS;
+    scroll += dt * (1.5 + drift * 28) / RS;
     if (scroll > SW) scroll -= SW;
     if (!held) {
       /* 離しているあいだは、置いた場所のまわりをゆっくり漂う。漂い始めは小さく */
       var amp = Math.min(1, wanderT / 6);
-      lens.tx = anchor.x + Math.sin(clock * 0.13) * W * 0.12 * amp;
-      lens.ty = anchor.y + Math.sin(clock * 0.17 + 1) * H * 0.1 * amp;
+      lens.tx = anchor.x + Math.sin(clock * 0.09) * W * 0.06 * amp;
+      lens.ty = anchor.y + Math.sin(clock * 0.12 + 1) * H * 0.05 * amp;
     }
-    var e = 1 - Math.exp(-dt * (held ? 9 : 2));
+    swell += held ? (1 - swell) * (1 - Math.exp(-dt * 8)) : -swell * (1 - Math.exp(-dt * 0.8));
+    var e = held ? 1 : 1 - Math.exp(-dt * 2);
     lens.x += (lens.tx - lens.x) * e; lens.y += (lens.ty - lens.y) * e;
     render();
     requestAnimationFrame(frame);

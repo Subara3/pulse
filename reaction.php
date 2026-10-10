@@ -5,7 +5,7 @@ recordPageView('reaction');
 
 $pageName = 'reaction';
 $pageTitle = 'REACTION - PULSE';
-$pageDesc = '白い線で描いた模様が、枝分かれしたり丸い粒に分かれたりしながら、少しずつ形を変えていく。触ったところは模様が消えて種が置かれ、そこから新しい模様が広がる。';
+$pageDesc = '白い線で描いた模様が、枝分かれしたり丸い粒に分かれたりしながら、少しずつ形を変えていく。押したところには同心円の輪が描かれ、なぞったところには線に沿った筋ができる。どちらも数秒でまわりの模様に溶けていく。';
 $pageCanonical = 'https://pulse.subara3.com/reaction.php';
 $extraStyle = '';
 
@@ -31,7 +31,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   /* 2 つの物質が混ざり合い、片方がもう片方を食べて増える（グレイ・スコット）。
      粗い格子で解き、物質 B の濃さの等高線だけを細い線で引く */
-  var NX, NY, A, B, A2, B2, heat, cx, cy;
+  var NX, NY, A, B, A2, B2, heat, hold, goal, pd, cx, cy;
   var FORMS = {
     coral: { f: 0.0545, k: 0.0620 },
     cells: { f: 0.0367, k: 0.0649 }
@@ -44,7 +44,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var n = NX * NY;
     A = new Float32Array(n).fill(1); B = new Float32Array(n);
     A2 = new Float32Array(n); B2 = new Float32Array(n);
-    heat = new Float32Array(n);
+    heat = new Float32Array(n); hold = new Float32Array(n); goal = new Float32Array(n); pd = new Float32Array(n);
     cx = new Float32Array(16); cy = new Float32Array(16);
     for (var i = 0; i < 14; i++) seed(Math.random() * NX, Math.random() * NY, 2 + Math.random() * 3, false);
     for (var s = 0; s < 420; s++) step();
@@ -65,7 +65,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* 触った所は小さく空けてから種を置く。空いた穴の中で新しい模様が育つのが見える */
-  function clearHole(gx, gy, r) {
+  function clearHole(gx, gy, r, rings) {
     for (var j = Math.floor(gy - r); j <= Math.ceil(gy + r); j++) {
       for (var i = Math.floor(gx - r); i <= Math.ceil(gx + r); i++) {
         var d = Math.hypot(i - gx, j - gy) / r;
@@ -73,7 +73,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
         var k = ((j % NY + NY) % NY) * NX + (i % NX + NX) % NX;
         var keep = d * d * d;
         B[k] *= keep; A[k] = 1 - (1 - A[k]) * keep;
-        heat[k] = Math.max(heat[k], 1 - d * d);
+        var w = d < 0.75 ? 1 : (1 - d) / 0.25;
+        /* 重なった押しつけは、中心にいちばん近いものの形を使う（なぞった線から一定の距離に筋がそろう） */
+        if (hold[k] < 0.05 || d < pd[k]) { pd[k] = d; goal[k] = rings ? 0.34 * (0.5 - 0.5 * Math.cos(d * Math.PI * rings)) : (d < 0.62 ? 0.36 * (1 - d * d / 0.384) : 0); }
+        if (w > hold[k]) hold[k] = w;
+        heat[k] = Math.max(heat[k], 1 - d * d * 0.5);
       }
     }
   }
@@ -94,6 +98,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
         var abb = a * b * b;
         var na = a + la - abb + F * (1 - a);
         var nb = b + 0.5 * lb + abb - (K + F) * b;
+        var hd = hold[k];
+        if (hd > 0.02) { nb += (goal[k] - nb) * 0.3 * hd; na += (1 - 1.6 * goal[k] - na) * 0.3 * hd; }
         var dx = i - tide.x;
         if (dx * dx + dy2 < tr2) nb *= 0.9975;
         A2[k] = na < 0 ? 0 : na > 1 ? 1 : na;
@@ -143,9 +149,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
     P.fill(ctx, W, H);
     ctx.lineCap = 'round';
     var styles = [
-      { c: P.steel, a: 0.55, w: 0.8 },
-      { c: P.line, a: 0.9, w: 1.25 },
-      { c: P.line, a: 0.38, w: 0.8 }
+      { c: P.steel, a: 0.7, w: 1 },
+      { c: P.line, a: 0.92, w: 1.4 },
+      { c: P.line, a: 0.45, w: 1 }
     ];
     for (var n = 0; n < LEVELS.length; n++) {
       ctx.beginPath();
@@ -157,8 +163,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
     /* 触ったところから育った線だけシアンで、ゆっくり白へ戻る */
     ctx.beginPath();
     contour(LEVELS[1], null, ctx, true);
-    ctx.strokeStyle = P.rgba(P.accent, 0.9);
-    ctx.lineWidth = 1.3;
+    ctx.strokeStyle = P.rgba(P.accent, 0.95);
+    ctx.lineWidth = 1.6;
     ctx.stroke();
   }
 
@@ -167,17 +173,21 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function grid(e) { return { x: e.clientX / W * NX, y: e.clientY / H * NY, px: e.clientX, py: e.clientY }; }
   canvas.addEventListener('pointerdown', function (e) {
     down = true; last = grid(e);
-    clearHole(last.x, last.y, 7);
-    seed(last.x, last.y, 2.6, true);
+    /* 半径 100px ほどを、同心円の輪の模様で押さえこむ。2 秒ほどで手を離し、輪はまわりの模様に溶けていく */
+    clearHole(last.x, last.y, 95 / (W / NX), 5);
     SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
     var p = grid(e), dist = Math.hypot(p.px - last.px, p.py - last.py);
-    if (dist < 16) return;
-    var n = Math.ceil(dist / 16);
-    for (var i = 1; i <= n; i++) seed(last.x + (p.x - last.x) * i / n, last.y + (p.y - last.y) * i / n, 1.8, true);
+    if (dist < 6) return;
+    /* なぞった跡に沿って 1 本の太い筋を押しこむ。筋の両側に等高線が並び、しばらくしてまわりに溶ける */
+    var n = Math.ceil(dist / 6), cw = 58 / (W / NX);
+    for (var i = 1; i <= n; i++) {
+      var gx = last.x + (p.x - last.x) * i / n, gy = last.y + (p.y - last.y) * i / n;
+      clearHole(gx, gy, cw, 0);
+    }
     last = p;
     SFX.play('move', 160);
   });
@@ -216,7 +226,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
     tide.r = Math.min(NX, NY) * 0.2;
     var steps = Math.round(4 + pace * 14);
     for (var s = 0; s < steps; s++) step();
-    for (var k = 0; k < heat.length; k++) if (heat[k] > 0) heat[k] *= 0.995;
+    for (var k = 0; k < heat.length; k++) {
+      if (heat[k] > 0) heat[k] *= 0.995;
+      if (hold[k] > 0) hold[k] = hold[k] > 0.02 ? hold[k] - dt * 0.45 : 0;
+    }
     /* 模様が消えかけたら、どこかに種を落とす */
     massT += dt;
     if (massT > 1) {

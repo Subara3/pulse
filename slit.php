@@ -5,7 +5,7 @@ recordPageView('slit');
 
 $pageName = 'slit';
 $pageTitle = 'SLIT - PULSE';
-$pageDesc = '左から来た波が壁のすき間を抜けて広がり、右の板に粒が1つずつ当たる。当たった跡はしだいに縞模様になる。上下にドラッグするとすき間の間隔が変わり、縞の間隔も変わる。';
+$pageDesc = '左から来た波が壁のすき間を抜けて広がり、右の板に粒が1つずつ当たって縞模様になる。押したりなぞったりしたところから波の輪が広がる。上下に大きくドラッグすると、すき間の間隔と縞の間隔が変わる。';
 $pageCanonical = 'https://pulse.subara3.com/slit.php';
 $extraStyle = '';
 
@@ -30,7 +30,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   /* 配置: 左に波の出どころ、中ほどにすき間のある壁、右に粒が当たる板 */
   var SX = 0, BX = 0, PX = 0, PW = 0, CY = 0;
-  var LAM = 22, K = 2 * Math.PI / 22, OMEGA = 2.2;
+  var LAM = 22, K = 2 * Math.PI / 22, OMEGA = 1.3;
   var slits = 2, gap = 70, SLW = 10;
 
   /* 波は粗い格子で、各マスの振れ幅と位相を先に求めておき、毎フレームは cos だけ取る */
@@ -101,16 +101,42 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var BG = P.bg, ST = P.steel;
   function shade(t) {
     var d = img.data, cw = Math.cos(OMEGA * t), sw = Math.sin(OMEGA * t);
+    addPulses();
     for (var k = 0, n = GX * GY; k < n; k++) {
       var a = amp[k], o = k * 4;
       var b = a > 0 ? 0.5 * a + 0.5 * (acs[k] * cw + asn[k] * sw) : 0;
       b = b * b * 0.5;
-      d[o] = BG[0] + (ST[0] - BG[0]) * b; d[o + 1] = BG[1] + (ST[1] - BG[1]) * b; d[o + 2] = BG[2] + (ST[2] - BG[2]) * b; d[o + 3] = 255;
+      var r = BG[0] + (ST[0] - BG[0]) * b, g = BG[1] + (ST[1] - BG[1]) * b, bl = BG[2] + (ST[2] - BG[2]) * b;
+      var u = pc[k];
+      if (u > 0) { u = Math.min(0.75, u); r += (LN[0] - r) * u; g += (LN[1] - g) * u; bl += (LN[2] - bl) * u; }
+      d[o] = r; d[o + 1] = g; d[o + 2] = bl; d[o + 3] = 255;
     }
     bctx.putImageData(img, 0, 0);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(buf, 0, 0, W, H);
+  }
+
+  /* 触れたところから広がる波（数本の山が輪になって広がり、薄れて消える） */
+  var pulses = [], pc = null;
+  function addPulses() {
+    if (!pc || pc.length !== GX * GY) pc = new Float32Array(GX * GY);
+    pc.fill(0);
+    for (var q = 0; q < pulses.length; q++) {
+      var pu = pulses[q], R = 10 + pu.t * 170, wdt = LAM * 1.6, fade = pu.a * (1 - pu.t / pu.life);
+      if (fade <= 0) continue;
+      var i0 = Math.max(0, ((pu.x - R - wdt * 2) / C) | 0), i1 = Math.min(GX - 1, ((pu.x + R + wdt * 2) / C) | 0);
+      var j0 = Math.max(0, ((pu.y - R - wdt * 2) / C) | 0), j1 = Math.min(GY - 1, ((pu.y + R + wdt * 2) / C) | 0);
+      for (var j = j0; j <= j1; j++) {
+        var yy = (j + 0.5) * C - pu.y;
+        for (var i = i0; i <= i1; i++) {
+          var xx = (i + 0.5) * C - pu.x, dd = Math.sqrt(xx * xx + yy * yy) - R;
+          if (dd > wdt * 2 || dd < -wdt * 2) continue;
+          var c = Math.cos(K * dd);
+          if (c > 0) pc[j * GX + i] += fade * c * Math.exp(-dd * dd / (wdt * wdt));
+        }
+      }
+    }
   }
 
   /* ---------------------------------------------------------- 粒 */
@@ -198,7 +224,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ---------------------------------------------------------- 操作 */
-  var rings = [], down = false, dragging = false, startY = 0, startGap = 0;
+  var rings = [], lastPulse = { x: 0, y: 0 }, sumDx = 0, sumDy = 0, down = false, dragging = false, startY = 0, startGap = 0;
   var gapEl = document.getElementById('k-gap');
   function gapFrom(v) { return 24 + v / 100 * 150; }
   function setGap(g) {
@@ -210,7 +236,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
   canvas.addEventListener('pointerdown', function (e) {
     down = true; dragging = false; startY = e.clientY; startGap = gap;
-    rings.push({ x: e.clientX, y: e.clientY, t: 0 });
+    pulses.push({ x: e.clientX, y: e.clientY, t: 0, a: 1.1, life: 1.8 });
+    lastPulse = { x: e.clientX, y: e.clientY }; sumDx = 0; sumDy = 0;
     for (var i = 0; i < 24; i++) emit();
     SFX.play('ripple');
     canvas.setPointerCapture(e.pointerId);
@@ -218,7 +245,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
     var dy = startY - e.clientY;
-    if (!dragging && Math.abs(dy) > 8) dragging = true;
+    sumDx += Math.abs(e.clientX - lastPulse.x); sumDy += Math.abs(e.clientY - lastPulse.y);
+    if (Math.hypot(e.clientX - lastPulse.x, e.clientY - lastPulse.y) > 30) {
+      pulses.push({ x: e.clientX, y: e.clientY, t: 0, a: 0.6, life: 1.2 });
+      if (pulses.length > 24) pulses.shift();
+      lastPulse = { x: e.clientX, y: e.clientY };
+    }
+    /* 上下に大きく動かしたときだけ、すき間の間隔を変える */
+    if (!dragging && Math.abs(dy) > 12 && sumDy > sumDx * 1.5) dragging = true;
     if (dragging) {
       setGap(startGap + dy * 0.6);
       gapEl.value = Math.round((gap - 24) / 150 * 100);
@@ -257,6 +291,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     while (acc > 1) { acc -= 1; emit(); }
     moveFlying(dt);
     for (var i = 0; i < rings.length; i++) rings[i].t += dt;
+    for (i = pulses.length - 1; i >= 0; i--) { pulses[i].t += dt; if (pulses[i].t > pulses[i].life) pulses.splice(i, 1); }
     draw();
     requestAnimationFrame(frame);
   }

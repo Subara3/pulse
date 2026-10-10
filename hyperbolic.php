@@ -5,7 +5,7 @@ recordPageView('hyperbolic');
 
 $pageName = 'hyperbolic';
 $pageTitle = 'HYPERBOLIC - PULSE';
-$pageDesc = '円の中に同じ形の七角形のタイルが敷かれ、縁に近いタイルほど小さく描かれる。並びは止まらずに流れ、縁へ消えたタイルと入れ替わりに反対側から新しいタイルが出てくる。ドラッグすると並び全体を引っぱって動かせる。';
+$pageDesc = '円の中に同じ形の七角形のタイルが敷かれ、縁に近いタイルほど小さく描かれる。並びはゆっくり流れ、縁へ消えたタイルと入れ替わりに反対側から新しいタイルが出てくる。触るとまわりのタイルが光り、触ったタイルが円の中央へ寄ってくる。なぞると、なぞった道のタイルが光る。';
 $pageCanonical = 'https://pulse.subara3.com/hyperbolic.php';
 $extraStyle = '';
 
@@ -192,7 +192,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
     P.grid(ctx, W, H, { step: 32, major: 4, alpha: 0.8 });
     ctx.fillStyle = P.rgba(P.bg, 1);
     ctx.beginPath(); ctx.arc(DX, DY, DR + 14, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = P.rgba(P.deep, 0.5);
+    /* 円盤は中央ほど明るい板にして、縁の無限の遠くへ沈ませる */
+    var dg = ctx.createRadialGradient(DX, DY, 0, DX, DY, DR);
+    dg.addColorStop(0, P.rgba(P.steel, 0.3));
+    dg.addColorStop(0.75, P.rgba(P.steel, 0.17));
+    dg.addColorStop(1, P.rgba(P.deep, 0.4));
+    ctx.fillStyle = dg;
     ctx.beginPath(); ctx.arc(DX, DY, DR, 0, Math.PI * 2); ctx.fill();
 
     for (var i = 0; i < nV; i++) {
@@ -205,20 +210,20 @@ require_once __DIR__ . '/includes/floating-nav.php';
     /* 触れたタイル: シアンで灯り、床と一緒に流れながら消えていく */
     for (var n = lit.length - 1; n >= 0; n--) {
       var L = lit[n];
-      L.a -= dt * 0.16;
+      L.a -= dt * 0.5;
       if (L.a <= 0) { lit.splice(n, 1); continue; }
-      ctx.fillStyle = P.rgba(P.accent, L.a * 0.3);
+      ctx.fillStyle = P.rgba(P.accent, L.a * 0.68);
       ctx.beginPath(); polyPath(polys[L.i]); ctx.fill();
     }
 
     /* 補助線: 大きく見えるタイルだけ、中心から角へ細い線 */
     ctx.lineWidth = 1;
-    ctx.strokeStyle = P.rgba(P.steel, 0.22);
+    ctx.strokeStyle = P.rgba(P.steel, 0.3);
     ctx.beginPath();
     for (n = 0; n < polys.length; n++) {
       var pl = polys[n], c0 = pl.c, v0 = pl.v[0];
       var sz = Math.hypot(sx[c0] - sx[v0], sy[c0] - sy[v0]);
-      if (sz < 26) continue;
+      if (sz < 18) continue;
       for (var k = 0; k < pl.v.length; k++) {
         ctx.moveTo(sx[c0], sy[c0]); arcTo(c0, pl.v[k]);
       }
@@ -230,14 +235,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var a = edges[e * 2], bb = edges[e * 2 + 1];
       var len = Math.hypot(sx[a] - sx[bb], sy[a] - sy[bb]);
       if (len < 1.2) continue;
-      var al = smooth(1.2, 26, len);
+      var al = smooth(1.2, 16, len);
       buckets[Math.min(NB - 1, (al * NB) | 0)].push(e);
     }
     for (b = 0; b < NB; b++) {
       var list = buckets[b];
       if (!list.length) continue;
-      ctx.lineWidth = b > 5 ? 1.25 : 1;
-      ctx.strokeStyle = P.rgba(P.line, 0.08 + (b + 0.5) / NB * 0.62);
+      ctx.lineWidth = b > 6 ? 2.2 : b > 3 ? 1.5 : 1;
+      ctx.strokeStyle = P.rgba(P.line, 0.25 + (b + 0.5) / NB * 0.7);
       ctx.beginPath();
       for (var m = 0; m < list.length; m++) {
         var ea = edges[list[m] * 2], eb = edges[list[m] * 2 + 1];
@@ -263,39 +268,53 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (r > 0.985) { x *= 0.985 / r; y *= 0.985 / r; }
     return [x, y];
   }
-  function light(w) {
-    var z = invert(w[0], w[1]), best = -1, bd = 1e9;
-    for (var i = 0; i < polys.length; i++) {
+  /* 指の下のタイルと、画面上で近くにあるタイルを灯す */
+  function light(w, rad) {
+    var z = invert(w[0], w[1]), best = -1, bd = 1e9, i, n;
+    var px0 = DX + w[0] * DR, py0 = DY + w[1] * DR, added = false;
+    function on(k, a) {
+      for (var m = 0; m < lit.length; m++) if (lit[m].i === k) { lit[m].a = Math.max(lit[m].a, a); return; }
+      lit.push({ i: k, a: a }); added = true;
+    }
+    for (i = 0; i < polys.length; i++) {
       var d = Math.hypot(polys[i].x - z[0], polys[i].y - z[1]);
       if (d < bd) { bd = d; best = i; }
+      var c = polys[i].c, sd = Math.hypot(sx[c] - px0, sy[c] - py0);
+      if (sd < rad) on(i, 0.5 + 0.4 * (1 - sd / rad));
     }
-    if (best < 0) return false;
-    for (var n = 0; n < lit.length; n++) if (lit[n].i === best) { lit[n].a = 1; return false; }
-    lit.push({ i: best, a: 1 });
-    if (lit.length > 40) lit.shift();
-    return true;
+    if (best >= 0) on(best, 1);
+    while (lit.length > 120) lit.shift();
+    return added;
   }
+  var pull = null, downAt = null;
   canvas.addEventListener('pointerdown', function (e) {
     down = true; last = toDisk(e); vel = [0, 0]; lastMove = performance.now();
-    light(last);
+    light(last, 160);
+    downAt = last; pull = null;
     SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
     var p = toDisk(e);
-    if (Math.hypot(p[0] - last[0], p[1] - last[1]) < 0.002) return;
-    tAB(last[0], last[1], p[0], p[1]);
-    var nowT = performance.now(), de = Math.max(0.008, (nowT - lastMove) / 1000);
-    lastMove = nowT;
-    var ux = (p[0] - last[0]) / de, uy = (p[1] - last[1]) / de, um = Math.hypot(ux, uy);
-    if (um > 0.6) { ux *= 0.6 / um; uy *= 0.6 / um; }
-    vel = [ux * 0.4 + vel[0] * 0.6, uy * 0.4 + vel[1] * 0.6];
+    if (Math.hypot(p[0] - last[0], p[1] - last[1]) < 0.01) return;
+    /* なぞった道のタイルが順に灯る */
+    var steps = Math.ceil(Math.hypot(p[0] - last[0], p[1] - last[1]) / 0.03), lit1 = false;
+    for (var k = 1; k <= steps; k++) {
+      var q = [last[0] + (p[0] - last[0]) * k / steps, last[1] + (p[1] - last[1]) * k / steps];
+      if (light(q, 120)) lit1 = true;
+    }
     last = p;
-    rebase();
-    if (light(p)) SFX.play('move', 180);
+    if (lit1) SFX.play('move', 180);
   });
-  function up() { down = false; held = 1; }
+  function up() {
+    down = false;
+    /* 軽く押しただけなら、押したタイルを円の中央へたぐり寄せる */
+    if (downAt && Math.hypot(last[0] - downAt[0], last[1] - downAt[1]) < 0.02) {
+      pull = { z: invert(last[0], last[1]), t: 0 }; held = 0;
+    }
+    downAt = null;
+  }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);
 
@@ -315,25 +334,35 @@ require_once __DIR__ . '/includes/floating-nav.php';
   build();
   ctx = P.fit(canvas, function (w, h) {
     W = w; H = h; DX = w / 2; DY = h / 2;
-    DR = Math.min(w, h) * 0.45;
+    DR = Math.min(w, h) * 0.47;
   });
 
   /* ------------------------------------------------ 回す */
   var lastT = performance.now(), T = 0, chime = 0;
   function frame(now) {
-    var dt = Math.min(0.05, (now - lastT) / 1000);
+    var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));
     lastT = now; T += dt;
-    if (!down) {
+    if (pull) {
+      var pw = [0, 0];
+      apply(pull.z[0], pull.z[1], pw);
+      var kq = Math.min(1, dt * 5);
+      tAB(pw[0], pw[1], pw[0] * (1 - kq), pw[1] * (1 - kq));
+      rebase();
+      /* 付け替えで元の座標が変わるので、今の位置から指し直す */
+      var pz = invert(pw[0] * (1 - kq), pw[1] * (1 - kq));
+      pull.z = pz; pull.t += dt;
+      if (pull.t > 0.9 || Math.hypot(pw[0], pw[1]) < 0.01) pull = null;
+    } else if (!down) {
       /* 放っておくと、向きをゆっくり変えながら流れ続ける */
       var th = T * 0.045 + Math.sin(T * 0.11) * 1.3;
-      var sp = (0.02 + drift * 0.11) * dt;
+      var sp = (0.006 + drift * 0.025) * dt;
       var ax = Math.cos(th) * sp, ay = Math.sin(th) * sp;
       if (held > 0) {
         ax = ax * (1 - held) + vel[0] * dt * held; ay = ay * (1 - held) + vel[1] * dt * held;
         held = Math.max(0, held - dt * 0.7);
       }
       translate(ax, ay);
-      rotate(dt * 0.012);
+      rotate(dt * 0.004);
       rebase();
     }
     draw(dt);

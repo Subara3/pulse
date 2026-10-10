@@ -5,7 +5,7 @@ recordPageView('clifford');
 
 $pageName = 'clifford';
 $pageTitle = 'CLIFFORD - PULSE';
-$pageDesc = '1つの式で点を何十万回も打ち続け、点が多く集まるところほど白く描く。形は十数秒ごとに別の形へ入れ替わる。ドラッグすると式の係数がずれて形が曲がり、指のまわりの点が水色に光る。';
+$pageDesc = '1つの式で点を何十万回も打ち続け、点が多く集まるところほど白く描く。形は十数秒ごとに別の形へ入れ替わる。押さえると指のまわりの点が指のほうへ引き寄せられて水色に光り、なぞるとその跡に沿って形が引っぱられる。';
 $pageCanonical = 'https://pulse.subara3.com/clifford.php';
 $extraStyle = '';
 
@@ -77,7 +77,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   for (var i = 0; i < M; i++) { wx[i] = Math.random() * 2 - 1; wy[i] = Math.random() * 2 - 1; }
 
   var ext = [2, 2], rot = 0;
-  var gx = -1e9, gy = -1e9, touching = false;
+  var gx = -1e9, gy = -1e9, touching = false, lensA = 0;
   var perFrame = 26;
 
   function scatter(n) {
@@ -88,7 +88,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ext[0] += (ex - ext[0]) * 0.03; ext[1] += (ey - ext[1]) * 0.03;
     var sc = Math.min(GW / (ext[0] * 2), GH / (ext[1] * 2)) * 0.9;
     var cx = GW / 2, cy = GH / 2;
-    var gr = 70 / (W / GW), gr2 = gr * gr;
+    var gr = 150 / (W / GW), gr2 = gr * gr;
     for (var k = 0; k < n; k++) {
       for (var i = 0; i < M; i++) {
         var x = wx[i], y = wy[i];
@@ -96,14 +96,21 @@ require_once __DIR__ . '/includes/floating-nav.php';
         var ny = Math.sin(b * x) + d * Math.cos(b * y);
         wx[i] = nx; wy[i] = ny;
         var X = cx + (nx * ca - ny * sa) * sc, Y = cy + (nx * sa + ny * ca) * sc;
+        var lit = 0;
+        if (lensA > 0.01) {
+          /* 指のまわりの点を指のほうへ引き寄せる。指の下に点が集まって明るくなる */
+          var ddx = X - gx, ddy = Y - gy, dd = ddx * ddx + ddy * ddy;
+          if (dd < gr2) {
+            var dl = Math.sqrt(dd), u = 1 - dl / gr, k2 = 1 - 0.62 * lensA * Math.sqrt(u);
+            X = gx + ddx * k2; Y = gy + ddy * k2;
+            lit = u;
+          }
+        }
         var ix = X | 0, iy = Y | 0;
         if (ix < 0 || iy < 0 || ix >= GW || iy >= GH) continue;
         var o = iy * GW + ix;
         hist[o] += 1;
-        if (touching) {
-          var ddx = X - gx, ddy = Y - gy, dd = ddx * ddx + ddy * ddy;
-          if (dd < gr2) acc[o] += 1 - dd / gr2;
-        }
+        if (lit > 0) acc[o] += lit * lensA;
       }
     }
   }
@@ -145,7 +152,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var a = acc[k];
       if (a !== 0) {
         if (a > 0.01) {
-          var w = Math.min(0.85, a * 0.02);
+          var w = Math.min(0.8, a * 0.12);
           r += (AC[0] - r) * w; gg += (AC[1] - gg) * w; b += (AC[2] - b) * w;
           acc[k] = a * accDecay;
         } else acc[k] = 0;
@@ -160,6 +167,15 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ctx.drawImage(buf, 0, 0, W, H);
   }
 
+  /* 指のまわりの古い煙だけ早く消す（押しのけた形がすぐ見えるように） */
+  function clearAround(k) {
+    var r = 150 / (W / GW) * 0.6, x0 = Math.max(0, gx - r | 0), x1 = Math.min(GW - 1, gx + r | 0);
+    var y0 = Math.max(0, gy - r | 0), y1 = Math.min(GH - 1, gy + r | 0), r2 = r * r;
+    for (var y = y0; y <= y1; y++) for (var x = x0; x <= x1; x++) {
+      var dx = x - gx, dy = y - gy;
+      if (dx * dx + dy * dy < r2) hist[y * GW + x] *= k;
+    }
+  }
   function next() {
     var n;
     do { n = Math.random() * SHAPES.length | 0; } while (n === to);
@@ -179,14 +195,6 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (!down) return;
     var dx = e.clientX - lx, dy = e.clientY - ly;
     lx = e.clientX; ly = e.clientY; toGrid(e);
-    /* なぞった向きに係数をずらす。点が固まってしまう値なら、そこへは行かない */
-    var nx0 = Math.max(-0.35, Math.min(0.35, push[0] + dx / W * 0.35));
-    var ny0 = Math.max(-0.35, Math.min(0.35, push[1] + dy / H * 0.35));
-    var now = performance.now();
-    if (now - lastCheck > 50) {
-      lastCheck = now;
-      if (spreads(prm[0] + nx0, prm[1] + ny0, prm[2], prm[3])) { push[0] = nx0; push[1] = ny0; }
-    }
     if (Math.abs(dx) + Math.abs(dy) > 3) SFX.play('move', 200);
   });
   function up() { down = false; touching = false; }
@@ -202,7 +210,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   /* ---------------------------------------------------------- 回す */
   var lastT = performance.now();
-  scatter(40);
+  scatter(160);
   function frame(now) {
     var dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
@@ -211,6 +219,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
     /* ゆっくり左右に傾く */
     rot = Math.sin(now / 1000 * 0.035) * 0.16;
     dissolve = Math.max(0, dissolve - dt);
+    /* 押しているあいだは押しのけが強まり、離すとゆっくり戻る */
+    if (touching) lensA = Math.min(1, lensA + dt * 8); else lensA = Math.max(0, lensA - dt * 1.6);
+    if (lensA > 0.01) clearAround(Math.exp(-dt / 0.1) * lensA + (1 - lensA));
     scatter(perFrame);
     shade(Math.exp(-dt / (dissolve > 0 ? 1.1 : 3)), Math.exp(-dt / 0.7));
     requestAnimationFrame(frame);

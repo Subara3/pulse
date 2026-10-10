@@ -5,7 +5,7 @@ recordPageView('nbody');
 
 $pageName = 'nbody';
 $pageTitle = 'N-BODY - PULSE';
-$pageDesc = '同じ重さの3つの星が引き合いながら、1本の8の字の上を追いかけるように回り続ける。引っぱって離すと小さな粒が飛び出し、星のあいだで振り回される。';
+$pageDesc = '同じ重さの3つの星が引き合いながら、1本の8の字の上を追いかけるように回り、まわりに重力の等高線が描かれる。押すとそこに見えない重りが置かれ、水色の輪がいくつも集まって等高線がへこむ。引っぱって離すと小さな粒が飛び出す。';
 $pageCanonical = 'https://pulse.subara3.com/nbody.php';
 $extraStyle = '';
 
@@ -26,7 +26,15 @@ require_once __DIR__ . '/includes/floating-nav.php';
   'use strict';
   var canvas = document.getElementById('canvas');
   var W = 0, H = 0, CX = 0, CY = 0, U = 1;
-  var ctx = P.fit(canvas, function (w, h) { W = w; H = h; CX = w / 2; CY = h / 2; scale(); });
+  /* 重力の等高線は粗い格子で解いて拡大する */
+  var CELL = 4, GX = 0, GY = 0, img = null, buf = null, bctx = null;
+  var ctx = P.fit(canvas, function (w, h) {
+    W = w; H = h; CX = w / 2; CY = h / 2; scale();
+    GX = Math.ceil(w / CELL); GY = Math.ceil(h / CELL);
+    img = new ImageData(GX, GY);
+    buf = document.createElement('canvas'); buf.width = GX; buf.height = GY;
+    bctx = buf.getContext('2d');
+  });
 
   /* ---------------------------------------------------------- 星
      EIGHT: 等しい 3 つの星が 1 本の 8 の字を共有して回る周期解。
@@ -82,6 +90,41 @@ require_once __DIR__ . '/includes/floating-nav.php';
       p.ax += dx * inv * b.m; p.ay += dy * inv * b.m;
       if (r2 < 0.01) SFX.play('tick', 1500);
     }
+    /* 指が置いた見えない重り */
+    if (well.m > 0.01) {
+      var wx = well.x - p.x, wy = well.y - p.y, w2 = wx * wx + wy * wy + 0.01, wi = 1 / (w2 * Math.sqrt(w2));
+      p.ax += wx * wi * well.m; p.ay += wy * wi * well.m;
+    }
+  }
+  var well = { x: 0, y: 0, m: 0 };
+
+  /* 星と指の重りが作る、重力の高さの等高線 */
+  var BG = P.bg, LNc = P.line;
+  function drawField() {
+    var d = img.data, k = 0;
+    var bx = [], by = [], bm = [];
+    for (var i = 0; i < bodies.length; i++) { bx.push(bodies[i].x); by.push(bodies[i].y); bm.push(bodies[i].m); }
+    var nb = bx.length, inv = 1 / U, wm = well.m, wxs = well.x, wys = well.y, AC = P.accent;
+    for (var gy = 0; gy < GY; gy++) {
+      for (var gx = 0; gx < GX; gx++, k += 4) {
+        var X = (gx + 0.5) * CELL - CX, Y = (gy + 0.5) * CELL - CY;
+        var x = (X * cv + Y * sv) * inv, y = (-X * sv + Y * cv) * inv;
+        var phi = 0, pw = 0;
+        for (var j = 0; j < nb; j++) { var dx = x - bx[j], dy = y - by[j]; phi += bm[j] / Math.sqrt(dx * dx + dy * dy + 0.004); }
+        if (wm > 0.01) { var ux = x - wxs, uy = y - wys; pw = wm / Math.sqrt(ux * ux + uy * uy + 0.002); }
+        var tot = phi + pw;
+        var v = Math.log(tot) * 4.2, f = v - Math.floor(v), e = (f - 0.5) / 0.085;
+        /* 星の近くは輪が詰まりすぎるので薄める。指の重りのまわりは薄めずに水色で描く */
+        var share = Math.pow(pw / tot, 2.5);
+        var a = Math.exp(-e * e) * (0.36 * Math.min(1, 5 / phi) * (1 - share) + 0.85 * share * Math.min(1, 40 / pw));
+        var cr = LNc[0] + (AC[0] - LNc[0]) * share, cg = LNc[1] + (AC[1] - LNc[1]) * share, cb = LNc[2] + (AC[2] - LNc[2]) * share;
+        d[k] = BG[0] + (cr - BG[0]) * a; d[k + 1] = BG[1] + (cg - BG[1]) * a; d[k + 2] = BG[2] + (cb - BG[2]) * a; d[k + 3] = 255;
+      }
+    }
+    bctx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'low';
+    ctx.drawImage(buf, 0, 0, GX * CELL, GY * CELL);
   }
   /* 速度ベルレ。長く回しても 8 の字が崩れない */
   function step(h) {
@@ -175,12 +218,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
   canvas.addEventListener('pointerdown', function (e) {
     drag = { x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY };
+    var ws = toSim(e.clientX, e.clientY); well.x = ws[0]; well.y = ws[1]; well.m = Math.max(well.m, 1.2);
     SFX.play('tick');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!drag) return;
     drag.x = e.clientX; drag.y = e.clientY;
+    var ws = toSim(e.clientX, e.clientY); well.x = ws[0]; well.y = ws[1];
     SFX.play('move', 260);
   });
   function up() {
@@ -241,7 +286,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   var lastT = performance.now();
   function frame(now) {
-    var dt = Math.min(0.05, (now - lastT) / 1000);
+    var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));
     lastT = now;
     advance(dt * simSpeed * (sys === 'eight' ? 1 : 1.6));
     for (var i = dust.length - 1; i >= 0; i--) {
@@ -253,9 +298,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (dustAcc > 2.6) { dustAcc = 0; autoDust(); }
     view += dt * 0.012;
     cv = Math.cos(view); sv = Math.sin(view);
+    /* 押している間は重りが育ち、離すと消えていく */
+    well.m = drag ? Math.min(1.8, well.m + dt * 1.5) : well.m * Math.exp(-dt * 1.1);
 
-    P.fill(ctx, W, H);
-    P.grid(ctx, W, H, { alpha: 0.7 });
+    drawField();
+    P.grid(ctx, W, H, { alpha: 0.5 });
     draw();
     requestAnimationFrame(frame);
   }

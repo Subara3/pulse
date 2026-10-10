@@ -146,7 +146,7 @@ const P = (function () {
   }
   function kick() { if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); } }
   function frame(now) {
-    var dt = Math.min(0.05, (now - last) / 1000); last = now;
+    var dt = Math.max(0, Math.min(0.05, (now - last) / 1000)); last = now;
     c.clearRect(0, 0, W, H);
     var busy = false;
     /* なぞった跡: 0.5 秒で消える点線 */
@@ -166,7 +166,7 @@ const P = (function () {
       var e = 1 - Math.pow(1 - k, 3);
       c.strokeStyle = P.rgba(A, 0.8 * (1 - k));
       c.lineWidth = 1.5;
-      c.beginPath(); c.arc(r.x, r.y, 10 + e * 48, 0, 6.2832); c.stroke();
+      c.beginPath(); c.arc(r.x, r.y, Math.max(0, 10 + e * 48), 0, 6.2832); c.stroke();
       busy = true;
     }
     /* マウスの位置: 小さな輪。押している間は少し縮んで濃くなる */

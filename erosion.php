@@ -5,7 +5,7 @@ recordPageView('erosion');
 
 $pageName = 'erosion';
 $pageTitle = 'EROSION - PULSE';
-$pageDesc = '島の地形を等高線で描いている。川が少しずつ谷を削り、上流へ枝分かれしながら伸びていく。なぞるとそこに雨が降り、水の粒が谷を下って海へ流れ、その川が太くなる。';
+$pageDesc = '島の地形を等高線で描いている。川が少しずつ谷を削り、上流へ枝分かれしながら伸びていく。押したりなぞったりするとそこに雨が降り、その水が通る川筋が海まで水色に光って、水の粒が谷を下っていく。';
 $pageCanonical = 'https://pulse.subara3.com/erosion.php';
 $extraStyle = '';
 
@@ -28,7 +28,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var W = 0, H = 0;
 
   /* 粗い格子の地形。各マスの水はいちばん低い隣へ流れ、集まった水の量が多いほど川底を削る */
-  var NX, NY, N, CS, h, up, jit, A, wgt, boost, rec, order, seen, heapH, heapI, img, buf, bctx, BW, BH;
+  var NX, NY, N, CS, h, up, jit, A, WA, wgt, boost, rec, order, seen, heapH, heapI, img, buf, bctx, BW, BH;
   var rain = 0.5, lift = 0.5, lo = 0, hi = 1, T = 0, upT = 0, drops = [];
   var NB8 = [], DIST8 = [];
 
@@ -54,7 +54,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function alloc() {
     CS = Math.max(5, Math.min(W, H) / 108);
     NX = Math.ceil(W / CS) + 1; NY = Math.ceil(H / CS) + 1; N = NX * NY;
-    h = new Float32Array(N); up = new Float32Array(N); jit = new Float32Array(N).fill(1); A = new Float32Array(N); wgt = new Float32Array(N);
+    h = new Float32Array(N); up = new Float32Array(N); jit = new Float32Array(N).fill(1); A = new Float32Array(N); WA = new Float32Array(N); wgt = new Float32Array(N);
     boost = new Float32Array(N); rec = new Int32Array(N); order = new Int32Array(N); seen = new Uint8Array(N);
     heapH = new Float32Array(N); heapI = new Int32Array(N);
     NB8 = [-1, 1, -NX, NX, -NX - 1, -NX + 1, NX - 1, NX + 1];
@@ -162,8 +162,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
       }
       rec[k] = best;
     }
-    for (k = 0; k < N; k++) A[k] = 1 + boost[k] * 40;
-    for (i = m - 1; i >= 0; i--) { k = order[i]; if (rec[k] >= 0) A[rec[k]] += A[k]; }
+    /* 降らせた雨の分は別にも数えて、その水が通る川筋をシアンで描く */
+    for (k = 0; k < N; k++) { WA[k] = boost[k] * 60; A[k] = 1 + WA[k]; }
+    for (i = m - 1; i >= 0; i--) { k = order[i]; if (rec[k] >= 0) { A[rec[k]] += A[k]; WA[rec[k]] += WA[k]; } }
     var K = (0.014 + rain * 0.045) * dt, U = (0.006 + lift * 0.02) * dt;
     for (i = 0; i < m; i++) {
       k = order[i];
@@ -238,21 +239,22 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* 川筋: 集まった水が多いマスだけ、流れ先まで白い線で結ぶ */
   var RCLS = 5;
   function rivers() {
-    var thr = 18, paths = [], sea = hi * 0.06;
+    var thr = 18, paths = [], sea = hi * 0.06, wetPath = new Path2D();
     for (var c = 0; c < RCLS; c++) paths.push(new Path2D());
     for (var k = 0; k < N; k++) {
-      var a = A[k];
-      if (a < thr) continue;
+      var a = A[k], wa = WA[k], isWet = wa > 70 && wa > a * 0.3;
+      if (!isWet && (a < thr || wa > a * 0.3)) continue;
       var r = rec[k];
       if (r < 0 || h[k] < sea) continue;
       var r2 = rec[r] >= 0 ? rec[r] : r;
       var x0 = (k % NX) * CS, y0 = ((k / NX) | 0) * CS;
       var x1 = (r % NX) * CS, y1 = ((r / NX) | 0) * CS;
       var x2 = (r2 % NX) * CS, y2 = ((r2 / NX) | 0) * CS;
-      var cl = Math.min(RCLS - 1, Math.floor(Math.log(a / thr) * 0.8));
+      var cl = Math.max(0, Math.min(RCLS - 1, Math.floor(Math.log(a / thr) * 0.8)));
+      var path = isWet ? wetPath : paths[cl];
       /* 2 つ先までの中点を結んで、ジグザグを丸める */
-      paths[cl].moveTo((x0 + x1) * 0.5, (y0 + y1) * 0.5);
-      paths[cl].quadraticCurveTo(x1, y1, (x1 + x2) * 0.5, (y1 + y2) * 0.5);
+      path.moveTo((x0 + x1) * 0.5, (y0 + y1) * 0.5);
+      path.quadraticCurveTo(x1, y1, (x1 + x2) * 0.5, (y1 + y2) * 0.5);
     }
     ctx.lineCap = 'round';
     for (c = 0; c < RCLS; c++) {
@@ -260,13 +262,16 @@ require_once __DIR__ . '/includes/floating-nav.php';
       ctx.lineWidth = 0.7 + c * 0.45;
       ctx.stroke(paths[c]);
     }
+    ctx.strokeStyle = P.rgba(P.accent, 0.9);
+    ctx.lineWidth = 2.6;
+    ctx.stroke(wetPath);
   }
 
   var ctx = P.fit(canvas, function (w, hh) { W = w; H = hh; alloc(); });
 
   /* ---------------------------------------------------------- 操作 */
   function wet(x, y, amt) {
-    var ci = Math.round(x / CS), cj = Math.round(y / CS), R = 5;
+    var ci = Math.round(x / CS), cj = Math.round(y / CS), R = 9;
     for (var j = Math.max(1, cj - R); j <= Math.min(NY - 2, cj + R); j++) {
       for (var i = Math.max(1, ci - R); i <= Math.min(NX - 2, ci + R); i++) {
         var q = ((i - ci) * (i - ci) + (j - cj) * (j - cj)) / (R * R);
@@ -284,8 +289,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var down = false, last = null;
   canvas.addEventListener('pointerdown', function (e) {
     down = true; last = { x: e.clientX, y: e.clientY };
-    wet(last.x, last.y, 0.8);
-    pour(last.x, last.y, 30, 28);
+    wet(last.x, last.y, 1.4);
+    evolve(0.05);
+    pour(last.x, last.y, 50, 40);
     SFX.play('ripple');
     canvas.setPointerCapture(e.pointerId);
   });
@@ -293,7 +299,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (!down) return;
     var p = { x: e.clientX, y: e.clientY };
     if (Math.hypot(p.x - last.x, p.y - last.y) < 8) return;
-    wet(p.x, p.y, 0.3);
+    wet(p.x, p.y, 0.6);
     pour(p.x, p.y, 5, 14);
     last = p;
     SFX.play('ripple', 220);
@@ -324,7 +330,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     /* 地形はゆっくりしか変わらないので、陰影と等高線は 3 回に 1 回だけ塗り直す */
     if (tick % 3 === 0) { measure(false); shadeBuf(); }
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingQuality = 'low';
     ctx.drawImage(buf, 0, 0, NX * CS, NY * CS);
     rivers();
 
@@ -343,7 +349,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var sp = 70 * dt;
       d.x += dx / dl * Math.min(sp, dl) + (Math.random() - 0.5) * 0.6;
       d.y += dy / dl * Math.min(sp, dl) + (Math.random() - 0.5) * 0.6;
-      var rr = 1.6 * Math.min(1, (9 - d.t) / 2);
+      var rr = 2 * Math.min(1, (9 - d.t) / 2);
       ctx.moveTo(d.x + rr, d.y);
       ctx.arc(d.x, d.y, rr, 0, 6.2832);
     }

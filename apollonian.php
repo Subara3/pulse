@@ -5,7 +5,7 @@ recordPageView('apollonian');
 
 $pageName = 'apollonian';
 $pageTitle = 'APOLLONIAN - PULSE';
-$pageDesc = '大きな円の中が、互いに接する大小の円ですき間なく埋まっている。全体はゆっくり動き、円の大きさが入れ替わっていく。触った円は水色になり、大きくなりながら中央へ移る。';
+$pageDesc = '大きな円の中が、互いに接する大小の円ですき間なく埋まっている。全体はゆっくり動き、円の大きさが入れ替わっていく。押すとその円が水色になり、大きくなりながら中央へ寄る。なぞると通った円が順に灯る。';
 $pageCanonical = 'https://pulse.subara3.com/apollonian.php';
 $extraStyle = '';
 
@@ -15,9 +15,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <canvas id="canvas"></canvas>
 
 <div id="controls" class="drawer-controls">
-  <div class="ctl-row"><label for="k-flow">FLOW</label><input type="range" id="k-flow" min="0" max="100" value="40"></div>
+  <div class="ctl-row"><label for="k-flow">FLOW</label><input type="range" id="k-flow" min="0" max="100" value="25"></div>
   <div class="ctl-row"><label for="k-fine">FINE</label><input type="range" id="k-fine" min="0" max="100" value="55"></div>
-  <div class="ctl-btns"><button type="button" class="active" data-look="rings">RINGS</button><button type="button" data-look="solid">SOLID</button></div>
+  <div class="ctl-btns"><button type="button" data-look="rings">RINGS</button><button type="button" class="active" data-look="solid">SOLID</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
 <?php require_once __DIR__ . '/includes/colors.php'; ?>
@@ -101,9 +101,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ---------------------------------------------------------- 状態 */
-  var t = 0, flow = 0.4, look = 'rings', ra = 0.5;
+  var t = 0, flow = 0.4, look = 'solid', ra = 0.5;
   var touch = { on: false, x: 0, y: 0 };
-  var lit = null;           // 灯った円 { bx, by, br, a }
+  var lits = [];           // 灯った円 { bx, by, br, a, on }。なぞった跡の円が順に灯って、ゆっくり消える
   var tax = 0, tay = 0, pull = 0;
 
   function pick(sx, sy) {
@@ -111,14 +111,17 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var wx = (sx - W / 2) / R, wy = -(sy - H / 2) / R, best = -1, br = 9;
     for (var i = 1; i < N; i++) {
       var dx = wx - IX[i], dy = wy - IY[i];
-      if (dx * dx + dy * dy < IR[i] * IR[i] && IR[i] < br && IR[i] * R > 3) { br = IR[i]; best = i; }
+      if (dx * dx + dy * dy < IR[i] * IR[i] && IR[i] < br && IR[i] * R > 16) { br = IR[i]; best = i; }
     }
     return best;
   }
   function light(i) {
     if (i < 1) return;
-    if (lit && lit.i === i && lit.a > 0.5) return;
-    lit = { i: i, bx: X[i], by: Y[i], br: 1 / K[i], a: 0, on: true };
+    var last = lits[lits.length - 1];
+    if (last && last.on && Math.abs(last.bx - X[i]) + Math.abs(last.by - Y[i]) < 1e-9) return;
+    if (last) last.on = false;
+    lits.push({ bx: X[i], by: Y[i], br: 1 / K[i], a: 0.8, on: true });
+    if (lits.length > 16) lits.shift();
     SFX.play('tick', 140);
   }
 
@@ -133,7 +136,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     touch.x = e.clientX; touch.y = e.clientY;
     light(pick(e.clientX, e.clientY));
   });
-  function up() { touch.on = false; if (lit) lit.on = false; }
+  function up() { touch.on = false; lits.forEach(function (l) { l.on = false; }); }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);
 
@@ -170,11 +173,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
     for (var b2 = 0; b2 < BINS; b2++) {
       var f = (b2 + 1) / BINS;
       if (solid) {
-        ctx.fillStyle = P.rgba(P.mix(P.deep, P.steel, 0.15 + 0.5 * (1 - f)), 0.35 + 0.4 * (1 - f));
+        /* 小さい円ほど明るく塗る。細かいところが白く浮き、大きな円は地に近い */
+        ctx.fillStyle = P.rgba(P.mix(P.bg, P.steel, 0.12 + 0.5 * (1 - f)), 1);
         ctx.fill(paths[b2]);
       }
-      ctx.strokeStyle = P.rgba(P.line, 0.1 + 0.62 * f * f);
-      ctx.lineWidth = 0.6 + 0.6 * f;
+      ctx.strokeStyle = P.rgba(P.line, 0.38 + 0.5 * f * f);
+      ctx.lineWidth = 1 + 0.5 * f;
       ctx.stroke(paths[b2]);
     }
     /* 外周 */
@@ -183,8 +187,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
 
     /* 灯った円（形が少しずつ変わるので、元の位置がいちばん近い円を追う） */
-    if (lit) {
-      var best = -1, bd = 1e9;
+    for (var li = 0; li < lits.length; li++) {
+      var lit = lits[li], best = -1, bd = 1e9;
       for (var j = 1; j < N; j++) {
         var dx = X[j] - lit.bx, dy = Y[j] - lit.by, dr = 1 / K[j] - lit.br;
         var dd = dx * dx + dy * dy + dr * dr * 4;
@@ -193,7 +197,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (best > 0) {
         lit.bx = X[best]; lit.by = Y[best]; lit.br = 1 / K[best];
         var rr = IR[best] * R, qx = cx + IX[best] * R, qy = cy - IY[best] * R;
-        ctx.fillStyle = P.rgba(P.accent, 0.13 * lit.a);
+        ctx.fillStyle = P.rgba(P.accent, 0.32 * lit.a);
         ctx.strokeStyle = P.rgba(P.accent, 0.85 * lit.a);
         ctx.lineWidth = 1.3;
         ctx.beginPath(); ctx.arc(qx, qy, rr, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
@@ -218,16 +222,17 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var m = Math.hypot(tmp[0], tmp[1]);
       if (m > 0.66) { tmp[0] *= 0.66 / m; tmp[1] *= 0.66 / m; }
       tax = tmp[0]; tay = tmp[1];
-      pull = Math.min(1, pull + dt * 0.8);
+      pull = 1;
     } else pull = Math.max(0, pull - dt * 0.25);
     var gx = autoX + (tax - autoX) * pull, gy = autoY + (tay - autoY) * pull;
-    var k = Math.min(1, dt * (touch.on ? 0.9 : 0.5));
+    var k = Math.min(1, dt * (touch.on ? 5 : 0.5));
     ax += (gx - ax) * k; ay += (gy - ay) * k;
     var am = Math.hypot(ax, ay);
     if (am > 0.7) { ax *= 0.7 / am; ay *= 0.7 / am; }
-    if (lit) {
-      lit.a += ((lit.on ? 1 : 0) - lit.a) * Math.min(1, dt * (lit.on ? 6 : 0.8));
-      if (!lit.on && lit.a < 0.01) lit = null;
+    for (var lq = lits.length - 1; lq >= 0; lq--) {
+      var L2 = lits[lq];
+      L2.a += ((L2.on ? 1 : 0) - L2.a) * Math.min(1, dt * (L2.on ? 6 : 0.7));
+      if (!L2.on && L2.a < 0.01) lits.splice(lq, 1);
     }
     gasket(ra);
     mapAll();

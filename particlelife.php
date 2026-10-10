@@ -5,7 +5,7 @@ recordPageView('particlelife');
 
 $pageName = 'particlelife';
 $pageTitle = 'PARTICLE LIFE - PULSE';
-$pageDesc = '円い皿の中で4種類の粒が、相手の種類によって寄ったり離れたりして、いくつかの塊にまとまる。しばらくすると寄り方の決まりが替わり、塊が一度ほどけて組み直される。触ったところの粒はかき混ぜられる。';
+$pageDesc = '円い皿の中で4種類の粒が、相手の種類によって寄ったり離れたりして、いくつかの塊にまとまる。押したところに粒が集まって新しい塊ができ、なぞると粒が押しのけられる。しばらくすると寄り方の決まりが替わり、塊が組み直される。';
 $pageCanonical = 'https://pulse.subara3.com/particlelife.php';
 $extraStyle = '';
 
@@ -29,10 +29,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var W = 0, H = 0;
 
   /* 種類は色ではなく記号で見分ける: 点・輪・十字・短い線 */
-  var K = 4, MAXN = 1400, N = 0;
+  var K = 4, MAXN = 2000, N = 0;
   var px = new Float32Array(MAXN), py = new Float32Array(MAXN);
   var vx = new Float32Array(MAXN), vy = new Float32Array(MAXN);
-  var kind = new Uint8Array(MAXN);
+  var kind = new Uint8Array(MAXN), exc = new Float32Array(MAXN), frz = new Float32Array(MAXN);
   var rule = new Float32Array(K * K), target = new Float32Array(K * K), from = new Float32Array(K * K);
   var morph = 1, morphWait = 40;
   var RMAX = 80, BETA = 0.3, FORCE = 9, friction = 0.04;
@@ -57,7 +57,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
   function seed() {
     DX = W / 2; DY = H / 2; DR = Math.min(W, H) * 0.41;
-    N = Math.round(Math.min(MAXN, Math.PI * DR * DR / 300));
+    N = Math.round(Math.min(MAXN, Math.PI * DR * DR / 115));
     for (var i = 0; i < N; i++) {
       var a0 = Math.random() * 6.2832, r0 = Math.sqrt(Math.random()) * DR * 0.95;
       px[i] = DX + Math.cos(a0) * r0; py[i] = DY + Math.sin(a0) * r0;
@@ -106,23 +106,17 @@ require_once __DIR__ . '/includes/floating-nav.php';
           }
         }
       }
-      if (stir.on > 0) {
-        var sx = x - stir.x, sy = y - stir.y, sd = Math.sqrt(sx * sx + sy * sy) + 1;
-        if (sd < 120) {
-          var s = (1 - sd / 120) * 6 * stir.on;
-          /* 外へ押しながら少し回す */
-          ax += (sx / sd * 0.6 - sy / sd) * s; ay += (sy / sd * 0.6 + sx / sd) * s;
-        }
-      }
-      vx[i] = vx[i] * fr + ax * RMAX * FORCE * dt;
-      vy[i] = vy[i] * fr + ay * RMAX * FORCE * dt;
+      /* 呼び寄せたばかりの粒は、しばらく力を弱めて形を保つ */
+      var hold = frz[i] > 0 ? Math.max(0, 1 - frz[i] * 1.6) : 1;
+      vx[i] = (vx[i] * fr + ax * RMAX * FORCE * dt) * hold;
+      vy[i] = (vy[i] * fr + ay * RMAX * FORCE * dt) * hold;
     }
     for (i = 0; i < N; i++) {
       px[i] += vx[i] * dt; py[i] += vy[i] * dt;
       /* シャーレの縁: 外へ出かけたら内へ戻し、外向きの速さを弱める */
       var ex = px[i] - DX, ey = py[i] - DY, ed = Math.sqrt(ex * ex + ey * ey);
-      if (ed > DR - 24) {
-        var push = (ed - DR + 24) / 24 * 520 * dt;
+      if (ed > DR - 40) {
+        var push = (ed - DR + 40) / 40 * 900 * dt;
         vx[i] -= ex / ed * push; vy[i] -= ey / ed * push;
       }
       if (ed > DR) {
@@ -158,29 +152,30 @@ require_once __DIR__ . '/includes/floating-nav.php';
     /* 0: 白い点 */
     ctx.fillStyle = P.rgba(LINE, 0.92);
     ctx.beginPath();
-    for (i = 0; i < N; i++) if (kind[i] === 0) { X = px[i] * Z; Y = py[i] * Z; ctx.moveTo(X + 1.8, Y); ctx.arc(X, Y, 1.8, 0, 6.2832); }
+    for (i = 0; i < N; i++) if (kind[i] === 0) { X = px[i] * Z; Y = py[i] * Z; var r0 = 2.3 * (1 + exc[i]); ctx.moveTo(X + r0, Y); ctx.arc(X, Y, r0, 0, 6.2832); }
     ctx.fill();
     /* 1: 鋼色の輪 */
-    ctx.strokeStyle = P.rgba(P.mix(STEEL, LINE, 0.55), 0.85);
-    ctx.lineWidth = 0.9;
+    ctx.strokeStyle = P.rgba(P.mix(STEEL, LINE, 0.6), 0.9);
+    ctx.lineWidth = 1.2;
     ctx.beginPath();
-    for (i = 0; i < N; i++) if (kind[i] === 1) { X = px[i] * Z; Y = py[i] * Z; ctx.moveTo(X + 2.8, Y); ctx.arc(X, Y, 2.8, 0, 6.2832); }
+    for (i = 0; i < N; i++) if (kind[i] === 1) { X = px[i] * Z; Y = py[i] * Z; var r1 = 3.5 * (1 + exc[i]); ctx.moveTo(X + r1, Y); ctx.arc(X, Y, r1, 0, 6.2832); }
     ctx.stroke();
     /* 2: 十字 */
-    ctx.strokeStyle = P.rgba(LINE, 0.72);
-    ctx.lineWidth = 0.9;
+    ctx.strokeStyle = P.rgba(LINE, 0.85);
+    ctx.lineWidth = 1.2;
     ctx.beginPath();
     for (i = 0; i < N; i++) if (kind[i] === 2) {
       X = px[i] * Z; Y = py[i] * Z;
-      ctx.moveTo(X - 2.6, Y); ctx.lineTo(X + 2.6, Y);
-      ctx.moveTo(X, Y - 2.6); ctx.lineTo(X, Y + 2.6);
+      var r2 = 3.4 * (1 + exc[i]);
+      ctx.moveTo(X - r2, Y); ctx.lineTo(X + r2, Y);
+      ctx.moveTo(X, Y - r2); ctx.lineTo(X, Y + r2);
     }
     ctx.stroke();
     /* 3: 小さな四角 */
-    ctx.strokeStyle = P.rgba(P.mix(STEEL, LINE, 0.8), 0.8);
-    ctx.lineWidth = 0.9;
+    ctx.strokeStyle = P.rgba(P.mix(STEEL, LINE, 0.8), 0.9);
+    ctx.lineWidth = 1.2;
     ctx.beginPath();
-    for (i = 0; i < N; i++) if (kind[i] === 3) { X = px[i] * Z; Y = py[i] * Z; ctx.rect(X - 2, Y - 2, 4, 4); }
+    for (i = 0; i < N; i++) if (kind[i] === 3) { X = px[i] * Z; Y = py[i] * Z; var r3 = 2.6 * (1 + exc[i]); ctx.rect(X - r3, Y - r3, r3 * 2, r3 * 2); }
     ctx.stroke();
 
     /* 触ったところ */
@@ -195,15 +190,43 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ---------------------------------------------------------- 操作 */
-  var down = false;
+  var down = false, lastP = { x: 0, y: 0 };
+  /* 指のところに粒を呼び寄せる（皿のどこかの粒を 1 つずつ移す）。そこから新しい塊が育つ */
+  var recycle = 0;
+  function gather(x, y, n, r) {
+    var ddx = x - DX, ddy = y - DY, dd = Math.sqrt(ddx * ddx + ddy * ddy);
+    if (dd > DR - r - 10) { x = DX + ddx / dd * (DR - r - 10); y = DY + ddy / dd * (DR - r - 10); }
+    for (var k = 0; k < n; k++) {
+      var i = (recycle = (recycle + 7919) % N);
+      var a = Math.random() * 6.2832, rr = Math.sqrt(Math.random()) * r;
+      px[i] = x + Math.cos(a) * rr; py[i] = y + Math.sin(a) * rr;
+      vx[i] = 0; vy[i] = 0; exc[i] = 1; frz[i] = 1;
+    }
+  }
+  /* 指のまわりの粒をはじき、少しのあいだ大きく描く */
+  function kick(x, y, R, power, mx, my) {
+    for (var i = 0; i < N; i++) {
+      var dx = px[i] - x, dy = py[i] - y, d = Math.sqrt(dx * dx + dy * dy) + 0.5;
+      if (d > R) continue;
+      var f = (1 - d / R) * power;
+      vx[i] += dx / d * f + mx * 6 * (1 - d / R); vy[i] += dy / d * f + my * 6 * (1 - d / R);
+      exc[i] = Math.max(exc[i], 1 - d / R * 0.6);
+    }
+  }
   canvas.addEventListener('pointerdown', function (e) {
     down = true; stir.x = e.clientX / Z; stir.y = e.clientY / Z; stir.on = 1;
+    kick(stir.x, stir.y, 150, 60, 0, 0);
+    gather(stir.x, stir.y, 110, 40);
+    lastP = { x: stir.x, y: stir.y };
     SFX.play('ripple');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
     stir.x = e.clientX / Z; stir.y = e.clientY / Z; stir.on = 1;
+    kick(stir.x, stir.y, 55, 260, stir.x - lastP.x, stir.y - lastP.y);
+    gather(stir.x, stir.y, 8, 12);
+    lastP = { x: stir.x, y: stir.y };
     SFX.play('move', 180);
   });
   function up() { down = false; }
@@ -215,7 +238,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     from.set(rule); randomRule(target); morph = 0; morphWait = 36;
     for (var i = 0; i < N; i++) { var a = Math.random() * 6.2832, v = 40 + Math.random() * 80; vx[i] += Math.cos(a) * v; vy[i] += Math.sin(a) * v; }
   }
-  function calmFrom(v) { return 0.09 - v / 100 * 0.07; }
+  function calmFrom(v) { return 0.06 - v / 100 * 0.045; }
   function reachFrom(v) { return 60 + v / 100 * 44; }
   document.getElementById('k-calm').addEventListener('input', function () { friction = calmFrom(+this.value); });
   document.getElementById('k-reach').addEventListener('input', function () { RMAX = reachFrom(+this.value); grid(); });
@@ -242,6 +265,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
       for (var i = 0; i < K * K; i++) rule[i] = from[i] + (target[i] - from[i]) * e;
     }
     if (!down) stir.on = Math.max(0, stir.on - dt * 1.2);
+    for (var e2 = 0; e2 < N; e2++) if (exc[e2] > 0) exc[e2] = Math.max(0, exc[e2] - dt * 0.7);
+    for (var f2 = 0; f2 < N; f2++) if (frz[f2] > 0) frz[f2] = Math.max(0, frz[f2] - dt * 0.9);
     step(Math.min(dt, 1 / 30));
     draw();
     requestAnimationFrame(frame);

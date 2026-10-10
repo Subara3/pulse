@@ -5,7 +5,7 @@ recordPageView('waves');
 
 $pageName = 'waves';
 $pageTitle = 'WAVES - PULSE';
-$pageDesc = '暗い水面に雨が落ちて、輪がいくつも重なっては消えていく。指でなぞると、そこに波が立つ。';
+$pageDesc = '暗い水面に雨が落ちて、輪がいくつも重なっては消えていく。押すとそこから大きな輪が広がり、なぞると指の跡に沿って波が立つ。';
 $pageCanonical = 'https://pulse.subara3.com/waves.php';
 $extraStyle = '';
 
@@ -166,7 +166,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ---------------------------------------------------------- 回す */
   var lastT = performance.now(), rainAcc = 0;
   function frame(now) {
-    var dt = Math.min(0.05, (now - lastT) / 1000);
+    var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));   /* 最初の数フレームは負になることがある */
     lastT = now;
     rainAcc += dt * (0.4 + rain * 5);
     while (rainAcc > 1) {

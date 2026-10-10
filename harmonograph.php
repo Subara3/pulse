@@ -5,7 +5,7 @@ recordPageView('harmonograph');
 
 $pageName = 'harmonograph';
 $pageTitle = 'HARMONOGRAPH - PULSE';
-$pageDesc = '2つの振り子につながったペンが、楕円を少しずつ回しながら重ねて描く。揺れが弱まるにつれて、線は中心へ縮んでいく。ドラッグすると振り子が押されて、その向きに線が大きく広がる。';
+$pageDesc = '2つの振り子につながったペンが、楕円を少しずつ回しながら重ねて描く。揺れが弱まるにつれて、線は中心へ縮んでいく。押さえるとペンが指の位置に来て、なぞったとおりに線を引き、放すとそこから振り子が揺れて模様を描き直す。';
 $pageCanonical = 'https://pulse.subara3.com/harmonograph.php';
 $extraStyle = '';
 
@@ -16,7 +16,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
 <div id="controls" class="drawer-controls">
   <div class="ctl-row"><label for="k-speed">SPEED</label><input type="range" id="k-speed" min="0" max="100" value="45"></div>
-  <div class="ctl-row"><label for="k-decay">DECAY</label><input type="range" id="k-decay" min="0" max="100" value="40"></div>
+  <div class="ctl-row"><label for="k-decay">DECAY</label><input type="range" id="k-decay" min="0" max="100" value="18"></div>
   <div class="ctl-btns"><button type="button" id="k-next">NEXT</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
@@ -39,8 +39,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* 振り子 4 つ: ペン側（x, y）と台側（x, y）。それぞれ減衰する単振動。
      ペン = ペン側 − 台側。振動数が整数比から少しだけずれているので、輪がゆっくり回る */
   var RATIOS = [
-    [2, 3.006, 0.5], [3, 4.004, 0.25], [1, 3.004, 0.5], [3, 5.006, 0.5],
-    [2, 5.005, 0.25], [1, 2.003, 0.5], [4, 5.004, 0.5], [3, 2.004, 0.25]
+    [2, 3.016, 0.5], [3, 4.014, 0.25], [1, 3.012, 0.5], [3, 5.016, 0.5],
+    [2, 5.014, 0.25], [1, 2.012, 0.5], [4, 5.014, 0.5], [3, 2.014, 0.25]
   ];
   var ri = Math.random() * RATIOS.length | 0;
   var om = new Float64Array(4), u = new Float64Array(4), v = new Float64Array(4);
@@ -49,7 +49,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   function setup() {
     ri = (ri + 1 + (Math.random() * (RATIOS.length - 1) | 0)) % RATIOS.length;
-    var r = RATIOS[ri], R = Math.min(W, H) * 0.23;
+    var r = RATIOS[ri], R = Math.min(W, H) * 0.25;
     om[0] = om[1] = r[0] * BASE;
     om[2] = om[3] = r[1] * BASE;
     var p1 = Math.random() * Math.PI * 2, p2 = Math.random() * Math.PI * 2;
@@ -79,12 +79,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var lastX = null, lastY = 0, drawn = 0;
   function ink(sub, h, alpha) {
     lctx.strokeStyle = P.rgba(P.line, alpha);
-    lctx.lineWidth = 0.8;
+    lctx.lineWidth = 1.2;
     lctx.beginPath();
     if (lastX === null) { lastX = penX(); lastY = penY(); }
     lctx.moveTo(lastX, lastY);
     for (var s = 0; s < sub; s++) {
       step(h);
+      if (held) pin();
       lastX = penX(); lastY = penY();
       lctx.lineTo(lastX, lastY);
     }
@@ -92,26 +93,53 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ---------------------------------------------------------- 操作 */
-  var down = false, lx = 0, ly = 0, hot = 0;
+  /* ペンをつかむ: 台側の振り子をずらして、ペン先を指の位置に合わせる。
+     放すと、指の速さを持ったまま振り子が揺れ続け、そこから模様を描き直す */
+  var held = false, fx = 0, fy = 0, fvx = 0, fvy = 0, lt = 0, hot = 0;
+  function pin() {
+    u[2] = u[0] - (fx - W / 2); u[3] = u[1] - (fy - H / 2);
+    v[2] = v[0] - fvx; v[3] = v[1] - fvy;
+  }
   canvas.addEventListener('pointerdown', function (e) {
-    down = true; lx = e.clientX; ly = e.clientY; hot = 1;
+    held = true; hot = 1;
+    fx = e.clientX; fy = e.clientY; fvx = fvy = 0; lt = performance.now();
+    /* いままでの線を薄くして、指から新しい線を始める */
+    lctx.save();
+    lctx.setTransform(1, 0, 0, 1, 0, 0);
+    lctx.globalCompositeOperation = 'destination-out';
+    lctx.fillStyle = P.rgba(P.deep, 0.5);
+    lctx.fillRect(0, 0, layer.width, layer.height);
+    lctx.restore();
+    pin();
+    lastX = fx; lastY = fy;
+    phase = 'draw'; fade = 1;
     SFX.play('ripple');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
-    if (!down) return;
-    var dx = e.clientX - lx, dy = e.clientY - ly;
-    lx = e.clientX; ly = e.clientY;
-    /* 台側の振り子を、なぞった向きに軽く押す */
-    v[2] -= dx * 0.35; v[3] -= dy * 0.35;
-    var cap = Math.min(W, H) * 0.3 * om[2];
-    v[2] = Math.max(-cap, Math.min(cap, v[2])); v[3] = Math.max(-cap, Math.min(cap, v[3]));
-    hot = 1;
-    if (phase !== 'draw') { phase = 'draw'; fade = 1; }
-    drawn = Math.min(drawn, 20);
-    if (Math.abs(dx) + Math.abs(dy) > 3) SFX.play('move', 220);
+    if (!held) return;
+    var now = performance.now(), t = Math.max(0.008, (now - lt) / 1000);
+    var vx = (e.clientX - fx) / t, vy = (e.clientY - fy) / t;
+    fvx += (vx - fvx) * 0.5; fvy += (vy - fvy) * 0.5;
+    var cap = Math.min(W, H) * 1.2;
+    fvx = Math.max(-cap, Math.min(cap, fvx)); fvy = Math.max(-cap, Math.min(cap, fvy));
+    fx = e.clientX; fy = e.clientY; lt = now;
+    pin();
+    /* 指の動きどおりに線を引く */
+    lctx.strokeStyle = P.rgba(P.accent, 0.85);
+    lctx.lineWidth = 1.8;
+    lctx.beginPath(); lctx.moveTo(lastX, lastY); lctx.lineTo(fx, fy); lctx.stroke();
+    lastX = fx; lastY = fy;
+    if (Math.abs(vx) + Math.abs(vy) > 60) SFX.play('move', 220);
   });
-  function up() { down = false; }
+  function up() {
+    if (!held) return;
+    held = false;
+    if (performance.now() - lt > 120) { fvx = 0; fvy = 0; }
+    pin();
+    startAmp = Math.max(energy(), Math.min(W, H) * 0.12);
+    drawn = 0;
+  }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);
 
@@ -127,7 +155,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var lastT = performance.now(), phase = 'draw', fade = 1, holdT = 0;
   setup();
   /* 開いた瞬間から線が見えるように、最初の数秒ぶんは先に描いておく */
-  ink(1000, 0.003, 0.4);
+  ink(11000, 0.003, 0.42);
   function frame(now) {
     var dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
@@ -135,7 +163,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (phase === 'draw') {
       var amp = energy() / startAmp;
       /* 線が中心に縮むほど細く薄く。真ん中が白く潰れないようにする */
-      ink(sub, h / sub, 0.14 + 0.3 * Math.min(1, amp * 1.4));
+      if (held) { for (var hs = 0; hs < sub; hs++) { step(h / sub); pin(); } }
+      else ink(sub, h / sub, 0.32 + 0.3 * Math.min(1, amp * 1.4));
       drawn += dt;
       if (amp < 0.14 || drawn > 150) { phase = 'hold'; holdT = 5; }
     } else if (phase === 'hold') {
@@ -146,7 +175,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (fade <= 0) { fade = 0; setup(); phase = 'in'; SFX.play('tick'); }
     } else {
       fade = Math.min(1, fade + dt * 2);
-      ink(sub, h / sub, 0.44);
+      ink(sub, h / sub, 0.55);
       if (fade >= 1) phase = 'draw';
     }
     P.fill(ctx, W, H);
@@ -155,10 +184,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ctx.globalAlpha = 1;
     /* ペン先 */
     if (phase === 'draw' || phase === 'in') {
-      hot = Math.max(0, hot - dt * 0.6);
+      hot = held ? 1 : Math.max(0, hot - dt * 0.6);
       var c = P.mix(P.line, P.accent, Math.max(0.35, hot));
       ctx.fillStyle = P.rgba(c, 0.95);
-      ctx.beginPath(); ctx.arc(penX(), penY(), 2.6, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(penX(), penY(), 2.6 + hot * 2, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = P.rgba(c, 0.25 + hot * 0.3);
       ctx.lineWidth = 1;
       ctx.beginPath(); ctx.arc(penX(), penY(), 7 + hot * 5, 0, Math.PI * 2); ctx.stroke();

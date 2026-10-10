@@ -5,7 +5,7 @@ recordPageView('ifs');
 
 $pageName = 'ifs';
 $pageTitle = 'IFS - PULSE';
-$pageDesc = '小さな点が集まってできたシダが左右にしなり、しばらくすると葉や木の形に少しずつ変わっていく。押さえると、押さえた側へ全体が曲がる。';
+$pageDesc = '小さな点が集まってできたシダが左右にしなり、しばらくすると葉や木の形に少しずつ変わっていく。押したところやなぞった跡に同じ形の小さな芽が生えて数秒で消え、まわりの点は明るく光る。';
 $pageCanonical = 'https://pulse.subara3.com/ifs.php';
 $extraStyle = '';
 
@@ -130,6 +130,29 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     if (!isFinite(x) || Math.abs(x) > 1e4) { x = 0; y = 0; }
     px = x; py = y;
+    /* 触ったところに芽生えた小さな同じ形 */
+    for (var q = 0; q < sprouts.length; q++) {
+      var sp = sprouts[q], g = Math.min(1, sp.t / 0.25), life = sp.t < 4 ? 1 : Math.max(0, 1 - (sp.t - 4) / 1.5);
+      var g2 = 1 - (1 - g) * (1 - g), s2 = sc * 0.3 * g2 * sp.k;
+      var cs = Math.cos(sp.rot), sn = Math.sin(sp.rot);
+      var fx = sp.x / W * NX, fy = sp.y / H * NY, mx2 = (box[0] + box[1]) / 2, my2 = (box[2] + box[3]) / 2;
+      var cnt = Math.round(14000 * life), x2 = 0, y2 = 0;
+      for (var k2 = 0; k2 < cnt; k2++) {
+        var r2 = Math.random();
+        var m2 = r2 < p0 ? M[0] : r2 < p1 ? M[1] : r2 < p2 ? M[2] : M[3];
+        var nx2 = m2[0] * x2 + m2[1] * y2 + m2[4];
+        y2 = m2[2] * x2 + m2[3] * y2 + m2[5]; x2 = nx2;
+        if (k2 < 20) continue;
+        var ux = (x2 - mx2) * s2, uy = (y2 - my2) * s2;
+        var jx = (fx + ux * cs - uy * sn) | 0, jy = (fy - (ux * sn + uy * cs)) | 0;
+        if (jx >= 0 && jy >= 0 && jx < NX && jy < NY) den[jy * NX + jx] += 1.4;
+      }
+    }
+  }
+  var sprouts = [];
+  function sprout(x, y) {
+    sprouts.push({ x: x, y: y, t: 0, rot: (Math.random() - 0.5) * 0.9, k: 0.8 + Math.random() * 0.4 });
+    if (sprouts.length > 7) sprouts.shift();
   }
 
   var peak = 4;
@@ -158,6 +181,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     /* 濃さの目安を、上位の点に合わせてゆっくり追う */
     peak += (Math.max(3, mx * 0.7) - peak) * 0.05;
+    warpPass(function (v, o, w) {
+      if (v < 0.02) { d[o] = BG[0]; d[o + 1] = BG[1]; d[o + 2] = BG[2]; return; }
+      var l = Math.sqrt(Math.log(1 + v) * inv); l = Math.min(1, l * (1 + 0.9 * w) + 0.12 * w);
+      var q = ((l * 255) | 0) * 3, ww = w * 0.8;
+      d[o] = LUT[q] + (LUTA[q] - LUT[q]) * ww; d[o + 1] = LUT[q + 1] + (LUTA[q + 1] - LUT[q + 1]) * ww; d[o + 2] = LUT[q + 2] + (LUTA[q + 2] - LUT[q + 2]) * ww;
+    });
     bctx.putImageData(img, 0, 0);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
@@ -172,20 +201,81 @@ require_once __DIR__ . '/includes/floating-nav.php';
     SFX.play('grow', 3000);
   }
 
+  /* ---------------------------------------------------------- 指でずらす場（描いた後の見え方だけを動かす） */
+  /* 粗い格子の各点に「ずらし量」を持たせる。押すとそこが押し広げられ、なぞると点が指の向きに流される。
+     ずらしは 1 秒ほどで元に戻る。描き終えた濃さの画像を読み替えるだけなので、押した瞬間に効く */
+  var FS = 12, FW = 0, FH = 0, FDX = null, FDY = null, FG = null, fLast = performance.now(), fActive = false;
+  function fieldFit() {
+    var w = Math.ceil(NX / FS) + 2, h = Math.ceil(NY / FS) + 2;
+    if (w !== FW || h !== FH) { FW = w; FH = h; FDX = new Float32Array(FW * FH); FDY = new Float32Array(FW * FH); FG = new Float32Array(FW * FH); }
+  }
+  function fieldAdd(sx, sy, vx, vy, bulge) {
+    fieldFit();
+    var gx = sx / W * NX, gy = sy / H * NY, sc = NX / W, R = 130 * sc;
+    var kx = vx * sc, ky = vy * sc;
+    for (var j = 0; j < FH; j++) for (var i = 0; i < FW; i++) {
+      var dx = i * FS - gx, dy = j * FS - gy, r = Math.sqrt(dx * dx + dy * dy);
+      if (r >= R) continue;
+      var f = 1 - r / R; f *= f;
+      var k = j * FW + i, tx = FDX[k] + kx * f, ty = FDY[k] + ky * f;
+      if (bulge && r > 0.5) { tx += dx / r * bulge * sc * f; ty += dy / r * bulge * sc * f; }
+      var m = Math.sqrt(tx * tx + ty * ty), lim = 55 * sc;
+      if (m > lim) { tx *= lim / m; ty *= lim / m; }
+      FDX[k] = tx; FDY[k] = ty;
+      FG[k] = Math.min(1, FG[k] + Math.sqrt(f) * 1.6);          // 触ったところの模様を明るく灯す
+    }
+    fActive = true;
+  }
+  function warpPass(paint) {
+    var now = performance.now(), dt = Math.min(0.05, (now - fLast) / 1000); fLast = now;
+    if (!fActive) return;
+    fieldFit();
+    var dec = Math.exp(-dt * 1.5), any = false;
+    var gdec = Math.exp(-dt * 0.9);
+    for (var n = 0; n < FW * FH; n++) { FDX[n] *= dec; FDY[n] *= dec; FG[n] *= gdec; if (FDX[n] * FDX[n] + FDY[n] * FDY[n] > 0.09 || FG[n] > 0.01) any = true; }
+    if (!any) { fActive = false; return; }
+    var lim = 55 * NX / W;
+    for (var cj = 0; cj < FH - 1; cj++) for (var ci = 0; ci < FW - 1; ci++) {
+      var k0 = cj * FW + ci, k1 = k0 + 1, k2 = k0 + FW, k3 = k2 + 1;
+      var big = Math.max(Math.abs(FDX[k0]), Math.abs(FDY[k0]), Math.abs(FDX[k1]), Math.abs(FDY[k1]),
+                         Math.abs(FDX[k2]), Math.abs(FDY[k2]), Math.abs(FDX[k3]), Math.abs(FDY[k3]));
+      var gmax = Math.max(FG[k0], FG[k1], FG[k2], FG[k3]);
+      if (big < 0.3 && gmax < 0.01) continue;
+      var x0 = ci * FS, y0 = cj * FS;
+      for (var yy = y0; yy < y0 + FS && yy < NY; yy++) {
+        var v = (yy - y0) / FS;
+        for (var xx = x0; xx < x0 + FS && xx < NX; xx++) {
+          var u = (xx - x0) / FS;
+          var ddx = (FDX[k0] * (1 - u) + FDX[k1] * u) * (1 - v) + (FDX[k2] * (1 - u) + FDX[k3] * u) * v;
+          var ddy = (FDY[k0] * (1 - u) + FDY[k1] * u) * (1 - v) + (FDY[k2] * (1 - u) + FDY[k3] * u) * v;
+          var qx = Math.round(xx - ddx), qy = Math.round(yy - ddy);
+          var val = (qx >= 0 && qy >= 0 && qx < NX && qy < NY) ? den[qy * NX + qx] : 0;
+          var gg = (FG[k0] * (1 - u) + FG[k1] * u) * (1 - v) + (FG[k2] * (1 - u) + FG[k3] * u) * v;
+          paint(val, (yy * NX + xx) * 4, gg);
+        }
+      }
+    }
+  }
+
   /* ---------------------------------------------------------- 操作 */
-  var touch = { on: false, x: 0, y: 0, glow: 0 };
+  var touch = { on: false, x: 0, y: 0, glow: 0 }, lastSprout = [0, 0];
   function aim(e) {
     touch.x = e.clientX; touch.y = e.clientY;
     bendT = Math.max(-1, Math.min(1, (e.clientX - W / 2) / (W * 0.35))) * -2.2;
   }
   canvas.addEventListener('pointerdown', function (e) {
     touch.on = true; aim(e);
+    fieldAdd(e.clientX, e.clientY, 0, 0, 30);
+    sprout(e.clientX, e.clientY); lastSprout = [e.clientX, e.clientY];
     canvas.setPointerCapture(e.pointerId);
     SFX.play('ripple', 250);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!touch.on) return;
+    var mvx = e.clientX - touch.x, mvy = e.clientY - touch.y;
     aim(e);
+    fieldAdd(e.clientX, e.clientY, mvx * 0.9, mvy * 0.9, 6);
+    if (Math.hypot(e.clientX - lastSprout[0], e.clientY - lastSprout[1]) > 90) { sprout(e.clientX, e.clientY); lastSprout = [e.clientX, e.clientY]; SFX.play('grow', 300); }
     SFX.play('move', 220);
   });
   function up() { touch.on = false; bendT = 0; }
@@ -207,9 +297,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
     lastT = now;
     t += dt;
     if (morph < 1) morph += dt / 7; else { hold += dt; if (hold > 16) next(); }
-    bend += (bendT - bend) * Math.min(1, dt * 1.6);
-    touch.glow += ((touch.on ? 0.7 : 0) - touch.glow) * Math.min(1, dt * 3);
+    bend += (bendT - bend) * Math.min(1, dt * 5);
+    touch.glow += ((touch.on ? 1 : 0) - touch.glow) * Math.min(1, dt * (touch.on ? 14 : 1.6));
     if (touch.glow < 0.01) touch.glow = 0;
+    for (var q = sprouts.length - 1; q >= 0; q--) { sprouts[q].t += dt; if (sprouts[q].t > 5.5) sprouts.splice(q, 1); }
     build();
     scatter(Math.round(18000 + dust * 50000));
     shade();

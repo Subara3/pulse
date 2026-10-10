@@ -5,7 +5,7 @@ recordPageView('crystal');
 
 $pageName = 'crystal';
 $pageTitle = 'CRYSTAL - PULSE';
-$pageDesc = '画面の中央で雪の結晶が六つの方向へ育ち、育ちきると消えて次の結晶が育ちはじめる。指でなぞるとそちら側の枝がよく伸び、押して離すとそこに新しい結晶ができる。';
+$pageDesc = '画面の中央で雪の結晶が六つの方向へ育ち、育ちきると消えて次の結晶が育ちはじめる。押すとそこに小さな結晶がすぐにでき、なぞるとそちら側の枝がよく伸びる。';
 $pageCanonical = 'https://pulse.subara3.com/crystal.php';
 $extraStyle = '';
 
@@ -38,10 +38,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var NX, NY, cw, rh, N, s, s2, u, fr, fa, rec, wet, img, buf, bctx;
   var bx0, bx1, by0, by1;           /* 凍ったマスの外接枠 */
   var cx, cy, maxr = 0, rmax = 1, tGrow = 0, hold = 0, fade = 0, pace = 0.45;
-  var nSteps = 0;
+  var nSteps = 0, fcount = 0;
 
   function alloc() {
-    cw = Math.max(3, Math.min(W, H) / 190);
+    cw = Math.max(3.5, Math.min(W, H) / 150);
     rh = cw * Math.sqrt(3) / 2;
     NX = Math.ceil(W / cw) + 2;
     NY = Math.ceil(H / rh) + 2;
@@ -68,15 +68,40 @@ require_once __DIR__ . '/includes/floating-nav.php';
     bx0 = bx1 = cx; by0 = by1 = cy;
     maxr = 0; tGrow = 0; hold = 0; fade = 0; nSteps = 0;
     rmax = Math.min(NX * 0.5, NY * rh / cw * 0.5) * 0.86;
-    seed(cx, cy);
-    if (pre) {
-      /* 開いた瞬間から形が見えるように、少し育てておく */
-      tGrow = 7;
-      var t0 = performance.now();
-      while (maxr < target() && performance.now() - t0 < 220) step();
-    }
+    /* 中心は小さな六角の板から始める。角から枝が伸びる */
+    hexPlate(cx, cy, pre ? 9 : 4);
+    /* 開いた瞬間から形が見えるように、先に育てておく */
+    tGrow = pre ? 26 : 6;
+    var t0 = performance.now();
+    while (maxr < target() && performance.now() - t0 < (pre ? 600 : 160)) step();
   }
 
+  function hexPlate(i0, j0, rad) {
+    for (var j = j0 - rad - 1; j <= j0 + rad + 1; j++) {
+      for (var i = i0 - rad - 2; i <= i0 + rad + 2; i++) {
+        var dx = i - i0 + ((j & 1) - (j0 & 1)) * 0.5, dy = (j - j0) * 0.866;
+        /* 六角形の内側か（向かい合う辺の 3 組で判定） */
+        var a1 = Math.abs(dy), a2 = Math.abs(dy * 0.5 + dx * 0.866), a3 = Math.abs(dy * 0.5 - dx * 0.866);
+        if (Math.max(a1, a2, a3) <= rad * 0.866) {
+          seed(i, j);
+          var dd = Math.sqrt(dx * dx + dy * dy);
+          if (dd > maxr) maxr = dd;
+        }
+      }
+    }
+  }
+  /* 押したところに、六方向へ腕を出した小さな結晶をすぐに置く */
+  function star(i0, j0, len) {
+    for (var j = j0 - len; j <= j0 + len; j++) {
+      for (var i = i0 - len - 1; i <= i0 + len + 1; i++) {
+        if (i < 2 || j < 2 || i >= NX - 2 || j >= NY - 2) continue;
+        var dx = i - i0 + ((j & 1) - (j0 & 1)) * 0.5, dy = (j - j0) * 0.866, r = Math.sqrt(dx * dx + dy * dy);
+        if (r > len) continue;
+        var th = Math.atan2(dy, dx), off = Math.abs(Math.sin(th * 3)) * r;
+        if (off < 1.3 - r * 0.04 || r < 2) seed(i, j);
+      }
+    }
+  }
   function seed(i, j) {
     if (i < 2 || j < 2 || i >= NX - 2 || j >= NY - 2) return;
     var k = j * NX + i;
@@ -86,7 +111,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (j < by0) by0 = j; if (j > by1) by1 = j;
   }
 
-  function target() { return rmax * Math.pow(Math.min(1, tGrow / (70 - pace * 45)), 0.85); }
+  function target() { return rmax * Math.pow(Math.min(1, tGrow / (56 - pace * 36)), 0.85); }
 
   function step() {
     var M = 34, a12 = prm.a / 12, gam = prm.g;
@@ -130,7 +155,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   /* 塗り: 凍ったマスは薄い鋼色、育った跡（凍った時刻の等高線）は白い細線、縁はいちばん明るく */
   var BG = P.bg, DEEP = P.deep, LN = P.line, ST = P.steel, AC = P.accent;
-  var FAR = P.mix(BG, ST, 0.07), ICE = P.mix(BG, ST, 0.3), RING = P.mix(ST, LN, 0.55);
+  var FAR = P.mix(BG, ST, 0.07), ICE = P.mix(BG, ST, 0.42), RING = P.mix(ST, LN, 0.55);
   function shade() {
     var d = img.data, b = prm.b, vis = 1 - fade;
     var i, j, k, o, r, g, bl;
@@ -152,6 +177,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
             c = [ICE[0] + (RING[0] - ICE[0]) * age, ICE[1] + (RING[1] - ICE[1]) * age, ICE[2] + (RING[2] - ICE[2]) * age];
           }
           r = BG[0] + (c[0] - BG[0]) * vis; g = BG[1] + (c[1] - BG[1]) * vis; bl = BG[2] + (c[2] - BG[2]) * vis;
+          /* 触ったあたりの氷はしばらくシアンに光る */
+          var wf = wet[k];
+          if (wf > 0.004) { wf = Math.min(1, wf) * 0.7; r += (AC[0] - r) * wf; g += (AC[1] - g) * wf; bl += (AC[2] - bl) * wf; }
         } else {
           /* 水蒸気: 結晶のまわりは吸い取られて暗くなる。凍りかけのマスはほのかに光る */
           var sv = s[k], dep = 1 - sv / b;
@@ -164,7 +192,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
           }
           var w = wet[k];
           if (w > 0.004) {
-            var wa = Math.min(1, w) * 0.5;
+            var wa = Math.min(1, w) * 0.4;
             r += (AC[0] - r) * wa; g += (AC[1] - g) * wa; bl += (AC[2] - bl) * wa;
           }
         }
@@ -176,7 +204,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     bctx.putImageData(img, 0, 0);
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingQuality = 'low';
     ctx.drawImage(buf, -cw * 0.5, -rh * 0.5, NX * cw, NY * rh);
     P.grid(ctx, W, H, { step: 40, major: 4, alpha: 0.45 });
   }
@@ -190,7 +218,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
   /* なぞったところに水蒸気を足す。そちら側の枝が太り、伸びが早くなる */
   function moisten(x, y, amt) {
-    var c = cellAt(x, y), R = 7;
+    var c = cellAt(x, y), R = 11;
     for (var j = Math.max(1, c[1] - R); j <= Math.min(NY - 2, c[1] + R); j++) {
       for (var i = Math.max(1, c[0] - R); i <= Math.min(NX - 2, c[0] + R); i++) {
         var dx = i - c[0] + ((j & 1) - (c[1] & 1)) * 0.5, dy = (j - c[1]) * 0.866;
@@ -211,8 +239,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
   canvas.addEventListener('pointerdown', function (e) {
     down = true; moved = 0;
     last = { x: e.clientX, y: e.clientY };
-    moisten(last.x, last.y, 0.5);
-    SFX.play('ripple');
+    moisten(last.x, last.y, 1.2);
+    var c0 = cellAt(last.x, last.y);
+    star(c0[0], c0[1], 14);
+    SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
@@ -226,12 +256,6 @@ require_once __DIR__ . '/includes/floating-nav.php';
     SFX.play('move', 160);
   });
   function up() {
-    /* ほとんど動かさずに離したら、そこに新しい種を置く */
-    if (down && moved < 8 && last) {
-      var c = cellAt(last.x, last.y);
-      seed(c[0], c[1]);
-      SFX.play('spawn');
-    }
     down = false;
   }
   canvas.addEventListener('pointerup', up);
@@ -264,12 +288,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
     } else {
       tGrow += dt;
       var t0 = performance.now(), want = target();
-      while (maxr < want && performance.now() - t0 < 6) step();
+      /* 目安の大きさに届いているときも、ときどき 1 歩だけ進めて、置いた種がゆっくり育つようにする */
+      var ns = 0, extra = (fcount++ % 4 === 0) && maxr < rmax ? 1 : 0;
+      while ((maxr < want || ns < extra) && performance.now() - t0 < 6) { step(); ns++; }
       /* 枠の外へ伸びきるか、育ちきって少し眺めたら、溶かして次の結晶へ */
       var full = maxr >= rmax * 0.985 || bx0 < 4 || bx1 > NX - 5 || by0 < 4 || by1 > NY - 5;
       if (full || tGrow > 140) {
         hold += dt;
-        if (hold > 9) { fade = 0.0001; SFX.play('pop', 3000); }
+        if (hold > 14) { fade = 0.0001; SFX.play('pop', 3000); }
       }
       if (Math.random() < dt * 0.25) SFX.play('tick', 4000);
     }

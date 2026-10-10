@@ -5,7 +5,7 @@ recordPageView('fractal');
 
 $pageName = 'fractal';
 $pageTitle = 'FRACTAL - PULSE';
-$pageDesc = '黒い図形の縁にある細かな枝模様に向かって、画面がゆっくり拡大し続ける。触った点のほうへ拡大の中心が移る（マンデルブロ集合）。';
+$pageDesc = '黒い図形の縁にある細かな枝模様に向かって、画面がゆっくり拡大し続ける。押すと指の下に丸い窓が開き、その点から決まる別の図形が映る。なぞると全体が指についてずれる（マンデルブロ集合とジュリア集合）。';
 $pageCanonical = 'https://pulse.subara3.com/fractal.php';
 $extraStyle = '';
 
@@ -15,7 +15,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <canvas id="canvas"></canvas>
 
 <div id="controls" class="drawer-controls">
-  <div class="ctl-row"><label for="k-speed">SPEED</label><input type="range" id="k-speed" min="0" max="100" value="40"></div>
+  <div class="ctl-row"><label for="k-speed">SPEED</label><input type="range" id="k-speed" min="0" max="100" value="30"></div>
   <div class="ctl-btns"><button type="button" class="active" data-look="lines">LINES</button><button type="button" data-look="glow">GLOW</button></div>
   <div class="ctl-btns"><button type="button" id="k-next">NEXT</button></div>
 </div>
@@ -35,7 +35,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
    */
   var KS = 0.75;          // 鍵画像の解像度（CSS px あたり）
   var F = 1.5;            // 鍵画像ごとの拡大率
-  var MG = 0.09;          // 鍵画像の余白（画面幅に対する割合）
+  var MG = 0.16;          // 鍵画像の余白（画面幅に対する割合）
   var look = 'lines';
   var rate = 0.11;        // 1 秒あたりの log 拡大量
 
@@ -136,7 +136,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (nu < 0) { d[o] = DEEP[0]; d[o + 1] = DEEP[1]; d[o + 2] = DEEP[2]; d[o + 3] = 255; continue; }
       ext++;
       var px = K.de[k];
-      var a = 0.9 * Math.exp(-px * 1.25) + 0.2 * Math.exp(-px * 0.05);
+      var a = 0.9 * Math.exp(-px * 1.25) + 0.2 * Math.exp(-px * 0.05) + 0.1;   // 外側も地より少し明るくして、空白に見せない
       if (lines) {
         var f = Math.log(nu) * band; f -= Math.floor(f);
         var e = f < 0.5 ? f : 1 - f;
@@ -159,6 +159,31 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ctx.globalAlpha = alpha;
     ctx.drawImage(K.cv, (K.x0 - v.x0) / v.u, (v.y0 - K.y0) / v.u, K.cw * m, K.ch * m);
     ctx.globalAlpha = 1;
+  }
+
+  /* ---------------------------------------------------------- 指の下の窓（ジュリア集合） */
+  var JN = 150, jcv = document.createElement('canvas'), jcx, jimg;
+  jcv.width = JN; jcv.height = JN; jcx = jcv.getContext('2d'); jimg = new ImageData(JN, JN);
+  function julia(cr, ci) {
+    var d = jimg.data, sp = 3.3 / JN, h = JN / 2;
+    for (var j = 0; j < JN; j++) for (var i = 0; i < JN; i++) {
+      var o = (j * JN + i) * 4, dx = i - h + 0.5, dy = j - h + 0.5;
+      if (dx * dx + dy * dy > h * h) { d[o + 3] = 0; continue; }
+      var zr = dx * sp, zi = -dy * sp, dr = 1, di = 0, n = 0, m2 = 0;
+      for (; n < 160; n++) {
+        var ndr = 2 * (zr * dr - zi * di); di = 2 * (zr * di + zi * dr); dr = ndr;
+        var t = zr * zr - zi * zi + cr; zi = 2 * zr * zi + ci; zr = t;
+        m2 = zr * zr + zi * zi;
+        if (m2 > 1e6) break;
+      }
+      if (n >= 160) { d[o] = DEEP[0]; d[o + 1] = DEEP[1]; d[o + 2] = DEEP[2]; d[o + 3] = 255; continue; }
+      var lz = 0.5 * Math.log(m2), px = Math.sqrt(m2) * lz / (Math.sqrt(dr * dr + di * di) || 1e-30) / sp;
+      var a = 0.95 * Math.exp(-px * 0.9) + 0.35 * Math.exp(-px * 0.03) + 0.14;
+      if (a > 1) a = 1;
+      var li = (a * 255 | 0) * 3;
+      d[o] = LUT[li]; d[o + 1] = LUT[li + 1]; d[o + 2] = LUT[li + 2]; d[o + 3] = 255;
+    }
+    jcx.putImageData(jimg, 0, 0);
   }
 
   /* ---------------------------------------------------------- 状態 */
@@ -215,7 +240,26 @@ require_once __DIR__ . '/includes/floating-nav.php';
     marks.push({ t: 0 });
     if (marks.length > 1) marks.shift();
     SFX.play('ripple', 300);
+    lens.on = true; lens.x = e.clientX; lens.y = e.clientY;
+    canvas.setPointerCapture(e.pointerId);
   });
+  /* 押している間は、指の下を虫眼鏡のように大きく見せる（指についてくる） */
+  var lens = { on: false, x: 0, y: 0, s: 0 };
+  canvas.addEventListener('pointermove', function (e) {
+    if (!lens.on) return;
+    /* なぞると、図形が指についてずれる */
+    var mdx = e.clientX - lens.x, mdy = e.clientY - lens.y;
+    if (mdx || mdy) { J.ax -= mdx * J.u; J.ay += mdy * J.u; panned = true; }
+    lens.x = e.clientX; lens.y = e.clientY;
+    SFX.play('move', 220);
+  });
+  var panned = false;
+  function lensUp() {
+    lens.on = false;
+    if (panned && !nextJ) { panned = false; pend = makeKey(viewAt(J.u / F)); }
+  }
+  canvas.addEventListener('pointerup', lensUp);
+  canvas.addEventListener('pointercancel', lensUp);
 
   document.getElementById('k-speed').addEventListener('input', function () { rate = 0.04 + this.value / 100 * 0.18; });
   rate = 0.04 + document.getElementById('k-speed').value / 100 * 0.18;
@@ -239,7 +283,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (nextJ) {
       if (!nextKey.done) { var kj = J; J = nextJ; computeRows(nextKey, 5); J = kj; }
       else jfade += dt / 3.5;
-    } else if (!pend.done) {
+    } else if (!pend.done && !panned) {
       computeRows(pend, 5);
     }
 
@@ -251,7 +295,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var mult = Math.max(0, Math.min(1, 1 - (prog - rp) * 3));
     if (nextJ) mult = 0.35;
     J.u = Math.max(pend.u, J.u * Math.exp(-spd * mult * dt));
-    if (!nextJ && pend.done && J.u <= pend.u * 1.0000001) {
+    if (!nextJ && !panned && pend.done && J.u <= pend.u * 1.0000001) {
       fadeOld = cur; fadeT = 1;
       cur = pend;
       if (cur.boring || J.u < J.u0 * 2e-9) beginNext();
@@ -268,6 +312,23 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (fadeT > 0) drawKey(fadeOld, v, fadeT); else fadeOld = null;
     } else {
       drawKey(cur, v, 1);
+    }
+
+    lens.s += ((lens.on ? 1 : 0) - lens.s) * Math.min(1, dt * (lens.on ? 14 : 1.1));
+    if (lens.s > 0.01) {
+      /* 指の下に丸い窓を開き、その点を c にしたジュリア集合を描く。なぞると c が変わり、形が続けて変わる */
+      if (lens.on || !lens.c) lens.c = [v.x0 + lens.x * v.u, v.y0 - lens.y * v.u];
+      julia(lens.c[0], lens.c[1]);
+      var LR = Math.min(W, H) * 0.25, a = Math.min(1, lens.s * 1.3);
+      ctx.save();
+      ctx.beginPath(); ctx.arc(lens.x, lens.y, LR, 0, Math.PI * 2); ctx.clip();
+      ctx.globalAlpha = a;
+      ctx.drawImage(jcv, lens.x - LR, lens.y - LR, LR * 2, LR * 2);
+      ctx.globalAlpha = 1;
+      ctx.restore();
+      ctx.strokeStyle = P.rgba(P.line, 0.6 * a);
+      ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(lens.x, lens.y, LR, 0, Math.PI * 2); ctx.stroke();
     }
 
     /* 錨: 触ったところに細いシアンの輪。中央へ寄っていくのが見える */

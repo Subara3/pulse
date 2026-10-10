@@ -2,7 +2,7 @@
   {
     "page": "flock",
     "title": "FLOCK",
-    "desc": "数百羽の鳥がひとかたまりで飛び、向きを揃えながら画面の中を大きく旋回する。触ったところから鳥が逃げ、群れが割れてはまた合わさる。",
+    "desc": "数百羽の鳥がひとかたまりで飛び、向きを揃えながら画面の中を大きく旋回する。押したところから鳥が輪になって飛び立ち、なぞると指の跡に沿って鳥が飛び出して群れに加わる。",
     "desc_en": "Hundreds of birds fly as one flock, turning together in wide loops across the screen. Touch the sky and the birds swerve away, splitting the flock until it closes up again.",
     "icon": "fa-dove",
     "category": "群れるもの",
@@ -16,7 +16,7 @@
   {
     "page": "fibonacci",
     "title": "FIBONACCI",
-    "desc": "中心から種が一粒ずつ生まれて外へ押し出され、ひまわりの種のような渦が二方向に重なる。横にドラッグすると種の角度がずれて渦がほどけ、離すと元に戻る。",
+    "desc": "中心から種が一粒ずつ生まれて外へ押し出され、ひまわりの種のような渦が二方向に重なる。押すとそこの種が押しのけられて大きな穴があき、縁の種が水色に光る。横にドラッグすると種の角度がずれて渦がほどけ、離すと元に戻る。",
     "desc_en": "Seeds are born one by one at the center and pushed outward, crossing into two families of spirals like a sunflower head. Drag sideways to nudge the angle between seeds and the spirals turn into spokes; let go and they wind back.",
     "icon": "fa-hurricane",
     "category": "数えるもの",
@@ -30,7 +30,7 @@
   {
     "page": "fractal",
     "title": "FRACTAL",
-    "desc": "黒い図形の縁にある細かな枝模様に向かって、画面がゆっくり拡大し続ける。触った点のほうへ拡大の中心が移る（マンデルブロ集合）。",
+    "desc": "黒い図形の縁にある細かな枝模様に向かって、画面がゆっくり拡大し続ける。押すと指の下に丸い窓が開き、その点から決まる別の図形が映る。なぞると全体が指についてずれる（マンデルブロ集合とジュリア集合）。",
     "desc_en": "The screen keeps slowly zooming into the fine branching detail along the edge of a dark shape. Touch a point and the zoom shifts toward it (the Mandelbrot set).",
     "icon": "fa-snowflake",
     "category": "繰り返すもの",
@@ -44,7 +44,7 @@
   {
     "page": "life",
     "title": "LIFE",
-    "desc": "方眼の上で、隣り合う点どうしを線で結んだ形が、生まれたり消えたりしながら変わっていく。触ったところに点がばらまかれ、そこから形が増えていく。",
+    "desc": "方眼の上で、隣り合う点どうしを線で結んだ形が、生まれたり消えたりしながら変わっていく。押したところには脈を打つ大きな形が置かれ、なぞった跡には点の線が引かれる。指を離すと、その線から形が増えていく。",
     "desc_en": "On graph paper, living cells are drawn as nodes joined to their neighbours by thin lines, appearing and fading as the generations pass. Touch scatters new cells that spread from there.",
     "icon": "fa-bacterium",
     "category": "格子のもの",
@@ -58,7 +58,7 @@
   {
     "page": "fourier",
     "title": "FOURIER",
-    "desc": "大小の円が円の上で回り、先端の点が花のような図形を描いては次の形へ移っていく。指で線を描くと、円の列がその線をなぞり直す。",
+    "desc": "大小の円が円の上で回り、先端の点が花のような図形を描いては次の形へ移っていく。押すと図形がその点へ引き寄せられて輪郭が光り、指で線を描くと円の列がその線をなぞり直す。",
     "desc_en": "Circles spin on circles, and the last point traces a flower-like figure that slowly turns into the next one. Draw a line with your finger and the chain of circles traces it back.",
     "icon": "fa-circle-notch",
     "category": "数えるもの",
@@ -72,7 +72,7 @@
   {
     "page": "reaction",
     "title": "REACTION",
-    "desc": "白い線で描いた模様が、枝分かれしたり丸い粒に分かれたりしながら、少しずつ形を変えていく。触ったところは模様が消えて種が置かれ、そこから新しい模様が広がる。",
+    "desc": "白い線で描いた模様が、枝分かれしたり丸い粒に分かれたりしながら、少しずつ形を変えていく。押したところには同心円の輪が描かれ、なぞったところには線に沿った筋ができる。どちらも数秒でまわりの模様に溶けていく。",
     "desc_en": "Patterns drawn in thin white lines slowly change shape, branching like coral or splitting into round cells. Touch clears a small spot and plants a seed, and a new pattern grows out from it.",
     "icon": "fa-disease",
     "category": "格子のもの",
@@ -86,7 +86,7 @@
   {
     "page": "lorenz",
     "title": "LORENZ",
-    "desc": "数千の白い点が、左右2つの渦のあいだを行き来しながら回り続ける。ドラッグすると見る向きが変わる。触ったところの点がひとかたまり水色に光り、時間がたつと別々の道に分かれて全体に散らばる。",
+    "desc": "数千の白い点が、左右2つの渦のあいだを行き来しながら回り続ける。触ったところの点が水色に光り、時間がたつと別々の道に分かれて全体に散らばる。なぞると、なぞったところの点が押し出され、光りながら渦に戻っていく。",
     "desc_en": "Thousands of white dots circle back and forth between two whirls; drag to turn the view. Touching lights up a small cluster of neighbouring dots in cyan, and over time they split onto separate paths and spread across the whole shape.",
     "icon": "fa-infinity",
     "category": "予測できないもの",
@@ -114,7 +114,7 @@
   {
     "page": "waves",
     "title": "WAVES",
-    "desc": "暗い水面に雨が落ちて、輪がいくつも重なっては消えていく。指でなぞると、そこに波が立つ。",
+    "desc": "暗い水面に雨が落ちて、輪がいくつも重なっては消えていく。押すとそこから大きな輪が広がり、なぞると指の跡に沿って波が立つ。",
     "desc_en": "Rain falls on a dark surface and the rings overlap and fade. Trace a line and the water rises where you touched.",
     "icon": "fa-water",
     "category": "流れるもの",
@@ -142,7 +142,7 @@
   {
     "page": "network",
     "title": "NETWORK",
-    "desc": "ばらばらの点が近くの点と1本ずつ線で結ばれ、小さなまとまりがつながって大きな網になる。しばらくすると線が減って、またばらける。点をドラッグすると、つながった点もいっしょに引っぱられる。",
+    "desc": "ばらばらの点が近くの点と1本ずつ線で結ばれ、小さなまとまりがつながって大きな網になる。しばらくすると線が減って、またばらける。触るとまわりの点が指のほうへ寄り、触った点が近くの点と新しく結ばれる。点をドラッグすると、指にぴったりついてくる。",
     "desc_en": "Scattered points get linked to nearby points one line at a time, and small groups join into one large web. After a while lines drop away and it comes apart again. Drag a point and everything connected to it follows.",
     "icon": "fa-circle-nodes",
     "category": "探すもの",
@@ -156,7 +156,7 @@
   {
     "page": "collatz",
     "title": "COLLATZ",
-    "desc": "偶数なら半分に、奇数なら3倍して1を足す。これを繰り返すと、どの数もやがて1になる。その道筋を束ねると海藻のような枝になって揺れ、触れた枝は根元までの道が光る。",
+    "desc": "偶数なら半分に、奇数なら3倍して1を足す。これを繰り返すとどの数も1になり、その道筋を束ねると海藻のような枝になる。触ると近くの枝の束が指のほうへ寄り、触れた枝から根元までの道が水色に光る。",
     "desc_en": "Halve it, or triple it and add one, and every number eventually reaches 1. Bundle those paths together and they grow into swaying seaweed; touch a strand and its route back to the root lights up.",
     "icon": "fa-question",
     "category": "数えるもの",
@@ -170,7 +170,7 @@
   {
     "page": "string",
     "title": "STRING ART",
-    "desc": "円に並べた釘のあいだに糸を張っていて、糸が重なって濃くなったところに曲線が見える。糸の掛け方が少しずつ変わり、曲線の形も変わっていく。指でなぞると、横切った糸がはじかれて震える。",
+    "desc": "円に並べた釘のあいだに糸を張っていて、糸が重なって濃くなったところに曲線が見える。糸の掛け方がときどき切り替わり、曲線の形も変わる。押すと指のまわりの糸が押しのけられ、離すと震えながら元に戻る。なぞると、指の通った跡の糸が押しのけられる。",
     "desc_en": "Threads are strung between nails set around a circle, and curves appear where the threads overlap most densely. The way the threads are hooked shifts slowly, so the curves change shape. Swipe across them to pluck the threads you cross.",
     "icon": "fa-spider-web",
     "category": "描くもの",
@@ -184,7 +184,7 @@
   {
     "page": "dla",
     "title": "DLA",
-    "desc": "小さな粒がでたらめに動き回り、円の縁や先に止まった粒にふれるとそこで止まる。止まった粒が積もって、中心へ向かう枝が伸びていく。押すとそこに芯が置かれ、なぞるとそこから粒が出る。",
+    "desc": "小さな粒がでたらめに動き回り、円の縁や先に止まった粒にふれるとそこで止まる。止まった粒が積もって、中心へ向かう枝が伸びていく。押すとそこに粒が集まって小さな枝がすぐに育ち、なぞると指の跡に沿って枝の列ができる。",
     "desc_en": "Tiny grains drift randomly and stop when they touch the edge of a ring or grains already stuck there. They build up into branches reaching toward the center. A tap places a new seed; dragging releases grains from your finger.",
     "icon": "fa-snowflake",
     "category": "育つもの",
@@ -212,7 +212,7 @@
   {
     "page": "maze",
     "title": "MAZE",
-    "desc": "1か所から通路がのびて迷路ができていく。できあがると光の点が入口から通路をたどり、行き止まりでは引き返しながら出口まで進む。触ると、触ったところから通路に沿って光が広がる。",
+    "desc": "1か所から通路がのびて迷路ができていく。できあがると光の点が入口から通路をたどり、行き止まりでは引き返しながら出口まで進む。触ると、そこから通路に沿って光が広がる。まだ迷路のない場所を触ると、そこから新しい通路が育つ。",
     "desc_en": "Passages branch out from a single point until a maze fills the screen. Then a point of light sets off from the entrance, backing up at dead ends, until it reaches the exit and lights the path. Touch anywhere and light spreads out along the corridors from there.",
     "icon": "fa-gamepad",
     "category": "探すもの",
@@ -226,7 +226,7 @@
   {
     "page": "pendulum",
     "title": "PENDULUM",
-    "desc": "40本の二重振り子がほぼ同じ角度から同時に動き出す。はじめは重なって1本に見えるが、少しずつずれてばらばらに回るようになる。押さえると先端がその位置まで持ち上がり、放すと40本が一斉に落ちる。",
+    "desc": "32本の二重振り子がほぼ同じ角度から同時に動き出す。はじめは重なって1本に見えるが、少しずつずれてばらばらに回るようになる。押さえると先端が指のまわりに集まり、なぞると腕が扇のように指の後をついてきて、放すと一斉に落ちる。",
     "desc_en": "Forty double pendulums start together from almost the same angle. At first they overlap and look like one, then slowly drift apart and swing independently. Press to lift the tips to that point; release and all forty fall at once.",
     "icon": "fa-weight-hanging",
     "category": "予測できないもの",
@@ -240,7 +240,7 @@
   {
     "page": "spirograph",
     "title": "SPIROGRAPH",
-    "desc": "大きな歯車の内側を小さな歯車が転がり、穴に差したペンが輪の重なった線を描く。1本描き終えるたびにペンの穴が変わり、線が重なっていく。円に沿ってドラッグすると歯車を手で回せる。",
+    "desc": "大きな歯車の内側を小さな歯車が転がり、穴に差したペンが輪の重なった線を描く。1本描き終えるたびにペンの穴が変わり、線が重なっていく。押すと指のまわりの線が太い水色に光り、歯車がその方向まで転がって線を描く。押したまま円に沿って動かすと、歯車が指についてくる。",
     "desc_en": "A small gear rolls inside a large ring, and a pen in one of its holes traces overlapping loops. Each finished curve switches to another hole so the lines stack up; drag around the circle to turn the gear by hand, or tap to pick a different hole.",
     "icon": "fa-gear",
     "category": "描くもの",
@@ -281,7 +281,7 @@
   {
     "page": "caustics",
     "title": "CAUSTICS",
-    "desc": "水面の波で曲げられた光が、底に明るい網目の模様を作ってゆっくり揺れている。触るとその場所から水面に輪が広がり、網目に輪の形の光が加わる。",
+    "desc": "水面の波で曲げられた光が、底に明るい網目の模様を作ってゆっくり揺れている。押すとその場所の水面がくぼんで光が寄り、そこから輪が広がって、網目に輪の形の光が加わる。",
     "desc_en": "Light bent by the waves on the surface gathers into a bright net on the floor below, swaying slowly. Touch the water and a ring spreads from that spot, adding a ring of light to the net.",
     "icon": "fa-sun",
     "category": "光るもの",
@@ -295,7 +295,7 @@
   {
     "page": "chladni",
     "title": "CHLADNI",
-    "desc": "震える四角い板の上で白い砂が跳ね、揺れない線の上に集まって模様になる。15秒ほどごとに振動が変わり、砂が次の模様へ移っていく。指でなぞると砂が払われ、しばらくすると線に戻る。",
+    "desc": "震える四角い板の上で白い砂が跳ね、揺れない線の上に集まって模様になる。15秒ほどごとに振動が変わり、砂が次の模様へ移っていく。押すと押した点が揺れない振動に切り替わって模様が変わり、なぞると砂が払われて水色に光り、しばらくすると線に戻る。",
     "desc_en": "White sand bounces on a vibrating square plate and settles along the lines that stay still. Every fifteen seconds or so the vibration changes and the sand flows into the next figure. Brush it with a finger and it scatters, then finds its way back to the lines.",
     "icon": "fa-wave-square",
     "category": "流れるもの",
@@ -309,7 +309,7 @@
   {
     "page": "fluidveil",
     "title": "FLUID VEIL",
-    "desc": "流れに乗った白い細い線が画面を動き、あちこちで渦を巻いてはほどけていく。指でなぞるとその向きに流れが起き、触れた線はしばらく水色に光りながら運ばれる。",
+    "desc": "流れに乗った白い細い線が画面を動き、あちこちで渦を巻いてはほどけていく。押すとその場所に大きな渦ができ、まわりの線が水色に光りながら巻き込まれる。なぞるとその向きに流れが起きる。",
     "desc_en": "Thin white lines drift with an invisible current, curling into eddies and coming apart again. Drag to push the water in that direction; the lines you touch glow cyan for a while as they are carried off.",
     "icon": "fa-water",
     "category": "流れるもの",
@@ -323,7 +323,7 @@
   {
     "page": "galton",
     "title": "GALTON BOARD",
-    "desc": "玉が釘に当たるたびに左右へ跳ね、その跡が重なって、真ん中ほど明るい扇形になる。指を置くと近くの釘が玉を押しのけ、流れがそこを避けて曲がる。",
+    "desc": "玉が釘に当たるたびに左右へ跳ね、その跡が重なって、真ん中ほど明るい扇形になる。押すとそこの釘が光って玉がこぼれ出し、指を置いたままにすると近くの釘が玉を押しのけて流れが曲がる。",
     "desc_en": "Balls bounce left or right at every peg, and their tracks pile up into a fan of light that glows brightest down the middle. Rest a finger on the board and nearby pegs push the balls aside, bending the flow around it.",
     "icon": "fa-chart-simple",
     "category": "数えるもの",
@@ -337,7 +337,7 @@
   {
     "page": "nbody",
     "title": "N-BODY",
-    "desc": "同じ重さの3つの星が引き合いながら、1本の8の字の上を追いかけるように回り続ける。引っぱって離すと小さな粒が飛び出し、星のあいだで振り回される。",
+    "desc": "同じ重さの3つの星が引き合いながら、1本の8の字の上を追いかけるように回り、まわりに重力の等高線が描かれる。押すとそこに見えない重りが置かれ、水色の輪がいくつも集まって等高線がへこむ。引っぱって離すと小さな粒が飛び出す。",
     "desc_en": "Three equal stars pull on each other while chasing one another around a single figure-eight, over and over. Pull back and release to fling small grains that get whipped around between the stars.",
     "icon": "fa-globe",
     "category": "引き合うもの",
@@ -351,7 +351,7 @@
   {
     "page": "lsystemgarden",
     "title": "L-SYSTEM GARDEN",
-    "desc": "画面の下から草や木が少しずつ伸びて、風が吹くたびに左右になびく。指を動かすと近くの草が揺れ、押したところから新しい芽が伸びる。",
+    "desc": "画面の下から草や木が少しずつ伸びて、風が吹くたびに左右になびく。押すとそこで綿毛がはじけて散り、真下から新しい芽が伸びる。なぞると、指の通った跡の枝が押し倒される。",
     "desc_en": "Grasses and ferns grow slowly up from the bottom of the screen and sway as gusts pass over them. Moving your finger stirs the plants nearby; pressing makes a new sprout grow there.",
     "icon": "fa-seedling",
     "category": "育つもの",
@@ -365,7 +365,7 @@
   {
     "page": "clifford",
     "title": "CLIFFORD",
-    "desc": "1つの式で点を何十万回も打ち続け、点が多く集まるところほど白く描く。形は十数秒ごとに別の形へ入れ替わる。ドラッグすると式の係数がずれて形が曲がり、指のまわりの点が水色に光る。",
+    "desc": "1つの式で点を何十万回も打ち続け、点が多く集まるところほど白く描く。形は十数秒ごとに別の形へ入れ替わる。押さえると指のまわりの点が指のほうへ引き寄せられて水色に光り、なぞるとその跡に沿って形が引っぱられる。",
     "desc_en": "One formula plots hundreds of thousands of points, drawing denser areas brighter. Every dozen seconds or so the shape is replaced by another; dragging shifts the coefficients so the shape bends, and points near your finger glow cyan.",
     "icon": "fa-infinity",
     "category": "予測できないもの",
@@ -379,7 +379,7 @@
   {
     "page": "apollonian",
     "title": "APOLLONIAN",
-    "desc": "大きな円の中が、互いに接する大小の円ですき間なく埋まっている。全体はゆっくり動き、円の大きさが入れ替わっていく。触った円は水色になり、大きくなりながら中央へ移る。",
+    "desc": "大きな円の中が、互いに接する大小の円ですき間なく埋まっている。全体はゆっくり動き、円の大きさが入れ替わっていく。押すとその円が水色になり、大きくなりながら中央へ寄る。なぞると通った円が順に灯る。",
     "desc_en": "A large circle is packed with smaller tangent circles of every size, and the whole packing slowly moves while the circles trade sizes. The circle you touch turns pale blue and grows as it moves to the center.",
     "icon": "fa-circle-nodes",
     "category": "繰り返すもの",
@@ -407,7 +407,7 @@
   {
     "page": "magnetpendulum",
     "title": "MAGNETPENDULUM",
-    "desc": "振り子のおもりが3つの磁石のあいだを揺れ、最後にどれか1つの上で止まる。背景は、どこから放すとどの磁石で止まるかを濃さで塗り分けた図になっている。押さえて放すと、そこから振り子が動き出す。",
+    "desc": "振り子のおもりが3つの磁石のあいだを揺れ、最後にどれか1つの上で止まる。背景は、どこから放すとどの磁石で止まるかを濃さで塗り分けた図になっている。押さえているあいだは、そこから放したときの道筋と、同じ磁石で止まる場所が明るく示され、放すと振り子が動き出す。",
     "desc_en": "A pendulum bob swings among three magnets and finally comes to rest over one of them. The background shades every starting point by which magnet it ends at; press and release to start a pendulum from that spot.",
     "icon": "fa-magnet",
     "category": "予測できないもの",
@@ -421,7 +421,7 @@
   {
     "page": "billiard",
     "title": "BILLIARD",
-    "desc": "角の丸い長方形の台の中を、玉が壁で跳ね返りながら走り続け、通った跡の直線が重なって台を埋めていく。押さえて引くと、その向きに新しい玉が走る。台を楕円や円に替えると、跡の通る範囲が決まった帯に限られる。",
+    "desc": "角の丸い長方形の台の中を、玉が壁で跳ね返りながら走り続け、通った跡の直線が重なって台を埋めていく。押したところからは玉が全方向へ一斉に走り出し、なぞるとその向きへ玉が流れ出す。台を楕円や円に替えると、跡の通る範囲が決まった帯に限られる。",
     "desc_en": "Balls bounce around a rounded-rectangle table, and their straight paths pile up until the table fills in. Press and pull to launch a new ball in that direction; switch to an ellipse or circle and the paths stay inside fixed bands.",
     "icon": "fa-circle-dot",
     "category": "予測できないもの",
@@ -435,7 +435,7 @@
   {
     "page": "superformula",
     "title": "SUPERFORMULA",
-    "desc": "大きさの違う閉じた曲線が何十本も重なり、円、星形、花びら形、角の丸い四角へと、外側から順に形を変えていく。ドラッグすると角のとがり方とふくらみ方が変わり、タップすると次の形に移る。",
+    "desc": "大きさの違う閉じた曲線が何十本も重なり、円、星形、花びら形、角の丸い四角へと、外側から順に形を変えていく。押すと押した方角の線が指の位置まで伸びて水色に光り、そこから輪が広がって全部の線を揺らしていく。ドラッグすると、伸びた線が指についてくる。",
     "desc_en": "Dozens of nested closed curves shift from circle to star to petal to rounded square, the change rolling inward from the outermost line. Drag to sharpen or soften the corners and swell the shape; tap to move on to the next form.",
     "icon": "fa-star",
     "category": "描くもの",
@@ -463,7 +463,7 @@
   {
     "page": "pendulumwave",
     "title": "PENDULUMWAVE",
-    "desc": "長さが少しずつ違う振り子が一列に並んで揺れている。揃っていた動きがずれて波の形になり、一定時間ごとにまた揃う。横になぞると見る角度が変わり、軽く触ると全部を同じ位置から放し直す。",
+    "desc": "長さが少しずつ違う振り子が一列に並んで揺れている。揃っていた動きがずれて波の形になり、一定時間ごとにまた揃う。押すと近くの振り子が指のほうへ引き寄せられ、離すと大きく揺れ出す。なぞると通り道の振り子が順にはじかれる。",
     "desc_en": "A row of pendulums with slightly different lengths swings together; their motion drifts apart into wave shapes and comes back into line at regular intervals. Drag sideways to turn the view, or tap to release them all again from the same spot.",
     "icon": "fa-wave-square",
     "category": "引き合うもの",
@@ -477,7 +477,7 @@
   {
     "page": "particlelife",
     "title": "PARTICLE LIFE",
-    "desc": "円い皿の中で4種類の粒が、相手の種類によって寄ったり離れたりして、いくつかの塊にまとまる。しばらくすると寄り方の決まりが替わり、塊が一度ほどけて組み直される。触ったところの粒はかき混ぜられる。",
+    "desc": "円い皿の中で4種類の粒が、相手の種類によって寄ったり離れたりして、いくつかの塊にまとまる。押したところに粒が集まって新しい塊ができ、なぞると粒が押しのけられる。しばらくすると寄り方の決まりが替わり、塊が組み直される。",
     "desc_en": "Inside a round dish, four kinds of particles attract or repel each other depending on their kind, settling into layered clumps. Every so often the rules change, the clumps come apart and rebuild. Touch to stir the particles under your finger.",
     "icon": "fa-circle-nodes",
     "category": "群れるもの",
@@ -491,7 +491,7 @@
   {
     "page": "anneal",
     "title": "ANNEAL",
-    "desc": "散らばった点が1本の線で順に結ばれている。線は最初は大きく乱れているが、時間とともに交差がほどけて短い輪にまとまる。触ると点が増え、線が少し乱れてから結び直される。",
+    "desc": "散らばった点が1本の線で順に結ばれている。線は最初は大きく乱れているが、時間とともに交差がほどけて短い輪にまとまる。押したところの点は指から押しのけられて線が結び直され、離すと点はゆっくり元の位置へ戻る。",
     "desc_en": "A single line visits every scattered dot. It starts as a wild tangle, then its crossings come undone over time until it settles into a short loop. Touch to add a dot; the line loosens a little and reconnects.",
     "icon": "fa-route",
     "category": "探すもの",
@@ -505,7 +505,7 @@
   {
     "page": "lenia",
     "title": "LENIA",
-    "desc": "点の集まりでできた丸い形がいくつか、後ろに薄い跡を残しながらゆっくり進んでいく。ぶつかると混ざったり消えたりする。触ったところに新しい形が1つ置かれる。",
+    "desc": "点の集まりでできた丸い形がいくつか、後ろに薄い跡を残しながらゆっくり進んでいく。ぶつかると混ざったり消えたりする。押したところに新しい形が1つ置かれ、なぞった跡には点の筋が残る。",
     "desc_en": "A few round shapes made of tiny dots glide slowly across the screen, leaving faint trails. When they collide they merge or vanish. Touch places a new one.",
     "icon": "fa-circle-nodes",
     "category": "格子のもの",
@@ -519,7 +519,7 @@
   {
     "page": "moire",
     "title": "MOIRÉ",
-    "desc": "細い同心円を2組重ねると、太い縞が浮かんで見える。片方の中心がゆっくり動くにつれて、縞の向きと本数が変わる。ドラッグすると、動く方の中心が指についてくる。",
+    "desc": "細い同心円を2組重ねると、太い縞が浮かんで見える。片方の中心がゆっくり動くにつれて、縞の向きと本数が変わる。押すと動く方の中心が指の位置へ移り、指のまわりでは2組の円が水色に浮かんで重なり方が見える。",
     "desc_en": "Two sets of fine concentric circles overlap and broad bands appear between them; as one centre drifts, the bands turn and change in number. Drag to pull the moving centre along with your finger.",
     "icon": "fa-grip-lines",
     "category": "光るもの",
@@ -533,7 +533,7 @@
   {
     "page": "efield",
     "title": "EFIELD",
-    "desc": "白い点から出た線が弧を描いて輪につながり、線の上を小さな粒が流れていく。点と輪はゆっくり動く。押したところに新しい点が出て、まわりの線のつながり方が変わる。",
+    "desc": "白い点から出た線が弧を描いて輪につながり、線の上を小さな粒が流れていく。押したところに水色の点が出て、まわりの線のつながり方が変わる。なぞった跡は薄く光り、線がそこを避けて曲がる。",
     "desc_en": "Lines leave the white dots, arc across the screen and end at the rings, with small beads flowing along them. The dots and rings drift slowly; press anywhere to add a new dot and the surrounding lines reconnect.",
     "icon": "fa-bolt",
     "category": "引き合うもの",
@@ -547,7 +547,7 @@
   {
     "page": "diffgrow",
     "title": "DIFFGROW",
-    "desc": "小さな輪の線が少しずつ長くなり、線どうしが押し合って、曲がりくねった模様に折りたたまれていく。少し前の輪郭は細い線で残る。指で押すと線がよけて、押した部分がよく伸びる。",
+    "desc": "小さな輪の線が少しずつ長くなり、線どうしが押し合って、曲がりくねった模様に折りたたまれていく。少し前の輪郭は細い線で残る。押すと指のまわりの線が円く押しのけられ、なぞると指の通った跡に沿って線がよける。",
     "desc_en": "A small closed loop slowly lengthens, and as its sides push against each other it folds into winding ridges. Earlier outlines remain as faint lines inside. Pressing with a finger pushes the line aside, and that part grows faster.",
     "icon": "fa-disease",
     "category": "育つもの",
@@ -561,7 +561,7 @@
   {
     "page": "slit",
     "title": "SLIT",
-    "desc": "左から来た波が壁のすき間を抜けて広がり、右の板に粒が1つずつ当たる。当たった跡はしだいに縞模様になる。上下にドラッグするとすき間の間隔が変わり、縞の間隔も変わる。",
+    "desc": "左から来た波が壁のすき間を抜けて広がり、右の板に粒が1つずつ当たって縞模様になる。押したりなぞったりしたところから波の輪が広がる。上下に大きくドラッグすると、すき間の間隔と縞の間隔が変わる。",
     "desc_en": "A wave comes in from the left, passes through narrow gaps in a wall and spreads out, while particles hit the plate on the right one at a time. The hits slowly build up into stripes. Drag up or down to change the spacing of the gaps, and the stripes change their spacing too.",
     "icon": "fa-grip-lines-vertical",
     "category": "光るもの",
@@ -575,7 +575,7 @@
   {
     "page": "erosion",
     "title": "EROSION",
-    "desc": "島の地形を等高線で描いている。川が少しずつ谷を削り、上流へ枝分かれしながら伸びていく。なぞるとそこに雨が降り、水の粒が谷を下って海へ流れ、その川が太くなる。",
+    "desc": "島の地形を等高線で描いている。川が少しずつ谷を削り、上流へ枝分かれしながら伸びていく。押したりなぞったりするとそこに雨が降り、その水が通る川筋が海まで水色に光って、水の粒が谷を下っていく。",
     "desc_en": "An island drawn in contour lines, where rivers slowly carve their valleys and branch further upstream. Trace across it to make rain fall there; the drops run down the valleys to the sea and that river swells.",
     "icon": "fa-cloud-rain",
     "category": "育つもの",
@@ -589,7 +589,7 @@
   {
     "page": "hyperbolic",
     "title": "HYPERBOLIC",
-    "desc": "円の中に同じ形の七角形のタイルが敷かれ、縁に近いタイルほど小さく描かれる。並びは止まらずに流れ、縁へ消えたタイルと入れ替わりに反対側から新しいタイルが出てくる。ドラッグすると並び全体を引っぱって動かせる。",
+    "desc": "円の中に同じ形の七角形のタイルが敷かれ、縁に近いタイルほど小さく描かれる。並びはゆっくり流れ、縁へ消えたタイルと入れ替わりに反対側から新しいタイルが出てくる。触るとまわりのタイルが光り、触ったタイルが円の中央へ寄ってくる。なぞると、なぞった道のタイルが光る。",
     "desc_en": "A disk is tiled with identical heptagons that are drawn smaller the closer they sit to the rim. The pattern keeps drifting: tiles vanish into the rim while new ones come in from the other side. Drag to pull the whole pattern around; the tile you touch lights up.",
     "icon": "fa-circle",
     "category": "敷き詰めるもの",
@@ -603,7 +603,7 @@
   {
     "page": "kaleidoscope",
     "title": "KALEIDOSCOPE",
-    "desc": "回る筒の中でガラス片が転がり、合わせ鏡に映った対称な模様が少しずつ変わっていく。ドラッグすると筒の回り方が変わり、タップするとその位置に片が1つ増える。",
+    "desc": "回る筒の中でガラス片が転がり、合わせ鏡に映った対称な模様が少しずつ変わっていく。押したところに大きな片が入ってまわりの片を押しのけ、なぞると片が指についてきて、跡に小さな片が落ちる。",
     "desc_en": "Glass fragments tumble inside a turning tube, and the mirrors reflect them into a symmetric pattern that keeps shifting. Drag to change how the tube turns; tap to add a fragment where you touched.",
     "icon": "fa-gem",
     "category": "光るもの",
@@ -617,7 +617,7 @@
   {
     "page": "gravlens",
     "title": "GRAVLENS",
-    "desc": "星と方眼が右から左へゆっくり流れ、見えない重い点のまわりで方眼が曲がって見える。その点の真後ろを通る星は、輪の形に引き伸ばされる。指でなぞると、重い点が指についてくる。",
+    "desc": "方眼と星の手前に見えない重い点があり、そのまわりで方眼が曲がって見える。点の真後ろにある星は輪の形に引き伸ばされる。押すと重い点が指の下へ移り、なぞると指についてくる。",
     "desc_en": "Stars and a drafting grid drift slowly past an invisible heavy point, and the grid bends around it. A star passing right behind it is stretched into a thin ring of light. Drag and the mass follows your finger.",
     "icon": "fa-bullseye",
     "category": "光るもの",
@@ -631,7 +631,7 @@
   {
     "page": "harmonograph",
     "title": "HARMONOGRAPH",
-    "desc": "2つの振り子につながったペンが、楕円を少しずつ回しながら重ねて描く。揺れが弱まるにつれて、線は中心へ縮んでいく。ドラッグすると振り子が押されて、その向きに線が大きく広がる。",
+    "desc": "2つの振り子につながったペンが、楕円を少しずつ回しながら重ねて描く。揺れが弱まるにつれて、線は中心へ縮んでいく。押さえるとペンが指の位置に来て、なぞったとおりに線を引き、放すとそこから振り子が揺れて模様を描き直す。",
     "desc_en": "A pen driven by two pendulums draws slowly turning ellipses on top of each other, shrinking toward the centre as the swing dies down. Drag to push a pendulum and the line swings wider in that direction.",
     "icon": "fa-pen-nib",
     "category": "描くもの",
@@ -645,7 +645,7 @@
   {
     "page": "crystal",
     "title": "CRYSTAL",
-    "desc": "画面の中央で雪の結晶が六つの方向へ育ち、育ちきると消えて次の結晶が育ちはじめる。指でなぞるとそちら側の枝がよく伸び、押して離すとそこに新しい結晶ができる。",
+    "desc": "画面の中央で雪の結晶が六つの方向へ育ち、育ちきると消えて次の結晶が育ちはじめる。押すとそこに小さな結晶がすぐにでき、なぞるとそちら側の枝がよく伸びる。",
     "desc_en": "A snowflake grows outward in six directions from the center, then melts away and a new one begins. Tracing with your finger adds moisture so the branches on that side grow faster; a tap starts a new crystal.",
     "icon": "fa-snowflake",
     "category": "育つもの",
@@ -659,7 +659,7 @@
   {
     "page": "recaman",
     "title": "RECAMÁN",
-    "desc": "戻れるときは戻り、戻れないときは進む。この決まりで、一本の線の上に半円を重ねていく。クリックした位置からも、同じ決まりでもう一本描き始める。",
+    "desc": "戻れるときは戻り、戻れないときは進む。この決まりで、一本の線の上に半円を重ねていく。押した位置からは大きな半円の道がもう一本伸び、なぞると指が通った弧が光る。",
     "desc_en": "Step back if you can, step forward if you can't: half-circles pile up above and below a single line. Touch anywhere and a second path starts from that spot by the same rule.",
     "icon": "fa-wave-square",
     "category": "数えるもの",
@@ -673,7 +673,7 @@
   {
     "page": "gradient",
     "title": "GRADIENT",
-    "desc": "等高線の地図の上に粒が落ち、いちばん急な下り坂の方向へ転がって、谷底を行き過ぎたり戻ったりしながら止まる。地形はゆっくり変わるので、止まった粒もまた動き出す。押したところがくぼみ、近くの粒が集まる。",
+    "desc": "等高線の地図の上に粒が落ち、いちばん急な下り坂の方向へ転がって、谷底を行き過ぎたり戻ったりしながら止まる。地形はゆっくり変わるので、止まった粒もまた動き出す。押したところに深いくぼみができて近くの粒が転がりこみ、なぞった跡にも浅いくぼみが残る。",
     "desc_en": "Beads drop onto a contour map, roll down the steepest slope, and settle at the bottom of a valley after overshooting and swinging back. The terrain shifts slowly, so settled beads start rolling again. Press to sink a hollow and draw nearby beads into it.",
     "icon": "fa-arrow-trend-down",
     "category": "探すもの",
@@ -687,7 +687,7 @@
   {
     "page": "quasicrystal",
     "title": "QUASICRYSTAL",
-    "desc": "向きの違う7組の縞を重ねると、明るい点が七回対称の形に並ぶ。模様は中心から外へゆっくり動き続けるが、同じ並びはくり返さない。触るとそこから輪が広がり、輪が通ったところの模様がずれる。",
+    "desc": "向きの違う7組の縞を重ねると、明るい点が七回対称の形に並ぶ。模様は中心から外へゆっくり動き続けるが、同じ並びはくり返さない。触るとそのまわりの点が大きく明るくなり、模様の並びがずれる。なぞった跡も同じように光る。",
     "desc_en": "Seven sets of stripes at different angles overlap, and bright points line up in sevenfold-symmetric shapes. The pattern keeps moving slowly outward from the center without ever repeating. Touch to send out a ring that shifts the pattern wherever it passes.",
     "icon": "fa-diamond",
     "category": "敷き詰めるもの",
@@ -701,7 +701,7 @@
   {
     "page": "galaxy",
     "title": "GALAXY",
-    "desc": "何万もの星が中心のまわりを回っている。星は流れていくのに、渦の腕は形を保ったままゆっくり回る。指を置くと近くの星が引き寄せられ、離すと元の流れに戻る。",
+    "desc": "何万もの星が中心のまわりを回っている。星は流れていくのに、渦の腕は形を保ったままゆっくり回る。触った星は水色に光り、そのまま渦に乗って流れていく。",
     "desc_en": "Tens of thousands of stars circle the center, flowing through the spiral arms while the arms themselves keep their shape and turn slowly. Hold a finger down and nearby stars are drawn toward it, then drift back into the stream when you let go.",
     "icon": "fa-hurricane",
     "category": "引き合うもの",
@@ -715,7 +715,7 @@
   {
     "page": "ifs",
     "title": "IFS",
-    "desc": "小さな点が集まってできたシダが左右にしなり、しばらくすると葉や木の形に少しずつ変わっていく。押さえると、押さえた側へ全体が曲がる。",
+    "desc": "小さな点が集まってできたシダが左右にしなり、しばらくすると葉や木の形に少しずつ変わっていく。押したところやなぞった跡に同じ形の小さな芽が生えて数秒で消え、まわりの点は明るく光る。",
     "desc_en": "A fern made of tiny dots sways from side to side, then slowly turns into a leaf or a tree. Press and hold, and the whole shape bends toward that side.",
     "icon": "fa-leaf",
     "category": "繰り返すもの",
@@ -729,7 +729,7 @@
   {
     "page": "rose",
     "title": "ROSE",
-    "desc": "花びらの形の曲線の上を一定の角度ずつ進んだ点を、細い線で順に結んで図形を描く。しばらくすると次の図形に入れ替わる。押すとすぐ次の図形に移り、横になぞると角度が少しずれて線の並びが変わる。",
+    "desc": "花びらの形の曲線の上を一定の角度ずつ進んだ点を、細い線で順に結んで図形を描く。しばらくすると次の図形に入れ替わる。押すと指のまわりの線が外へ押しのけられ、なぞると指の通った跡に沿って線が曲がる。離すと元に戻る。",
     "desc_en": "Points stepping around a petal-shaped curve by a fixed angle are joined in order with thin lines, forming a star-like figure. After a while it fades into the next figure. A tap moves on right away; dragging sideways shifts the angle slightly and rearranges the lines.",
     "icon": "fa-sun",
     "category": "描くもの",
@@ -743,7 +743,7 @@
   {
     "page": "symicon",
     "title": "SYMICON",
-    "desc": "回転対称の模様が画面の中央でゆっくり回りながら、少しずつ形を変える。40秒ほどで別の模様に入れ替わる。触ったところは模様が拡大されて見える。",
+    "desc": "回転対称の模様が画面の中央でゆっくり回りながら、少しずつ形を変える。押すとそこの模様が押し広げられて水色に光り、なぞると模様が指の向きに流される。",
     "desc_en": "A rotationally symmetric pattern turns slowly in the middle of the screen, its shape shifting little by little. Where you touch, the pattern is magnified and tinted pale blue.",
     "icon": "fa-snowflake",
     "category": "繰り返すもの",
@@ -757,7 +757,7 @@
   {
     "page": "karman",
     "title": "KÁRMÁN",
-    "desc": "左から右へ流れる水の中に丸い柱が立っていて、その後ろで右回りと左回りの渦が交互に離れて流れていく。柱はつかんで動かせる。柱から離れたところを押すと、そこに小さな柱が立って後ろに渦ができる。",
+    "desc": "左から右へ流れる水の中に丸い柱が立ち、その後ろで右回りと左回りの渦が交互に離れて流れていく。押すと柱がその場所へ移り、押したまま動かすと柱が指についてきて、後ろの渦の列が曲がる。",
     "desc_en": "Water flows left to right past a round post, and eddies spinning one way and then the other peel off behind it in turn. Grab the post to move it; press anywhere else to put a small post there and give it a wake of its own.",
     "icon": "fa-wind",
     "category": "流れるもの",
@@ -771,7 +771,7 @@
   {
     "page": "swarmalator",
     "title": "SWARMALATOR",
-    "desc": "短い線の粒が、向きの近いものどうしで集まって輪になる。輪を一周すると線の向きも一周していて、全体の向きがゆっくり回り続ける。触るとそこへ粒が引き寄せられ、離すと輪に戻る。",
+    "desc": "短い線の粒が、向きの近いものどうしで集まって輪になり、全体の向きがゆっくり回り続ける。押したところの線は白く長くなって向きを変え、なぞると輪がそちらへ引き寄せられてたわむ。",
     "desc_en": "Short line segments gather with the ones pointing the same way and form a ring. Going once around the ring turns the segments through a full circle, and all of them keep slowly rotating together. Touch to pull the ring toward your finger; let go and it settles back.",
     "icon": "fa-hurricane",
     "category": "群れるもの",
@@ -785,7 +785,7 @@
   {
     "page": "buddhabrot",
     "title": "BUDDHABROT",
-    "desc": "たくさんの点が飛び去った道筋を重ねると、ぼんやり光る左右対称の形が浮かび、時間とともにゆっくり形が変わる。触ったところから出発した点の道筋だけが水色で表示される。",
+    "desc": "たくさんの点が飛び去った道筋を重ねると、ぼんやり光る左右対称の形が浮かび、時間とともにゆっくり形が変わる。押すとそこが押し広げられて水色に光り、なぞると光の雲が指の向きに流される。",
     "desc_en": "The paths of countless escaping points pile up into a softly glowing, mirror-symmetric shape that slowly changes over time. The paths that start where you touch are drawn in pale blue.",
     "icon": "fa-cloud",
     "category": "繰り返すもの",
@@ -813,7 +813,7 @@
   {
     "page": "cyclic",
     "title": "CYCLIC",
-    "desc": "短い線が画面いっぱいに並び、明るい帯が渦を巻きながら外へ広がっていく。触ったところに新しい渦の中心ができ、そこからも帯が広がる。",
+    "desc": "短い線が画面いっぱいに並び、明るい帯が渦を巻きながら外へ広がっていく。押したところに新しい渦の中心ができ、なぞった跡からは新しい波が両側へ広がる。",
     "desc_en": "Short strokes fill the screen, and bright bands spiral outward through them. Touch sets a new spiral centre, and bands start spreading from there too.",
     "icon": "fa-circle-notch",
     "category": "格子のもの",
@@ -827,7 +827,7 @@
   {
     "page": "topopt",
     "title": "TOPOPT",
-    "desc": "四角い板に重さがかかると、力のかからない部分から材料が削られ、橋の骨組みのような形が残る。重りの位置がゆっくり動くと、骨組みの形も変わる。触ったところへ重りを移せる。",
+    "desc": "四角い板に重さがかかると、力のかからない部分から材料が削られ、橋の骨組みのような形が残る。重りの位置がゆっくり動くと、骨組みの形も変わる。触ると重りがそこへ移り、触った場所の材料が足されるか削られて、骨組みが組み直される。",
     "desc_en": "Weight presses on a solid plate, and the material that carries no force is carved away until a bridge-like frame remains. As the load slowly travels, the frame reshapes to follow it. Touch to move the load.",
     "icon": "fa-cubes-stacked",
     "group": "mind",
@@ -841,7 +841,7 @@
   {
     "page": "firefly",
     "title": "FIREFLY",
-    "desc": "草むらの上で、ホタルがばらばらの間隔で光る。光った虫の近くにいる虫は少し早めに光るので、近いものどうしから光る時刻が揃っていく。触ると、そのまわりのホタルが同時に光る。",
+    "desc": "草むらの上でホタルがばらばらの間隔で光り、近いものどうしから光る時刻が揃っていく。押したところにホタルが集まって一斉に光り、なぞった跡には明かりが残って草が照らされる。",
     "desc_en": "Fireflies blink at their own pace above the grass. Each flash nudges its neighbours to flash a little sooner, so nearby insects fall into step first. Touch the field and the fireflies around your finger light up together.",
     "icon": "fa-star",
     "group": "swarm",

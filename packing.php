@@ -83,18 +83,26 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   /* 指で押さえている円は膨らみ続け、ぶつかった円をしぼませる */
   function press(dt) {
-    if (!held) return;
-    held.r = Math.min(maxR() * 1.6, held.r + dt * (40 + held.r * 0.5));
-    held.hot = 1;
-    for (var j = 0; j < C.length; j++) {
-      var o = C[j];
-      if (o === held) continue;
-      var d = Math.hypot(held.x - o.x, held.y - o.y);
-      var over = held.r + o.r + GAP - d;
-      if (over > 0) {
-        o.r -= over;
-        if (o.s !== 2) { o.s = 2; o.life = 0; }
+    for (var i = 0; i < C.length; i++) {
+      var c = C[i];
+      if (!c.tgt) continue;
+      /* 押しているあいだは目標が少しずつ大きくなる */
+      if (c === held) c.tgt = Math.min(maxR() * 1.7, c.tgt + dt * 40);
+      c.r += (c.tgt - c.r) * Math.min(1, dt * 7);
+      c.hot = 1;
+      for (var j = 0; j < C.length; j++) {
+        var o = C[j];
+        if (o === c) continue;
+        var d = Math.hypot(c.x - o.x, c.y - o.y);
+        var over = c.r + o.r + GAP - d;
+        if (over > 0) {
+          if (o.tgt) continue;
+          /* ぶつかった円は押されて縮み、やがて消える */
+          o.r = Math.max(0.5, o.r - over);
+          if (o.s !== 2) { o.s = 2; o.life = 0; }
+        }
       }
+      if (c !== held && Math.abs(c.tgt - c.r) < 0.8) c.tgt = 0;
     }
   }
 
@@ -122,7 +130,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ctx.lineWidth = 1;
     /* 補助線: 大きな円には同心円と中心の十字を、製図のように細く */
     if (look === 'drafted') {
-      ctx.strokeStyle = P.rgba(P.steel, 0.28);
+      ctx.strokeStyle = P.rgba(P.steel, 0.38);
       ctx.beginPath();
       for (i = 0; i < C.length; i++) {
         c = C[i];
@@ -140,7 +148,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
     /* 輪郭: 止まった円は白、育っている円は少し明るく、しぼむ円は薄く */
     var groups = [[], [], []];
     for (i = 0; i < C.length; i++) groups[C[i].s].push(C[i]);
-    var style = [P.rgba(P.line, 0.78), P.rgba(P.line, 0.5), P.rgba(P.steel, 0.55)];
+    var style = [P.rgba(P.line, 0.88), P.rgba(P.line, 0.6), P.rgba(P.steel, 0.6)];
+    ctx.lineWidth = 1.6;
     for (var g = 0; g < 3; g++) {
       ctx.strokeStyle = style[g];
       ctx.beginPath();
@@ -156,7 +165,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       c = C[i];
       if (c.hot <= 0.02) continue;
       ctx.strokeStyle = P.rgba(P.mix(P.line, P.accent, c.hot), 0.85);
-      ctx.fillStyle = P.rgba(P.accent, c.hot * 0.07);
+      ctx.fillStyle = P.rgba(P.accent, c.hot * 0.16);
       ctx.beginPath(); ctx.arc(c.x, c.y, Math.max(0.5, c.r), 0, Math.PI * 2); ctx.fill(); ctx.stroke();
     }
   }
@@ -165,7 +174,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   canvas.addEventListener('pointerdown', function (e) {
     var x = e.clientX, y = e.clientY;
     /* 押した場所にある円は押しのけて、新しい円をそこに置く */
-    held = { x: x, y: y, r: 4, s: 1, life: 30 + Math.random() * 30, a: 1, v: 1, hot: 1 };
+    held = { x: x, y: y, r: 40, tgt: 105, s: 1, life: 30 + Math.random() * 30, a: 1, v: 1, hot: 1 };
     C.push(held);
     SFX.play('grow');
     canvas.setPointerCapture(e.pointerId);
@@ -173,14 +182,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
   canvas.addEventListener('pointermove', function (e) {
     if (!held) return;
     var x = e.clientX, y = e.clientY;
-    if (Math.hypot(x - held.x, y - held.y) > held.r + 6) {
+    if (Math.hypot(x - held.x, y - held.y) > Math.min(held.r, 30) + 4) {
       /* 指が円の外へ出たら、そこに次の円を置く */
-      held = { x: x, y: y, r: 4, s: 1, life: 30 + Math.random() * 30, a: 1, v: 1, hot: 1 };
+      held = { x: x, y: y, r: 18, tgt: 34, s: 1, life: 30 + Math.random() * 30, a: 1, v: 1, hot: 1 };
       C.push(held);
       SFX.play('spawn', 160);
     }
   });
-  function up() { held = null; }
+  function up() { if (held && held.tgt) held.tgt = Math.max(held.tgt, held.r); held = null; }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);
 
@@ -201,9 +210,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ---------------------------------------------------------- 回す */
   var lastT = performance.now(), acc = 0;
   function frame(now) {
-    var dt = Math.min(0.05, (now - lastT) / 1000);
+    var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));
     lastT = now;
-    acc += dt * (8 + pace * 30);
+    acc += dt * (14 + pace * 40);
     var limit = 1400;
     while (acc > 1) { acc -= 1; if (C.length < limit) spawn(14); }
     press(dt);

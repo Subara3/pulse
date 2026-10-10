@@ -5,7 +5,7 @@ recordPageView('caustics');
 
 $pageName = 'caustics';
 $pageTitle = 'CAUSTICS - PULSE';
-$pageDesc = '水面の波で曲げられた光が、底に明るい網目の模様を作ってゆっくり揺れている。触るとその場所から水面に輪が広がり、網目に輪の形の光が加わる。';
+$pageDesc = '水面の波で曲げられた光が、底に明るい網目の模様を作ってゆっくり揺れている。押すとその場所の水面がくぼんで光が寄り、そこから輪が広がって、網目に輪の形の光が加わる。';
 $pageCanonical = 'https://pulse.subara3.com/caustics.php';
 $extraStyle = '';
 
@@ -35,6 +35,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var RW, RH, rx, ry;
   var waves = [];
   var ripples = [];
+  var press = { x: 0, y: 0, s: 0, r2: 1, amp: 0 };
   var depth = 0.5, swell = 0.45, calmT = 0;
   /* 波ごとの列・行の三角関数表 */
   var cosA, sinA, cosB, sinB;
@@ -118,6 +119,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
           mx += gr * dx / d; my += gr * dy / d;
         }
         var q2 = (j * RW + i) * 2;
+        /* 指で押さえている所は水面がくぼみ、まわりに光の輪が寄る */
+        if (press.s > 0.01) {
+          var fx = x - press.x, fy = y - press.y, f2 = fx * fx + fy * fy;
+          if (f2 < press.r2 * 9) {
+            var fe = press.s * press.amp * Math.exp(-f2 / press.r2) * 2 / press.r2;
+            mx -= fe * fx; my -= fe * fy;
+          }
+        }
         var ox = x - D * (gx + mx) + jit[q2], oy = y - D * (gy + my) + jit[q2 + 1];
         splat(acc, ox, oy, 1);
         if (mx !== 0 || my !== 0) {
@@ -176,7 +185,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var k = Math.PI * 2 / (GW / 22);
     ripples.push({ x: px / W * GW, y: py / H * GH, age: 0, a: a / (k * k), k: k, ph: 0,
       front: 0, width: GW / 26, in2: 0, out2: 0 });
-    if (ripples.length > 6) ripples.shift();
+    if (ripples.length > 10) ripples.shift();
   }
   function ageRipples(dt) {
     var sp = GW / 9;
@@ -197,6 +206,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var down = false, last = null;
   canvas.addEventListener('pointerdown', function (e) {
     down = true; last = { x: e.clientX, y: e.clientY };
+    press.x = last.x / W * GW; press.y = last.y / H * GH;
     ripple(last.x, last.y, 2.6);
     SFX.play('ripple', 150);
     canvas.setPointerCapture(e.pointerId);
@@ -204,8 +214,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
     var p = { x: e.clientX, y: e.clientY };
-    if (Math.hypot(p.x - last.x, p.y - last.y) < 70) return;
-    ripple(p.x, p.y, 1.8);
+    press.x = p.x / W * GW; press.y = p.y / H * GH;
+    if (Math.hypot(p.x - last.x, p.y - last.y) < 45) return;
+    ripple(p.x, p.y, 2.4);
     last = p;
     SFX.play('move', 260);
   });
@@ -225,7 +236,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function frame(now) {
     var dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
-    clock += dt * 0.55;
+    clock += dt * 0.42;
+    var pr = GW / 16;
+    press.r2 = pr * pr; press.amp = pr * 2.2;
+    press.s = down ? Math.min(1, press.s + dt * 10) : Math.max(0, press.s - dt * 2.5);
     if (calmT > 0) calmT = Math.max(0, calmT - dt / 9);
     ageRipples(dt);
     /* 光の網はゆっくりしか動かないので、計算は 2 フレームに 1 回で足りる */

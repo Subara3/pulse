@@ -5,7 +5,7 @@ recordPageView('kaleidoscope');
 
 $pageName = 'kaleidoscope';
 $pageTitle = 'KALEIDOSCOPE - PULSE';
-$pageDesc = '回る筒の中でガラス片が転がり、合わせ鏡に映った対称な模様が少しずつ変わっていく。ドラッグすると筒の回り方が変わり、タップするとその位置に片が1つ増える。';
+$pageDesc = '回る筒の中でガラス片が転がり、合わせ鏡に映った対称な模様が少しずつ変わっていく。押したところに大きな片が入ってまわりの片を押しのけ、なぞると片が指についてきて、跡に小さな片が落ちる。';
 $pageCanonical = 'https://pulse.subara3.com/kaleidoscope.php';
 $extraStyle = '';
 
@@ -77,7 +77,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
       p.vx = (p.vx + gx * dt) * drag; p.vy = (p.vy + gy * dt) * drag;
       p.x += p.vx * dt; p.y += p.vy * dt;
       p.a += p.w * dt; p.w *= Math.exp(-dt * 1.2);
-      if (p.mine > 0) p.mine = Math.max(0, p.mine - dt / 3);
+      if (p.mine > 0) p.mine = Math.max(0, p.mine - dt / 1.6);
+      if (p.hl > 0) p.hl = Math.max(0, p.hl - dt * 0.8);
     }
     /* 片どうし: 重なったら押し離し、こすれた分だけ回す */
     for (var it = 0; it < 2; it++) {
@@ -131,10 +132,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var p = pieces[i];
       ctx.beginPath();
       tracePiece(p);
-      if (p.fill && p.type !== 'rod' && p.type !== 'ring') { ctx.fillStyle = FILLS[p.fill]; ctx.fill(); }
-      var col = p.mine > 0 ? P.mix(LN, P.accent, p.mine) : LN;
-      ctx.strokeStyle = P.rgba(col, p.type === 'ring' ? 0.42 : 0.55);
-      ctx.lineWidth = p.type === 'rod' ? 1.4 : 1;
+      var hl = p.hl || 0;
+      if (p.type !== 'rod' && p.type !== 'ring' && (p.fill || hl > 0.05)) {
+        ctx.fillStyle = hl > 0.05 ? P.rgba(LN, 0.07 + hl * 0.28) : FILLS[p.fill]; ctx.fill();
+      }
+      var col = p.mine > 0 ? P.mix(LN, P.accent, p.mine * 0.8) : LN;
+      ctx.strokeStyle = P.rgba(col, (p.type === 'ring' ? 0.5 : 0.62) + hl * 0.38);
+      ctx.lineWidth = (p.type === 'rod' ? 1.4 : 1.1) + hl * 1.2;
       ctx.stroke();
     }
   }
@@ -165,9 +169,32 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ---------------------------------------------------------- 操作 */
-  var down = false, last = null, moved = 0;
+  var down = false, last = null, moved = 0, lastT0 = 0, dropAcc = 0;
+  function trim(max) {
+    while (pieces.length > max) {
+      var idx = 0;
+      for (var i = 0; i < pieces.length; i++) if (!pieces[i].mine) { idx = i; break; }
+      pieces.splice(idx, 1);
+    }
+  }
   canvas.addEventListener('pointerdown', function (e) {
-    down = true; moved = 0; last = { x: e.clientX, y: e.clientY };
+    down = true; moved = 0; last = { x: e.clientX, y: e.clientY }; lastT0 = performance.now();
+    /* 触れた場所（筒の中の位置）に大きめの片を置き、まわりの片を押しのけて光らせる */
+    var x = (e.clientX - W / 2) / RS, y = (e.clientY - H / 2) / RS, r = Math.hypot(x, y);
+    if (r > 0.85) { x *= 0.85 / r; y *= 0.85 / r; }
+    var np = makePiece(x, y, true);
+    np.s *= 1.5; np.rad *= 1.5; np.hl = 1;
+    for (var k = 0; k < np.pts.length; k++) { np.pts[k][0] *= 1.5; np.pts[k][1] *= 1.5; }
+    pieces.push(np);
+    trim(30);
+    var i;
+    for (i = 0; i < pieces.length; i++) {
+      var q = pieces[i], dx = q.x - x, dy = q.y - y, d = Math.hypot(dx, dy) + 1e-3;
+      if (q === np || d > 0.4) continue;
+      q.vx += dx / d * 0.8 * (1 - d / 0.4); q.vy += dy / d * 0.8 * (1 - d / 0.4); q.w += (Math.random() - 0.5) * 5;
+      q.hl = Math.max(q.hl || 0, 1 - d / 0.4);
+    }
+    SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
@@ -177,7 +204,28 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var a0 = Math.atan2(last.y - cy, last.x - cx), a1 = Math.atan2(e.clientY - cy, e.clientX - cx);
     var da = Math.atan2(Math.sin(a1 - a0), Math.cos(a1 - a0));
     var lin = (e.clientX - last.x) / Math.max(W, H) * 4;
-    gSpin = Math.max(-2, Math.min(2, gSpin + (da + lin) * 2.5));
+    gSpin = Math.max(-2, Math.min(2, gSpin + (da + lin) * 0.8));
+    /* 指のそばの片は、指の動きにそのままついてくる */
+    var now = performance.now(), mdt = Math.max(0.008, (now - lastT0) / 1000); lastT0 = now;
+    var px0 = (e.clientX - W / 2) / RS, py0 = (e.clientY - H / 2) / RS;
+    var mvx = (e.clientX - last.x) / RS / mdt, mvy = (e.clientY - last.y) / RS / mdt;
+    for (var i = 0; i < pieces.length; i++) {
+      var q = pieces[i], d = Math.hypot(q.x - px0, q.y - py0);
+      if (d > 0.22) continue;
+      var k = 1 - d / 0.22;
+      q.x += (e.clientX - last.x) / RS * k; q.y += (e.clientY - last.y) / RS * k;
+      q.vx = q.vx * (1 - k) + mvx * 0.5 * k; q.vy = q.vy * (1 - k) + mvy * 0.5 * k;
+      q.w += (Math.random() - 0.5) * 2 * k; q.hl = Math.max(q.hl || 0, k);
+    }
+    /* なぞった跡に小さな片を落としていく */
+    dropAcc += Math.hypot(e.clientX - last.x, e.clientY - last.y);
+    if (dropAcc > 30 && Math.hypot(px0, py0) < 0.9) {
+      dropAcc = 0;
+      var sp = makePiece(px0, py0, false);
+      sp.vx = mvx * 0.15; sp.vy = mvy * 0.15; sp.hl = 1;
+      pieces.push(sp);
+      trim(34);
+    }
     moved += Math.hypot(e.clientX - last.x, e.clientY - last.y);
     last = { x: e.clientX, y: e.clientY };
     SFX.play('move', 220);
@@ -185,25 +233,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function up(e) {
     if (!down) return;
     down = false;
-    if (moved < 10 && e.type === 'pointerup') {
-      /* 触れた場所（筒の中の位置）に新しい片を置く */
-      var x = (last.x - W / 2) / RS, y = (last.y - H / 2) / RS, r = Math.hypot(x, y);
-      if (r > 0.85) { x *= 0.85 / r; y *= 0.85 / r; }
-      pieces.push(makePiece(x, y, true));
-      while (pieces.length > 24) {
-        var idx = 0;
-        for (var i = 0; i < pieces.length; i++) if (!pieces[i].mine) { idx = i; break; }
-        pieces.splice(idx, 1);
-      }
-      SFX.play('spawn');
-    } else {
-      SFX.play('collide', 300);
-    }
+    if (moved >= 10) SFX.play('collide', 300);
   }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);
 
-  function spinFrom(v) { return 0.25 + v / 100 * 0.9; }
+  function spinFrom(v) { return 0.15 + v / 100 * 0.7; }
   document.getElementById('k-mirrors').addEventListener('input', function () { M = Math.max(3, Math.min(12, +this.value | 0)); SFX.play('tick', 120); });
   document.getElementById('k-spin').addEventListener('input', function () { spin = spinFrom(+this.value); });
   document.getElementById('k-shake').addEventListener('click', function () {
@@ -218,11 +253,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
   for (var w0 = 0; w0 < 90; w0++) step(1 / 30);
 
   /* ---------------------------------------------------------- 回す */
-  var lastT = performance.now(), tumbleWait = 0;
+  var lastT = performance.now(), tumbleWait = 0, trimWait = 2.5;
   function frame(now) {
     var dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
     step(dt);
+    /* 足した片は時間をかけて減らし、もとの数（約 16）に戻す */
+    trimWait -= dt;
+    if (trimWait <= 0) { trimWait = 2.5; if (pieces.length > 16 && !down) pieces.shift(); }
     /* 片が底に積もって動かなくなりかけたら、ときどき小さく転がす */
     tumbleWait -= dt;
     if (tumbleWait <= 0) {

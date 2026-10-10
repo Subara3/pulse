@@ -5,7 +5,7 @@ recordPageView('billiard');
 
 $pageName = 'billiard';
 $pageTitle = 'BILLIARD - PULSE';
-$pageDesc = '角の丸い長方形の台の中を、玉が壁で跳ね返りながら走り続け、通った跡の直線が重なって台を埋めていく。押さえて引くと、その向きに新しい玉が走る。台を楕円や円に替えると、跡の通る範囲が決まった帯に限られる。';
+$pageDesc = '角の丸い長方形の台の中を、玉が壁で跳ね返りながら走り続け、通った跡の直線が重なって台を埋めていく。押したところからは玉が全方向へ一斉に走り出し、なぞるとその向きへ玉が流れ出す。台を楕円や円に替えると、跡の通る範囲が決まった帯に限られる。';
 $pageCanonical = 'https://pulse.subara3.com/billiard.php';
 $extraStyle = '';
 
@@ -16,7 +16,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
 <div id="controls" class="drawer-controls">
   <div class="ctl-row"><label for="k-speed">SPEED</label><input type="range" id="k-speed" min="0" max="100" value="40"></div>
-  <div class="ctl-row"><label for="k-balls">BALLS</label><input type="range" id="k-balls" min="1" max="5" value="3"></div>
+  <div class="ctl-row"><label for="k-balls">BALLS</label><input type="range" id="k-balls" min="1" max="6" value="5"></div>
   <div class="ctl-btns"><button type="button" class="active" data-shape="stadium">STADIUM</button><button type="button" data-shape="ellipse">ELLIPSE</button><button type="button" data-shape="circle">CIRCLE</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
@@ -182,12 +182,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function drawBall(b, alpha) {
     var col = P.mix(P.line, P.accent, b.hot);
     var n = b.n, per = Math.ceil(n / GROUPS);
-    ctx.lineWidth = 0.9;
+    ctx.lineWidth = 1 + b.hot * 0.8;
     for (var g = 0; g < GROUPS; g++) {
       var s0 = g * per, s1 = Math.min(n - 1, s0 + per);
       if (s0 >= n - 1) break;
       var age = (g + 1) / GROUPS;
-      ctx.strokeStyle = P.rgba(col, (0.02 + age * age * 0.3) * alpha);
+      ctx.strokeStyle = P.rgba(col, (0.1 + age * age * 0.45) * alpha);
       ctx.beginPath();
       for (var s = s0; s <= s1; s++) {
         var i = (b.head - n + s + MAXB) % MAXB;
@@ -198,42 +198,49 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     /* 最後の跳ね返りから今の位置まで */
     var li = (b.head - 1 + MAXB) % MAXB;
-    ctx.strokeStyle = P.rgba(col, 0.7 * alpha);
-    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = P.rgba(col, (0.7 + b.hot * 0.25) * alpha);
+    ctx.lineWidth = 1.2 + b.hot * 1.4;
     ctx.beginPath(); ctx.moveTo(X(b.bx[li]), Y(b.by[li])); ctx.lineTo(X(b.x), Y(b.y)); ctx.stroke();
     ctx.fillStyle = P.rgba(col, alpha);
-    ctx.beginPath(); ctx.arc(X(b.x), Y(b.y), 3.2, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.arc(X(b.x), Y(b.y), 3.2 + b.hot * 1.6, 0, Math.PI * 2); ctx.fill();
   }
 
   /* ---------------------------------------------------------- 操作 */
-  var aimFrom = null, aimTo = null;
+  var downP = null, lastP = null, sparks = [];
   function world(e) { return [(e.clientX - W / 2) / S, (e.clientY - H / 2) / S]; }
   function pull(p) {
     var k = 1, g = 0;
     while (!inside(p[0] * k, p[1] * k) && g++ < 60) k *= 0.96;
     return [p[0] * k * 0.995, p[1] * k * 0.995];
   }
+  function spark(p, ang) {
+    var b = new Ball(p[0], p[1], ang, true);
+    b.life = 6; b.fadeRate = 0.3;
+    sparks.push(b);
+    while (sparks.length > 80) { var o = sparks.shift(); o.fade = 1; dying.push(o); }
+  }
+  /* 押すと、その点から玉が全方向へ一斉に走り出す */
   canvas.addEventListener('pointerdown', function (e) {
-    aimFrom = pull(world(e)); aimTo = aimFrom;
-    SFX.play('tick');
+    var p = pull(world(e));
+    downP = p; lastP = p;
+    var a0 = Math.random() * Math.PI * 2;
+    for (var i = 0; i < 18; i++) spark(p, a0 + i / 18 * Math.PI * 2);
+    SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
   });
+  /* なぞると、なぞった向きへ玉が少しずつ広がりながら流れ出す */
   canvas.addEventListener('pointermove', function (e) {
-    if (!aimFrom) return;
-    aimTo = world(e);
-    SFX.play('move', 260);
+    if (!downP) return;
+    var p = world(e), dx = p[0] - lastP[0], dy = p[1] - lastP[1];
+    if (Math.hypot(dx, dy) * S < 16) return;
+    var q = pull(p), ang = Math.atan2(dy, dx);
+    spark(q, ang - 0.3); spark(q, ang); spark(q, ang + 0.3);
+    lastP = p;
+    SFX.play('move', 160);
   });
-  function up() {
-    if (!aimFrom) return;
-    var dx = aimTo[0] - aimFrom[0], dy = aimTo[1] - aimFrom[1];
-    var ang = Math.hypot(dx, dy) * S > 12 ? Math.atan2(dy, dx) : Math.random() * Math.PI * 2;
-    balls.push(new Ball(aimFrom[0], aimFrom[1], ang, true));
-    retire();
-    aimFrom = null;
-    SFX.play('spawn');
-  }
+  function up() { downP = null; }
   canvas.addEventListener('pointerup', up);
-  canvas.addEventListener('pointercancel', function () { aimFrom = null; });
+  canvas.addEventListener('pointercancel', up);
 
   var speed = 1;
   var kSpeed = document.getElementById('k-speed'), kBalls = document.getElementById('k-balls');
@@ -246,7 +253,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function setShape(sh) {
     shape = sh;
     shapeBtns.forEach(function (o) { o.classList.toggle('active', o.dataset.shape === sh); });
-    balls.length = 0; dying.length = 0; refill(); fadeIn = 0;
+    balls.length = 0; dying.length = 0; sparks.length = 0; refill(); fadeIn = 0;
   }
   shapeBtns.forEach(function (b) { b.addEventListener('click', function () { setShape(b.dataset.shape); SFX.play('toggle'); }); });
   refill();
@@ -277,22 +284,20 @@ require_once __DIR__ . '/includes/floating-nav.php';
       b.hot = Math.max(0, b.hot - dt * 0.05);
       drawBall(b, fadeIn);
     }
+    for (var si = sparks.length - 1; si >= 0; si--) {
+      var sp = sparks[si];
+      if (sp.go(speed * dt) && sp.hot > 0.5) SFX.play('collide', 300);
+      sp.hot = Math.max(0, sp.hot - dt * 0.45);
+      sp.life -= dt;
+      if (sp.life <= 0) { sparks.splice(si, 1); sp.fade = 1; dying.push(sp); continue; }
+      drawBall(sp, fadeIn);
+    }
     for (var d = dying.length - 1; d >= 0; d--) {
       var o = dying[d];
-      o.fade -= dt * 0.08;
+      o.fade -= dt * (o.fadeRate || 0.08);
       if (o.fade <= 0) { dying.splice(d, 1); continue; }
       o.go(speed * dt);
       drawBall(o, fadeIn * o.fade);
-    }
-    if (aimFrom) {
-      var ax = X(aimFrom[0]), ay = Y(aimFrom[1]), bx = X(aimTo[0]), by = Y(aimTo[1]);
-      ctx.strokeStyle = P.rgba(P.accent, 0.7);
-      ctx.lineWidth = 1.2;
-      ctx.setLineDash([4, 5]);
-      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.fillStyle = P.rgba(P.accent, 0.9);
-      ctx.beginPath(); ctx.arc(ax, ay, 3.5, 0, Math.PI * 2); ctx.fill();
     }
     requestAnimationFrame(frame);
   }

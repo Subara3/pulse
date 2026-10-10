@@ -5,7 +5,7 @@ recordPageView('lsystemgarden');
 
 $pageName = 'lsystemgarden';
 $pageTitle = 'L-SYSTEM GARDEN - PULSE';
-$pageDesc = '画面の下から草や木が少しずつ伸びて、風が吹くたびに左右になびく。指を動かすと近くの草が揺れ、押したところから新しい芽が伸びる。';
+$pageDesc = '画面の下から草や木が少しずつ伸びて、風が吹くたびに左右になびく。押すとそこで綿毛がはじけて散り、真下から新しい芽が伸びる。なぞると、指の通った跡の枝が押し倒される。';
 $pageCanonical = 'https://pulse.subara3.com/lsystemgarden.php';
 $extraStyle = '';
 
@@ -15,7 +15,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <canvas id="canvas"></canvas>
 
 <div id="controls" class="drawer-controls">
-  <div class="ctl-row"><label for="k-wind">WIND</label><input type="range" id="k-wind" min="0" max="100" value="40"></div>
+  <div class="ctl-row"><label for="k-wind">WIND</label><input type="range" id="k-wind" min="0" max="100" value="12"></div>
   <div class="ctl-row"><label for="k-grow">GROW</label><input type="range" id="k-grow" min="0" max="100" value="45"></div>
   <div class="ctl-btns"><button type="button" id="k-reseed">RESEED</button></div>
 </div>
@@ -45,7 +45,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     s.str = str;
   });
 
-  var plants = [], motes = [], marks = [], blades = [];
+  var plants = [], motes = [], marks = [], blades = [], wells = [], well = null;
   var windAmt = 0.4, growRate = 0.45, T = 0;
 
   function makePlant(x, z, touched, preGrow) {
@@ -80,7 +80,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       Y[k] = py + Math.sin(head[k]) * len[k];
       if (Y[k] < top) top = Y[k];
     }
-    var h = H * (0.18 + z * 0.42) * sp.hgt * (0.75 + Math.random() * 0.4);
+    var h = H * (0.24 + z * 0.48) * sp.hgt * (0.8 + Math.random() * 0.35);
     return {
       sp: sp, n: n, parent: parent, rel: rel, len: len, dist: dist, tip: tip,
       X: X, Y: Y, A: A, maxD: maxD, scale: h / Math.max(1, -top),
@@ -91,7 +91,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     };
   }
 
-  function target() { return Math.round(Math.max(8, Math.min(20, W / 85))); }
+  function target() { return Math.round(Math.max(9, Math.min(22, W / 72))); }
 
   function reseed() {
     plants.length = 0;
@@ -110,7 +110,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var nb = Math.round(W / 7);
     for (var b = 0; b < nb; b++) blades.push({ x: Math.random() * W, h: H * (0.015 + Math.pow(Math.random(), 2) * 0.07), lean: (Math.random() - 0.5) * 0.5, a: 0.18 + Math.random() * 0.3 });
     motes.length = 0;
-    for (var i = 0; i < 46; i++) motes.push({ x: Math.random() * W, y: H * (0.25 + Math.random() * 0.75), r: 0.6 + Math.random() * 1.1, ph: Math.random() * 6.28 });
+    for (var i = 0; i < 26; i++) motes.push({ x: Math.random() * W, y: H * (0.25 + Math.random() * 0.75), r: 0.6 + Math.random() * 1.1, ph: Math.random() * 6.28 });
   }
 
   /* 風: 横へ流れていく突風の帯。草の列が順番になびく */
@@ -126,8 +126,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var sway = pl.sw + (1 - pl.fade) * 0.9 * (pl.base > -Math.PI / 2 ? 1 : -1);
     var col = P.mix(ST, LN, 0.35 + pl.z * 0.65);
     if (pl.cool > 0) col = P.mix(col, AC, pl.cool);
-    var alpha = (0.42 + pl.z * 0.5) * pl.fade;
-    var paths = [new Path2D(), new Path2D(), new Path2D()], tips = new Path2D(), anyTip = false;
+    var alpha = (0.55 + pl.z * 0.4) * pl.fade;
+    var paths = [new Path2D(), new Path2D(), new Path2D()], tips = new Path2D(), anyTip = false, lit = new Path2D(), anyLit = false;
+    var RT = 165, nw = wells.length;
     var s = pl.scale;
     for (var k = 0; k < n; k++) {
       var p = pl.parent[k];
@@ -138,9 +139,30 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var a = pa + pl.rel[k] + sway * k2 * pl.dist[k];
       pl.A[k] = a;
       var x = px + Math.cos(a) * pl.len[k] * s * f, y = py + Math.sin(a) * pl.len[k] * s * f;
+      var hit = false;
+      /* 指のまわりでは、枝先が指から逃げる向きに曲がる。子の枝もいっしょに動く */
+      if (nw) {
+        var bend = 0, wmax = 0, bsg = 1;
+        for (var wi = 0; wi < nw; wi++) {
+          var wl = wells[wi], rx = x - wl.x, ry = y - wl.y, rd = Math.sqrt(rx * rx + ry * ry);
+          if (rd >= RT) continue;
+          var w = (1 - rd / RT); w = w * w * wl.s;
+          /* 曲がる向きはいちばん近い指の跡で決め、強さは跡の重なりで決める */
+          bend += w;
+          if (w > wmax) { wmax = w; bsg = (-rx * Math.sin(a) + ry * Math.cos(a)) >= 0 ? 1 : -1; }
+        }
+        if (wmax > 0) {
+          bend = Math.min(1, bend) * bsg;
+          a += bend * 1.25;
+          pl.A[k] = a;
+          x = px + Math.cos(a) * pl.len[k] * s * f; y = py + Math.sin(a) * pl.len[k] * s * f;
+          hit = wmax > 0.12;
+        }
+      }
       pl.X[k] = x; pl.Y[k] = y;
       var q = pl.dist[k] / pl.maxD, b = q < 0.3 ? 0 : q < 0.65 ? 1 : 2;
-      paths[b].moveTo(px, py); paths[b].lineTo(x, y);
+      if (hit) { lit.moveTo(px, py); lit.lineTo(x, y); anyLit = true; }
+      else { paths[b].moveTo(px, py); paths[b].lineTo(x, y); }
       if (pl.tip[k] && f === 1 && pl.sp.tip !== 'none') {
         anyTip = true;
         if (pl.sp.tip === 'ring') { tips.moveTo(x + 2.2, y); tips.arc(x, y, 2.2, 0, 6.2832); }
@@ -152,8 +174,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ctx.lineWidth = 1.7 * wz; ctx.stroke(paths[0]);
     ctx.strokeStyle = P.rgba(col, alpha * 0.9);
     ctx.lineWidth = 1.05 * wz; ctx.stroke(paths[1]);
-    ctx.strokeStyle = P.rgba(col, alpha * 0.75);
-    ctx.lineWidth = 0.65 * wz; ctx.stroke(paths[2]);
+    ctx.strokeStyle = P.rgba(col, alpha * 0.8);
+    ctx.lineWidth = Math.max(1, 0.75 * wz); ctx.stroke(paths[2]);
+    if (anyLit) { ctx.strokeStyle = P.rgba(AC, 0.9 * pl.fade); ctx.lineWidth = Math.max(1.6, 1.4 * wz); ctx.stroke(lit); }
     if (anyTip) {
       if (pl.sp.tip === 'ring') { ctx.lineWidth = 0.8; ctx.strokeStyle = P.rgba(col, alpha * 0.8); ctx.stroke(tips); }
       else { ctx.fillStyle = P.rgba(col, alpha * 0.85); ctx.fill(tips); }
@@ -164,6 +187,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   /* ---------------------------------------------------------- 操作 */
   var down = false, lastX = 0, lastY = 0, lastMoveT = 0;
+  /* 綿毛をはじき飛ばす。少しのあいだ勢いよく広がり、そのあと風に乗る */
+  function puff(x, y, n, sp) {
+    for (var i = 0; i < n; i++) {
+      var a = Math.random() * 6.2832, v = sp * (0.4 + Math.random() * 0.6);
+      motes.push({ pap: 4.5 + Math.random() * 4.5, rot: Math.random() * 3, x: x, y: y, r: 1.3 + Math.random() * 1.2, ph: Math.random() * 6.28, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: 0.9 + Math.random() * 0.5 });
+    }
+    if (motes.length > 260) motes.splice(26, motes.length - 260);
+  }
   function pushAt(x, vx) {
     for (var i = 0; i < plants.length; i++) {
       var pl = plants[i], dx = (pl.bx - x) / 170;
@@ -184,7 +215,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
       alive[0].age = alive[0].life;
     }
     marks.push({ x: e.clientX, y: pl.by - 2, t: 0 });
-    pushAt(e.clientX, (Math.random() - 0.5) * 60);
+    well = { x: e.clientX, y: e.clientY, s: 0.3, held: true }; wells.push(well);
+    puff(e.clientX, e.clientY, 90, 340);
+    /* 押したところから外へ風が吹き、近くの株が押しのけられる */
+    for (var q = 0; q < plants.length; q++) {
+      var pq = plants[q], ddx = pq.bx - e.clientX, ff = Math.exp(-(ddx / 260) * (ddx / 260));
+      pq.sv += 0 * ff;
+    }
     SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
   });
@@ -193,14 +230,23 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var dx = e.clientX - lastX;
     lastX = e.clientX; lastY = e.clientY;
     if (Math.abs(dx) < 1) return;
-    pushAt(e.clientX, down ? dx * 1.6 : dx * 0.6);
+    /* 指を離してマウスを動かすときは、ゆるい風だけにする（大きく飛んだ移動では揺らさない） */
+    pushAt(e.clientX, down ? dx * 1.6 : Math.max(-20, Math.min(20, dx)) * 0.3);
+    if (down && well) {
+      if (Math.hypot(e.clientX - well.x, e.clientY - well.y) > 36) {
+        well.held = false;
+        well = { x: e.clientX, y: e.clientY, s: 0.8, held: true }; wells.push(well);
+        if (wells.length > 30) wells.shift();
+      } else { well.x = e.clientX; well.y = e.clientY; }
+      puff(e.clientX, e.clientY, 7, 150);
+    }
     for (var i = 0; i < motes.length; i++) {
       var m = motes[i], ddx = m.x - e.clientX, ddy = m.y - e.clientY;
       if (ddx * ddx + ddy * ddy < 9000) m.x += dx * 0.3;
     }
     if (down) SFX.play('move', 220);
   });
-  function up() { down = false; }
+  function up() { down = false; if (well) well.held = false; well = null; }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);
 
@@ -225,6 +271,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
     P.fill(ctx, W, H);
     P.grid(ctx, W, H, { step: 36, major: 4, alpha: 0.55 });
+    for (var wq = wells.length - 1; wq >= 0; wq--) {
+      var wv = wells[wq];
+      if (wv.held) wv.s = Math.min(1, wv.s + dt * 9);
+      else { wv.s -= dt * 1.3; if (wv.s <= 0) wells.splice(wq, 1); }
+    }
 
     var alive = 0;
     for (var i = plants.length - 1; i >= 0; i--) {
@@ -240,7 +291,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
         if (pl.fade <= 0) { plants.splice(i, 1); continue; }
       } else alive++;
       var stiff = 5 + (1 - pl.z) * 3;
-      var force = wind(pl.bx) * stiff * 0.4;
+      var force = wind(pl.bx) * stiff * 0.28;
       pl.sv += (force - pl.sw * stiff - pl.sv * 1.6) * dt;
       pl.sw += pl.sv * dt;
     }
@@ -267,20 +318,42 @@ require_once __DIR__ . '/includes/floating-nav.php';
       ctx.stroke();
     }
 
-    /* 風に乗って漂う綿毛 */
-    ctx.fillStyle = P.rgba(P.line, 0.4);
+    /* 風に乗って漂う綿毛。はじき飛ばした綿毛は勢いが落ちてから風に乗り、やがて消える */
+    ctx.fillStyle = P.rgba(P.line, 0.75);
     ctx.beginPath();
-    for (i = 0; i < motes.length; i++) {
+    for (i = motes.length - 1; i >= 0; i--) {
       var m = motes[i];
+      if (m.vx !== undefined) {
+        m.x += m.vx * dt; m.y += m.vy * dt;
+        var dmp = Math.pow(0.04, dt); m.vx *= dmp; m.vy *= dmp;
+        m.life -= dt;
+        if (m.life <= 0) { motes.splice(i, 1); continue; }
+      }
       m.x += (12 + wind(m.x) * 90) * dt;
       m.y += Math.sin(T * 0.5 + m.ph) * 6 * dt - 3 * dt;
       if (m.x > W + 10) { m.x = -10; m.y = H * (0.3 + Math.random() * 0.7); }
       if (m.x < -10) m.x = W + 10;
       if (m.y < H * 0.15) m.y = H;
-      ctx.moveTo(m.x + m.r, m.y);
-      ctx.arc(m.x, m.y, m.r, 0, 6.2832);
+      var mr = m.pap ? m.r * Math.min(1, m.life / 0.6) : m.r;
+      ctx.moveTo(m.x + mr, m.y);
+      ctx.arc(m.x, m.y, mr, 0, 6.2832);
     }
     ctx.fill();
+    /* はじき飛ばした綿毛は、放射状の細い毛つきで描く */
+    ctx.strokeStyle = P.rgba(P.line, 0.8);
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    for (i = 0; i < motes.length; i++) {
+      var mp = motes[i];
+      if (!mp.pap) continue;
+      var L2 = mp.pap * Math.min(1, mp.life / 0.6);
+      mp.rot += dt * 0.6;
+      for (var r6 = 0; r6 < 3; r6++) {
+        var an = mp.rot + r6 * 1.047, cs = Math.cos(an) * L2, sn = Math.sin(an) * L2;
+        ctx.moveTo(mp.x - cs, mp.y - sn); ctx.lineTo(mp.x + cs, mp.y + sn);
+      }
+    }
+    ctx.stroke();
 
     ctx.lineWidth = 1;
     for (i = marks.length - 1; i >= 0; i--) {

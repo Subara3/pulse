@@ -5,7 +5,7 @@ recordPageView('karman');
 
 $pageName = 'karman';
 $pageTitle = 'KÁRMÁN - PULSE';
-$pageDesc = '左から右へ流れる水の中に丸い柱が立っていて、その後ろで右回りと左回りの渦が交互に離れて流れていく。柱はつかんで動かせる。柱から離れたところを押すと、そこに小さな柱が立って後ろに渦ができる。';
+$pageDesc = '左から右へ流れる水の中に丸い柱が立ち、その後ろで右回りと左回りの渦が交互に離れて流れていく。押すと柱がその場所へ移り、押したまま動かすと柱が指についてきて、後ろの渦の列が曲がる。';
 $pageCanonical = 'https://pulse.subara3.com/karman.php';
 $extraStyle = '';
 
@@ -15,7 +15,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <canvas id="canvas"></canvas>
 
 <div id="controls" class="drawer-controls">
-  <div class="ctl-row"><label for="k-flow">FLOW</label><input type="range" id="k-flow" min="0" max="100" value="50"></div>
+  <div class="ctl-row"><label for="k-flow">FLOW</label><input type="range" id="k-flow" min="0" max="100" value="30"></div>
   <div class="ctl-btns"><button type="button" class="active" data-shape="circle">CIRCLE</button><button type="button" data-shape="plate">PLATE</button><button type="button" data-shape="pair">PAIR</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
@@ -51,7 +51,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     solid = new Uint8Array(N);
     ux = new Float32Array(N); uy = new Float32Array(N);
     vort = new Float32Array(N); sm = new Float32Array(N); psi = new Float32Array(N);
-    ob.r = Math.max(6, Math.round(NY * 0.075));
+    ob.r = Math.max(6, Math.round(NY * 0.085));
     fin.r = Math.max(2.5, ob.r * 0.4);
     ob.x = ob.tx = NX * 0.2; ob.y = ob.ty = NY * 0.5;
     /* 柱のすぐ後ろに横向きの揺れを一つ置いておく。渦がちぎれ始めるまでの待ち時間が短くなる */
@@ -156,27 +156,31 @@ require_once __DIR__ . '/includes/floating-nav.php';
     for (j = 0; j < NY; j++) {
       var a = ((j - 1 + NY) % NY) * NX, b = j * NX, c = ((j + 1) % NY) * NX;
       for (i = 1; i < NX - 1; i++) {
-        sm[b + i] = (vort[a + i - 1] + vort[a + i] + vort[a + i + 1] + vort[b + i - 1] + vort[b + i] * 2 + vort[b + i + 1]
+        var nv = (vort[a + i - 1] + vort[a + i] + vort[a + i + 1] + vort[b + i - 1] + vort[b + i] * 2 + vort[b + i + 1]
                    + vort[c + i - 1] + vort[c + i] + vort[c + i + 1]) * 0.1;
+        /* 1 歩ごとの細かなちらつきを、時間方向にならして消す */
+        sm[b + i] = smFresh ? nv : sm[b + i] * 0.55 + nv * 0.45;
       }
     }
   }
 
   /* 流れ関数: 各列で ux を下から積み上げる。列ごとの総流量をそろえて、遠くの流線が水平に並ぶようにする */
-  var psiMin = 0, psiMax = 0;
+  var psiMin = 0, psiMax = 0, psiFresh = true, smFresh = true;
   function streamFn() {
     var i, j, k, ref = U0 * NY;
     psiMin = 0; psiMax = ref;
+    /* 圧力の波で流量がふらつき、線全体が震えるのを抑えるため、時間方向にもならす */
     for (i = 0; i < NX; i++) {
       var q = 0;
       for (j = 0; j < NY; j++) q += ux[j * NX + i];
       var sc = q > 1e-6 ? ref / q : 0, acc = 0;
       for (j = 0; j < NY; j++) {
         k = j * NX + i;
-        psi[k] = acc;
+        psi[k] = psiFresh ? acc : psi[k] * 0.92 + acc * 0.08;
         acc += ux[k] * sc;
       }
     }
+    psiFresh = false; smFresh = false;
   }
 
   /* マーチングスクエアで、ある高さの等高線を path に積む */
@@ -213,13 +217,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ctx.lineWidth = 1;
     ctx.lineJoin = 'round';
     /* 流線（流れ関数の等高線）。一様な流れが柱をよけ、後ろでうねる様子を薄く引く */
-    var gap = U0 * NY / 26, lo = Math.floor(psiMin / gap), hi = Math.ceil(psiMax / gap);
-    ctx.strokeStyle = P.rgba(P.steel, 0.32);
+    var gap = U0 * NY / 34, lo = Math.floor(psiMin / gap), hi = Math.ceil(psiMax / gap);
+    ctx.strokeStyle = P.rgba(P.mix(P.steel, P.line, 0.25), 0.42);
     ctx.beginPath();
     for (var m = lo; m <= hi; m++) contour(psi, (m + 0.5) * gap, 1);
     ctx.stroke();
     for (var n = 1; n <= LEVELS; n++) {
-      var lv = base * Math.pow(n, 1.6), a = 0.16 + 0.55 * n / LEVELS;
+      var lv = base * Math.pow(n, 1.6), a = 0.36 + 0.5 * n / LEVELS;
       ctx.strokeStyle = P.rgba(P.line, a);
       ctx.beginPath(); contour(sm, -lv, 12); ctx.stroke();
       ctx.strokeStyle = P.rgba(P.steel, a * 1.15);
@@ -235,17 +239,35 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ctx.lineWidth = 1.4;
     ctx.strokeStyle = P.rgba(col, 0.9);
     ctx.fillStyle = P.rgba(P.deep, 0.9);
-    ctx.beginPath();
-    if (shape === 'plate') {
-      ctx.rect(x - 1.6 * cs, y - r * 1.15, 3.2 * cs, r * 2.3);
-    } else if (shape === 'pair') {
-      ctx.arc(x, y - r * 1.25, r * 0.68, 0, Math.PI * 2);
-      ctx.moveTo(x + r * 0.68, y + r * 1.25);
-      ctx.arc(x, y + r * 1.25, r * 0.68, 0, Math.PI * 2);
-    } else {
-      ctx.arc(x, y, r, 0, Math.PI * 2);
+    function outline() {
+      ctx.beginPath();
+      if (shape === 'plate') {
+        ctx.rect(x - 1.6 * cs, y - r * 1.15, 3.2 * cs, r * 2.3);
+      } else if (shape === 'pair') {
+        ctx.arc(x, y - r * 1.25, r * 0.68, 0, Math.PI * 2);
+        ctx.moveTo(x + r * 0.68, y + r * 1.25);
+        ctx.arc(x, y + r * 1.25, r * 0.68, 0, Math.PI * 2);
+      } else {
+        ctx.arc(x, y, r, 0, Math.PI * 2);
+      }
     }
-    ctx.fill(); ctx.stroke();
+    outline();
+    ctx.fill();
+    /* 断面のハッチング（図面で固体を表す斜線） */
+    ctx.save();
+    outline();
+    ctx.clip();
+    ctx.strokeStyle = P.rgba(col, 0.75);
+    ctx.lineWidth = 1.3;
+    ctx.beginPath();
+    var span = r * 3.2;
+    for (var h = -span; h < span; h += 5) { ctx.moveTo(x + h - span, y + span); ctx.lineTo(x + h + span, y - span); }
+    ctx.stroke();
+    ctx.restore();
+    ctx.lineWidth = 1.6;
+    ctx.strokeStyle = P.rgba(col, 0.95);
+    outline();
+    ctx.stroke();
     /* 図面の中心線 */
     ctx.strokeStyle = P.rgba(col, 0.35);
     ctx.lineWidth = 1;
@@ -264,41 +286,26 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ---------------------------------------------------------- 操作 */
-  var down = false;
-  function gridPos(e) { return { x: e.clientX / cs - 0.5, y: e.clientY / cs - 0.5 }; }
-  function nearBody(p) {
-    var dy = p.y - ob.y, reach = ob.r * (shape === 'circle' ? 1.8 : 2.6);
-    return Math.abs(p.x - ob.x) < ob.r * 1.8 && Math.abs(dy) < reach;
+  var down = false, rest = 0;
+  function gridPos(e) {
+    var m = ob.r * 1.6;
+    return { x: Math.max(m, Math.min(NX * 0.82, e.clientX / cs - 0.5)), y: e.clientY / cs - 0.5 };
   }
+  /* どこを押しても柱がその場所へ来て、押している間は指にぴったりついてくる */
   canvas.addEventListener('pointerdown', function (e) {
-    down = true;
+    down = true; ob.held = true;
     var p = gridPos(e);
-    if (nearBody(p)) {
-      ob.held = true;
-      SFX.play('tick', 200);
-    } else {
-      fin.on = true; fin.x = p.x; fin.y = p.y;
-      mask();
-      SFX.play('collide', 200);
-    }
+    ob.tx = p.x; ob.ty = p.y;
+    SFX.play('collide', 200);
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
     var p = gridPos(e);
-    if (ob.held) {
-      ob.tx = Math.max(ob.r + 4, Math.min(NX * 0.6, p.x)); ob.ty = p.y;
-    } else if (fin.on) {
-      fin.x += (p.x - fin.x) * 0.5; fin.y += (p.y - fin.y) * 0.5;
-      fin.x = Math.max(fin.r + 2, Math.min(NX - fin.r - 2, fin.x));
-      mask();
-    }
+    ob.tx = p.x; ob.ty = p.y;
     SFX.play('move', 220);
   });
-  function up() {
-    down = false; ob.held = false;
-    if (fin.on) { fin.on = false; mask(); }
-  }
+  function up() { down = false; ob.held = false; rest = 6; }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);
 
@@ -328,19 +335,33 @@ require_once __DIR__ . '/includes/floating-nav.php';
     lastT = now;
     clock += dt;
     /* 触っていないときは、柱がゆっくり上下に漂う */
-    if (!ob.held) ob.ty += (NY * (0.5 + 0.12 * Math.sin(clock * 0.09)) - ob.ty) * Math.min(1, dt * 0.15);
+    /* 離したあとはしばらくその場にとどまり、それからゆっくり左の定位置へ戻る */
+    if (!ob.held) {
+      if (rest > 0) rest -= dt;
+      else {
+        var hk = Math.min(1, dt * 0.12);
+        ob.tx += (NX * 0.2 - ob.tx) * hk;
+        ob.ty += (NY * (0.5 + 0.12 * Math.sin(clock * 0.09)) - ob.ty) * hk;
+      }
+    }
     var px = ob.x, py = ob.y;
-    var k = Math.min(1, dt * (ob.held ? 6 : 1.5));
+    var k = ob.held ? Math.min(1, dt * 30) : Math.min(1, dt * 1.5);
     ob.x += (ob.tx - ob.x) * k; ob.y += (ob.ty - ob.y) * k;
+    if (ob.y < 0) { ob.y += NY; ob.ty += NY; } else if (ob.y >= NY) { ob.y -= NY; ob.ty -= NY; }
     var movedBy = Math.hypot(ob.x - px, ob.y - py);
     if (movedBy > 0.02) mask();
     fin.lit = fin.on ? Math.min(1, fin.lit + dt * 5) : Math.max(0, fin.lit - dt * 3);
     ob.lit = ob.held ? Math.min(1, ob.lit + dt * 4) : Math.max(0, ob.lit - dt * 0.8);
     /* 1 秒あたりの歩数を決めておき、画面の速さに左右されないようにする */
-    acc += dt * 180;
+    acc += dt * 130;
     var n = 0;
     while (acc >= 1 && n < 8) { step(); acc -= 1; n++; }
     if (acc > 1) acc = 1;
+    /* 柱を急に動かして計算が壊れたら、一様な流れから静かにやり直す */
+    if (!isFinite(ux[(NY >> 1) * NX + (NX >> 1)]) || !isFinite(ux[(NY >> 2) * NX + (NX * 3 >> 2)])) {
+      for (var q = 0; q < N; q++) equil(q, 1, U0, 0);
+      ux.fill(0); uy.fill(0); mask();
+    }
     measure();
     streamFn();
     draw();

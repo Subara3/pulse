@@ -5,7 +5,7 @@ recordPageView('string');
 
 $pageName = 'string';
 $pageTitle = 'STRING ART - PULSE';
-$pageDesc = '円に並べた釘のあいだに糸を張っていて、糸が重なって濃くなったところに曲線が見える。糸の掛け方が少しずつ変わり、曲線の形も変わっていく。指でなぞると、横切った糸がはじかれて震える。';
+$pageDesc = '円に並べた釘のあいだに糸を張っていて、糸が重なって濃くなったところに曲線が見える。糸の掛け方がときどき切り替わり、曲線の形も変わる。押すと指のまわりの糸が押しのけられ、離すと震えながら元に戻る。なぞると、指の通った跡の糸が押しのけられる。';
 $pageCanonical = 'https://pulse.subara3.com/string.php';
 $extraStyle = '';
 
@@ -15,7 +15,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <canvas id="canvas"></canvas>
 
 <div id="controls" class="drawer-controls">
-  <div class="ctl-row"><label for="k-nails">NAILS</label><input type="range" id="k-nails" min="0" max="100" value="55"></div>
+  <div class="ctl-row"><label for="k-nails">NAILS</label><input type="range" id="k-nails" min="0" max="100" value="40"></div>
   <div class="ctl-row"><label for="k-pace">PACE</label><input type="range" id="k-pace" min="0" max="100" value="40"></div>
   <div class="ctl-btns"><button type="button" id="k-hold">HOLD</button></div>
 </div>
@@ -28,8 +28,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var W = 0, H = 0, cx = 0, cy = 0, R = 1;
 
   /* 釘 i から釘 i×k へ糸を張る。k が 2 ならハート形、3 なら 2 枚の花びら */
-  var NMAX = 400, nails = 200, k = 2, kdir = 1, pace = 0.4, hold = false, rot = -Math.PI / 2, T = 0;
-  var amp = new Float32Array(NMAX), ph = new Float32Array(NMAX), hot = new Float32Array(NMAX);
+  var NMAX = 400, RH = 105, nails = 200, k = 2, kdir = 1, kA = 2, kB = 3, kU = 0, kHoldT = 12, pace = 0.4, hold = false, rot = -Math.PI / 2, T = 0;
+  var amp = new Float32Array(NMAX), ph = new Float32Array(NMAX), hot = new Float32Array(NMAX), kt = new Float32Array(NMAX).fill(0.5), ksg = new Float32Array(NMAX).fill(1);
   var AX = new Float32Array(NMAX), AY = new Float32Array(NMAX), BX = new Float32Array(NMAX), BY = new Float32Array(NMAX);
 
   var ctx = P.fit(canvas, function (w, h) { W = w; H = h; cx = W / 2; cy = H / 2; R = Math.min(W, H) * 0.42; });
@@ -53,14 +53,25 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var u = ((ax - x1) * (y2 - y1) - (ay - y1) * (x2 - x1)) / d;
     return t >= 0 && t <= 1 && u > 0.04 && u < 0.96;
   }
-  function pluck(i, s) {
-    amp[i] = Math.min(16, Math.max(amp[i], s));
-    ph[i] = 0; hot[i] = 1;
+  /* 指が触れた点で糸を押しのける。糸は指の位置で折れ曲がり、離すと震えながら戻る */
+  function nearT(i, x, y) {
+    var ax = AX[i], ay = AY[i], bx = BX[i] - ax, by = BY[i] - ay, l2 = bx * bx + by * by + 1e-6;
+    var t = ((x - ax) * bx + (y - ay) * by) / l2;
+    return t < 0.06 ? 0.06 : t > 0.94 ? 0.94 : t;
+  }
+  function pluck(i, s, x, y) {
+    var t = nearT(i, x, y);
+    var ax = AX[i], ay = AY[i], dx = BX[i] - ax, dy = BY[i] - ay, l = Math.sqrt(dx * dx + dy * dy) + 1e-6;
+    /* 指がある側と反対へ押す */
+    var side = ((x - ax) * (-dy / l) + (y - ay) * (dx / l)) > 0 ? -1 : 1;
+    amp[i] = Math.min(60, Math.max(ph[i] < 0 ? 0 : amp[i] * 0.5, s));
+    kt[i] = t; ksg[i] = side; ph[i] = -0.45; hot[i] = 1;
   }
   var down = false, last = null, moved = 0;
   canvas.addEventListener('pointerdown', function (e) {
     down = true; moved = 0;
     last = { x: e.clientX, y: e.clientY };
+    SFX.play(pressAt(last.x, last.y) ? 'collide' : 'tick');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
@@ -71,27 +82,25 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (sp < 2) return;
     moved += sp;
     var hits = 0;
-    for (var i = 0; i < nails; i++) {
-      if (cross(last.x, last.y, p.x, p.y, i)) { pluck(i, Math.min(16, 3 + sp * (down ? 0.5 : 0.2))); hits++; }
+    if (down) hits = pressAt(p.x, p.y);
+    else if (sp < 60) for (var i = 0; i < nails; i++) {
+      if (cross(last.x, last.y, p.x, p.y, i)) { pluck(i, Math.min(20, 6 + sp * 0.4), p.x, p.y); ph[i] = 0; hits++; }
     }
     if (hits) SFX.play('tick', 120);
     last = p;
   });
-  function up(e) {
-    /* その場で離したら、近くを通る糸をまとめて軽くはじく */
-    if (down && moved < 6 && last) {
-      var n = 0;
-      for (var i = 0; i < nails; i++) {
-        var ax = AX[i], ay = AY[i], bx = BX[i] - ax, by = BY[i] - ay, l2 = bx * bx + by * by + 1e-6;
-        var t = ((last.x - ax) * bx + (last.y - ay) * by) / l2;
-        t = t < 0 ? 0 : t > 1 ? 1 : t;
-        var dx = ax + bx * t - last.x, dy = ay + by * t - last.y, dd = Math.sqrt(dx * dx + dy * dy);
-        if (dd < 46) { pluck(i, 9 * (1 - dd / 46) + 2); n++; }
-      }
-      SFX.play(n ? 'collide' : 'tick');
+  /* 押したところのまわりの糸をまとめて押しのける */
+  function pressAt(x, y) {
+    var n = 0;
+    for (var i = 0; i < nails; i++) {
+      var t = nearT(i, x, y), ax = AX[i], ay = AY[i];
+      var dx = ax + (BX[i] - ax) * t - x, dy = ay + (BY[i] - ay) * t - y, dd = Math.sqrt(dx * dx + dy * dy);
+      /* 指のまわり半径 RH の円の外まで糸を押し出す */
+      if (dd < RH) { pluck(i, RH - dd + 4, x, y); n++; }
     }
-    down = false;
+    return n;
   }
+  function up(e) { down = false; }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', function () { down = false; });
   canvas.addEventListener('pointerleave', function () { if (!down) last = null; });
@@ -114,11 +123,20 @@ require_once __DIR__ . '/includes/floating-nav.php';
     hold = kHold.classList.contains('active');
     if (!hold) {
       /* 整数の近くではゆっくり、あいだは少し速く。形がはっきりする所に長く留まる */
-      var s = Math.sin(Math.PI * k);
-      k += kdir * dt * (0.004 + pace * 0.03) * (0.25 + 3 * s * s);
-      if (k > 30) kdir = -1; else if (k < 2) kdir = 1;
+      /* 整数の掛け方でしばらく形を見せてから、次の整数へなめらかに移る */
+      if (kHoldT > 0) kHoldT -= dt;
+      else {
+        kU = Math.min(1, kU + dt / (14 - pace * 8));
+        var e = kU < 0.5 ? 4 * kU * kU * kU : 1 - Math.pow(-2 * kU + 2, 3) / 2;
+        k = kA + (kB - kA) * e;
+        if (kU >= 1) {
+          kA = kB; kB = kA + kdir; kU = 0; kHoldT = 16 - pace * 10;
+          if (kB > 12) { kdir = -1; kB = kA - 1; } else if (kB < 2) { kdir = 1; kB = kA + 1; }
+        }
+      }
     }
-    rot += dt * 0.006;
+    rot += dt * 0.004;
+    if (down && last) pressAt(last.x, last.y);
     layout();
 
     P.fill(ctx, W, H);
@@ -130,26 +148,28 @@ require_once __DIR__ . '/includes/floating-nav.php';
       amp[i] = 0;
       still.moveTo(AX[i], AY[i]); still.lineTo(BX[i], BY[i]);
     }
-    var dens = Math.min(1, 200 / nails);
-    ctx.lineWidth = 0.7;
-    ctx.strokeStyle = P.rgba(P.line, 0.12 + dens * 0.12);
+    var dens = Math.min(1, 160 / nails);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = P.rgba(P.line, 0.26 + dens * 0.14);
     ctx.stroke(still);
 
     /* はじいた糸: 中ほどがふくらんで震え、だんだん収まる */
     for (var q = 0; q < live.length; q++) {
       i = live[q];
       ph[i] += dt;
-      amp[i] *= Math.pow(0.28, dt);
-      hot[i] = Math.max(0, hot[i] - dt * 1.1);
+      if (ph[i] > 0) { amp[i] *= Math.pow(0.25, dt); hot[i] = Math.max(0, hot[i] - dt * 0.8); }
       var ax = AX[i], ay = AY[i], bx = BX[i], by = BY[i];
       var dx = bx - ax, dy = by - ay, l = Math.sqrt(dx * dx + dy * dy) + 1e-6;
-      var off = amp[i] * Math.sin(ph[i] * 11) * 2;
-      var mx = (ax + bx) / 2 - dy / l * off, my = (ay + by) / 2 + dx / l * off;
-      ctx.strokeStyle = P.rgba(P.mix(P.line, P.accent, hot[i] * 0.8), 0.22 + hot[i] * 0.4);
-      ctx.lineWidth = 0.8 + hot[i] * 0.5;
+      /* 押しているあいだと離して少しのあいだは押しのけたまま、そのあと震えながら戻る */
+      var off = ph[i] < 0 ? amp[i] : amp[i] * Math.cos(ph[i] * 9);
+      off *= ksg[i];
+      var t = kt[i], mx = ax + dx * t - dy / l * off, my = ay + dy * t + dx / l * off;
+      ctx.strokeStyle = P.rgba(P.mix(P.line, P.accent, hot[i] * 0.85), 0.45 + hot[i] * 0.5);
+      ctx.lineWidth = 1 + hot[i] * 1.2;
       ctx.beginPath();
       ctx.moveTo(ax, ay);
-      ctx.quadraticCurveTo(mx, my, bx, by);
+      ctx.lineTo(mx, my);
+      ctx.lineTo(bx, by);
       ctx.stroke();
     }
 

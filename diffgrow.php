@@ -5,7 +5,7 @@ recordPageView('diffgrow');
 
 $pageName = 'diffgrow';
 $pageTitle = 'DIFFGROW - PULSE';
-$pageDesc = '小さな輪の線が少しずつ長くなり、線どうしが押し合って、曲がりくねった模様に折りたたまれていく。少し前の輪郭は細い線で残る。指で押すと線がよけて、押した部分がよく伸びる。';
+$pageDesc = '小さな輪の線が少しずつ長くなり、線どうしが押し合って、曲がりくねった模様に折りたたまれていく。少し前の輪郭は細い線で残る。押すと指のまわりの線が円く押しのけられ、なぞると指の通った跡に沿って線がよける。';
 $pageCanonical = 'https://pulse.subara3.com/diffgrow.php';
 $extraStyle = '';
 
@@ -41,10 +41,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
     cx = W / 2 + (Math.random() - 0.5) * W * 0.06;
     cy = H / 2 + (Math.random() - 0.5) * H * 0.06;
     bound = Math.min(W, H) * 0.46;
-    var r0 = Math.min(W, H) * 0.05, m = Math.round(r0 * 6.2832 / L);
+    var r0 = Math.min(W, H) * 0.24, m = Math.round(r0 * 6.2832 / L);
     n = m;
     for (var i = 0; i < m; i++) {
-      var a = i / m * 6.2832, rj = r0 * (1 + (Math.random() - 0.5) * 0.08);
+      var a = i / m * 6.2832, rj = r0 * (1 + Math.sin(a * 5 + 1) * 0.06 + Math.sin(a * 9) * 0.03 + (Math.random() - 0.5) * 0.04);
       X[i] = cx + Math.cos(a) * rj; Y[i] = cy + Math.sin(a) * rj; VX[i] = VY[i] = 0; HOT[i] = 0;
     }
     hist.length = 0; histT = 0; phase = 'grow'; phaseT = 0; life = 1;
@@ -110,14 +110,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var ex = x - cx, ey = y - cy, er = Math.sqrt(ex * ex + ey * ey);
       if (er > bound) { fx -= ex / er * (er - bound) * 0.08; fy -= ey / er * (er - bound) * 0.08; }
       /* 触っているところからはよける */
-      if (press) {
-        var px = x - press.x, py = y - press.y, pd2 = px * px + py * py, pr = 70;
-        if (pd2 < pr * pr && pd2 > 1e-4) {
-          var pd = Math.sqrt(pd2), pf = (pr - pd) / pr * 2.2;
-          fx += px / pd * pf; fy += py / pd * pf;
-          HOT[i] = 1;
-        }
-      }
+
       TX[i] = fx; TY[i] = fy;
     }
     var mv = quiet ? 1.6 : 1.2;
@@ -126,7 +119,28 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var sp = Math.sqrt(VX[i] * VX[i] + VY[i] * VY[i]);
       if (sp > mv) { VX[i] *= mv / sp; VY[i] *= mv / sp; }
       X[i] += VX[i]; Y[i] += VY[i];
-      if (HOT[i] > 0) HOT[i] = Math.max(0, HOT[i] - dt * 0.35);
+      if (HOT[i] > 0) HOT[i] = Math.max(0, HOT[i] - dt * 0.3);
+    }
+    /* 指のまわりの円の中からは、縁がすぐに押し出される */
+    if (press) {
+      var PR = 95, ms = Math.sqrt(press.vx * press.vx + press.vy * press.vy);
+      /* 動かしているときは進む向きの左右へよけさせ、縁を引きずらない */
+      var ux = ms > 0.5 ? press.vx / ms : 0, uy = ms > 0.5 ? press.vy / ms : 0;
+      for (i = 0; i < n; i++) {
+        var qx = X[i] - press.x, qy = Y[i] - press.y, q2 = qx * qx + qy * qy;
+        if (q2 < PR * PR) {
+          var qd = Math.sqrt(q2) + 1e-3, tx2, ty2;
+          if (ms > 0.5) {
+            var along = qx * ux + qy * uy, side = -qx * uy + qy * ux, sg = side >= 0 ? 1 : -1;
+            var half = Math.sqrt(Math.max(0, PR * PR - along * along)) * 0.8;
+            if (Math.abs(side) >= half) continue;
+            tx2 = press.x + ux * along - uy * sg * half; ty2 = press.y + uy * along + ux * sg * half;
+          } else { tx2 = press.x + qx / qd * PR; ty2 = press.y + qy / qd * PR; }
+          X[i] += (tx2 - X[i]) * 0.35; Y[i] += (ty2 - Y[i]) * 0.35;
+          VX[i] = VY[i] = 0;
+          HOT[i] = 1;
+        }
+      }
     }
     if (phase !== 'grow') return;
     /* 伸びすぎた区間に点を足す。さらにところどころで点を足して、ひもを長くする */
@@ -160,7 +174,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var down = false, rings = [];
   canvas.addEventListener('pointerdown', function (e) {
     down = true;
-    press = { x: e.clientX, y: e.clientY };
+    press = { x: e.clientX, y: e.clientY, vx: 0, vy: 0 };
     rings.push({ x: press.x, y: press.y, t: 0 });
     SFX.play('grow');
     canvas.setPointerCapture(e.pointerId);
@@ -168,7 +182,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
     var dx = e.clientX - press.x, dy = e.clientY - press.y;
-    press = { x: e.clientX, y: e.clientY };
+    press = { x: e.clientX, y: e.clientY, vx: press.vx * 0.5 + dx * 0.5, vy: press.vy * 0.5 + dy * 0.5 };
     if (dx * dx + dy * dy > 16) SFX.play('move', 200);
   });
   function up() { down = false; press = null; }
@@ -201,7 +215,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ctx.moveTo(X[0], Y[0]);
     for (i = 1; i < n; i++) ctx.lineTo(X[i], Y[i]);
     ctx.closePath();
-    ctx.fillStyle = P.rgba(P.deep, 0.75 * life);
+    ctx.fillStyle = P.rgba(P.mix(P.bg, P.steel, 0.3), 0.9 * life);
     ctx.fill('evenodd');
 
     /* 前の輪郭。古いほど薄い */
@@ -252,7 +266,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (press) {
       ctx.strokeStyle = P.rgba(P.accent, 0.35);
       ctx.beginPath();
-      ctx.arc(press.x, press.y, 70, 0, Math.PI * 2);
+      ctx.arc(press.x, press.y, 95, 0, Math.PI * 2);
       ctx.stroke();
     }
   }
@@ -263,6 +277,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
     phaseT += dt;
+    if (press) { press.vx *= 0.8; press.vy *= 0.8; }
     step(dt, false);
     histT += dt;
     if (phase === 'grow' && histT > 5) { histT = 0; snap(); }

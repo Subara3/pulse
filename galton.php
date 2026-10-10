@@ -5,7 +5,7 @@ recordPageView('galton');
 
 $pageName = 'galton';
 $pageTitle = 'GALTON BOARD - PULSE';
-$pageDesc = '玉が釘に当たるたびに左右へ跳ね、その跡が重なって、真ん中ほど明るい扇形になる。指を置くと近くの釘が玉を押しのけ、流れがそこを避けて曲がる。';
+$pageDesc = '玉が釘に当たるたびに左右へ跳ね、その跡が重なって、真ん中ほど明るい扇形になる。押すとそこの釘が光って玉がこぼれ出し、指を置いたままにすると近くの釘が玉を押しのけて流れが曲がる。';
 $pageCanonical = 'https://pulse.subara3.com/galton.php';
 $extraStyle = '';
 
@@ -33,8 +33,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var heap = new Float32Array(ROWS + 1);
   var ctx = P.fit(canvas, function (w, h) {
     W = w; H = h;
-    DY = Math.min(h * 0.64 / ROWS, w * 0.9 / ROWS / 1.1);
-    DX = DY * 1.1;
+    DY = Math.min(h * 0.64 / ROWS, w * 0.92 / ROWS / 1.5);
+    DX = DY * 1.5;
     CX = w / 2;
     /* 釘の三角と下の山をひとまとまりにして、画面の上下中央に置く */
     var gap = Math.min(h * 0.17, DY * 9);
@@ -53,9 +53,35 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var balls = [];
   var flow = 14, decay = 0.16, t = 0;
 
-  function launch(x0) {
-    balls.push({ row: 0, j: 0, u: Math.random() * 0.2, dir: 0, x: CX, y: TOP - DY, fall: -1, vy: 0, spd: 0.9 + Math.random() * 0.25 });
+  function launch(row, j) {
+    row = row || 0; j = j || 0;
+    balls.push({ row: row, j: j, u: Math.random() * 0.2, dir: 0, x: pegX(row, j), y: pegY(row) - DY, fall: -1, vy: 0, spd: 0.9 + Math.random() * 0.25 });
     pick(balls[balls.length - 1]);
+  }
+  /* 触った点のまわりの釘が灯り、光がそこにたまる。いちばん近い釘から玉がこぼれ出る */
+  function touch(x, y, power, nBalls) {
+    var R = 110;
+    for (var r = 0; r < ROWS; r++) {
+      var py = pegY(r);
+      if (Math.abs(py - y) > R * 1.5) continue;
+      for (var j = 0; j <= r; j++) {
+        var dx = pegX(r, j) - x, dy = py - y, e = Math.exp(-(dx * dx + dy * dy) / (R * R));
+        if (e < 0.05) continue;
+        var id = r * (ROWS + 1) + j;
+        pegGlow[id] = Math.max(pegGlow[id], e * power);
+      }
+    }
+    /* 指のまわりに淡い光をためる（光の跡と同じようにゆっくり薄れる） */
+    var cr = Math.ceil(R * 1.2 / CELL), ci = Math.round(x / CELL), cj = Math.round(y / CELL);
+    for (var gj = Math.max(0, cj - cr); gj < Math.min(GY, cj + cr); gj++) {
+      for (var gi = Math.max(0, ci - cr); gi < Math.min(GX, ci + cr); gi++) {
+        var ddx = (gi - ci) * CELL, ddy = (gj - cj) * CELL, ee = Math.exp(-(ddx * ddx + ddy * ddy) / (R * R * 0.45));
+        if (ee > 0.03) dens[gj * GX + gi] = Math.max(dens[gj * GX + gi], 0.75 * ee * power);
+      }
+    }
+    var row = Math.max(0, Math.min(ROWS - 1, Math.round((y - TOP) / DY)));
+    var jj = Math.max(0, Math.min(row, Math.round((x - CX) / DX + row / 2)));
+    for (var k = 0; k < nBalls; k++) launch(row, jj);
   }
 
   /* 釘で右へ行くか左へ行くか。指の近くの釘は、指から遠ざかる側へ押す */
@@ -130,7 +156,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   var BG = P.bg, ST = P.steel, LN = P.line, AC = P.accent;
   function shade() {
-    var d = img.data, gain = 0.9;
+    var d = img.data, gain = 1.3;
     for (var k = 0, o = 0; k < dens.length; k++, o += 4) {
       var v = 1 - Math.exp(-dens[k] * gain);
       var c;
@@ -141,13 +167,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     bctx.putImageData(img, 0, 0);
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingQuality = 'low';
     ctx.drawImage(buf, 0, 0, GX * CELL, GY * CELL);
   }
 
   var PEG = P.rgba(LN, 0.42);
   function drawPegs(dt) {
-    var plain = new Path2D(), fall = Math.exp(-dt * 2.5);
+    var plain = new Path2D(), fall = Math.exp(-dt * 1.5);
     for (var r = 0; r < ROWS; r++) {
       for (var j = 0; j <= r; j++) {
         var id = r * (ROWS + 1) + j, g = pegGlow[id];
@@ -156,7 +182,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
           /* 指が押している釘だけ、シアンに灯る */
           pegGlow[id] = g * fall;
           ctx.fillStyle = P.rgba(P.mix(LN, AC, Math.min(1, g * 1.4)), 0.5 + 0.45 * g);
-          ctx.beginPath(); ctx.arc(x, y, 1.4 + g * 1.2, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(x, y, 1.6 + g * 3.4, 0, Math.PI * 2); ctx.fill();
         } else {
           pegGlow[id] = 0;
           plain.moveTo(x + 1.4, y); plain.arc(x, y, 1.4, 0, Math.PI * 2);
@@ -210,16 +236,20 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ---------------------------------------------------------- 操作 */
-  var hold = false, ptr = { x: -999, y: -999 };
+  var hold = false, ptr = { x: -999, y: -999 }, lastTouch = { x: 0, y: 0 };
   canvas.addEventListener('pointerdown', function (e) {
-    hold = true; ptr.x = e.clientX; ptr.y = e.clientY;
-    for (var i = 0; i < 6; i++) launch();
+    hold = true; ptr.x = e.clientX; ptr.y = e.clientY; lastTouch = { x: ptr.x, y: ptr.y };
+    touch(ptr.x, ptr.y, 1, 12);
     SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!hold) return;
     ptr.x = e.clientX; ptr.y = e.clientY;
+    if (Math.hypot(ptr.x - lastTouch.x, ptr.y - lastTouch.y) > 22) {
+      touch(ptr.x, ptr.y, 0.8, 2);
+      lastTouch = { x: ptr.x, y: ptr.y };
+    }
     SFX.play('move', 300);
   });
   function up() { hold = false; }
@@ -261,7 +291,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ---------------------------------------------------------- 回す */
   var lastT = performance.now(), acc = 0;
   function frame(now) {
-    var dt = Math.min(0.05, (now - lastT) / 1000);
+    var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));
     lastT = now;
     t += dt;
     acc += dt * flow;

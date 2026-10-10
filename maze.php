@@ -5,7 +5,7 @@ recordPageView('maze');
 
 $pageName = 'maze';
 $pageTitle = 'MAZE - PULSE';
-$pageDesc = '1か所から通路がのびて迷路ができていく。できあがると光の点が入口から通路をたどり、行き止まりでは引き返しながら出口まで進む。触ると、触ったところから通路に沿って光が広がる。';
+$pageDesc = '1か所から通路がのびて迷路ができていく。できあがると光の点が入口から通路をたどり、行き止まりでは引き返しながら出口まで進む。触ると、そこから通路に沿って光が広がる。まだ迷路のない場所を触ると、そこから新しい通路が育つ。';
 $pageCanonical = 'https://pulse.subara3.com/maze.php';
 $extraStyle = '';
 
@@ -28,7 +28,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var W = 0, H = 0, ctx;
 
   var CS = 24, COLS, ROWS, OX, OY, N;
-  var open, born;                 /* 通路のビット（1 上 2 右 4 下 8 左）と、育った時刻 */
+  var open, born, tree, preGrow = false;                 /* 通路のビット（1 上 2 右 4 下 8 左）と、育った時刻 */
   var DX = [0, 1, 0, -1], DY = [-1, 0, 1, 0], BIT = [1, 2, 4, 8], OPP = [4, 8, 1, 2];
   var phase = 'grow', clock = 0, phaseT = 0;
   var active = [], grownCount = 0;
@@ -53,6 +53,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
     phase = 'grow'; phaseT = 0;
     var s = ((ROWS * (0.3 + Math.random() * 0.4)) | 0) * COLS + ((COLS * (0.3 + Math.random() * 0.4)) | 0);
     born[s] = clock; active = [s]; grownCount = 1;
+    /* 開いた瞬間から迷路が見えるよう、最初の半分ほどは一気に育てておく */
+    preGrow = true;
+    tree = new Int32Array(N).fill(-1); tree[s] = s;
   }
   function cx(c) { return OX + (c % COLS + 0.5) * CS; }
   function cy(c) { return OY + (((c / COLS) | 0) + 0.5) * CS; }
@@ -75,10 +78,29 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     var dd = dirs[(Math.random() * dirs.length) | 0], n = nb(c, dd);
     open[c] |= BIT[dd]; open[n] |= OPP[dd];
-    born[n] = clock; active.push(n); grownCount++;
+    born[n] = clock; active.push(n); grownCount++; tree[n] = tree[c];
     return true;
   }
 
+  /* 別々に育った枝どうしを、境目の壁を 1 枚ずつ抜いてつなぐ（迷路は 1 本の木のまま） */
+  function joinTrees() {
+    var par = {};
+    function f(x) { while (par[x] != null && par[x] !== x) x = par[x]; return x; }
+    var order = [];
+    for (var c = 0; c < N; c++) order.push(c);
+    for (var i = N - 1; i > 0; i--) { var j = (Math.random() * (i + 1)) | 0, t = order[i]; order[i] = order[j]; order[j] = t; }
+    for (var q = 0; q < N; q++) {
+      var a = order[q];
+      for (var d = 1; d <= 2; d++) {
+        var b = nb(a, d);
+        if (b < 0) continue;
+        var ra = f(tree[a]), rb = f(tree[b]);
+        if (ra === rb) continue;
+        par[ra] = rb; par[rb] = rb;
+        open[a] |= BIT[d]; open[b] |= OPP[d];
+      }
+    }
+  }
   function beginSearch() {
     phase = 'search'; phaseT = 0;
     var r1 = (Math.random() * ROWS) | 0, r2 = (Math.random() * ROWS) | 0;
@@ -121,7 +143,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
       gx = Math.max(0, Math.min(COLS - 1, gx)); gy = Math.max(0, Math.min(ROWS - 1, gy));
       c = gy * COLS + gx;
     }
-    if (born[c] < 0) return false;
+    if (born[c] < 0) {
+      /* まだ育っていない場所なら、そこから新しい枝が育ちはじめる */
+      if (phase !== 'grow') return false;
+      born[c] = clock; tree[c] = c; active.push(c); grownCount++;
+      for (var bu = 0; bu < 45; bu++) growStep();
+    }
     var dist = new Int16Array(N).fill(-1), q = [c];
     dist[c] = 0;
     for (var h = 0; h < q.length; h++) {
@@ -144,6 +171,19 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var fadeAll = phase === 'fade' ? Math.max(0, 1 - phaseT / 2.4) : 1;
     var i, c, a;
 
+    /* 育った範囲は、うっすら明るい床になる */
+    for (var fb = 0; fb < 3; fb++) {
+      ctx.fillStyle = P.rgba(P.steel, (0.08 + fb * 0.08) * fadeAll);
+      ctx.beginPath();
+      for (c = 0; c < N; c++) {
+        if (born[c] < 0) continue;
+        var fa2 = Math.min(1, (clock - born[c]) / 0.8);
+        if (Math.min(2, (fa2 * 3) | 0) !== fb) continue;
+        ctx.rect(OX + (c % COLS) * CS, OY + ((c / COLS) | 0) * CS, CS, CS);
+      }
+      ctx.fill();
+    }
+
     /* 触った光: 通路の中心線に沿って、前線だけが明るい */
     if (glows.length) {
       ctx.lineCap = 'round';
@@ -151,10 +191,23 @@ require_once __DIR__ . '/includes/floating-nav.php';
       for (var g = glows.length - 1; g >= 0; g--) {
         var G = glows[g];
         G.t += dt;
-        var front = G.t * 16, life = Math.max(0, 1 - G.t / 6);
+        var front = 3 + G.t * 22, life = Math.max(0, 1 - G.t / 4);
         if (life <= 0) { glows.splice(g, 1); continue; }
         for (var b = 0; b < 4; b++) {
-          ctx.strokeStyle = P.rgba(P.accent, (b + 1) / 4 * 0.5 * life * fadeAll);
+          /* 光の届いたセルは床ごと明るくなる */
+          ctx.fillStyle = P.rgba(P.accent, (b + 1) / 4 * 0.3 * life * fadeAll);
+          ctx.beginPath();
+          for (c = 0; c < N; c++) {
+            var dcf = G.dist[c];
+            if (dcf < 0) continue;
+            var kf = front - dcf;
+            if (kf < 0 || kf > 10) continue;
+            var lvf = kf < 1 ? kf : Math.exp(-(kf - 1) * 0.32);
+            if (((lvf * 4) | 0) !== b) continue;
+            ctx.rect(OX + (c % COLS) * CS + 1.5, OY + ((c / COLS) | 0) * CS + 1.5, CS - 3, CS - 3);
+          }
+          ctx.fill();
+          ctx.strokeStyle = P.rgba(P.accent, (b + 1) / 4 * 0.7 * life * fadeAll);
           ctx.beginPath();
           for (c = 0; c < N; c++) {
             var dc = G.dist[c];
@@ -177,9 +230,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
     /* 壁: 育ったセルのまわりだけ。育ったばかりの壁は薄く始まる */
     ctx.lineCap = 'square';
-    ctx.lineWidth = 1.25;
+    ctx.lineWidth = 2;
     for (var bk = 0; bk < 3; bk++) {
-      ctx.strokeStyle = P.rgba(P.line, (0.22 + bk * 0.2) * fadeAll);
+      ctx.strokeStyle = P.rgba(P.line, (0.35 + bk * 0.22) * fadeAll);
       ctx.beginPath();
       for (c = 0; c < N; c++) {
         if (born[c] < 0) continue;
@@ -288,13 +341,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ---------------------------------------------------------- 回す */
   var lastT = performance.now(), growAcc = 0, moveAcc = 0;
   function frame(now) {
-    var dt = Math.min(0.05, (now - lastT) / 1000);
+    var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));
     lastT = now; clock += dt; phaseT += dt;
     if (phase === 'grow') {
-      /* 12〜30 秒で画面いっぱいに育つ */
-      growAcc += dt * N / (30 - pace * 18);
+      if (preGrow) { preGrow = false; for (var pg = 0; pg < N * 0.45; pg++) growStep(); }
+      /* 12〜26 秒で画面いっぱいに育つ */
+      growAcc += dt * N / (26 - pace * 14);
       while (growAcc > 1) { growAcc -= 1; if (!growStep()) break; }
-      if (!active.length) { phase = 'rest'; phaseT = 0; }
+      if (!active.length) { joinTrees(); phase = 'rest'; phaseT = 0; }
       if (Math.random() < dt * 0.4) SFX.play('grow', 2500);
     } else if (phase === 'rest') {
       if (phaseT > 1.2) beginSearch();

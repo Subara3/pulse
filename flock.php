@@ -5,7 +5,7 @@ recordPageView('flock');
 
 $pageName = 'flock';
 $pageTitle = 'FLOCK - PULSE';
-$pageDesc = '数百羽の鳥がひとかたまりで飛び、向きを揃えながら画面の中を大きく旋回する。触ったところから鳥が逃げ、群れが割れてはまた合わさる。';
+$pageDesc = '数百羽の鳥がひとかたまりで飛び、向きを揃えながら画面の中を大きく旋回する。押したところから鳥が輪になって飛び立ち、なぞると指の跡に沿って鳥が飛び出して群れに加わる。';
 $pageCanonical = 'https://pulse.subara3.com/flock.php';
 $extraStyle = '';
 
@@ -15,7 +15,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <canvas id="canvas"></canvas>
 
 <div id="controls" class="drawer-controls">
-  <div class="ctl-row"><label for="k-birds">BIRDS</label><input type="range" id="k-birds" min="0" max="100" value="72"></div>
+  <div class="ctl-row"><label for="k-birds">BIRDS</label><input type="range" id="k-birds" min="0" max="100" value="70"></div>
   <div class="ctl-row"><label for="k-calm">CALM</label><input type="range" id="k-calm" min="0" max="100" value="50"></div>
   <div class="ctl-btns"><button type="button" id="k-scatter">SCATTER</button></div>
 </div>
@@ -29,11 +29,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var ctx = canvas.getContext('2d');
 
   /* 鳥は位置・速度・奥行きだけを持つ。奥行きは大きさと濃さにだけ効く */
-  var MAX = 1400, N = 0;
+  var MAX = 1600, N = 0;
   var px = new Float32Array(MAX), py = new Float32Array(MAX);
   var vx = new Float32Array(MAX), vy = new Float32Array(MAX);
-  var dz = new Float32Array(MAX), ax = new Float32Array(MAX), ay = new Float32Array(MAX);
-  var CELL = 42, GW = 1, GH = 1, head, nextI = new Int32Array(MAX);
+  var startle = new Float32Array(MAX), dz = new Float32Array(MAX), ax = new Float32Array(MAX), ay = new Float32Array(MAX);
+  var CELL = 44, GW = 1, GH = 1, head, nextI = new Int32Array(MAX);
   var speed = 1;
 
   function allocGrid() {
@@ -85,21 +85,22 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var gy = Math.max(0, Math.min(GH - 1, (py[i] / CELL) | 0));
       k = gy * GW + gx; nextI[i] = head[k]; head[k] = i;
     }
-    var R2 = CELL * CELL, S = 26, S2 = S * S;
+    var R2 = CELL * CELL, S = 36, S2 = S * S;
     var vmax = 150 * speed, vmin = 75 * speed;
     var m = Math.min(W, H) * 0.2;
     for (i = 0; i < N; i++) {
       var x = px[i], y = py[i];
       var cx = (x / CELL) | 0, cy = (y / CELL) | 0;
-      var n = 0, sx = 0, sy = 0, mvx = 0, mvy = 0, mx = 0, my = 0;
+      var seen = 0, n = 0, sx = 0, sy = 0, mvx = 0, mvy = 0, mx = 0, my = 0;
       for (var oy = -1; oy <= 1; oy++) {
         var yy = cy + oy; if (yy < 0 || yy >= GH) continue;
         for (var ox = -1; ox <= 1; ox++) {
           var xx = cx + ox; if (xx < 0 || xx >= GW) continue;
-          for (j = head[yy * GW + xx]; j >= 0; j = nextI[j]) {
+          for (j = head[yy * GW + xx], seen = 0; j >= 0 && seen < 14; j = nextI[j]) {
             if (j === i) continue;
             var ddx = px[j] - x, ddy = py[j] - y, d2 = ddx * ddx + ddy * ddy;
             if (d2 > R2) continue;
+            seen++;
             /* 前方の仲間ほどよく見える */
             var front = (ddx * vx[i] + ddy * vy[i]) > 0 ? 1 : 0.45;
             n += front; mvx += vx[j] * front; mvy += vy[j] * front; mx += ddx * front; my += ddy * front;
@@ -119,9 +120,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (x < m) fx += (m - x) * 9; else if (x > W - m) fx -= (x - (W - m)) * 9;
       if (y < m) fy += (m - y) * 9; else if (y > H - m) fy -= (y - (H - m)) * 9;
       /* 驚き: 近いほど強く、外向きに逃げる */
-      if (hawk.on > 0) {
+      if (hawk.on > 0 && !down) {
         var hx = x - hawk.x, hy = y - hawk.y, hd = Math.sqrt(hx * hx + hy * hy) + 1;
-        if (hd < 150) { var hf = (1 - hd / 150) * 1400 * hawk.on; fx += hx / hd * hf; fy += hy / hd * hf; }
+        if (hd < 150 && hd > 40) { var hf = (1 - hd / 150) * 900 * hawk.on; fx += hx / hd * hf; fy += hy / hd * hf; }
       }
       if (gust.t > 0) {
         var gx2 = x - gust.x, gy2 = y - gust.y, gd = Math.sqrt(gx2 * gx2 + gy2 * gy2) + 1;
@@ -149,9 +150,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ctx.lineJoin = 'round';
     /* 尾: 古い点ほど淡く。古い→新しいを 3 段に分けて、段ごとにまとめて引く */
     var bands = [[0, 3], [3, 6], [6, 8]];
-    for (var seg = 0; seg < 3; seg++) {
-      ctx.strokeStyle = P.rgba(P.mix(ST, LN, 0.3 + seg * 0.2), 0.06 + seg * 0.08);
-      ctx.lineWidth = 0.8;
+    for (var seg = 1; seg < 3; seg++) {
+      ctx.strokeStyle = P.rgba(P.mix(ST, LN, 0.3 + seg * 0.2), 0.16 + seg * 0.14);
+      ctx.lineWidth = 1;
       ctx.beginPath();
       for (var bd = 0; bd < N; bd++) {
         var o = bd * HL, q0 = bands[seg][0], q1 = bands[seg][1];
@@ -167,23 +168,36 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     for (var layer = 0; layer < 3; layer++) {
       var lo = 0.45 + layer * 0.183, hi = lo + 0.184;
-      var a = 0.32 + layer * 0.27;
+      var a = 0.6 + layer * 0.2;
       ctx.strokeStyle = P.rgba(layer === 0 ? P.mix(ST, LN, 0.5) : LN, a);
-      ctx.lineWidth = 0.7 + layer * 0.35;
+      ctx.lineWidth = 1.2 + layer * 0.45;
       ctx.beginPath();
       for (var i = 0; i < N; i++) {
         var z = dz[i]; if (z < lo || z >= hi) continue;
         var sp = Math.sqrt(vx[i] * vx[i] + vy[i] * vy[i]) + 1e-6;
-        var L = 2.5 + z * 3.5;
+        var L = 3.5 + z * 4;
         var ux = vx[i] / sp, uy = vy[i] / sp;
         /* 羽ばたき: 胴に直交する短い線を、時間で少しだけ開閉させる */
-        var flap = (Math.sin(T * 7 + i * 1.7) * 0.5 + 0.5) * 1.3 * z;
+        var flap = (Math.sin(T * 7 + i * 1.7) * 0.5 + 0.5) * 1.8 * z;
         ctx.moveTo(px[i] - ux * L - uy * flap, py[i] - uy * L + ux * flap);
         ctx.lineTo(px[i], py[i]);
         ctx.lineTo(px[i] - ux * L + uy * flap, py[i] - uy * L - ux * flap);
       }
       ctx.stroke();
     }
+    /* 驚いた鳥: 羽を大きく広げて白く光り、1 秒ほどで元に戻る */
+    ctx.strokeStyle = P.rgba(LN, 0.95);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (var q = 0; q < N; q++) {
+      var st = startle[q]; if (st < 0.08) continue;
+      var sp2 = Math.sqrt(vx[q] * vx[q] + vy[q] * vy[q]) + 1e-6, ux2 = vx[q] / sp2, uy2 = vy[q] / sp2;
+      var L2 = 5 + st * 9, f2 = 2 + st * 6;
+      ctx.moveTo(px[q] - ux2 * L2 - uy2 * f2, py[q] - uy2 * L2 + ux2 * f2);
+      ctx.lineTo(px[q], py[q]);
+      ctx.lineTo(px[q] - ux2 * L2 + uy2 * f2, py[q] - uy2 * L2 - ux2 * f2);
+    }
+    ctx.stroke();
     /* 触ったところにだけ、シアンの細い輪 */
     for (var k = marks.length - 1; k >= 0; k--) {
       var mk = marks[k];
@@ -203,24 +217,50 @@ require_once __DIR__ . '/includes/floating-nav.php';
   ctx = P.fit(canvas, function (w, h) { W = w; H = h; allocGrid(); });
 
   /* ---------------------------------------------------------- 操作 */
-  var down = false, lastMark = 0;
+  var down = false, lastMark = 0, dragFrom = { x: 0, y: 0 };
   canvas.addEventListener('pointerdown', function (e) {
     down = true; hawk.x = e.clientX; hawk.y = e.clientY; hawk.on = 1;
     marks.push({ x: hawk.x, y: hawk.y, t: 0 });
+    scare(hawk.x, hawk.y, 170);
+    launch(hawk.x, hawk.y, 140, 0, 0);
+    dragFrom = { x: hawk.x, y: hawk.y };
     SFX.play('ripple');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
+    var mdx = e.clientX - dragFrom.x, mdy = e.clientY - dragFrom.y, md = Math.hypot(mdx, mdy);
+    if (md > 10) { launch(e.clientX, e.clientY, Math.min(36, Math.round(md / 1.3)), mdx, mdy); dragFrom = { x: e.clientX, y: e.clientY }; }
+    scare(e.clientX, e.clientY, 90);
     hawk.x = e.clientX; hawk.y = e.clientY;
     if (T - lastMark > 0.25) { marks.push({ x: hawk.x, y: hawk.y, t: 0.5 }); lastMark = T; }
     SFX.play('move', 160);
   });
   function up() { down = false; }
   canvas.addEventListener('pointerup', up);
+  /* 指から鳥が飛び立つ: 群れの中から順に選んだ鳥を指の位置へ移し、外向き（なぞった向き）に放つ */
+  var recycle = 0;
+  function scare(x, y, r) {
+    for (var i = 0; i < N; i++) {
+      var d = Math.hypot(px[i] - x, py[i] - y);
+      if (d < r) startle[i] = Math.max(startle[i], 1 - d / r * 0.5);
+    }
+  }
+  function launch(x, y, n, dx, dy) {
+    for (var k = 0; k < n; k++) {
+      var i = recycle; recycle = (recycle + 1) % N;
+      var a = dx === 0 && dy === 0 ? k / n * Math.PI * 2 : Math.atan2(dy, dx) + (k % 2 ? 1 : -1) * (0.6 + Math.random() * 0.9);
+      var r = Math.random() * 14, sp = dx === 0 && dy === 0 ? 80 + Math.random() * 120 : 75 + Math.random() * 40;
+      if (dx || dy) { var tt = Math.random(); px[i] = x - dx * tt; py[i] = y - dy * tt; }
+      if (!(dx || dy)) { px[i] = x + Math.cos(a) * r; py[i] = y + Math.sin(a) * r; }
+      vx[i] = Math.cos(a) * sp; vy[i] = Math.sin(a) * sp;
+      dz[i] = 0.75 + Math.random() * 0.25; startle[i] = 1;
+      for (var h = 0; h < HL; h++) { hx[i * HL + h] = px[i]; hy[i * HL + h] = py[i]; }
+    }
+  }
   canvas.addEventListener('pointercancel', up);
 
-  function birdsFrom(v) { return 160 + v / 100 * 1040; }
+  function birdsFrom(v) { return 200 + v / 100 * 1300; }
   function calmFrom(v) { return 1.35 - v / 100 * 0.7; }
   document.getElementById('k-birds').addEventListener('input', function () {
     var n = birdsFrom(+this.value) | 0;
@@ -246,6 +286,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     T += dt;
     roost();
     if (!down) hawk.on = Math.max(0, hawk.on - dt * 1.5);
+    for (var sq = 0; sq < N; sq++) if (startle[sq] > 0) startle[sq] = Math.max(0, startle[sq] - dt * 0.8);
     /* ときどき群れの縁で小さな乱れが起きて、波が中へ伝わる */
     gustWait -= dt;
     if (gustWait <= 0) {

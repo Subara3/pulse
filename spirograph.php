@@ -5,7 +5,7 @@ recordPageView('spirograph');
 
 $pageName = 'spirograph';
 $pageTitle = 'SPIROGRAPH - PULSE';
-$pageDesc = '大きな歯車の内側を小さな歯車が転がり、穴に差したペンが輪の重なった線を描く。1本描き終えるたびにペンの穴が変わり、線が重なっていく。円に沿ってドラッグすると歯車を手で回せる。';
+$pageDesc = '大きな歯車の内側を小さな歯車が転がり、穴に差したペンが輪の重なった線を描く。1本描き終えるたびにペンの穴が変わり、線が重なっていく。押すと指のまわりの線が太い水色に光り、歯車がその方向まで転がって線を描く。押したまま円に沿って動かすと、歯車が指についてくる。';
 $pageCanonical = 'https://pulse.subara3.com/spirograph.php';
 $extraStyle = '';
 
@@ -63,6 +63,41 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
   var PT = [0, 0, 0, 0, 0], last = [0, 0];
 
+  /* 描いた線の点を覚えておく（触ったところの線を光らせるため） */
+  var PMAX = 120000, pxs = new Float32Array(PMAX), pys = new Float32Array(PMAX), pn = 0;
+  function rec(x, y) {
+    if (pn > 1 && x === x && Math.abs(x - pxs[pn - 1]) + Math.abs(y - pys[pn - 1]) < 2.5) return;
+    if (pn >= PMAX) { pxs.copyWithin(0, PMAX / 2); pys.copyWithin(0, PMAX / 2); pn = PMAX / 2; }
+    pxs[pn] = x; pys[pn] = y; pn++;
+  }
+  /* 指のまわりにある線を、太い水色で描き直す。指に近いほど濃い */
+  function drawTouched() {
+    if (!gpts.length) return;
+    var R = 130, BANDS = 4;
+    ctx.save();
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    for (var g = 0; g < gpts.length; g++) {
+      var gp = gpts[g];
+      if (gp.a <= 0.02) continue;
+      for (var b = 0; b < BANDS; b++) {
+        var r0 = R * b / BANDS, r1 = R * (b + 1) / BANDS, lo = r0 * r0, hi = r1 * r1, t = 1 - b / BANDS;
+        ctx.beginPath();
+        var pen = false;
+        for (var i = 0; i < pn; i++) {
+          var x = pxs[i], y = pys[i];
+          if (x !== x) { pen = false; continue; }
+          var dx = x - gp.x, dy = y - gp.y, d = dx * dx + dy * dy;
+          if (d >= lo && d < hi) {
+            if (!pen) { ctx.moveTo(x, y); pen = true; } else ctx.lineTo(x, y);
+          } else pen = false;
+        }
+        ctx.strokeStyle = P.rgba(P.mix(P.accent, P.line, t * 0.35), (0.5 + t * 0.5) * gp.a * fade);
+        ctx.lineWidth = 2 + t * 3 * gp.a;
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
   function begin(th) {
     G = geom();
     theta0 = th; theta = th;
@@ -81,7 +116,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     lctx.save();
     lctx.setTransform(1, 0, 0, 1, 0, 0);
     lctx.globalCompositeOperation = 'destination-out';
-    lctx.fillStyle = P.rgba(P.deep, 0.3);
+    lctx.fillStyle = P.rgba(P.deep, 0.14);
     lctx.fillRect(0, 0, layer.width, layer.height);
     lctx.restore();
     holeI = (holeI + 1) % HOLES.length;
@@ -89,11 +124,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
     layers++;
     begin(theta);
   }
-  function freshSet() {
-    var w;
-    do { w = WHEELS[Math.random() * WHEELS.length | 0]; } while (w === wheel || w / gcd(RING, w) > 16 || w / gcd(RING, w) < 3);
+  function freshSet(w0) {
+    var w = w0;
+    if (!w) do { w = WHEELS[Math.random() * WHEELS.length | 0]; } while (w === wheel || w / gcd(RING, w) > 16 || w / gcd(RING, w) < 6);
     wheel = w; holeI = 0; hole = HOLES[0]; layers = 1;
     lctx.clearRect(0, 0, W, H);
+    pn = 0;
     begin(Math.random() * Math.PI * 2);
   }
 
@@ -102,14 +138,21 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var reach = (side === 'in' ? R - r : R + r) + hole * (side === 'in' ? R - r : R + r);
     var n = Math.max(1, Math.ceil(Math.abs(dth) * reach / 2));
     n = Math.min(n, 2000);
-    lctx.strokeStyle = P.rgba(P.line, 0.62);
-    lctx.lineWidth = 0.9;
+    var mine = down || hot > 0.3, col = mine ? P.mix(P.line, P.accent, 0.7) : P.line;
     lctx.beginPath();
     lctx.moveTo(last[0], last[1]);
+    rec(NaN, NaN); rec(last[0], last[1]);
     for (var i = 1; i <= n; i++) {
       pen(theta + dth * i / n, PT);
       lctx.lineTo(PT[2], PT[3]);
+      rec(PT[2], PT[3]);
     }
+    /* 太く薄い線の上に細く濃い線を重ねて、線にわずかなにじみを付ける */
+    lctx.strokeStyle = P.rgba(col, mine ? 0.22 : 0.1);
+    lctx.lineWidth = mine ? 7 : 5;
+    lctx.stroke();
+    lctx.strokeStyle = P.rgba(col, 0.8);
+    lctx.lineWidth = mine ? 2 : 1.3;
     lctx.stroke();
     last[0] = PT[2]; last[1] = PT[3];
     theta = th;
@@ -135,7 +178,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     gear(W / 2, H / 2, R, RING, 0, 0.28, side === 'in' ? false : true);
     gear(W / 2, H / 2, side === 'in' ? R + 9 : R - 9, 0, 0, 0.12, false);
     /* 転がる歯車と、その穴 */
-    gear(PT[0], PT[1], r, wheel, PT[4], 0.5, side === 'in' ? false : true);
+    gear(PT[0], PT[1], r, wheel, PT[4], 0.5 + hot * 0.4, side === 'in' ? false : true);
     ctx.fillStyle = P.rgba(P.steel, 0.45);
     for (var h = 0; h < HOLES.length; h++) {
       var d = HOLES[h] * r;
@@ -150,39 +193,33 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ---------------------------------------------------------- 操作 */
-  var down = false, moved = 0, lastAng = 0, sx = 0, sy = 0, hot = 0;
-  function ang(e) { return Math.atan2(e.clientY - H / 2, e.clientX - W / 2); }
+  /* 押すと、歯車が押した方向まで転がっていって線を描く。押したまま円に沿って動かすと、歯車が指についてくる */
+  var down = false, hot = 0, goalTh = 0;
+  var tx0 = 0, ty0 = 0, glow = null, gctx = null, mask = null, mctx = null, gpts = [];
+  function ang(e) {
+    tx0 = e.clientX; ty0 = e.clientY;
+    var lg = gpts[gpts.length - 1];
+    if (!lg || Math.hypot(lg.x - tx0, lg.y - ty0) > 40) { gpts.push({ x: tx0, y: ty0, a: 1 }); if (gpts.length > 16) gpts.shift(); } else lg.a = 1;
+    return Math.atan2(e.clientY - H / 2, e.clientX - W / 2); }
+  function aim(e) {
+    var a = ang(e), cur = theta % (Math.PI * 2), da = a - cur;
+    while (da > Math.PI) da -= Math.PI * 2;
+    while (da < -Math.PI) da += Math.PI * 2;
+    goalTh = theta + da;
+  }
   canvas.addEventListener('pointerdown', function (e) {
-    down = true; moved = 0; lastAng = ang(e); sx = e.clientX; sy = e.clientY; hot = 1;
+    down = true; hot = 1; pause = 0;
+    aim(e);
+    SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
-    moved = Math.max(moved, Math.hypot(e.clientX - sx, e.clientY - sy));
-    if (moved < 8) return;
-    var a = ang(e), da = a - lastAng;
-    if (da > Math.PI) da -= Math.PI * 2;
-    if (da < -Math.PI) da += Math.PI * 2;
-    lastAng = a;
-    /* 指の回した角度だけ歯車が進む（戻すこともできる） */
-    inkTo(theta + da);
+    aim(e);
     hot = 1;
     SFX.play('move', 160);
   });
-  function up(e) {
-    if (!down) return;
-    down = false;
-    if (moved < 8) {
-      /* タップ: 中心からの距離でペンの穴を選び直し、そこから新しい線 */
-      var d = Math.hypot(e.clientX - W / 2, e.clientY - H / 2) / (Math.min(W, H) * 0.4);
-      var best = 0;
-      for (var i = 1; i < HOLES.length; i++) if (Math.abs(HOLES[i] - d) < Math.abs(HOLES[best] - d)) best = i;
-      holeI = (best - 1 + HOLES.length) % HOLES.length;
-      if (layers >= 5) layers = 4;
-      nextCurve(false);
-      SFX.play('spawn');
-    }
-  }
+  function up() { down = false; }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', function () { down = false; });
 
@@ -205,19 +242,30 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   /* ---------------------------------------------------------- 回す */
   var lastT = performance.now(), pause = 0, clearing = 0, fade = 1, tickT = 0;
-  wheel = 52; freshSet();
-  /* 開いた瞬間に線が出ているように、1 本目を少し進めておく */
+  wheel = 60; freshSet(52);
+  /* 開いた瞬間に模様が見えるように、1 本目は描き終えた状態から始める */
+  for (var pre = 0; pre < 3; pre++) {
+    while (theta < theta0 + total - 1e-9) inkTo(Math.min(theta0 + total, theta + 0.5));
+    nextCurve(false);
+  }
   inkTo(theta + rate * 3);
+  goalTh = theta;
   function frame(now) {
     var dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
-    hot = Math.max(0, hot - dt * 0.8);
+    hot = down ? 1 : Math.max(0, hot - dt * 0.8);
     if (clearing) {
       fade -= dt * 0.7;
       if (fade <= 0) { fade = 0; clearing = 0; freshSet(); }
     } else {
       fade = Math.min(1, fade + dt * 1.5);
-      if (!down) {
+      if (down || Math.abs(goalTh - theta) > 1e-3) {
+        /* 指の方向へ速めに転がす（1 秒に 1 周半ほど） */
+        var stepA = Math.max(-dt * 9, Math.min(dt * 9, goalTh - theta));
+        inkTo(theta + stepA);
+        if (!down && Math.abs(goalTh - theta) <= 1e-3) goalTh = theta;
+      } else {
+        goalTh = theta;
         if (pause > 0) {
           pause -= dt;
           if (pause <= 0) nextCurve(false);
@@ -233,6 +281,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
     P.fill(ctx, W, H);
     ctx.globalAlpha = fade;
     ctx.drawImage(layer, 0, 0, W, H);
+    /* 指のまわりの線を水色に明るくする（押しているあいだと、離してすぐ）。縁はぼかす */
+    for (var gi = gpts.length - 1; gi >= 0; gi--) { gpts[gi].a -= dt * (down ? 0.6 : 0.7); if (gpts[gi].a <= 0) gpts.splice(gi, 1); }
+    if (down && gpts.length) gpts[gpts.length - 1].a = 1;
+    drawTouched();
     drawRig();
     ctx.globalAlpha = 1;
     requestAnimationFrame(frame);

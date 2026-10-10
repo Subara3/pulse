@@ -101,9 +101,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ---------------------------------------------------------- 描く */
   function smooth(a, b, x) { var t = (x - a) / (b - a); t = t < 0 ? 0 : t > 1 ? 1 : t; return t * t * (3 - 2 * t); }
   var NB = 10;
-  var lineB = [], fillB = [], glowB = [];
+  var lineB = [], fillB = [], glowB = [], hiB = [];
   function resetBuckets() {
-    for (var i = 0; i < NB; i++) { lineB[i] = []; fillB[i] = []; glowB[i] = []; }
+    for (var i = 0; i < NB; i++) { lineB[i] = []; fillB[i] = []; glowB[i] = []; hiB[i] = []; }
   }
   /* 線の濃さ: 細かすぎる段は薄く、大きくなった段も薄れて、次の段と入れ替わる */
   function lineAlpha(e) { return smooth(30, 64, e) * (1 - smooth(90, 160, e)); }
@@ -112,7 +112,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var g = 0;
     for (var n = 0; n < pulses.length; n++) {
       var p = pulses[n], d = Math.hypot(gx - p.x, gy - p.y) - p.r;
-      var k = Math.exp(-d * d / (p.w * p.w)) * p.life;
+      /* 輪の内側はまるごと明るく、縁がいちばん明るい */
+      var k = (d < 0 ? 0.5 + 0.5 * Math.exp(-d * d / (p.w * p.w)) : Math.exp(-d * d / (p.w * p.w))) * p.life;
       if (k > g) g = k;
     }
     return g;
@@ -123,7 +124,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var rad = e * 1.1;
     if (gx + rad < 0 || gx - rad > W || gy + rad < 0 || gy - rad > H) return;
     var la = lineAlpha(e);
-    if (la > 0.02) lineB[Math.min(NB - 1, (la * NB) | 0)].push(t);
+    if (la > 0.02) {
+      lineB[Math.min(NB - 1, (la * NB) | 0)].push(t);
+      if (pulses.length) {
+        var gl = glowAt(gx, gy) * la;
+        if (gl > 0.05) hiB[Math.min(NB - 1, (gl * NB) | 0)].push(t);
+      }
+    }
     var fa = fillAlpha(e);
     if (fa > 0.02) {
       if (look === 'tiles' && t[0] === 1) fillB[Math.min(NB - 1, (fa * NB) | 0)].push(t);
@@ -156,16 +163,25 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     for (b = 0; b < NB; b++) {
       list = glowB[b]; if (!list.length) continue;
-      ctx.fillStyle = P.rgba(P.accent, (b + 0.5) / NB * 0.32);
+      ctx.fillStyle = P.rgba(P.accent, (b + 0.5) / NB * 0.7);
       ctx.beginPath();
       for (j = 0; j < list.length; j++) tri(list[j]);
       ctx.fill();
     }
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 1.2;
     ctx.lineJoin = 'round';
     for (b = 0; b < NB; b++) {
       list = lineB[b]; if (!list.length) continue;
-      ctx.strokeStyle = P.rgba(P.line, (b + 0.5) / NB * 0.42);
+      ctx.strokeStyle = P.rgba(P.line, 0.08 + (b + 0.5) / NB * 0.55);
+      ctx.beginPath();
+      for (j = 0; j < list.length; j++) legs(list[j]);
+      ctx.stroke();
+    }
+    /* 光の輪が通るタイルは、縁取りも白く太くなる */
+    ctx.lineWidth = 1.8;
+    for (b = 0; b < NB; b++) {
+      list = hiB[b]; if (!list.length) continue;
+      ctx.strokeStyle = P.rgba(P.line, (b + 0.5) / NB * 0.8);
       ctx.beginPath();
       for (j = 0; j < list.length; j++) legs(list[j]);
       ctx.stroke();
@@ -182,8 +198,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   /* ---------------------------------------------------------- 操作 */
   function pulse(x, y, big) {
-    pulses.push({ x: x, y: y, r: 0, w: big ? 46 : 28, v: big ? 150 : 110, life: big ? 1 : 0.6, decay: big ? 0.2 : 0.32 });
-    if (pulses.length > 24) pulses.shift();
+    pulses.push({ x: x, y: y, r: big ? 105 : 66, w: big ? 50 : 44, v: big ? 45 : 30, life: 1, decay: big ? 0.55 : 0.35 });
+    if (pulses.length > 40) pulses.shift();
   }
   var down = false, last = null;
   canvas.addEventListener('pointerdown', function (e) {
@@ -195,7 +211,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
     var p = { x: e.clientX, y: e.clientY };
-    if (Math.hypot(p.x - last.x, p.y - last.y) < 46) return;
+    if (Math.hypot(p.x - last.x, p.y - last.y) < 26) return;
     last = p;
     pulse(p.x, p.y, false);
     SFX.play('move', 160);
@@ -218,11 +234,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ---------------------------------------------------------- 回す */
   var lastT = performance.now(), chime = 0;
   function frame(now) {
-    var dt = Math.min(0.05, (now - lastT) / 1000);
+    var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));
     lastT = now;
-    /* 黄金比ぶん寄るのに 6〜30 秒。寄りきると、1 段細かい床と入れ替わっている */
-    var rate = Math.log(PHI) / (30 - drift * 24);
-    transform(Math.exp(dt * rate), dt * (0.004 + drift * 0.012));
+    /* 黄金比ぶん寄るのに 10〜60 秒。寄りきると、1 段細かい床と入れ替わっている */
+    var rate = Math.log(PHI) / (60 - drift * 50);
+    transform(Math.exp(dt * rate), dt * (0.002 + drift * 0.008));
     for (var n = pulses.length - 1; n >= 0; n--) {
       var p = pulses[n];
       p.r += p.v * dt;

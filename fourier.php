@@ -5,7 +5,7 @@ recordPageView('fourier');
 
 $pageName = 'fourier';
 $pageTitle = 'FOURIER - PULSE';
-$pageDesc = '大小の円が円の上で回り、先端の点が花のような図形を描いては次の形へ移っていく。指で線を描くと、円の列がその線をなぞり直す。';
+$pageDesc = '大小の円が円の上で回り、先端の点が花のような図形を描いては次の形へ移っていく。押すと図形がその点へ引き寄せられて輪郭が光り、指で線を描くと円の列がその線をなぞり直す。';
 $pageCanonical = 'https://pulse.subara3.com/fourier.php';
 $extraStyle = '';
 
@@ -31,6 +31,15 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var ctx = P.fit(canvas, function (w, h) { W = w; H = h; CX = w / 2; CY = h / 2; view.init = false; });
   function sx(x) { return CX + (x - view.cx) * view.s; }
   function sy(y) { return CY + (y - view.cy) * view.s; }
+  /* 押したところへ線が引き寄せられる（離すとばねのように戻る） */
+  var pk = { x: 0, y: 0, a: 0 }, wq = [0, 0];
+  function wp(X, Y) {
+    if (pk.a > 0.002) {
+      var dx = pk.x - X, dy = pk.y - Y, e = Math.exp(-(dx * dx + dy * dy) / (210 * 210)) * 0.8 * pk.a;
+      X += dx * e; Y += dy * e;
+    }
+    wq[0] = X; wq[1] = Y; return wq;
+  }
 
   /* 係数は k = -K..K の複素数。re[k+K], im[k+K] */
   var K = 64, NK = 2 * K + 1;
@@ -108,10 +117,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
     for (var b = 0; b < B; b++) {
       ctx.beginPath();
       var i0 = Math.floor(L * b / B), i1 = Math.min(L - 1, Math.floor(L * (b + 1) / B) + 1);
-      for (var m = i0; m <= i1; m++) { var X = sx(tr[m][0]), Y = sy(tr[m][1]); if (m === i0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y); }
+      for (var m = i0; m <= i1; m++) { var w = wp(sx(tr[m][0]), sy(tr[m][1])); if (m === i0) ctx.moveTo(w[0], w[1]); else ctx.lineTo(w[0], w[1]); }
       var a = Math.pow((b + 1) / B, 1.2);
-      ctx.lineWidth = 1.1 + a * 1.4;
-      ctx.strokeStyle = P.rgba(LN, (0.2 + 0.8 * a) * mul);
+      ctx.lineWidth = 1.6 + a * 1.6;
+      ctx.strokeStyle = P.rgba(LN, (0.38 + 0.62 * a) * mul);
       ctx.stroke();
     }
   }
@@ -132,12 +141,22 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var q = evalAt(j / 360, n);
       if (q[0] < bx0) bx0 = q[0]; if (q[0] > bx1) bx1 = q[0];
       if (q[1] < by0) by0 = q[1]; if (q[1] > by1) by1 = q[1];
-      if (j === 0) draft.moveTo(sx(q[0]), sy(q[1])); else draft.lineTo(sx(q[0]), sy(q[1]));
+      var w0 = wp(sx(q[0]), sy(q[1]));
+      if (j === 0) draft.moveTo(w0[0], w0[1]); else draft.lineTo(w0[0], w0[1]);
     }
     fitTo(bx0, bx1, by0, by1);
     if (draftA > 0.02) {
+      /* 図形の内側をごく淡く塗り、輪郭の下書きを添える */
+      ctx.fillStyle = P.rgba(LN, 0.13 * draftA);
+      ctx.fill(draft, 'evenodd');
       ctx.lineWidth = 1;
-      ctx.strokeStyle = P.rgba(ST, 0.14 * draftA);
+      ctx.strokeStyle = P.rgba(ST, 0.3 * draftA);
+      ctx.stroke(draft);
+    }
+    /* つままれている間は、図形の輪郭が水色に光る */
+    if (pk.a > 0.02) {
+      ctx.lineWidth = 2.2;
+      ctx.strokeStyle = P.rgba(AC, 0.7 * pk.a);
       ctx.stroke(draft);
     }
 
@@ -150,16 +169,19 @@ require_once __DIR__ . '/includes/floating-nav.php';
     /* 円と腕: 細く薄く、先端の白い線を邪魔しない */
     var x = sx(curR[K]), y = sy(curI[K]), tipX = x, tipY = y, vs = view.s;
     if (look === 'arms') {
-      var circ = new Path2D(), arm = new Path2D();
-      arm.moveTo(x, y);
+      var circ = new Path2D(), arm = new Path2D(), w1 = wp(x, y);
+      arm.moveTo(w1[0], w1[1]);
       for (var c = 1; c < n; c++) {
         var kk = order[c], r = curR[kk + K], im = curI[kk + K];
         var rad = Math.hypot(r, im) * vs;
-        if (rad > 1.5) { circ.moveTo(x + rad, y); circ.arc(x, y, rad, 0, Math.PI * 2); }
+        w1 = wp(x, y);
+        if (rad > 1.5) { circ.moveTo(w1[0] + rad, w1[1]); circ.arc(w1[0], w1[1], rad, 0, Math.PI * 2); }
         var th = Math.PI * 2 * kk * s, co = Math.cos(th), sn = Math.sin(th);
         x += (r * co - im * sn) * vs; y += (r * sn + im * co) * vs;
-        arm.lineTo(x, y);
+        w1 = wp(x, y);
+        arm.lineTo(w1[0], w1[1]);
       }
+      x = w1[0]; y = w1[1];
       ctx.lineWidth = 0.6;
       ctx.strokeStyle = P.rgba(ST, 0.17);
       ctx.stroke(circ);
@@ -167,7 +189,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       ctx.strokeStyle = P.rgba(LN, 0.26);
       ctx.stroke(arm);
       tipX = x; tipY = y;
-    } else if (L) { tipX = sx(trail[L - 1][0]); tipY = sy(trail[L - 1][1]); }
+    } else if (L) { var w2 = wp(sx(trail[L - 1][0]), sy(trail[L - 1][1])); tipX = w2[0]; tipY = w2[1]; }
 
     /* 画面に一つだけの焦点: ペン先 */
     ctx.fillStyle = P.rgba(AC, 0.95);
@@ -178,7 +200,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ---------------------------------------------------------- 描いた線を取り込む */
-  var stroke = null;
+  var stroke = null, pkHold = false;
   function fromStroke(pts) {
     /* 弧長で 256 点に取り直し、閉じた線として DFT */
     var N = 256, len = [0];
@@ -213,6 +235,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   canvas.addEventListener('pointerdown', function (e) {
     stroke = [[e.clientX, e.clientY]];
+    pk.x = e.clientX; pk.y = e.clientY; pk.a = Math.max(pk.a, 0.5); pkHold = true;
     SFX.play('tick');
     canvas.setPointerCapture(e.pointerId);
   });
@@ -221,11 +244,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var l = stroke[stroke.length - 1];
     if (Math.hypot(e.clientX - l[0], e.clientY - l[1]) < 3) return;
     stroke.push([e.clientX, e.clientY]);
+    /* 線を描き始めたら、引き寄せはやめる */
+    if (stroke.length > 6) pkHold = false;
     SFX.play('move', 160);
   });
   function up() {
     if (!stroke) return;
-    var pts = stroke; stroke = null;
+    var pts = stroke; stroke = null; pkHold = false;
     var span = 0;
     for (var i = 1; i < pts.length; i++) span += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
     if (pts.length > 8 && span > 80) {
@@ -276,9 +301,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
   })();
   var lastT = performance.now();
   function frame(now) {
-    var dt = Math.min(0.05, (now - lastT) / 1000);
+    var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));
     lastT = now;
     s = (s + dt * speed) % 1;
+    pk.a = pkHold ? Math.min(1, pk.a + dt * 7) : pk.a * Math.exp(-dt * 1.5);
     phase += dt * speed;
 
     if (morph < 1) {

@@ -181,7 +181,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
         if (tn > 0) { lc0 += (AC[0] - lc0) * tn; lc1 += (AC[1] - lc1) * tn; lc2 += (AC[2] - lc2) * tn; }
         r += (lc0 - r) * a; gg += (lc1 - gg) * a; b += (lc2 - b) * a;
       } else if (tn > 0) {
-        var ti = tn * film * 0.8;
+        var ti = tn * (0.16 + film * 0.8);
         r += (AC[0] - r) * ti; gg += (AC[1] - gg) * ti; b += (AC[2] - b) * ti;
       }
       d[o] = r; d[o + 1] = gg; d[o + 2] = b; d[o + 3] = 255;
@@ -198,16 +198,16 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var down = false, last = null, popped = 0;
   canvas.addEventListener('pointerdown', function (e) {
     down = true; last = { x: e.clientX, y: e.clientY };
-    blow(last.x / S, last.y / S, 9, 21, 4, 10, 1);
+    blow(last.x / S, last.y / S, 14, 34, 5, 12, 1);
     SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
     var p = { x: e.clientX, y: e.clientY };
-    if (Math.hypot(p.x - last.x, p.y - last.y) < 36) return;
+    if (Math.hypot(p.x - last.x, p.y - last.y) < 30) return;
     last = p;
-    blow(p.x / S, p.y / S, 2, 7, 3, 7, 1);
+    blow(p.x / S, p.y / S, 3, 10, 4, 8, 1);
     SFX.play('pop', 140);
   });
   function up() { down = false; }
@@ -225,11 +225,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ---------------------------------------------------------- 回す */
   var lastT = performance.now(), tick = 0, frothT = 4;
   function frame(now) {
-    var dt = Math.min(0.05, (now - lastT) / 1000);
+    var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));
     lastT = now;
     for (var i = 0; i < n; i++) {
       bx[i] += vx[i] * dt; by[i] += vy[i] * dt; bw[i] += vw[i] * dt;
-      if (tint[i] > 0) tint[i] = Math.max(0, tint[i] - dt * 0.35);
+      if (tint[i] > 0) tint[i] = Math.max(0, tint[i] - dt * 0.25);
       if (born[i] > 0) born[i] -= dt;
       if (bx[i] < 0) bx[i] = 0; if (by[i] < 0) by[i] = 0;
       if (bx[i] > NX) bx[i] = NX; if (by[i] > NY) by[i] = NY;

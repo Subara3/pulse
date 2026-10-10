@@ -61,7 +61,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       }
     }
     var bits = [];
-    for (var b = 0; b < 26; b++) { var aa = Math.random() * 6.283, rr = Math.sqrt(Math.random()) * 11; bits.push([Math.cos(aa) * rr, Math.sin(aa) * rr]); }
+    for (var b = 0; b < 46; b++) { var aa = Math.random() * 6.283, rr = Math.sqrt(Math.random()) * 17; bits.push([Math.cos(aa) * rr, Math.sin(aa) * rr]); }
     foods.push({ x: x, y: y, n: amount, n0: amount, bits: bits, t: 0 });
   }
 
@@ -153,8 +153,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var f0 = toFood[k], h0 = toHome[k];
       var fv = f0 / (f0 + 1.6), hv = h0 / (h0 + 1.4);
       /* 巣への匂いは鋼色の薄い霞、餌への匂いは白い道 */
-      var r = BG[0] + (ST[0] - BG[0]) * hv * 0.38, g = BG[1] + (ST[1] - BG[1]) * hv * 0.38, b = BG[2] + (ST[2] - BG[2]) * hv * 0.38;
-      var t = fv * fv * 0.75;
+      var r = BG[0] + (ST[0] - BG[0]) * hv * 0.55, g = BG[1] + (ST[1] - BG[1]) * hv * 0.55, b = BG[2] + (ST[2] - BG[2]) * hv * 0.55;
+      var t = fv * 0.85;
       r += (LN[0] - r) * t; g += (LN[1] - g) * t; b += (LN[2] - b) * t;
       var o = k * 4;
       d[o] = r; d[o + 1] = g; d[o + 2] = b; d[o + 3] = 255;
@@ -183,7 +183,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (fd.n <= 0) { foods.splice(k, 1); continue; }
       ctx.fillStyle = P.rgba(LN, 0.9);
       ctx.beginPath();
-      for (var b = 0; b < show; b++) { var bx = fd.x + fd.bits[b][0], by = fd.y + fd.bits[b][1]; ctx.moveTo(bx + 1.5, by); ctx.arc(bx, by, 1.5, 0, 6.283); }
+      for (var b = 0; b < show; b++) { var bx = fd.x + fd.bits[b][0], by = fd.y + fd.bits[b][1]; ctx.moveTo(bx + 1.9, by); ctx.arc(bx, by, 1.9, 0, 6.283); }
       ctx.fill();
       if (fd.mine && fd.t < 2.5) {
         ctx.strokeStyle = P.rgba(P.accent, 0.6 * (1 - fd.t / 2.5));
@@ -192,14 +192,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     /* アリ: 探しているものは鋼色、餌を運ぶものは白 */
     for (var pass = 0; pass < 2; pass++) {
-      ctx.fillStyle = pass ? P.rgba(LN, 0.95) : P.rgba(P.mix(ST, LN, 0.35), 0.75);
+      ctx.fillStyle = pass ? P.rgba(LN, 1) : P.rgba(P.mix(ST, LN, 0.5), 0.85);
       ctx.beginPath();
       for (var i = 0; i < N; i++) {
         if (carry[i] !== pass) continue;
         var cx = Math.cos(ang[i]), sy = Math.sin(ang[i]);
-        ctx.moveTo(ax[i] + cx * 2.2, ay[i] + sy * 2.2);
-        ctx.lineTo(ax[i] - cx * 2.2 - sy * 1.1, ay[i] - sy * 2.2 + cx * 1.1);
-        ctx.lineTo(ax[i] - cx * 2.2 + sy * 1.1, ay[i] - sy * 2.2 - cx * 1.1);
+        ctx.moveTo(ax[i] + cx * 3, ay[i] + sy * 3);
+        ctx.lineTo(ax[i] - cx * 3 - sy * 1.6, ay[i] - sy * 3 + cx * 1.6);
+        ctx.lineTo(ax[i] - cx * 3 + sy * 1.6, ay[i] - sy * 3 - cx * 1.6);
       }
       ctx.fill();
     }
@@ -247,13 +247,25 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (foods.length > 7) foods.shift();
       addFood(last.x, last.y, 220);
       foods[foods.length - 1].mine = true;
+      /* 置いたところから匂いが立ち、近くのアリがすぐ向きを変えて集まる */
+      var gi0 = (last.x / C) | 0, gj0 = (last.y / C) | 0, RR = 20;
+      for (var j = gj0 - RR; j <= gj0 + RR; j++) for (var i = gi0 - RR; i <= gi0 + RR; i++) {
+        if (i < 0 || j < 0 || i >= GX || j >= GY) continue;
+        var q = 1 - Math.hypot(i - gi0, j - gj0) / RR; if (q <= 0) continue;
+        toFood[j * GX + i] = Math.min(4, toFood[j * GX + i] + Math.sqrt(q) * 4);
+      }
+      for (var k = 0; k < N; k++) {
+        if (carry[k]) continue;
+        var dd = Math.hypot(ax[k] - last.x, ay[k] - last.y);
+        if (dd < 220) ang[k] = Math.atan2(last.y - ay[k], last.x - ax[k]);
+      }
       SFX.play('spawn');
     }
   }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);
 
-  function antsFrom(v) { return 200 + v / 100 * 1000; }
+  function antsFrom(v) { return 300 + v / 100 * 1100; }
   function fadeFrom(v) { return 22 - v / 100 * 18; }
   document.getElementById('k-ants').addEventListener('input', function () {
     var n = antsFrom(+this.value) | 0;

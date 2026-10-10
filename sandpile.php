@@ -36,7 +36,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   function alloc() {
     var side = Math.min(W, H) * 0.94;
-    S = side > 1100 ? 5 : side > 560 ? 4 : 3;
+    S = side > 1100 ? 6 : side > 560 ? 5 : 3;
     N = Math.floor(side / S) | 1;
     if (N > 241) N = 241;
     ox = Math.round((W - N * S) / 2); oy = Math.round((H - N * S) / 2);
@@ -44,11 +44,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
     img = new ImageData(BW, BH);
     buf = document.createElement('canvas'); buf.width = BW; buf.height = BH;
     bctx = buf.getContext('2d');
-    h = new Uint8Array(N * N); flash = new Float32Array(N * N); mark = new Float32Array(N * N);
+    h = new Uint16Array(N * N); flash = new Float32Array(N * N); mark = new Float32Array(N * N);
     stack = new Int32Array(N * N * 4);
     restart();
     /* 開いた瞬間から模様が見えるように、少し積んでおく */
-    for (var i = 0; i < 11000; i++) addSources(1);
+    for (var i = 0; i < 13000; i++) addSources(1);
     flash.fill(0);
   }
 
@@ -67,7 +67,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (i < 0 || j < 0 || i >= N || j >= N) return;
     var k = j * N + i;
     h[k] += n;
-    if (touched) mark[k] = 1;
+    if (touched) for (var b = -4; b <= 4; b++) for (var a = -4; a <= 4; a++) {
+      if (a * a + b * b > 16 || i + a < 0 || j + b < 0 || i + a >= N || j + b >= N) continue;
+      mark[(j + b) * N + i + a] = 1;
+    }
     if (h[k] >= 4) stack[sp++] = k;
   }
   function relax(budget) {
@@ -128,7 +131,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
         if (i < N && j < N) {
           var k = j * N + i, fl = flash[k], mk = mark[k];
           if (fl > 0.04 || mk > 0.04) {
-            var a = fl * 0.35, b = mk > 1 ? 0.4 : mk * 0.4;
+            var a = fl * 0.12, b = mk > 1 ? 0.32 : mk * 0.32;
             d[o] = BG[0] + (LN[0] - BG[0]) * a + (AC[0] - BG[0]) * b;
             d[o + 1] = BG[1] + (LN[1] - BG[1]) * a + (AC[1] - BG[1]) * b;
             d[o + 2] = BG[2] + (LN[2] - BG[2]) * a + (AC[2] - BG[2]) * b;
@@ -150,7 +153,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   canvas.addEventListener('pointerdown', function (e) {
     down = true; here = cellOf(e);
     touch = here; touchT = 2;
-    drop(here.i, here.j, 60, true);
+    drop(here.i, here.j, 1400, true);
     SFX.play('collide');
     canvas.setPointerCapture(e.pointerId);
   });
@@ -159,7 +162,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var p = cellOf(e);
     if (p.i === here.i && p.j === here.j) return;
     here = p; touch = p; touchT = 2;
-    drop(here.i, here.j, 8, true);
+    drop(here.i, here.j, 60, true);
     SFX.play('tick', 140);
   });
   function up() { down = false; }

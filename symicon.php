@@ -5,7 +5,7 @@ recordPageView('symicon');
 
 $pageName = 'symicon';
 $pageTitle = 'SYMICON - PULSE';
-$pageDesc = '回転対称の模様が画面の中央でゆっくり回りながら、少しずつ形を変える。40秒ほどで別の模様に入れ替わる。触ったところは模様が拡大されて見える。';
+$pageDesc = '回転対称の模様が画面の中央でゆっくり回りながら、少しずつ形を変える。押すとそこの模様が押し広げられて水色に光り、なぞると模様が指の向きに流される。';
 $pageCanonical = 'https://pulse.subara3.com/symicon.php';
 $extraStyle = '';
 
@@ -15,7 +15,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <canvas id="canvas"></canvas>
 
 <div id="controls" class="drawer-controls">
-  <div class="ctl-row"><label for="k-spin">SPIN</label><input type="range" id="k-spin" min="0" max="100" value="35"></div>
+  <div class="ctl-row"><label for="k-spin">SPIN</label><input type="range" id="k-spin" min="0" max="100" value="15"></div>
   <div class="ctl-row"><label for="k-drift">DRIFT</label><input type="range" id="k-drift" min="0" max="100" value="50"></div>
   <div class="ctl-btns"><button type="button" id="k-next">NEXT</button></div>
 </div>
@@ -112,20 +112,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function scatter(cnt) {
     var cx = NX / 2, cy = NY / 2, sc = Math.min(NX, NY) * 0.45 / cur.r * scale;
     var cs = Math.cos(rot) * sc, sn = Math.sin(rot) * sc;
-    var lx = lens.x / W * NX, ly = lens.y / H * NY, lr = Math.min(NX, NY) * 0.17, ls = lens.s;
     var r0 = resets;
     for (var i = 0; i < cnt; i++) {
       iter();
       if (warm > 0) { warm--; continue; }      // 振り出し直後の飛び散りは描かない
       var x = cx + zx * cs - zy * sn, y = cy - (zx * sn + zy * cs);
-      if (ls > 0.002) {
-        /* レンズ: 指の下を押し広げる（縁で元に戻る） */
-        var dx = x - lx, dy = y - ly, r = Math.sqrt(dx * dx + dy * dy);
-        if (r < lr && r > 0) {
-          var k = Math.pow(r / lr, 1 - 0.28 * ls) * lr / r;
-          x = lx + dx * k; y = ly + dy * k;
-        }
-      }
       var ix = x | 0, iy = y | 0;
       if (ix >= 0 && iy >= 0 && ix < NX && iy < NY) den[iy * NX + ix] += 1;
       if ((i & 511) === 0 && probe.length < 160) probe.push(((zx / cur.r * 40) | 0) * 1000 + ((zy / cur.r * 40) | 0));
@@ -141,22 +132,29 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   function shade() {
-    var d = img.data, len = NX * NY, mx = 0, decay = 0.955;
+    var d = img.data, len = NX * NY, mx = 0, decay = 0.97;
     var inv = 1 / Math.log(1 + peak);
-    var lx = lens.x / W * NX, ly = lens.y / H * NY, lr = Math.min(NX, NY) * 0.17, lr2 = lr * lr, ls = lens.s;
+    var lx = lens.x / W * NX, ly = lens.y / H * NY, lr = Math.min(NX, NY) * 0.26, lr2 = lr * lr, ls = lens.s;
+    var ex = 1 + 0.7 * ls;
     for (var k = 0; k < len; k++) {
-      var v = den[k], o = k * 4;
+      var v = den[k], o = k * 4, wa = 0;
       if (v > mx) mx = v;
-      den[k] = v * decay;
+      if (ls > 0.01) {
+        /* レンズ: 指の下を拡大して見せる（描いた後の見え方だけを曲げるので、押した瞬間に効く） */
+        var px = k % NX, py = (k / NX) | 0, dx = px - lx, dy = py - ly, r2 = dx * dx + dy * dy;
+        if (r2 < lr2) {
+          var rr = Math.sqrt(r2), f = rr > 0 ? Math.pow(rr / lr, ex - 1) : 0;
+          var sx = Math.round(lx + dx * f), sy = Math.round(ly + dy * f);
+          v = (sx >= 0 && sy >= 0 && sx < NX && sy < NY) ? den[sy * NX + sx] : 0;
+          wa = 1 - r2 / lr2; wa = Math.min(1, wa * 1.6) * ls * 0.75;
+        }
+      }
+      den[k] *= decay;
       if (v < 0.05) { d[o] = BG[0]; d[o + 1] = BG[1]; d[o + 2] = BG[2]; d[o + 3] = 255; continue; }
       var l = Math.log(1 + v) * inv;
       l = l < 0.14 ? 0 : (l - 0.14) / 0.86 * fade;     // ぽつんと落ちた点は地に沈める
       if (l > 1) l = 1;
-      var li = ((l * 255) | 0) * 3, wa = 0;
-      if (ls > 0.01) {
-        var dx = (k % NX) - lx, dy = ((k / NX) | 0) - ly, r2 = dx * dx + dy * dy;
-        if (r2 < lr2) { wa = 1 - r2 / lr2; wa = wa * wa * ls * 0.9; }
-      }
+      var li = ((l * 255) | 0) * 3;
       if (wa > 0) {
         d[o] = LUT[li] + (LUTA[li] - LUT[li]) * wa; d[o + 1] = LUT[li + 1] + (LUTA[li + 1] - LUT[li + 1]) * wa;
         d[o + 2] = LUT[li + 2] + (LUTA[li + 2] - LUT[li + 2]) * wa;
@@ -164,6 +162,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
       d[o + 3] = 255;
     }
     peak += (Math.max(4, mx * 0.6) - peak) * 0.04;
+    warpPass(function (v, o, w) {
+      if (v < 0.05) { d[o] = BG[0]; d[o + 1] = BG[1]; d[o + 2] = BG[2]; return; }
+      var l = Math.log(1 + v) * inv; l = l < 0.14 ? 0 : (l - 0.14) / 0.86 * fade; l = Math.min(1, l * (1 + 2.6 * w) + 0.4 * w * (l > 0 ? 1 : 0));
+      var q = ((l * 255) | 0) * 3, ww = w * 0.8;
+      d[o] = LUT[q] + (LUTA[q] - LUT[q]) * ww; d[o + 1] = LUT[q + 1] + (LUTA[q + 1] - LUT[q + 1]) * ww; d[o + 2] = LUT[q + 2] + (LUTA[q + 2] - LUT[q + 2]) * ww;
+    });
     bctx.putImageData(img, 0, 0);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
@@ -177,15 +181,73 @@ require_once __DIR__ . '/includes/floating-nav.php';
     SFX.play('grow', 3000);
   }
 
+  /* ---------------------------------------------------------- 指でずらす場（描いた後の見え方だけを動かす） */
+  /* 粗い格子の各点に「ずらし量」を持たせる。押すとそこが押し広げられ、なぞると点が指の向きに流される。
+     ずらしは 1 秒ほどで元に戻る。描き終えた濃さの画像を読み替えるだけなので、押した瞬間に効く */
+  var FS = 12, FW = 0, FH = 0, FDX = null, FDY = null, FG = null, fLast = performance.now(), fActive = false;
+  function fieldFit() {
+    var w = Math.ceil(NX / FS) + 2, h = Math.ceil(NY / FS) + 2;
+    if (w !== FW || h !== FH) { FW = w; FH = h; FDX = new Float32Array(FW * FH); FDY = new Float32Array(FW * FH); FG = new Float32Array(FW * FH); }
+  }
+  function fieldAdd(sx, sy, vx, vy, bulge) {
+    fieldFit();
+    var gx = sx / W * NX, gy = sy / H * NY, sc = NX / W, R = 130 * sc;
+    var kx = vx * sc, ky = vy * sc;
+    for (var j = 0; j < FH; j++) for (var i = 0; i < FW; i++) {
+      var dx = i * FS - gx, dy = j * FS - gy, r = Math.sqrt(dx * dx + dy * dy);
+      if (r >= R) continue;
+      var f = 1 - r / R; f *= f;
+      var k = j * FW + i, tx = FDX[k] + kx * f, ty = FDY[k] + ky * f;
+      if (bulge && r > 0.5) { tx += dx / r * bulge * sc * f; ty += dy / r * bulge * sc * f; }
+      var m = Math.sqrt(tx * tx + ty * ty), lim = 55 * sc;
+      if (m > lim) { tx *= lim / m; ty *= lim / m; }
+      FDX[k] = tx; FDY[k] = ty;
+      FG[k] = Math.min(1, FG[k] + Math.sqrt(f) * 1.6);          // 触ったところの模様を明るく灯す
+    }
+    fActive = true;
+  }
+  function warpPass(paint) {
+    var now = performance.now(), dt = Math.min(0.05, (now - fLast) / 1000); fLast = now;
+    if (!fActive) return;
+    fieldFit();
+    var dec = Math.exp(-dt * 1.5), any = false;
+    var gdec = Math.exp(-dt * 0.6);
+    for (var n = 0; n < FW * FH; n++) { FDX[n] *= dec; FDY[n] *= dec; FG[n] *= gdec; if (FDX[n] * FDX[n] + FDY[n] * FDY[n] > 0.09 || FG[n] > 0.01) any = true; }
+    if (!any) { fActive = false; return; }
+    var lim = 55 * NX / W;
+    for (var cj = 0; cj < FH - 1; cj++) for (var ci = 0; ci < FW - 1; ci++) {
+      var k0 = cj * FW + ci, k1 = k0 + 1, k2 = k0 + FW, k3 = k2 + 1;
+      var big = Math.max(Math.abs(FDX[k0]), Math.abs(FDY[k0]), Math.abs(FDX[k1]), Math.abs(FDY[k1]),
+                         Math.abs(FDX[k2]), Math.abs(FDY[k2]), Math.abs(FDX[k3]), Math.abs(FDY[k3]));
+      var gmax = Math.max(FG[k0], FG[k1], FG[k2], FG[k3]);
+      if (big < 0.3 && gmax < 0.01) continue;
+      var x0 = ci * FS, y0 = cj * FS;
+      for (var yy = y0; yy < y0 + FS && yy < NY; yy++) {
+        var v = (yy - y0) / FS;
+        for (var xx = x0; xx < x0 + FS && xx < NX; xx++) {
+          var u = (xx - x0) / FS;
+          var ddx = (FDX[k0] * (1 - u) + FDX[k1] * u) * (1 - v) + (FDX[k2] * (1 - u) + FDX[k3] * u) * v;
+          var ddy = (FDY[k0] * (1 - u) + FDY[k1] * u) * (1 - v) + (FDY[k2] * (1 - u) + FDY[k3] * u) * v;
+          var qx = Math.round(xx - ddx), qy = Math.round(yy - ddy);
+          var val = (qx >= 0 && qy >= 0 && qx < NX && qy < NY) ? den[qy * NX + qx] : 0;
+          var gg = (FG[k0] * (1 - u) + FG[k1] * u) * (1 - v) + (FG[k2] * (1 - u) + FG[k3] * u) * v;
+          paint(val, (yy * NX + xx) * 4, gg);
+        }
+      }
+    }
+  }
+
   /* ---------------------------------------------------------- 操作 */
   canvas.addEventListener('pointerdown', function (e) {
     lens.on = true; lens.x = e.clientX; lens.y = e.clientY;
+    fieldAdd(e.clientX, e.clientY, 0, 0, 75);
     canvas.setPointerCapture(e.pointerId);
     SFX.play('ripple', 250);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!lens.on) return;
-    lens.x += (e.clientX - lens.x) * 0.6; lens.y += (e.clientY - lens.y) * 0.6;
+    fieldAdd(e.clientX, e.clientY, (e.clientX - lens.x) * 0.9, (e.clientY - lens.y) * 0.9, 6);
+    lens.x = e.clientX; lens.y = e.clientY;
     SFX.play('move', 220);
   });
   function up() { lens.on = false; }
@@ -207,7 +269,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     lastT = now;
     t += dt;
     rot += dt * (0.004 + spin * 0.05);
-    lens.s += ((lens.on ? 1 : 0) - lens.s) * Math.min(1, dt * (lens.on ? 4 : 1.5));
+    lens.s += ((lens.on ? 1 : 0) - lens.s) * Math.min(1, dt * (lens.on ? 14 : 0.9));
     if (!swapping) { hold += dt; if (hold > 42) next(); }
     if (swapping) {
       /* 薄れて縮み、次の紋章が広がって出てくる */
@@ -220,7 +282,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     } else if (fade < 1) fade = Math.min(1, fade + dt / 2.2);
     scale += (1 - scale) * Math.min(1, dt * 0.6);
     setParams();
-    scatter(70000);
+    scatter(52000);
     shade();
     requestAnimationFrame(frame);
   }

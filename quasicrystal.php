@@ -5,7 +5,7 @@ recordPageView('quasicrystal');
 
 $pageName = 'quasicrystal';
 $pageTitle = 'QUASICRYSTAL - PULSE';
-$pageDesc = '向きの違う7組の縞を重ねると、明るい点が七回対称の形に並ぶ。模様は中心から外へゆっくり動き続けるが、同じ並びはくり返さない。触るとそこから輪が広がり、輪が通ったところの模様がずれる。';
+$pageDesc = '向きの違う7組の縞を重ねると、明るい点が七回対称の形に並ぶ。模様は中心から外へゆっくり動き続けるが、同じ並びはくり返さない。触るとそのまわりの点が大きく明るくなり、模様の並びがずれる。なぞった跡も同じように光る。';
 $pageCanonical = 'https://pulse.subara3.com/quasicrystal.php';
 $extraStyle = '';
 
@@ -75,17 +75,18 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (!ripples.length) return;
     /* 輪の通るところだけ、位相を少しずらして計算し直す */
     for (var r = 0; r < ripples.length; r++) {
-      var rp = ripples[r], gx = rp.x / S, gy = rp.y / S, R = rp.r / S, wdt = 7;
-      var x0 = Math.max(1, Math.floor(gx - R - wdt * 3)), x1 = Math.min(NX - 1, Math.ceil(gx + R + wdt * 3));
-      var y0 = Math.max(1, Math.floor(gy - R - wdt * 3)), y1 = Math.min(NY - 1, Math.ceil(gy + R + wdt * 3));
+      var rp = ripples[r], gx = rp.x / S, gy = rp.y / S, R = rp.r / S, wdt = 12;
+      var x0 = Math.max(0, Math.floor(gx - R - wdt * 3)), x1 = Math.min(NX - 1, Math.ceil(gx + R + wdt * 3));
+      var y0 = Math.max(0, Math.floor(gy - R - wdt * 3)), y1 = Math.min(NY - 1, Math.ceil(gy + R + wdt * 3));
       for (var j = y0; j < y1; j++) for (var i = x0; i < x1; i++) {
-        var d = Math.hypot(i - gx, j - gy) - R;
-        if (d < -wdt * 3 || d > wdt * 3) continue;
+        /* 輪の内側はまるごと位相をずらし、外側へなだらかに戻す */
+        var d = Math.max(0, Math.hypot(i - gx, j - gy) - R);
+        if (d > wdt * 3) continue;
         var del = rp.a * Math.exp(-d * d / (wdt * wdt));
         if (Math.abs(del) < 0.02) continue;
         var kk = j * NX + i;
         F[kk] = sumAt(kk * n2, Math.cos(phase + del), Math.sin(phase + del));
-        TINT[kk] = Math.max(TINT[kk], Math.min(1, Math.abs(del) * 0.6));
+        TINT[kk] = Math.max(TINT[kk], Math.min(1, Math.abs(del) * 0.75));
       }
     }
   }
@@ -106,19 +107,20 @@ require_once __DIR__ . '/includes/floating-nav.php';
         var r, gg, b, t;
         if (look === 'lines') {
           /* 高い山だけが光の点になる。点は七回対称の花の形に並んで、ゆっくり流れる */
-          t = (u - 0.24) * 1.5;
+          /* 触ったところは、点が大きく明るくふくらむ */
+          var tn = TINT[k];
+          t = (u - 0.16 + tn * 0.36) * (1.45 + tn * 1.2);
           t = t < 0 ? 0 : t > 1 ? 1 : t;
-          t = t * t * vig;
+          t = t * t * Math.max(vig, tn);
           var lo = t < 0.5 ? t * 2 : 1, up = t < 0.5 ? 0 : (t - 0.5) * 2;
           r = BG[0] + (ST[0] - BG[0]) * lo + (LN[0] - ST[0]) * up;
           gg = BG[1] + (ST[1] - BG[1]) * lo + (LN[1] - ST[1]) * up;
           b = BG[2] + (ST[2] - BG[2]) * lo + (LN[2] - ST[2]) * up;
           /* 高さ 0 の細い鋼の線で、花のつながりを下書きのように見せる */
           var a0 = 1 - Math.abs(f) / g / 0.6;
-          if (a0 > 0) { a0 *= 0.26 * vig; r += (ST[0] - r) * a0; gg += (ST[1] - gg) * a0; b += (ST[2] - b) * a0; }
+          if (a0 > 0) { a0 *= 0.42 * vig; r += (ST[0] - r) * a0; gg += (ST[1] - gg) * a0; b += (ST[2] - b) * a0; }
           if (u < -0.25) { var dk = Math.min(1, (-u - 0.25) * 1.6) * 0.6; r += (DEEP[0] - r) * dk; gg += (DEEP[1] - gg) * dk; b += (DEEP[2] - b) * dk; }
-          var tn = TINT[k];
-          if (tn > 0) { var ta = tn * (0.07 + t * 0.7); r += (AC[0] - r) * ta; gg += (AC[1] - gg) * ta; b += (AC[2] - b) * ta; }
+          if (tn > 0) { var ta = tn * (0.1 + t * 0.55); r += (AC[0] - r) * ta; gg += (AC[1] - gg) * ta; b += (AC[2] - b) * ta; }
         } else {
           t = Math.max(0, (u + 0.15) / 1.15);
           t = t * t * vig;
@@ -141,22 +143,22 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   /* ---------------------------------------------------------- 操作 */
   function ripple(x, y, a) {
-    ripples.push({ x: x, y: y, r: 0, a: a, life: 1 });
-    if (ripples.length > 6) ripples.shift();
+    ripples.push({ x: x, y: y, r: a > 2 ? 70 : 34, v: a > 2 ? 70 : 20, a: a, life: 1 });
+    if (ripples.length > 18) ripples.shift();
   }
   var down = false, last = null;
   canvas.addEventListener('pointerdown', function (e) {
     down = true; last = { x: e.clientX, y: e.clientY };
-    ripple(last.x, last.y, 2.2);
+    ripple(last.x, last.y, 3.0);
     SFX.play('ripple');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
     var p = { x: e.clientX, y: e.clientY };
-    if (Math.hypot(p.x - last.x, p.y - last.y) < 70) return;
+    if (Math.hypot(p.x - last.x, p.y - last.y) < 34) return;
     last = p;
-    ripple(p.x, p.y, 1.3);
+    ripple(p.x, p.y, 1.9);
     SFX.play('move', 220);
   });
   function up() { down = false; }
@@ -183,17 +185,17 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ---------------------------------------------------------- 回す */
   var lastT = performance.now(), chime = 0, odd = false;
   function frame(now) {
-    var dt = Math.min(0.05, (now - lastT) / 1000);
+    var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));
     lastT = now;
-    phase -= dt * (0.12 + pace * 0.9);
+    phase -= dt * (0.06 + pace * 0.5);
     for (var n = ripples.length - 1; n >= 0; n--) {
       var rp = ripples[n];
-      rp.r += dt * 120;
-      rp.a *= Math.pow(0.55, dt);
+      rp.r += dt * rp.v;
+      rp.a *= Math.pow(rp.v > 40 ? 0.3 : 0.55, dt);
       if (rp.a < 0.05) ripples.splice(n, 1);
     }
     /* 色づきは少しずつ引いていく */
-    for (var k = 0; k < TINT.length; k++) if (TINT[k] > 0) TINT[k] = Math.max(0, TINT[k] - dt * 0.9);
+    for (var k = 0; k < TINT.length; k++) if (TINT[k] > 0) TINT[k] = Math.max(0, TINT[k] - dt * 0.7);
     /* 模様の動きはゆっくりなので、場の計算は 1 フレームおきで足りる */
     odd = !odd;
     if (odd) { field(); shade(); }

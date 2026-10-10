@@ -5,7 +5,7 @@ recordPageView('network');
 
 $pageName = 'network';
 $pageTitle = 'NETWORK - PULSE';
-$pageDesc = 'ばらばらの点が近くの点と1本ずつ線で結ばれ、小さなまとまりがつながって大きな網になる。しばらくすると線が減って、またばらける。点をドラッグすると、つながった点もいっしょに引っぱられる。';
+$pageDesc = 'ばらばらの点が近くの点と1本ずつ線で結ばれ、小さなまとまりがつながって大きな網になる。しばらくすると線が減って、またばらける。触るとまわりの点が指のほうへ寄り、触った点が近くの点と新しく結ばれる。点をドラッグすると、指にぴったりついてくる。';
 $pageCanonical = 'https://pulse.subara3.com/network.php';
 $extraStyle = '';
 
@@ -37,7 +37,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   function ek(a, b) { return a < b ? a * 1024 + b : b * 1024 + a; }
   function seed() {
-    n = Math.round(Math.min(220, Math.max(70, W * H / 5200)));
+    n = Math.round(Math.min(330, Math.max(90, W * H / 2900)));
     for (var i = 0; i < n; i++) {
       px[i] = W * (0.06 + Math.random() * 0.88); py[i] = H * (0.08 + Math.random() * 0.84);
       vx[i] = vy[i] = 0; hot[i] = 0; alive[i] = 1;
@@ -121,7 +121,17 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     var damp = Math.pow(0.12, dt);
     for (i = 0; i < n; i++) {
-      if (i === grab) { px[i] += (gx - px[i]) * 0.35; py[i] += (gy - py[i]) * 0.35; vx[i] = vy[i] = 0; continue; }
+      if (i === grab) { px[i] = gx; py[i] = gy; vx[i] = vy[i] = 0; continue; }
+      if (pull) {
+        var pd = Math.hypot(px[i] - pull.x, py[i] - pull.y);
+        if (pd < 220) {
+          var pk = (1 - pd / 220) * pull.k, pm = Math.min(1, dt * 8 * pk);
+          /* 指のまわりに輪になって集まる（真ん中には重ならない） */
+          var want = 30 + pd * 0.35;
+          if (pd > want) { px[i] += (pull.x - px[i]) * pm * (1 - want / pd); py[i] += (pull.y - py[i]) * pm * (1 - want / pd); }
+          hot[i] = Math.max(hot[i], pk * 0.8);
+        }
+      }
       vx[i] *= damp; vy[i] *= damp;
       var sp = Math.hypot(vx[i], vy[i]);
       if (sp > 140) { vx[i] *= 140 / sp; vy[i] *= 140 / sp; }
@@ -152,13 +162,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
       else if (comp[e.a] === giant) bigE.push(e);
       else small.push(e);
     }
-    ctx.strokeStyle = P.rgba(P.steel, 0.6);
-    ctx.lineWidth = 1;
+    ctx.strokeStyle = P.rgba(P.steel, 0.7);
+    ctx.lineWidth = 1.2;
     ctx.beginPath();
     for (i = 0; i < small.length; i++) { e = small[i]; ctx.moveTo(px[e.a], py[e.a]); ctx.lineTo(px[e.b], py[e.b]); }
     ctx.stroke();
-    ctx.strokeStyle = P.rgba(P.line, 0.55);
-    ctx.lineWidth = 1.1;
+    ctx.strokeStyle = P.rgba(P.line, 0.7);
+    ctx.lineWidth = 1.4;
     ctx.beginPath();
     for (i = 0; i < bigE.length; i++) { e = bigE[i]; ctx.moveTo(px[e.a], py[e.a]); ctx.lineTo(px[e.b], py[e.b]); }
     ctx.stroke();
@@ -176,13 +186,21 @@ require_once __DIR__ . '/includes/floating-nav.php';
       ctx.stroke();
       if (e.tint > 0) e.tint = Math.max(0, e.tint - dt * 0.35);
     }
+    /* 点のまわりの淡い暈。網のある場所が遠目にも分かる */
+    ctx.fillStyle = P.rgba(P.steel, 0.24);
+    ctx.beginPath();
+    for (i = 0; i < n; i++) {
+      var hr = 6 + Math.sqrt(deg[i]) * 2;
+      ctx.moveTo(px[i] + hr, py[i]); ctx.arc(px[i], py[i], hr, 0, Math.PI * 2);
+    }
+    ctx.fill();
     /* 点: つながりが多いほど少し大きい */
     for (var g = 0; g < 2; g++) {
       ctx.fillStyle = g ? P.rgba(P.line, 0.95) : P.rgba(P.steel, 0.9);
       ctx.beginPath();
       for (i = 0; i < n; i++) {
         if ((comp[i] === giant) !== !!g) continue;
-        var r = 1.4 + Math.sqrt(deg[i]) * 0.75;
+        var r = 2 + Math.sqrt(deg[i]) * 0.95;
         ctx.moveTo(px[i] + r, py[i]); ctx.arc(px[i], py[i], r, 0, Math.PI * 2);
       }
       ctx.fill();
@@ -209,22 +227,28 @@ require_once __DIR__ . '/includes/floating-nav.php';
     gx = e.clientX; gy = e.clientY;
     grab = nearest(gx, gy, 44);
     if (grab < 0 && n < MAXN) {
-      /* 何もないところでは、新しい点が生まれて近くの 2 点と結ばれる */
+      /* 何もないところでは、新しい点が生まれる */
       grab = n++;
       px[grab] = gx; py[grab] = gy; vx[grab] = vy[grab] = 0; deg[grab] = 0; alive[grab] = 1;
       comp[grab] = -2;
-      addEdge(grab, true, 1); addEdge(grab, true, 1);
-      SFX.play('spawn');
-    } else SFX.play('tick');
+    }
+    /* 押した点は近くの 3 点と新しく結ばれ、まわりの点が指へ寄ってくる */
+    for (var t = 0; t < 3; t++) addEdge(grab, true, 1);
+    pull = { x: gx, y: gy, k: 1 }; lastLink = [gx, gy];
+    SFX.play('spawn');
     if (grab >= 0) hot[grab] = 1;
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (grab < 0) return;
     gx = e.clientX; gy = e.clientY;
+    pull.x = gx; pull.y = gy; pull.k = 0.45;
+    /* 引きずるあいだ、通り道の近くの点とも結ばれていく */
+    if (Math.hypot(gx - lastLink[0], gy - lastLink[1]) > 70) { addEdge(grab, true, 1); lastLink = [gx, gy]; }
     SFX.play('move', 260);
   });
   function up() { grab = -1; }
+  var pull = null, lastLink = [0, 0];
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);
 
@@ -245,7 +269,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ---------------------------------------------------------- 回す */
   var lastT = performance.now(), acc = 0, cycle = 0.27;
   function frame(now) {
-    var dt = Math.min(0.05, (now - lastT) / 1000);
+    var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));
     lastT = now; clock += dt;
     /* 糸の本数の目標がゆっくり上下する。ほどけた状態から、網、また疎らへ */
     cycle += dt / (110 - pace * 70);
@@ -257,6 +281,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       else if (E.length > tgt + 1) dropEdge();
       else if (Math.random() < 0.5) { dropEdge(); addEdge(-1, false); }
     }
+    if (pull && grab < 0) { pull.k -= dt * 2; if (pull.k <= 0) pull = null; }
     components();
     physics(dt);
     draw(dt);

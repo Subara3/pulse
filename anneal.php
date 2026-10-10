@@ -5,7 +5,7 @@ recordPageView('anneal');
 
 $pageName = 'anneal';
 $pageTitle = 'ANNEAL - PULSE';
-$pageDesc = '散らばった点が1本の線で順に結ばれている。線は最初は大きく乱れているが、時間とともに交差がほどけて短い輪にまとまる。触ると点が増え、線が少し乱れてから結び直される。';
+$pageDesc = '散らばった点が1本の線で順に結ばれている。線は最初は大きく乱れているが、時間とともに交差がほどけて短い輪にまとまる。押したところの点は指から押しのけられて線が結び直され、離すと点はゆっくり元の位置へ戻る。';
 $pageCanonical = 'https://pulse.subara3.com/anneal.php';
 $extraStyle = '';
 
@@ -103,9 +103,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     scaleT();
     T = T0; phase = 'hot'; clock = 0; cooledSound = false;
+    if (first) { T = T0 * 0.12; phase = 'cool'; }   // 開いた直後から、ほどけていく途中を見せる
   }
 
-  function d(a, b) { var dx = X[a] - X[b], dy = Y[a] - Y[b]; return Math.sqrt(dx * dx + dy * dy); }
+  function d(a, b) { var dx = EX[a] - EX[b], dy = EY[a] - EY[b]; return Math.sqrt(dx * dx + dy * dy); }
   function anneal(iters) {
     for (var n = 0; n < iters; n++) {
       var i = Math.floor(Math.random() * N), j = Math.floor(Math.random() * N);
@@ -120,57 +121,37 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
   }
 
-  /* 新しい点は、順路がいちばん伸びないところへ差し込む */
-  function insert(x, y) {
-    if (N >= MAXN) return;
-    var id = N;
-    X[id] = x; Y[id] = y; TX[id] = FX[id] = x; TY[id] = FY[id] = y; born[id] = 0; N++;
-    var best = 0, bd = 1e18;
-    for (var i = 0; i < N - 1; i++) {
-      var a = tour[i], b = tour[(i + 1) % (N - 1)];
-      var dd = Math.hypot(X[a] - x, Y[a] - y) + Math.hypot(X[b] - x, Y[b] - y) - d(a, b);
-      if (dd < bd) { bd = dd; best = i; }
-    }
-    for (var k = N - 1; k > best + 1; k--) tour[k] = tour[k - 1];
-    tour[best + 1] = id;
-  }
-
   /* ---------------------------------------------------------- 操作 */
-  var drag = -1, touchFx = { x: 0, y: 0, a: 0 };
+  /* 押したところの点を指から押しのける。離すと点はゆっくり元の場所へ戻る */
+  var OX = new Float32Array(MAXN), OY = new Float32Array(MAXN), EX = new Float32Array(MAXN), EY = new Float32Array(MAXN);
+  var touch = { on: false, x: 0, y: 0 }, PR = 150;
   canvas.addEventListener('pointerdown', function (e) {
-    var x = e.clientX, y = e.clientY, best = -1, bd = 20 * 20;
-    for (var i = 0; i < N; i++) { var dx = X[i] - x, dy = Y[i] - y, dd = dx * dx + dy * dy; if (dd < bd) { bd = dd; best = i; } }
-    if (best >= 0) { drag = best; born[best] = 0; }
-    else {
-      insert(x, y);
-      drag = N - 1;                       // 置いた点はそのまま指で動かせる
-      if (N > want + 40) {
-        /* 増えすぎたら古い点を 1 つ静かに抜く */
-        var victim = Math.floor(Math.random() * (N - 1)), k = 0;
-        for (var p = 0; p < N; p++) if (tour[p] !== victim) tour[k++] = tour[p];
-        for (var q = 0; q < N - 1; q++) if (tour[q] === N - 1) tour[q] = victim;
-        X[victim] = X[N - 1]; Y[victim] = Y[N - 1]; TX[victim] = TX[N - 1]; TY[victim] = TY[N - 1];
-        FX[victim] = FX[N - 1]; FY[victim] = FY[N - 1]; born[victim] = born[N - 1]; N--;
-        drag = victim;
-      }
-      SFX.play('spawn', 150);
-    }
-    touchFx.x = x; touchFx.y = y; touchFx.a = 1;
-    /* 触ったところだけ少し温め直す */
-    if (phase !== 'hot') T = Math.max(T, T0 * 0.06);
+    touch.on = true; touch.x = e.clientX; touch.y = e.clientY;
+    push(1);
+    if (phase !== 'hot') T = Math.max(T, T0 * 0.05);
+    SFX.play('spawn', 150);
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
-    if (drag < 0) return;
-    X[drag] = e.clientX; Y[drag] = e.clientY; born[drag] = 0;
-    if (glide < 1) { TX[drag] = X[drag]; TY[drag] = Y[drag]; FX[drag] = X[drag]; FY[drag] = Y[drag]; }
-    touchFx.x = e.clientX; touchFx.y = e.clientY; touchFx.a = 1;
-    if (phase !== 'hot') T = Math.max(T, T0 * 0.03);
+    if (!touch.on) return;
+    touch.x = e.clientX; touch.y = e.clientY;
+    push(1);
+    if (phase !== 'hot') T = Math.max(T, T0 * 0.04);
     SFX.play('move', 200);
   });
-  function up() { drag = -1; }
+  function up() { touch.on = false; }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);
+  function push(k) {
+    for (var i = 0; i < N; i++) {
+      var hx = X[i] + OX[i], hy = Y[i] + OY[i], dx = hx - touch.x, dy = hy - touch.y, r = Math.sqrt(dx * dx + dy * dy);
+      if (r >= PR) continue;
+      if (r < 1) { dx = Math.random() - 0.5; dy = Math.random() - 0.5; r = Math.hypot(dx, dy); }
+      var tx = touch.x + dx / r * PR, ty = touch.y + dy / r * PR;
+      OX[i] += (tx - hx) * k; OY[i] += (ty - hy) * k;
+      born[i] = 0;
+    }
+  }
 
   document.getElementById('k-cities').addEventListener('input', function () { want = Math.round(40 + this.value / 100 * 160); });
   document.getElementById('k-pace').addEventListener('input', function () { pace = this.value / 100; });
@@ -187,34 +168,38 @@ require_once __DIR__ . '/includes/floating-nav.php';
     tctx.fillRect(0, 0, W, H);
     tctx.globalCompositeOperation = 'source-over';
     var c = P.mix(P.steel, P.line, cold);
-    tctx.strokeStyle = P.rgba(c, 0.16 + 0.69 * cold);
-    tctx.lineWidth = 0.8 + 0.5 * cold;
+    tctx.strokeStyle = P.rgba(c, 0.38 + 0.52 * cold);
+    tctx.lineWidth = 1.2 + 0.6 * cold;
     tctx.lineJoin = 'round';
     tctx.beginPath();
-    tctx.moveTo(X[tour[0]], Y[tour[0]]);
-    for (var i = 1; i < N; i++) tctx.lineTo(X[tour[i]], Y[tour[i]]);
+    tctx.moveTo(EX[tour[0]], EY[tour[0]]);
+    for (var i = 1; i < N; i++) tctx.lineTo(EX[tour[i]], EY[tour[i]]);
     tctx.closePath();
     tctx.stroke();
     P.fill(ctx, W, H);
     P.grid(ctx, W, H, { alpha: 0.6 });
+    /* 順路が囲む内側を薄く塗る。ほどけるほど、ひとつながりの形が見えてくる */
+    ctx.fillStyle = P.rgba(P.steel, 0.08 + 0.3 * cold);
+    ctx.beginPath();
+    ctx.moveTo(EX[tour[0]], EY[tour[0]]);
+    for (var i2 = 1; i2 < N; i2++) ctx.lineTo(EX[tour[i2]], EY[tour[i2]]);
+    ctx.closePath();
+    ctx.fill('evenodd');
     ctx.drawImage(trail, 0, 0, W, H);
     ctx.fillStyle = P.rgba(P.line, 0.9);
     ctx.beginPath();
     for (var k = 0; k < N; k++) {
       if (born[k] < 2.5) continue;
-      ctx.moveTo(X[k] + 2.2, Y[k]); ctx.arc(X[k], Y[k], 2.2, 0, Math.PI * 2);
+      ctx.moveTo(EX[k] + 2.8, EY[k]); ctx.arc(EX[k], EY[k], 2.8, 0, Math.PI * 2);
     }
     ctx.fill();
     /* 触った点はシアンで灯り、少しずつ白に戻る */
     for (var m = 0; m < N; m++) {
       if (born[m] >= 2.5) continue;
-      born[m] += drag === m ? 0 : dt;
+      born[m] += touch.on ? 0 : dt;
       var a = 1 - born[m] / 2.5;
       ctx.fillStyle = P.rgba(P.mix(P.line, P.accent, a), 1);
-      ctx.beginPath(); ctx.arc(X[m], Y[m], 2.4 + a * 1.4, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = P.rgba(P.accent, a * 0.45);
-      ctx.lineWidth = 1;
-      ctx.beginPath(); ctx.arc(X[m], Y[m], 7 + (1 - a) * 14, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(EX[m], EY[m], 2.8 + a * 1.4, 0, Math.PI * 2); ctx.fill();
     }
   }
 
@@ -229,7 +214,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (glide < 1) {
       glide = Math.min(1, glide + dt * sp / 7);
       var g = glide * glide * (3 - 2 * glide);
-      for (var i = 0; i < N; i++) if (i !== drag) { X[i] = FX[i] + (TX[i] - FX[i]) * g; Y[i] = FY[i] + (TY[i] - FY[i]) * g; }
+      for (var i = 0; i < N; i++) { X[i] = FX[i] + (TX[i] - FX[i]) * g; Y[i] = FY[i] + (TY[i] - FY[i]) * g; }
     }
     if (phase === 'hot') {
       T = T0;
@@ -244,6 +229,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
     } else {
       T = Math.max(Tmin, T * Math.exp(-dt * 0.8));
       if (clock > 14) newLayout(false);
+    }
+    var back = touch.on ? 1 : Math.exp(-dt * 0.9);
+    for (var e2 = 0; e2 < N; e2++) {
+      OX[e2] *= back; OY[e2] *= back;
+      EX[e2] = X[e2] + OX[e2]; EY[e2] = Y[e2] + OY[e2];
     }
     anneal(Math.round(N * 22));
     draw(dt);

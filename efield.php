@@ -5,7 +5,7 @@ recordPageView('efield');
 
 $pageName = 'efield';
 $pageTitle = 'EFIELD - PULSE';
-$pageDesc = '白い点から出た線が弧を描いて輪につながり、線の上を小さな粒が流れていく。点と輪はゆっくり動く。押したところに新しい点が出て、まわりの線のつながり方が変わる。';
+$pageDesc = '白い点から出た線が弧を描いて輪につながり、線の上を小さな粒が流れていく。押したところに水色の点が出て、まわりの線のつながり方が変わる。なぞった跡は薄く光り、線がそこを避けて曲がる。';
 $pageCanonical = 'https://pulse.subara3.com/efield.php';
 $extraStyle = '';
 
@@ -15,8 +15,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <canvas id="canvas"></canvas>
 
 <div id="controls" class="drawer-controls">
-  <div class="ctl-row"><label for="k-drift">DRIFT</label><input type="range" id="k-drift" min="0" max="100" value="40"></div>
-  <div class="ctl-row"><label for="k-lines">LINES</label><input type="range" id="k-lines" min="0" max="100" value="35"></div>
+  <div class="ctl-row"><label for="k-drift">DRIFT</label><input type="range" id="k-drift" min="0" max="100" value="22"></div>
+  <div class="ctl-row"><label for="k-lines">LINES</label><input type="range" id="k-lines" min="0" max="100" value="75"></div>
   <div class="ctl-btns"><button type="button" class="active" data-look="both">CONTOUR</button><button type="button" data-look="lines">BARE</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
@@ -47,6 +47,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
   seed();
   var finger = { q: 0, x: 0, y: 0, on: false, rot: 0 };
+  /* なぞった跡に残る、少しずつ消えていく電荷。跡に沿って線が曲がり、薄く光る */
+  var ghosts = [], lastGhost = [0, 0];
 
   /* 場 E と電位 V（2 次元なので E ∝ r / |r|²、V ∝ -log r） */
   function field(x, y, out) {
@@ -58,6 +60,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (finger.q > 0.01) {
       var fx = x - finger.x, fy = y - finger.y, f2 = fx * fx + fy * fy + 1;
       ex += finger.q * fx / f2; ey += finger.q * fy / f2;
+    }
+    for (var g = 0; g < ghosts.length; g++) {
+      var gh = ghosts[g], gx = x - gh.x, gy = y - gh.y, g2 = gx * gx + gy * gy + 1, gq = gh.q * 0.6;
+      ex += gq * gx / g2; ey += gq * gy / g2;
     }
     out[0] = ex; out[1] = ey;
   }
@@ -81,6 +87,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
           v -= c.q * Math.log(dx * dx + dy * dy + 60);
         }
         if (finger.q > 0.01) { var fx = x - finger.x, fy = y - finger.y; v -= finger.q * Math.log(fx * fx + fy * fy + 60); }
+        for (var g = 0; g < ghosts.length; g++) { var hx = x - ghosts[g].x, hy = y - ghosts[g].y; v -= ghosts[g].q * 0.6 * Math.log(hx * hx + hy * hy + 60); }
         GV[j * GX + i] = v / DV;
       }
     }
@@ -102,8 +109,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
         if (n >= 8) { ctx.moveTo(e[4], e[5]); ctx.lineTo(e[6], e[7]); }
       }
     }
-    ctx.strokeStyle = P.rgba(P.steel, 0.38);
-    ctx.lineWidth = 0.8;
+    ctx.strokeStyle = P.rgba(P.steel, 0.55);
+    ctx.lineWidth = 1;
     ctx.stroke();
   }
 
@@ -131,15 +138,15 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var t = 0, tb = 0, drift = 0.4, look = 'both';
   function draw(dt) {
     if (look === 'both') contours(); else P.fill(ctx, W, H);
-    var gap = 64, beadOff = (tb * 24) % gap;
+    var gap = 64, beadOff = (tb * 7) % gap;
     var srcs = Q.filter(function (c) { return c.q > 0; });
     if (finger.q > 0.3) srcs = srcs.concat([{ q: finger.q, x: finger.x, y: finger.y, rot: finger.rot, me: true }]);
     for (var s = 0; s < srcs.length; s++) {
       var c = srcs[s], nl = c.me ? Math.max(6, Math.round(lineCount * 0.75)) : lineCount;
-      var fq = Math.min(1, (finger.q - 0.3) / 0.7), lineA = c.me ? 0.7 * fq * fq : 0.4;
+      var fq = Math.min(1, (finger.q - 0.3) / 0.7), lineA = c.me ? 0.9 * Math.sqrt(fq) : 0.78;
       var col = c.me ? P.accent : P.line;
       ctx.strokeStyle = P.rgba(col, lineA);
-      ctx.lineWidth = 1;
+      ctx.lineWidth = c.me ? 1.5 : 1.2;
       var beads = [];
       ctx.beginPath();
       for (var l = 0; l < nl; l++) {
@@ -158,7 +165,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       ctx.fillStyle = P.rgba(col, c.me ? 0.9 * fq : 0.75);
       ctx.beginPath();
       for (var bi = 0; bi < beads.length; bi += 3) {
-        var rb = 1.6 * beads[bi + 2];
+        var rb = 2 * beads[bi + 2];
         if (rb < 0.3) continue;
         ctx.moveTo(beads[bi] + rb, beads[bi + 1]);
         ctx.arc(beads[bi], beads[bi + 1], rb, 0, Math.PI * 2);
@@ -180,22 +187,41 @@ require_once __DIR__ . '/includes/floating-nav.php';
         ctx.lineWidth = 1;
       }
     }
+    for (var gj = 0; gj < ghosts.length; gj++) {
+      var gh2 = ghosts[gj], gg = ctx.createRadialGradient(gh2.x, gh2.y, 0, gh2.x, gh2.y, 115);
+      gg.addColorStop(0, P.rgba(P.accent, 0.48 * gh2.q)); gg.addColorStop(1, P.rgba(P.accent, 0));
+      ctx.fillStyle = gg;
+      ctx.beginPath(); ctx.arc(gh2.x, gh2.y, 115, 0, Math.PI * 2); ctx.fill();
+    }
     if (finger.q > 0.01) {
+      /* 指の電荷のまわりは場が強いので、薄く光らせる */
+      var gq = Math.min(1, finger.q), hr = 150;
+      var gr = ctx.createRadialGradient(finger.x, finger.y, 0, finger.x, finger.y, hr);
+      gr.addColorStop(0, P.rgba(P.accent, 0.42 * gq));
+      gr.addColorStop(0.5, P.rgba(P.accent, 0.18 * gq));
+      gr.addColorStop(1, P.rgba(P.accent, 0));
+      ctx.fillStyle = gr;
+      ctx.beginPath(); ctx.arc(finger.x, finger.y, hr, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = P.rgba(P.accent, Math.min(1, finger.q));
-      ctx.beginPath(); ctx.arc(finger.x, finger.y, 4.5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(finger.x, finger.y, 6, 0, Math.PI * 2); ctx.fill();
     }
   }
 
   /* ---------------------------------------------------------- 操作 */
   canvas.addEventListener('pointerdown', function (e) {
-    finger.on = true; finger.x = e.clientX; finger.y = e.clientY;
+    finger.on = true; finger.x = e.clientX; finger.y = e.clientY; lastGhost = [finger.x, finger.y];
     if (finger.q < 0.05) finger.rot = Math.random() * 6.28;
+    finger.q = 1.3;                      // 押した瞬間から線が出る
     canvas.setPointerCapture(e.pointerId);
     SFX.play('spawn', 200);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!finger.on) return;
     finger.x = e.clientX; finger.y = e.clientY;
+    if (Math.hypot(finger.x - lastGhost[0], finger.y - lastGhost[1]) > 45) {
+      ghosts.push({ x: finger.x, y: finger.y, q: 1 }); lastGhost = [finger.x, finger.y];
+      if (ghosts.length > 10) ghosts.shift();
+    }
     SFX.play('move', 200);
   });
   function up() { finger.on = false; }
@@ -220,17 +246,17 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var c = Q[i];
       c.x = (c.cx + c.ax * Math.sin(t * c.fx + c.ph)) * W;
       c.y = (c.cy + c.ay * Math.sin(t * c.fy + c.ph * 1.7)) * H;
-      c.rot += 0.0008 * c.q;
     }
   }
   var lastT = performance.now(), nearAcc = 0;
   function frame(now) {
     var dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
-    t += dt * (0.3 + drift * 2.4);
+    t += dt * (0.03 + drift * 0.45);
     tb += dt;
     place();
-    finger.q += ((finger.on ? 1.3 : 0) - finger.q) * Math.min(1, dt * (finger.on ? 3 : 0.7));
+    for (var gi = ghosts.length - 1; gi >= 0; gi--) { ghosts[gi].q -= dt / 2.4; if (ghosts[gi].q <= 0) ghosts.splice(gi, 1); }
+    finger.q += ((finger.on ? 1.3 : 0) - finger.q) * Math.min(1, dt * (finger.on ? 3 : 0.45));
     /* 電荷どうしがすれ違うと小さく鳴る（控えめに） */
     nearAcc += dt;
     if (nearAcc > 3) {

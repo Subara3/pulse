@@ -5,7 +5,7 @@ recordPageView('life');
 
 $pageName = 'life';
 $pageTitle = 'LIFE - PULSE';
-$pageDesc = '方眼の上で、隣り合う点どうしを線で結んだ形が、生まれたり消えたりしながら変わっていく。触ったところに点がばらまかれ、そこから形が増えていく。';
+$pageDesc = '方眼の上で、隣り合う点どうしを線で結んだ形が、生まれたり消えたりしながら変わっていく。押したところには脈を打つ大きな形が置かれ、なぞった跡には点の線が引かれる。指を離すと、その線から形が増えていく。';
 $pageCanonical = 'https://pulse.subara3.com/life.php';
 $extraStyle = '';
 
@@ -15,7 +15,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <canvas id="canvas"></canvas>
 
 <div id="controls" class="drawer-controls">
-  <div class="ctl-row"><label for="k-pace">PACE</label><input type="range" id="k-pace" min="0" max="100" value="40"></div>
+  <div class="ctl-row"><label for="k-pace">PACE</label><input type="range" id="k-pace" min="0" max="100" value="25"></div>
   <div class="ctl-btns"><button type="button" class="active" data-rule="life">LIFE</button><button type="button" data-rule="high">HIGH</button><button type="button" data-rule="maze">MAZE</button></div>
   <div class="ctl-btns"><button type="button" id="k-clear">CLEAR</button></div>
 </div>
@@ -35,7 +35,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     high: { b: [3, 6], s: [2, 3] },
     maze: { b: [3], s: [1, 2, 3, 4] }
   };
-  var rule = 'life', born = [], keep = [], pace = 0.4;
+  var rule = 'life', born = [], keep = [], pace = 0.25;
   function setRule(name) {
     rule = name; born = []; keep = [];
     for (var n = 0; n <= 8; n++) { born[n] = RULES[name].b.indexOf(n) >= 0 ? 1 : 0; keep[n] = RULES[name].s.indexOf(n) >= 0 ? 1 : 0; }
@@ -49,7 +49,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var n = NX * NY;
     cur = new Uint8Array(n); nxt = new Uint8Array(n); prevA = new Uint8Array(n);
     age = new Float32Array(n); mark = new Float32Array(n); trace = new Float32Array(n);
-    for (var i = 0; i < 7; i++) soup(Math.random() * NX, Math.random() * NY, 6 + Math.random() * 5, 0.38, false);
+    for (var i = 0; i < 11; i++) soup(Math.random() * NX, Math.random() * NY, 6 + Math.random() * 5, 0.38, false);
     for (var g = 0; g < 30; g++) gen();
   }
 
@@ -59,10 +59,31 @@ require_once __DIR__ . '/includes/floating-nav.php';
       for (var i = Math.floor(cx - r); i <= cx + r; i++) {
         if (Math.hypot(i - cx, j - cy) > r) continue;
         var k = ((j % NY + NY) % NY) * NX + (i % NX + NX) % NX;
-        if (Math.random() < p) cur[k] = 1;
+        if (Math.random() < p) { cur[k] = 1; if (touched) prevA[k] = 1; }
         if (touched) mark[k] = 1;
       }
     }
+  }
+
+  /* 押した所には、3 世代で同じ形に戻る大きな振動子（13×13 マスのパルサー）を置く。
+     まわりとぶつからない限り、その場で脈を打ち続ける */
+  function setCell(i, j) {
+    var k = ((j % NY + NY) % NY) * NX + (i % NX + NX) % NX;
+    cur[k] = 1; prevA[k] = 1;
+  }
+  function line(x, y) {
+    var i = Math.round(x), j = Math.round(y);
+    setCell(i, j);
+    for (var b = -2; b <= 3; b++) for (var a = -2; a <= 2; a++) mark[(((j + b) % NY + NY) % NY) * NX + ((i + a) % NX + NX) % NX] = 1;
+  }
+  function burst(cx, cy) {
+    var ci = Math.round(cx) - 6, cj = Math.round(cy) - 6, a, b, q;
+    for (b = -1; b <= 13; b++) for (a = -1; a <= 13; a++) {
+      var k = (((cj + b) % NY + NY) % NY) * NX + ((ci + a) % NX + NX) % NX;
+      cur[k] = 0; prevA[k] = 0; mark[k] = 1;
+    }
+    var L = [0, 5, 7, 12], R = [2, 3, 4, 8, 9, 10];
+    for (q = 0; q < 4; q++) for (var r = 0; r < 6; r++) { setCell(ci + R[r], cj + L[q]); setCell(ci + L[q], cj + R[r]); }
   }
 
   var pop = 0;
@@ -94,7 +115,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
   function draw(f) {
     P.fill(ctx, W, H);
-    P.grid(ctx, W, H, { step: S, major: 5, alpha: 0.7 });
+    P.grid(ctx, W, H, { step: S, major: 5, alpha: 1.5 });
     var BK = 4, lines = [], hotLines = [], b;
     for (b = 0; b < BK; b++) { lines.push([]); hotLines.push([]); }
     var nodes = [], hotNodes = [], ghosts = [];
@@ -126,8 +147,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ctx.lineCap = 'round';
     for (b = 0; b < BK; b++) {
       var la = (b + 1) / BK;
-      strokeList(lines[b], P.rgba(P.line, 0.75 * la), 1);
-      strokeList(hotLines[b], P.rgba(P.accent, 0.85 * la), 1.1);
+      strokeList(lines[b], P.rgba(P.line, 0.4 + 0.55 * la), 1.5);
+      strokeList(hotLines[b], P.rgba(P.accent, 0.5 + 0.5 * la), 1.7);
     }
     ctx.fillStyle = P.rgba(P.steel, 0.5);
     ctx.beginPath();
@@ -149,7 +170,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ctx.fillStyle = P.rgba(c, 0.95);
     ctx.beginPath();
     for (var i = 0; i < list.length; i += 3) {
-      var r = 0.6 + 1.3 * list[i + 2];
+      var r = 1 + 1.6 * list[i + 2];
       ctx.moveTo(list[i] + r, list[i + 1]);
       ctx.arc(list[i], list[i + 1], r, 0, Math.PI * 2);
     }
@@ -161,16 +182,17 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function cellOf(e) { return { x: (e.clientX - ox) / S, y: (e.clientY - oy) / S, px: e.clientX, py: e.clientY }; }
   canvas.addEventListener('pointerdown', function (e) {
     down = true; last = cellOf(e);
-    soup(last.x, last.y, 4.5, 0.45, true);
+    burst(last.x, last.y);
     SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
     var p = cellOf(e), dist = Math.hypot(p.px - last.px, p.py - last.py);
-    if (dist < S * 2) return;
-    var n = Math.ceil(dist / (S * 2));
-    for (var i = 1; i <= n; i++) soup(last.x + (p.x - last.x) * i / n, last.y + (p.y - last.y) * i / n, 2, 0.5, true);
+    if (dist < S * 0.5) return;
+    /* なぞった跡は 1 マス幅の生きた線になる。線は両端から崩れながら、左右対称の形に育つ */
+    var n = Math.ceil(dist / (S * 0.5));
+    for (var i = 1; i <= n; i++) line(last.x + (p.x - last.x) * i / n, last.y + (p.y - last.y) * i / n);
     last = p;
     SFX.play('tick', 150);
   });
@@ -200,7 +222,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function frame(now) {
     var dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
-    phase += dt * (2 + pace * 8);
+    /* 触っているあいだは世代を止める。描いた形がそのまま見え、離すと動き出す */
+    if (!down) phase += dt * (2 + pace * 8);
     while (phase >= 1) {
       phase -= 1;
       gen();
@@ -208,12 +231,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
       quiet = Math.abs(pop - lastPop) < 3 ? quiet + 1 : 0;
       lastPop = pop;
     }
-    for (var k = 0; k < mark.length; k++) if (mark[k] > 0) mark[k] *= 0.985;
+    for (var k = 0; k < mark.length; k++) if (mark[k] > 0) mark[k] *= 0.99;
     seedT += dt;
     var full = NX * NY;
-    if (seedT > 5 || (quiet > 12 && seedT > 2) || pop < full * 0.02) {
+    if (!down && (seedT > 3 || (quiet > 12 && seedT > 2) || pop < full * 0.07)) {
       seedT = 0; quiet = 0;
-      soup(Math.random() * NX, Math.random() * NY, 4 + Math.random() * 4, 0.4, false);
+      soup(Math.random() * NX, Math.random() * NY, 5 + Math.random() * 4, 0.4, false);
     }
     /* 増えすぎたら、ときどき 1 か所を空ける（画面が線で埋まらないように） */
     if (pop > full * 0.22 && Math.random() < dt * 0.5) {

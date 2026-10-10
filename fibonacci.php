@@ -5,7 +5,7 @@ recordPageView('fibonacci');
 
 $pageName = 'fibonacci';
 $pageTitle = 'FIBONACCI - PULSE';
-$pageDesc = '中心から種が一粒ずつ生まれて外へ押し出され、ひまわりの種のような渦が二方向に重なる。横にドラッグすると種の角度がずれて渦がほどけ、離すと元に戻る。';
+$pageDesc = '中心から種が一粒ずつ生まれて外へ押し出され、ひまわりの種のような渦が二方向に重なる。押すとそこの種が押しのけられて大きな穴があき、縁の種が水色に光る。横にドラッグすると種の角度がずれて渦がほどけ、離すと元に戻る。';
 $pageCanonical = 'https://pulse.subara3.com/fibonacci.php';
 $extraStyle = '';
 
@@ -28,7 +28,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var N = 1300;                       /* 画面にいる種の数 */
   var ctx = P.fit(canvas, function (w, h) {
     W = w; H = h; CX = w / 2; CY = h / 2;
-    R = Math.min(w, h) * 0.47;
+    R = Math.min(w, h) * 0.48;
     C = R / Math.sqrt(N);
   });
 
@@ -55,15 +55,29 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var ang = (b * GOLD) % (Math.PI * 2) - age * dev + rot;
       var gi = ((b % M) + M) % M;
       var x = CX + Math.cos(ang) * r, y = CY + Math.sin(ang) * r;
-      /* 指の近くの種はそっとよける */
-      if (hold) {
-        var dx = x - ptr.x, dy = y - ptr.y, d2 = dx * dx + dy * dy, s = 70 * 70;
-        if (d2 < s * 4) {
-          var k = Math.exp(-d2 / s) * 10 / (Math.sqrt(d2) + 1);
-          x += dx * k; y += dy * k;
-          glowB[gi] = Math.min(1, glowB[gi] + Math.exp(-d2 / s) * 0.25);
+      /* 指の近くの種は押しのけられて穴があき、穴のふちの種がふくらむ。離すとゆっくり戻る */
+      var lift = 0;
+      if (pe > 0.01) {
+        var dx = x - ptr.x, dy = y - ptr.y, d = Math.sqrt(dx * dx + dy * dy) + 0.01, HOLE = 120;
+        if (d < HOLE * 1.8) {
+          /* 穴の中の種は縁まで押し出す。縁の外は押されて詰まる */
+          var push = d < HOLE ? (HOLE - d) + 18 * (d / HOLE) : 18 * Math.max(0, 1 - (d - HOLE) / (HOLE * 0.8));
+          x += dx / d * push * pe; y += dy / d * push * pe;
+          var nd = d + push * pe;
+          lift = Math.max(lift, Math.exp(-Math.pow((nd - HOLE * pe) / 40, 2)) * pe);
         }
       }
+      /* 押した所から輪が広がり、輪にかかった種が外へ押されてふくらむ */
+      for (var w = 0; w < waves.length; w++) {
+        var wv = waves[w], ddx = x - wv.x, ddy = y - wv.y, dd = Math.sqrt(ddx * ddx + ddy * ddy) + 0.01;
+        var front = 40 + wv.t * 260, band = (dd - front) / 22;
+        if (band > -3 && band < 3) {
+          var amp = Math.exp(-band * band) * Math.max(0, 1 - wv.t / 1.0);
+          x += ddx / dd * 10 * amp; y += ddy / dd * 10 * amp;
+          lift = Math.max(lift, amp * 0.8);
+        }
+      }
+      glowB[gi] = Math.max(glowB[gi], lift);
       glow[a] = glowB[gi];
       px[a] = x; py[a] = y; pr[a] = r;
     }
@@ -84,24 +98,24 @@ require_once __DIR__ . '/includes/floating-nav.php';
         var f = edgeFade(pr[a]);
         if (f <= 0) continue;
         var b0 = Math.floor(total) - a;
-        /* 21 本の渦にそって、明るさの帯がゆっくり回る */
-        var band = 0.62 + 0.38 * Math.cos(Math.PI * 2 * (b0 % 21) / 21 + t * 0.35);
+        /* 21 本の渦にそって、明るさの帯をつける */
+        var band = 0.62 + 0.38 * Math.cos(Math.PI * 2 * (b0 % 21) / 21);
         var bright = (0.6 + 0.4 * Math.min(1, pr[a] / (R * 0.45))) * f * band;
         if (Math.min(BUCKETS - 1, Math.floor(bright * BUCKETS)) !== q) continue;
         var age = a + (total % 1);
         var born = Math.min(1, age / 6);
-        var rad = C * (0.16 + 0.22 * Math.min(1, pr[a] / R)) * born * (look === 'net' ? 0.6 : 1);
+        var rad = C * (0.24 + 0.24 * Math.min(1, pr[a] / R)) * born * (look === 'net' ? 0.6 : 1);
         ctx.moveTo(px[a] + rad, py[a]);
         ctx.arc(px[a], py[a], rad, 0, Math.PI * 2);
       }
-      ctx.fillStyle = P.rgba(LN, 0.18 + 0.8 * (q + 0.5) / BUCKETS);
+      ctx.fillStyle = P.rgba(LN, 0.36 + 0.64 * (q + 0.5) / BUCKETS);
       ctx.fill();
     }
     /* 触った所だけシアン */
     for (var a2 = 0; a2 <= N; a2++) {
       if (glow[a2] < 0.02) continue;
-      var rad2 = C * (0.2 + 0.24 * Math.min(1, pr[a2] / R));
-      ctx.fillStyle = P.rgba(AC, glow[a2] * 0.85 * edgeFade(pr[a2]));
+      var rad2 = C * (0.24 + 0.24 * Math.min(1, pr[a2] / R)) * (1 + glow[a2] * 0.9);
+      ctx.fillStyle = P.rgba(P.mix(LN, AC, 0.35 + 0.3 * (1 - glow[a2])), Math.min(1, glow[a2] * 1.6) * edgeFade(pr[a2]));
       ctx.beginPath();
       ctx.arc(px[a2], py[a2], rad2, 0, Math.PI * 2);
       ctx.fill();
@@ -138,10 +152,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ---------------------------------------------------------- 操作 */
-  var hold = false, ptr = { x: 0, y: 0 }, startX = 0, devStart = 0;
+  var hold = false, ptr = { x: 0, y: 0 }, startX = 0, devStart = 0, waves = [], pe = 0;
   canvas.addEventListener('pointerdown', function (e) {
-    hold = true; ptr.x = e.clientX; ptr.y = e.clientY;
+    hold = true; ptr.x = e.clientX; ptr.y = e.clientY; pe = 1;
     startX = e.clientX; devStart = devHand;
+    waves.push({ x: ptr.x, y: ptr.y, t: 0 });
+    if (waves.length > 4) waves.shift();
     SFX.play('tick');
     canvas.setPointerCapture(e.pointerId);
   });
@@ -157,7 +173,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   canvas.addEventListener('pointercancel', up);
 
   var grow = document.getElementById('k-grow');
-  function readGrow() { rate = 1 + grow.value / 100 * 9; }
+  function readGrow() { rate = 0.6 + grow.value / 100 * 5; }
   grow.addEventListener('input', readGrow);
   readGrow();
   document.querySelectorAll('[data-look]').forEach(function (b) {
@@ -171,18 +187,17 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ---------------------------------------------------------- 回す */
   var lastT = performance.now(), chime = 0;
   function frame(now) {
-    var dt = Math.min(0.05, (now - lastT) / 1000);
+    var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));
     lastT = now;
     t += dt;
     total += rate * dt;
-    rot += dt * 0.025;
+    rot += dt * 0.006;
+    pe = hold ? 1 : pe * Math.exp(-dt * 1.4);
+    for (var wi = waves.length - 1; wi >= 0; wi--) { waves[wi].t += dt; if (waves[wi].t > 1.0) waves.splice(wi, 1); }
     /* 離すと黄金角へゆっくり戻る */
     if (!hold) devHand *= Math.exp(-dt * 0.5);
-    /* 放っておいても、ときどき角度がわずかにずれて戻る */
-    var ph = Math.sin(t * Math.PI * 2 / 48 - 1.2);
-    devAuto = ph > 0 ? 0.006 * ph * ph * ph : 0;
     dev += (devHand + devAuto - dev) * Math.min(1, dt * 3);
-    for (var i = 0; i < M; i++) glowB[i] *= Math.exp(-dt * 1.4);
+    for (var i = 0; i < M; i++) glowB[i] *= Math.exp(-dt * 3.5);
 
     P.fill(ctx, W, H);
     P.grid(ctx, W, H, { alpha: 0.7 });

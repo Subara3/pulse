@@ -5,7 +5,7 @@ recordPageView('topopt');
 
 $pageName = 'topopt';
 $pageTitle = 'TOPOPT - PULSE';
-$pageDesc = '四角い板に重さがかかると、力のかからない部分から材料が削られ、橋の骨組みのような形が残る。重りの位置がゆっくり動くと、骨組みの形も変わる。触ったところへ重りを移せる。';
+$pageDesc = '四角い板に重さがかかると、力のかからない部分から材料が削られ、橋の骨組みのような形が残る。重りの位置がゆっくり動くと、骨組みの形も変わる。触ると重りがそこへ移り、触った場所の材料が足されるか削られて、骨組みが組み直される。';
 $pageCanonical = 'https://pulse.subara3.com/topopt.php';
 $extraStyle = '';
 
@@ -37,7 +37,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var KE = new Float64Array(64);
   for (var i0 = 0; i0 < 8; i0++) for (var j0 = 0; j0 < 8; j0++) KE[i0 * 8 + j0] = kk[KI[i0][j0]] / (1 - nu * nu);
 
-  var NX, NY, NE, ND, EDOF, X, XN, DC, CE, EE, U, F, FIX, R, Z, Pp, Q, DIAG, FW, FI;
+  var TN, NX, NY, NE, ND, EDOF, X, XN, DC, CE, EE, U, F, FIX, R, Z, Pp, Q, DIAG, FW, FI;
   var span = 'bridge', mass = 0.45, vol = 1, volT = 0.4;
 
   function build() {
@@ -51,7 +51,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var d = [2 * (n1 + 1), 2 * (n1 + 1) + 1, 2 * (n2 + 1), 2 * (n2 + 1) + 1, 2 * n2, 2 * n2 + 1, 2 * n1, 2 * n1 + 1];
       for (var k = 0; k < 8; k++) EDOF[e * 8 + k] = d[k];
     }
-    X = new Float64Array(NE).fill(1); XN = new Float64Array(NE);
+    X = new Float64Array(NE).fill(1); XN = new Float64Array(NE); TN = new Float32Array(NE);
     DC = new Float64Array(NE); CE = new Float64Array(NE); EE = new Float64Array(NE);
     U = new Float64Array(ND); F = new Float64Array(ND); FIX = new Uint8Array(ND);
     R = new Float64Array(ND); Z = new Float64Array(ND); Pp = new Float64Array(ND); Q = new Float64Array(ND); DIAG = new Float64Array(ND);
@@ -182,12 +182,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ES = Math.min(W * 0.84 / NX, H * 0.66 / NY);
     OX = (W - ES * NX) / 2; OY = (H - ES * NY) / 2 - H * 0.02;
     SW = NX * SUB; SH = NY * SUB;
-    SHADE = new Float32Array(SW * SH);
+    SHADE = new Float32Array(SW * SH); TSH = new Float32Array(SW * SH);
     simg = new ImageData(SW, SH);
     sbuf = document.createElement('canvas'); sbuf.width = SW; sbuf.height = SH;
     sctx = sbuf.getContext('2d');
   }
-  var BG = P.bg, LN = P.line, ST = P.steel, DEEP = P.deep;
+  var BG = P.bg, LN = P.line, ST = P.steel, DEEP = P.deep, AC = P.accent, TSH = null;
   function render() {
     if (!SHADE) layout();
     var i, j;
@@ -198,6 +198,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
         var gx = (i + 0.5) / SUB - 0.5, x0 = Math.max(0, Math.min(NX - 1, Math.floor(gx))), x1 = Math.min(NX - 1, x0 + 1), fx = Math.max(0, Math.min(1, gx - x0));
         var a = X[y0 * NX + x0] * (1 - fx) + X[y0 * NX + x1] * fx, b = X[y1 * NX + x0] * (1 - fx) + X[y1 * NX + x1] * fx;
         SHADE[j * SW + i] = a * (1 - fy) + b * fy;
+        var ta = TN[y0 * NX + x0] * (1 - fx) + TN[y0 * NX + x1] * fx, tb = TN[y1 * NX + x0] * (1 - fx) + TN[y1 * NX + x1] * fx;
+        TSH[j * SW + i] = ta * (1 - fy) + tb * fy;
       }
     }
     var d = simg.data;
@@ -213,6 +215,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var dist = Math.abs(v - 0.5) / g;
       var line = Math.max(0, 1 - dist / 1.1) * 0.85;
       r += (LN[0] - r) * line; gg += (LN[1] - gg) * line; bb += (LN[2] - bb) * line;
+      /* 触ったところはシアンに色づき、ゆっくり元に戻る */
+      var tn = TSH[k];
+      if (tn > 0.01) { var tq = tn * 0.5; r += (AC[0] - r) * tq; gg += (AC[1] - gg) * tq; bb += (AC[2] - bb) * tq; }
       d[o] = r; d[o + 1] = gg; d[o + 2] = bb; d[o + 3] = 255;
     }
     sctx.putImageData(simg, 0, 0);
@@ -270,19 +275,33 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ------------------------------------------------ 操作 */
-  var down = false, idle = 99, autoT = 0, wantX = 0, wantY = 0;
+  var down = false, idle = 99, autoT = 0, wantX = 0, wantY = 0, paintMode = 1;
+  function each(gx, gy, r, fn) {
+    for (var ey = Math.max(0, Math.floor(gy - r)); ey < Math.min(NY, Math.ceil(gy + r)); ey++)
+      for (var ex = Math.max(0, Math.floor(gx - r)); ex < Math.min(NX, Math.ceil(gx + r)); ex++)
+        if (Math.hypot(ex + 0.5 - gx, ey + 0.5 - gy) < r) fn(ey * NX + ex);
+  }
+  function paint(gx, gy, r) {
+    each(gx, gy, r, function (e) { X[e] = paintMode > 0 ? 1 : 0.001; TN[e] = 1; });
+  }
   function toGrid(e) {
     return [Math.max(0, Math.min(NX, (e.clientX - OX) / ES)), Math.max(0, Math.min(NY, (e.clientY - OY) / ES))];
   }
   canvas.addEventListener('pointerdown', function (e) {
     down = true; idle = 0;
-    var g = toGrid(e); wantX = g[0]; wantY = g[1];
+    var g = toGrid(e); wantX = loadX = g[0]; wantY = loadY = g[1];
+    /* 押した場所の材料を、空いていれば足し、詰まっていれば削る */
+    var mean = 0, cnt = 0;
+    each(g[0], g[1], 4.5, function (e2) { mean += X[e2]; cnt++; });
+    paintMode = cnt && mean / cnt > 0.5 ? -1 : 1;
+    paint(g[0], g[1], 6.5);
     SFX.play('collide');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
-    var g = toGrid(e); wantX = g[0]; wantY = g[1]; idle = 0;
+    var g = toGrid(e); wantX = loadX = g[0]; wantY = loadY = g[1]; idle = 0;
+    paint(g[0], g[1], 4);
     SFX.play('move', 240);
   });
   function up() { down = false; }
@@ -307,7 +326,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ------------------------------------------------ 回す */
   var lastT = performance.now(), chime = 0;
   function frame(now) {
-    var dt = Math.min(0.05, (now - lastT) / 1000);
+    var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));
     lastT = now;
     /* 材料の量は MASS で決まる。最初は板いっぱいから少しずつ削る */
     volT = 0.2 + mass * 0.4;
@@ -320,8 +339,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (span === 'bridge') { wantX = NX * (0.5 + 0.32 * s); wantY = NY; }
       else { wantX = NX; wantY = NY * (0.5 + 0.38 * s); }
     }
-    loadX += (wantX - loadX) * Math.min(1, dt * (idle > 7 ? 0.8 : 4));
-    loadY += (wantY - loadY) * Math.min(1, dt * (idle > 7 ? 0.8 : 4));
+    if (idle > 7) {
+      loadX += (wantX - loadX) * Math.min(1, dt * 0.8);
+      loadY += (wantY - loadY) * Math.min(1, dt * 0.8);
+    }
+    for (var t = 0; t < NE; t++) if (TN[t] > 0) TN[t] = Math.max(0, TN[t] - dt * 0.45);
     optimize();
     render();
     chime += dt;

@@ -5,7 +5,7 @@ recordPageView('gradient');
 
 $pageName = 'gradient';
 $pageTitle = 'GRADIENT - PULSE';
-$pageDesc = '等高線の地図の上に粒が落ち、いちばん急な下り坂の方向へ転がって、谷底を行き過ぎたり戻ったりしながら止まる。地形はゆっくり変わるので、止まった粒もまた動き出す。押したところがくぼみ、近くの粒が集まる。';
+$pageDesc = '等高線の地図の上に粒が落ち、いちばん急な下り坂の方向へ転がって、谷底を行き過ぎたり戻ったりしながら止まる。地形はゆっくり変わるので、止まった粒もまた動き出す。押したところに深いくぼみができて近くの粒が転がりこみ、なぞった跡にも浅いくぼみが残る。';
 $pageCanonical = 'https://pulse.subara3.com/gradient.php';
 $extraStyle = '';
 
@@ -38,7 +38,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       G.push({
         x0: W * (0.08 + Math.random() * 0.84), y0: H * (0.08 + Math.random() * 0.84),
         ax: 30 + Math.random() * 70, ay: 30 + Math.random() * 70,
-        fx: 0.012 + Math.random() * 0.025, fy: 0.012 + Math.random() * 0.025, ph: Math.random() * 7,
+        fx: 0.003 + Math.random() * 0.006, fy: 0.003 + Math.random() * 0.006, ph: Math.random() * 7,
         a: (i % 3 === 0 ? 1 : -1) * (0.6 + Math.random() * 0.8),
         s: base * (0.1 + Math.random() * 0.14), x: 0, y: 0
       });
@@ -83,7 +83,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ------------------------------------------------ 等高線（マーチングスクエア） */
-  var CELL = 12, CX, CY, HF, segs = [], hmin = -1, hmax = 1;
+  var CELL = 12, CX, CY, HF, segs = [], STEP = 0;
   function contours() {
     CX = Math.ceil(W / CELL) + 1; CY = Math.ceil(H / CELL) + 1;
     if (!HF || HF.length !== CX * CY) HF = new Float32Array(CX * CY);
@@ -94,10 +94,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (v < lo) lo = v; if (v > hi) hi = v;
     }
     /* 刻みはゆっくり追いかけて、線の本数が急に変わらないようにする */
-    hmin += (lo - hmin) * 0.2; hmax += (hi - hmax) * 0.2;
-    var step = (hmax - hmin) / 22;
+    /* 刻みの幅は地形ごとに一度だけ決める。くぼみを作っても他の線は動かない */
+    if (!STEP) STEP = (hi - lo) / 30;
+    var step = STEP;
     segs = [];
-    var L0 = Math.ceil(hmin / step), L1 = Math.floor(hmax / step);
+    var L0 = Math.ceil(lo / step), L1 = Math.floor(hi / step);
     for (var L = L0; L <= L1; L++) {
       var lv = L * step, list = [];
       for (j = 0; j < CY - 1; j++) for (i = 0; i < CX - 1; i++) {
@@ -161,7 +162,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var k = 0;
     for (var i = 0; i < wells.length; i++) {
       var w = wells[i], d = Math.hypot(x - w.x, y - w.y) / (w.s * 1.6);
-      if (d < 1) k = Math.max(k, (1 - d) * Math.min(1, w.d / 0.6));
+      if (d < 1) k = Math.max(k, (1 - d * 0.7) * Math.min(1, w.d / 0.5));
     }
     return k;
   }
@@ -170,9 +171,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var i, j, s;
     ctx.lineWidth = 1;
     /* 5 本ごとに白い計曲線、間は鋼色の細い線。くぼみの中だけシアン */
+    ctx.lineWidth = 1.2;
     for (s = 0; s < segs.length; s++) {
       var S = segs[s], major = S.L % 5 === 0, pts = S.pts, hot = [];
-      ctx.strokeStyle = major ? P.rgba(P.line, 0.42) : P.rgba(P.steel, 0.4);
+      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = major ? P.rgba(P.line, 0.6) : P.rgba(P.steel, 0.55);
       ctx.beginPath();
       for (j = 0; j < pts.length; j += 2) {
         var p = pts[j], q = pts[j + 1];
@@ -181,7 +184,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
       }
       ctx.stroke();
       if (hot.length) {
-        ctx.strokeStyle = P.rgba(P.accent, 0.55);
+        ctx.strokeStyle = P.rgba(P.accent, 0.9);
+        ctx.lineWidth = 1.8;
         ctx.beginPath();
         for (j = 0; j < hot.length; j += 2) { ctx.moveTo(hot[j][0], hot[j][1]); ctx.lineTo(hot[j + 1][0], hot[j + 1][1]); }
         ctx.stroke();
@@ -209,24 +213,40 @@ require_once __DIR__ . '/includes/floating-nav.php';
       for (i = 0; i < B.length; i++) {
         var b = B[i];
         if (Math.min(2, (b.a * 3) | 0) !== g) continue;
-        ctx.moveTo(b.x + 2.4, b.y); ctx.arc(b.x, b.y, 2.4, 0, Math.PI * 2);
+        ctx.moveTo(b.x + 3, b.y); ctx.arc(b.x, b.y, 3, 0, Math.PI * 2);
       }
       ctx.fill();
     }
   }
 
   /* ------------------------------------------------ 操作 */
-  var held = null;
+  var held = null, lastWell = [0, 0];
+  function kick(x, y, R) {
+    for (var i = 0; i < B.length; i++) {
+      var b = B[i], dx = x - b.x, dy = y - b.y, d = Math.hypot(dx, dy);
+      if (d < R && d > 1) { var k = (1 - d / R) * 160; b.vx += dx / d * k; b.vy += dy / d * k; b.still = 0; }
+    }
+  }
   canvas.addEventListener('pointerdown', function (e) {
-    held = { x: e.clientX, y: e.clientY, d: 0.15, s: Math.min(W, H) * 0.07, hold: true };
+    /* 押した瞬間に深いくぼみができ、近くの粒がそちらへ転がり出す */
+    held = { x: e.clientX, y: e.clientY, d: 1.6, s: Math.min(W, H) * 0.1, hold: true };
     wells.push(held);
-    if (wells.length > 6) wells.shift();
+    if (wells.length > 14) wells.shift();
+    kick(held.x, held.y, 200);
+    lastWell = [held.x, held.y];
     SFX.play('ripple');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!held) return;
-    held.x += (e.clientX - held.x) * 0.5; held.y += (e.clientY - held.y) * 0.5;
+    held.x = e.clientX; held.y = e.clientY;
+    /* なぞった跡にも浅いくぼみが残る */
+    if (Math.hypot(held.x - lastWell[0], held.y - lastWell[1]) > 50) {
+      wells.push({ x: held.x, y: held.y, d: 0.8, s: Math.min(W, H) * 0.055, hold: false });
+      if (wells.length > 14) wells.splice(0, 1);
+      kick(held.x, held.y, 130);
+      lastWell = [held.x, held.y];
+    }
     SFX.play('move', 220);
   });
   function up() { if (held) held.hold = false; held = null; }
@@ -241,7 +261,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     b.addEventListener('click', function () {
       document.querySelectorAll('[data-land]').forEach(function (o) { o.classList.toggle('active', o === b); });
       land = b.dataset.land;
-      makeLand();
+      makeLand(); STEP = 0;
       SFX.play('toggle');
     });
   });
@@ -251,13 +271,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ------------------------------------------------ 回す */
   var lastT = performance.now(), tick = 0, chime = 0;
   function frame(now) {
-    var dt = Math.min(0.05, (now - lastT) / 1000);
+    var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));
     lastT = now; clock += dt; tick++;
     place();
     for (var i = wells.length - 1; i >= 0; i--) {
       var w = wells[i];
-      if (w.hold) { w.d = Math.min(1.6, w.d + dt * 0.9); w.s = Math.min(Math.min(W, H) * 0.12, w.s + dt * 12); }
-      else { w.d -= dt * 0.12; if (w.d <= 0) wells.splice(i, 1); }
+      if (w.hold) { w.d = Math.min(2.2, w.d + dt * 0.5); w.s = Math.min(Math.min(W, H) * 0.12, w.s + dt * 12); }
+      else { w.d -= dt * 0.08; if (w.d <= 0) wells.splice(i, 1); }
     }
     if (tick % 2 === 0) contours();
     moveBeads(dt);

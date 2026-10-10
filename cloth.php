@@ -15,7 +15,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <canvas id="canvas"></canvas>
 
 <div id="controls" class="drawer-controls">
-  <div class="ctl-row"><label for="k-wind">WIND</label><input type="range" id="k-wind" min="0" max="100" value="45"></div>
+  <div class="ctl-row"><label for="k-wind">WIND</label><input type="range" id="k-wind" min="0" max="100" value="20"></div>
   <div class="ctl-btns"><button type="button" class="active" data-look="silk">SILK</button><button type="button" data-look="net">NET</button></div>
   <div class="ctl-btns"><button type="button" id="k-reset">RESET</button></div>
 </div>
@@ -36,6 +36,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var px = new Float32Array(NP), py = new Float32Array(NP), pz = new Float32Array(NP);
   var ox = new Float32Array(NP), oy = new Float32Array(NP), oz = new Float32Array(NP);
   var pin = new Uint8Array(NP);
+  var heat = new Float32Array(NP);      // 触られた糸が水色に光る強さ（布と一緒に動き、ゆっくり消える）
   var sx = new Float32Array(NP), sy = new Float32Array(NP), br = new Float32Array(NP);
   var links = [], LA, LB, LR, NL = 0;
   var S = 10, top = 0, left = 0, FOC = 1100;
@@ -47,7 +48,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     for (var j = 0; j < CH; j++) for (var i = 0; i < CW; i++) {
       var k = j * CW + i;
       px[k] = ox[k] = left + i * S;
-      py[k] = oy[k] = top + j * S * 0.35;          // 少したたんだ状態から落とす
+      py[k] = oy[k] = top + j * S * 0.97;          // ほぼ垂れ下がった状態から始める
       pz[k] = oz[k] = (Math.random() - 0.5) * 2;
       pin[k] = j === 0 && (i % 5 === 0 || i === CW - 1) ? 1 : 0;
     }
@@ -70,16 +71,16 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   function step(h) {
     t += h;
-    var g = 700 * h * h, wz = wind * 2600 * h * h;
-    var tr = 54 * S / 10;
+    var g = 700 * h * h, wz = wind * 1900 * h * h;
+    var tr = 150;
     for (var k = 0; k < NP; k++) {
       if (pin[k]) continue;
       var x = px[k], y = py[k], z = pz[k];
-      var vx = (x - ox[k]) * 0.992, vy = (y - oy[k]) * 0.992, vz = (z - oz[k]) * 0.985;
+      var vx = (x - ox[k]) * 0.984, vy = (y - oy[k]) * 0.984, vz = (z - oz[k]) * 0.98;
       ox[k] = x; oy[k] = y; oz[k] = z;
       var i = k % CW, j = (k / CW) | 0;
       /* 風: 横から斜めに渡っていく大きなうねり＋ときどきの突風 */
-      var gust = 0.55 + 0.45 * Math.sin(t * 0.21) * Math.sin(t * 0.13 + 1.7);
+      var gust = 0.45 + 0.3 * Math.sin(t * 0.21) * Math.sin(t * 0.13 + 1.7);
       var w = (Math.sin(t * 0.9 - i * 0.16 + j * 0.05) + 0.6 * Math.sin(t * 1.55 - j * 0.21 + i * 0.07)) * gust;
       px[k] = x + vx;
       py[k] = y + vy + g;
@@ -90,9 +91,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
         if (d2 < tr * tr) {
           var f = 1 - Math.sqrt(d2) / tr; f = f * f * touch.s;
           /* 押し込みは位置だけ動かし、勢いはほとんど残さない（暴れないように） */
-          var dz = f * 2.2, mx = touch.dx * f * 0.12, my = touch.dy * f * 0.12;
-          pz[k] += dz; oz[k] += dz * 0.85;
-          px[k] += mx; ox[k] += mx * 0.7; py[k] += my; oy[k] += my * 0.7;
+          var want = 180 * f;
+          if (pz[k] < want) { var dz = (want - pz[k]) * 0.3; pz[k] += dz; oz[k] += dz * 0.8; }
         }
       }
     }
@@ -175,6 +175,21 @@ require_once __DIR__ . '/includes/floating-nav.php';
       ctx.strokeStyle = P.rgba(P.line, silk ? 0.07 + f * 0.3 : 0.16 + f * 0.62);
       ctx.stroke(linePaths[b2]);
     }
+    /* 触られた糸 */
+    var hp = new Path2D(), hp2 = new Path2D(), anyH = false;
+    for (var hj = 0; hj < CH; hj++) for (var hi = 0; hi < CW; hi++) {
+      var hk = hj * CW + hi, hv = heat[hk];
+      if (hv < 0.04) continue;
+      anyH = true;
+      var P2 = hv > 0.45 ? hp : hp2;
+      if (hi < CW - 1) { P2.moveTo(sx[hk], sy[hk]); P2.lineTo(sx[hk + 1], sy[hk + 1]); }
+      if (hj < CH - 1) { P2.moveTo(sx[hk], sy[hk]); P2.lineTo(sx[hk + CW], sy[hk + CW]); }
+    }
+    if (anyH) {
+      ctx.lineWidth = 1.4;
+      ctx.strokeStyle = P.rgba(P.accent, 0.4); ctx.stroke(hp2);
+      ctx.strokeStyle = P.rgba(P.accent, 0.85); ctx.stroke(hp);
+    }
     /* 棒と留め具 */
     var y0 = sy[0];
     ctx.strokeStyle = P.rgba(P.line, 0.8);
@@ -190,9 +205,18 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
   }
 
+  function warm(x, y, k) {
+    k = k || 1.2;
+    for (var i = 0; i < NP; i++) {
+      var dx = sx[i] - x, dy = sy[i] - y, d2 = dx * dx + dy * dy;
+      if (d2 < 150 * 150) heat[i] = Math.min(1, heat[i] + (1 - Math.sqrt(d2) / 150) * k);
+    }
+  }
+
   /* ---------------------------------------------------------- 操作 */
   canvas.addEventListener('pointerdown', function (e) {
     touch.on = true; touch.x = e.clientX; touch.y = e.clientY; touch.dx = touch.dy = 0;
+    warm(e.clientX, e.clientY);
     canvas.setPointerCapture(e.pointerId);
     SFX.play('collide', 200);
   });
@@ -200,6 +224,18 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (!touch.on) return;
     touch.dx = e.clientX - touch.x; touch.dy = e.clientY - touch.y;
     touch.x = e.clientX; touch.y = e.clientY;
+    /* なぞると、指のまわりの布が指と一緒に引っぱられる（すぐについてくる） */
+    var gr = 170;
+    for (var k = 0; k < NP; k++) {
+      if (pin[k]) continue;
+      var ddx = sx[k] - touch.x, ddy = sy[k] - touch.y, d2 = ddx * ddx + ddy * ddy;
+      if (d2 > gr * gr) continue;
+      var f = 1 - Math.sqrt(d2) / gr; f *= f;
+      heat[k] = Math.min(1, heat[k] + f * 1.5);
+      var mx = touch.dx * f, my = touch.dy * f;
+      px[k] += mx; py[k] += my; ox[k] += mx * 0.8; oy[k] += my * 0.8;
+      var lift = -Math.min(18, Math.hypot(touch.dx, touch.dy)) * f; pz[k] += lift; oz[k] += lift * 0.7;   // つまんだところが手前に持ち上がる
+    }
     if (Math.abs(touch.dx) + Math.abs(touch.dy) > 4) SFX.play('move', 180);
   });
   function up() { touch.on = false; }
@@ -224,10 +260,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function frame(now) {
     var dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
-    touch.s += ((touch.on ? 1 : 0) - touch.s) * Math.min(1, dt * 8);
+    touch.s += ((touch.on ? 1 : 0) - touch.s) * Math.min(1, dt * (touch.on ? 12 : 2.5));
     var n = Math.max(1, Math.round(dt / (1 / 120)));
     for (var i = 0; i < n; i++) step(dt / n);
     touch.dx *= 0.5; touch.dy *= 0.5;
+    var hd = Math.exp(-dt * 0.9);
+    for (var q = 0; q < NP; q++) heat[q] *= hd;
+    if (touch.on) warm(touch.x, touch.y, dt * 4);
     draw();
     requestAnimationFrame(frame);
   }

@@ -5,7 +5,7 @@ recordPageView('firefly');
 
 $pageName = 'firefly';
 $pageTitle = 'FIREFLY - PULSE';
-$pageDesc = '草むらの上で、ホタルがばらばらの間隔で光る。光った虫の近くにいる虫は少し早めに光るので、近いものどうしから光る時刻が揃っていく。触ると、そのまわりのホタルが同時に光る。';
+$pageDesc = '草むらの上でホタルがばらばらの間隔で光り、近いものどうしから光る時刻が揃っていく。押したところにホタルが集まって一斉に光り、なぞった跡には明かりが残って草が照らされる。';
 $pageCanonical = 'https://pulse.subara3.com/firefly.php';
 $extraStyle = '';
 
@@ -59,6 +59,11 @@ require_once __DIR__ . '/includes/floating-nav.php';
         var g = lightOf[j]; if (g < 0.02) continue;
         var dx = fx[j] - mx, dy = fy[j] - my, d2 = dx * dx + dy * dy;
         if (d2 < R2) lit += g * (1 - d2 / R2);
+      }
+      /* 指は手提げの灯りのように、近くの草を照らす */
+      for (var q = 0; q < lamps.length; q++) {
+        var lp = lamps[q], tdx = lp.x - mx, tdy = lp.y - my, td2 = tdx * tdx + tdy * tdy;
+        if (td2 < 150 * 150) lit += lp.a * 1.8 * (1 - td2 / (150 * 150));
       }
       b.lit = Math.min(1, lit * 0.9);
       bucket[Math.min(BUCKETS - 1, Math.floor(b.lit * BUCKETS))].push(b);
@@ -145,7 +150,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   ctx = P.fit(canvas, function (w, h) { W = w; H = h; makeGrass(); });
 
   /* ---------------------------------------------------------- 操作 */
-  var touch = { x: 0, y: 0, on: false }, rings = [];
+  var touch = { x: 0, y: 0, on: false, glow: 0 }, rings = [], lamps = [], lastLamp = null;
   function lightAround(x, y, r) {
     var n = 0;
     for (var i = 0; i < N; i++) {
@@ -155,17 +160,34 @@ require_once __DIR__ . '/includes/floating-nav.php';
     propagate();
     return n;
   }
+  /* 指のところからホタルが飛び立つ（遠くのホタルを 1 匹ずつ呼び寄せて使う） */
+  var recycle = 0;
+  function release(x, y, n, r) {
+    for (var k = 0; k < n; k++) {
+      var i = recycle; recycle = (recycle + 1) % N;
+      var a = Math.random() * 6.283, rr = Math.sqrt(Math.random()) * r;
+      fx[i] = x + Math.cos(a) * rr; fy[i] = y + Math.sin(a) * rr; hd[i] = a;
+      ph[i] = 0; since[i] = Math.random() * 0.15;
+    }
+  }
   canvas.addEventListener('pointerdown', function (e) {
     touch.on = true; touch.x = e.clientX; touch.y = e.clientY;
+    lamps.push({ x: touch.x, y: touch.y, a: 1 }); lastLamp = { x: touch.x, y: touch.y };
+    release(touch.x, touch.y, 14, 50);
     rings.push({ x: touch.x, y: touch.y, t: 0 });
-    lightAround(touch.x, touch.y, 130);
+    lightAround(touch.x, touch.y, 170);
     SFX.play('ripple');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!touch.on) return;
     touch.x = e.clientX; touch.y = e.clientY;
-    if (lightAround(touch.x, touch.y, 50)) SFX.play('tick', 260);
+    if (Math.hypot(touch.x - lastLamp.x, touch.y - lastLamp.y) > 16) {
+      lamps.push({ x: touch.x, y: touch.y, a: 1 }); lastLamp = { x: touch.x, y: touch.y };
+      if (lamps.length > 60) lamps.shift();
+      release(touch.x, touch.y, 4, 26);
+    }
+    if (lightAround(touch.x, touch.y, 110)) SFX.play('tick', 260);
   });
   function up() { touch.on = false; }
   canvas.addEventListener('pointerup', up);
@@ -190,6 +212,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now; T += dt;
 
+    for (var lq = lamps.length - 1; lq >= 0; lq--) { lamps[lq].a -= dt * 0.45; if (lamps[lq].a <= 0) lamps.splice(lq, 1); }
     var burst = 0;
     for (var i = 0; i < N; i++) {
       /* ふらふら飛ぶ。向きを少しずつ変え、草むらの帯から出すぎない */
@@ -219,6 +242,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
     /* 光の輪 */
     ctx.globalCompositeOperation = 'lighter';
+    /* 指でなぞった跡: やわらかい明かりがしばらく残る */
+    for (var lm = 0; lm < lamps.length; lm++) {
+      var la = lamps[lm].a, lr = 50 + la * 40;
+      ctx.globalAlpha = la * 0.75;
+      ctx.drawImage(sprite, lamps[lm].x - lr, lamps[lm].y - lr, lr * 2, lr * 2);
+    }
     for (i = 0; i < N; i++) {
       var g = lightOf[i];
       if (g < 0.01) continue;

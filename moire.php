@@ -5,7 +5,7 @@ recordPageView('moire');
 
 $pageName = 'moire';
 $pageTitle = 'MOIRÉ - PULSE';
-$pageDesc = '細い同心円を2組重ねると、太い縞が浮かんで見える。片方の中心がゆっくり動くにつれて、縞の向きと本数が変わる。ドラッグすると、動く方の中心が指についてくる。';
+$pageDesc = '細い同心円を2組重ねると、太い縞が浮かんで見える。片方の中心がゆっくり動くにつれて、縞の向きと本数が変わる。押すと動く方の中心が指の位置へ移り、指のまわりでは2組の円が水色に浮かんで重なり方が見える。';
 $pageCanonical = 'https://pulse.subara3.com/moire.php';
 $extraStyle = '';
 
@@ -111,7 +111,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var d = img.data;
     for (var k = 0; k < GX * GY; k++) {
       var t = 0.5 + 0.5 * Math.cos(fd[k] * Math.PI * 2);
-      t = t * t * 0.42 * fs[k];
+      t = t * t * 0.6 * fs[k];
       var o = k * 4;
       d[o] = BG[0] + (ST[0] - BG[0]) * t; d[o + 1] = BG[1] + (ST[1] - BG[1]) * t; d[o + 2] = BG[2] + (ST[2] - BG[2]) * t; d[o + 3] = 255;
     }
@@ -155,8 +155,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
     fields();
     bands();
     ctx.lineWidth = 1;
-    ringsAt(mv.x, mv.y, 0.09);
-    if (look === 'rings') ringsAt(fx0, fy0, 0.09); else linesAt(0.09);
+    ringsAt(mv.x, mv.y, 0.06);
+    if (look === 'rings') ringsAt(fx0, fy0, 0.06); else linesAt(0.06);
     /* 暗い縞の芯（双曲線・放物線の束）を細い白線で引く */
     ctx.lineWidth = 1;
     var cuts = [0.08, 0.4, 0.75, 1.01];
@@ -167,12 +167,38 @@ require_once __DIR__ . '/includes/floating-nav.php';
       ctx.stroke();
     }
     if (look === 'rings') cross(fx0, fy0, P.steel, 0.6);
+    /* つかんでいる間は、指のまわりで 2 組の円そのものが浮かび上がる（重なりの目が見える） */
+    if (mv.lit > 0.01) {
+      var R0 = 230;
+      ctx.save();
+      ctx.beginPath(); ctx.arc(mv.x, mv.y, R0, 0, Math.PI * 2); ctx.clip();
+      ctx.lineWidth = 1.3;
+      ctx.strokeStyle = P.rgba(P.accent, 0.7 * mv.lit);
+      ctx.beginPath();
+      for (var r = pitch; r < R0 * 2; r += pitch) { ctx.moveTo(mv.x + r, mv.y); ctx.arc(mv.x, mv.y, r, 0, Math.PI * 2); }
+      ctx.stroke();
+      ctx.strokeStyle = P.rgba(P.line, 0.42 * mv.lit);
+      ctx.beginPath();
+      if (look === 'rings') {
+        var dc = Math.hypot(mv.x - fx0, mv.y - fy0);
+        for (r = Math.max(pitch, Math.floor((dc - R0) / pitch) * pitch); r < dc + R0; r += pitch) { ctx.moveTo(fx0 + r, fy0); ctx.arc(fx0, fy0, r, 0, Math.PI * 2); }
+      } else {
+        var c = Math.cos(gAng), sn = Math.sin(gAng), far = Math.hypot(W, H);
+        for (var d = -far + (far % pitch); d < far; d += pitch) {
+          var px = W / 2 + c * d, py = H / 2 + sn * d;
+          if (Math.abs((mv.x - px) * c + (mv.y - py) * sn) > R0) continue;
+          ctx.moveTo(px - sn * far, py + c * far); ctx.lineTo(px + sn * far, py - c * far);
+        }
+      }
+      ctx.stroke();
+      ctx.restore();
+    }
     cross(mv.x, mv.y, P.mix(P.line, P.accent, mv.lit), 0.6 + 0.35 * mv.lit);
   }
 
   /* 触っていないとき、動く中心は画面の中をゆっくり 8 の字に歩く */
   function wander(t) {
-    var x = W / 2 + W * 0.22 * Math.sin(t * 0.09 + 0.6), y = H / 2 + H * 0.22 * Math.sin(t * 0.14 + 1.8);
+    var x = W / 2 + W * 0.22 * Math.sin(t * 0.035 + 0.6), y = H / 2 + H * 0.22 * Math.sin(t * 0.052 + 1.8);
     /* LINES では、縞の開く側が画面に入るよう、中心を線の向きの反対側へ寄せる */
     if (look === 'lines') { x -= Math.cos(gAng) * W * 0.3; y -= Math.sin(gAng) * H * 0.3; }
     return { x: x, y: y };
@@ -217,18 +243,22 @@ require_once __DIR__ . '/includes/floating-nav.php';
     lastT = now;
     clock += dt;
     /* 止まっている方の中心もわずかに漂う */
-    fx0 = W / 2 - W * 0.06 * Math.sin(clock * 0.05); fy0 = H / 2 - H * 0.05 * Math.cos(clock * 0.04);
-    gAng = 0.3 + 0.5 * Math.sin(clock * 0.03);
+    fx0 = W / 2 - W * 0.06 * Math.sin(clock * 0.03); fy0 = H / 2 - H * 0.05 * Math.cos(clock * 0.025);
+    gAng = 0.3 + 0.5 * Math.sin(clock * 0.018);
     if (!mv.held) {
       walk += dt;
       var w = wander(walk);
       if (resume > 0) resume = Math.max(0, resume - dt);
-      var blend = Math.min(1, dt * 0.5 * (1 - resume / 4));
-      mv.tx += (w.x - mv.tx) * blend; mv.ty += (w.y - mv.ty) * blend;
+      /* 離したあと 4 秒はその場にとどまり、それから秒速 25px 以下でゆっくり元の歩みへ戻る */
+      if (resume <= 0) {
+        var ex = w.x - mv.tx, ey = w.y - mv.ty, el = Math.hypot(ex, ey), stepMax = dt * 25;
+        if (el > stepMax) { ex *= stepMax / el; ey *= stepMax / el; }
+        mv.tx += ex; mv.ty += ey;
+      }
     }
-    var k = Math.min(1, dt * (mv.held ? 8 : 2.5));
+    var k = mv.held ? 1 : Math.min(1, dt * 2.5);
     mv.x += (mv.tx - mv.x) * k; mv.y += (mv.ty - mv.y) * k;
-    mv.lit = mv.held ? Math.min(1, mv.lit + dt * 5) : Math.max(0, mv.lit - dt * 1.2);
+    mv.lit = mv.held ? Math.min(1, mv.lit + dt * 5) : Math.max(0, mv.lit - dt * 2.2);
     draw();
     requestAnimationFrame(frame);
   }

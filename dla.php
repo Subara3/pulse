@@ -5,7 +5,7 @@ recordPageView('dla');
 
 $pageName = 'dla';
 $pageTitle = 'DLA - PULSE';
-$pageDesc = '小さな粒がでたらめに動き回り、円の縁や先に止まった粒にふれるとそこで止まる。止まった粒が積もって、中心へ向かう枝が伸びていく。押すとそこに芯が置かれ、なぞるとそこから粒が出る。';
+$pageDesc = '小さな粒がでたらめに動き回り、円の縁や先に止まった粒にふれるとそこで止まる。止まった粒が積もって、中心へ向かう枝が伸びていく。押すとそこに粒が集まって小さな枝がすぐに育ち、なぞると指の跡に沿って枝の列ができる。';
 $pageCanonical = 'https://pulse.subara3.com/dla.php';
 $extraStyle = '';
 
@@ -83,7 +83,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     if (pre) {
       var t0 = performance.now(), n0 = np;
-      while (performance.now() - t0 < 160 && np - n0 < 1500) walk(2);
+      while (performance.now() - t0 < 700 && np - n0 < 3000) walk(2);
     }
   }
 
@@ -158,6 +158,60 @@ require_once __DIR__ . '/includes/floating-nav.php';
       spawnAt(p.x + Math.cos(a) * r, p.y + Math.sin(a) * r, 1);
     }
   }
+  /* 押したところでは、その場で粒を集めて小さな枝をすぐに育てる */
+  var jobs = [];
+  function burst(gx, gy, n) {
+    var ix = Math.round(gx), iy = Math.round(gy);
+    if (ix < 2 || iy < 2 || ix >= GX - 2 || iy >= GY - 2) return;
+    if (!occ[iy * GX + ix]) { var id0 = addP(ix, iy, -1, true); if (id0 >= 0) par[id0] = id0; }
+    jobs.push({ x: ix, y: iy, left: n, r: 2 });
+    if (jobs.length > 40) jobs.shift();
+    /* 最初のひとかたまりはその場で育てて、押した瞬間に見えるようにする */
+    for (var z = 0; z < 6; z++) runJobs(6);
+  }
+  function runJobs(budget) {
+    var t0 = performance.now();
+    for (var q = jobs.length - 1; q >= 0; q--) {
+      var jb = jobs[q], per = Math.min(jb.left, 30);
+      for (var m = 0; m < per; m++) {
+        var stuckOne = false;
+        for (var tries = 0; tries < 6 && !stuckOne; tries++) {
+          var a = Math.random() * 6.2832, rr = jb.r + 3;
+          var x = Math.round(jb.x + Math.cos(a) * rr), y = Math.round(jb.y + Math.sin(a) * rr);
+          for (var st = 0; st < 260; st++) {
+            /* 押したところへ少し引き寄せられながら歩く */
+            var nx, ny;
+            if (Math.random() < 0.38) {
+              var ex = jb.x - x, ey = jb.y - y;
+              if (Math.abs(ex) > Math.abs(ey)) { nx = x + (ex > 0 ? 1 : -1); ny = y; } else { nx = x; ny = y + (ey > 0 ? 1 : -1); }
+            } else {
+              var d = (Math.random() * 4) | 0;
+              nx = x + (d === 0 ? 1 : d === 1 ? -1 : 0); ny = y + (d === 2 ? 1 : d === 3 ? -1 : 0);
+            }
+            var ddx = nx - jb.x, ddy = ny - jb.y;
+            if (ddx * ddx + ddy * ddy > (rr + 10) * (rr + 10)) break;
+            if (nx < 1 || ny < 1 || nx >= GX - 1 || ny >= GY - 1) break;
+            var rcx = nx - cxg, rcy = ny - cyg;
+            if (rcx * rcx + rcy * rcy > (R - 1) * (R - 1)) break;
+            var k = ny * GX + nx;
+            if (occ[k]) continue;
+            x = nx; y = ny;
+            var o = occ[k - 1] || occ[k + 1] || occ[k - GX] || occ[k + GX] || occ[k - GX - 1] || occ[k - GX + 1] || occ[k + GX - 1] || occ[k + GX + 1];
+            if (o && mine[o - 1]) {
+              addP(x, y, o - 1, true);
+              var dr = Math.sqrt((x - jb.x) * (x - jb.x) + (y - jb.y) * (y - jb.y));
+              if (dr > jb.r) jb.r = dr;
+              stuckOne = true;
+              break;
+            }
+          }
+        }
+        jb.left--;
+      }
+      if (jb.left <= 0) jobs.splice(q, 1);
+      if (performance.now() - t0 > (budget || 7)) break;
+    }
+  }
   var down = false, last = null;
   canvas.addEventListener('pointerdown', function (e) {
     down = true;
@@ -172,8 +226,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var id0 = addP(ix, iy, nbr, true);
       if (nbr < 0 && id0 >= 0) par[id0] = id0;
     }
-    pour(g, 40);
-    marks.push({ x: g.x * C, y: g.y * C, t: 0 });
+    burst(g.x, g.y, 230);
+    pour(g, 30);
     SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
   });
@@ -181,7 +235,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (!down) return;
     var g = clampIn(toGrid(e));
     if (Math.hypot(g.x - last.x, g.y - last.y) < 3) return;
-    pour(g, 14);
+    pour(g, 6);
+    burst(g.x, g.y, 30);
     last = g;
     SFX.play('move', 180);
   });
@@ -208,10 +263,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (par[k] < 0 && !mine[k]) continue;
       var x1 = px[k] * C + h + jx[k], y1 = py[k] * C + h + jy[k];
       var age = T - born[k];
-      if (mine[k] && age < 10) { cyanPath.rect(x1 - 1, y1 - 1, 2, 2); continue; }
+      if (mine[k] && age < 10) { cyanPath.rect(x1 - 2, y1 - 2, 4, 4); continue; }
       var q = 0.3 + 0.7 * Math.exp(-age / 40);
       var bi = Math.min(NB, Math.round(q * NB));
-      var rr = 1.05 + q * 0.45;
+      var rr = 1.3 + q * 0.5;
       paths[bi].rect(x1 - rr, y1 - rr, rr * 2, rr * 2);
     }
     /* 古い粒ほど鋼色に沈み、伸びている先だけが白い */
@@ -231,12 +286,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ctx.stroke();
 
     /* 漂っている粒。中心ほど濃い霞になる */
-    ctx.fillStyle = P.rgba(LN, 0.34);
+    ctx.fillStyle = P.rgba(LN, 0.5);
     ctx.beginPath();
     var cy = [];
     for (var i = 0; i < nw; i++) {
       if (wc[i] > 0) { cy.push(i); continue; }
-      ctx.rect(wx[i] * C + h - 0.6, wy[i] * C + h - 0.6, 1.2, 1.2);
+      ctx.rect(wx[i] * C + h - 0.8, wy[i] * C + h - 0.8, 1.6, 1.6);
     }
     ctx.fill();
     if (cy.length) {
@@ -281,6 +336,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       /* 指が中心近くまで届いたら、ゆっくり消して輪からやり直す */
       if (inner < R * 0.16 || np > CAP - 50) { fade = 0.0001; SFX.play('pop', 3000); }
     }
+    runJobs();
     draw();
     requestAnimationFrame(frame);
   }

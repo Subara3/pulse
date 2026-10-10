@@ -5,7 +5,7 @@ recordPageView('fluidveil');
 
 $pageName = 'fluidveil';
 $pageTitle = 'FLUID VEIL - PULSE';
-$pageDesc = '流れに乗った白い細い線が画面を動き、あちこちで渦を巻いてはほどけていく。指でなぞるとその向きに流れが起き、触れた線はしばらく水色に光りながら運ばれる。';
+$pageDesc = '流れに乗った白い細い線が画面を動き、あちこちで渦を巻いてはほどけていく。押すとその場所に大きな渦ができ、まわりの線が水色に光りながら巻き込まれる。なぞるとその向きに流れが起きる。';
 $pageCanonical = 'https://pulse.subara3.com/fluidveil.php';
 $extraStyle = '';
 
@@ -15,7 +15,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 <canvas id="canvas"></canvas>
 
 <div id="controls" class="drawer-controls">
-  <div class="ctl-row"><label for="k-flow">FLOW</label><input type="range" id="k-flow" min="0" max="100" value="45"></div>
+  <div class="ctl-row"><label for="k-flow">FLOW</label><input type="range" id="k-flow" min="0" max="100" value="32"></div>
   <div class="ctl-row"><label for="k-curl">CURL</label><input type="range" id="k-curl" min="0" max="100" value="50"></div>
   <div class="ctl-btns"><button type="button" id="k-still">STILL</button></div>
 </div>
@@ -220,8 +220,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var a = Math.min(1, sp / 150) * fade;
       if (glow[i] > 0.1 && fade > 0.2) { cyanPath.push(i); continue; }
       /* 淀んだところは描かない。暗い地が残って、流れの帯だけが浮かぶ */
-      if (a < 0.12) continue;
-      paths[Math.min(BUCKETS - 1, ((a - 0.12) / 0.88 * BUCKETS) | 0)].push(i);
+      if (a < 0.07) continue;
+      paths[Math.min(BUCKETS - 1, ((a - 0.07) / 0.93 * BUCKETS) | 0)].push(i);
     }
     ctx.lineWidth = 1;
     ctx.lineCap = 'round';
@@ -230,7 +230,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var list = paths[b];
       if (!list.length) continue;
       for (t = 0; t < TIERS; t++) {
-        ctx.strokeStyle = P.rgba(P.line, (0.08 + 0.4 * (b + 0.5) / BUCKETS) * (1 - t / TIERS));
+        ctx.strokeStyle = P.rgba(P.line, (0.14 + 0.45 * (b + 0.5) / BUCKETS) * (1 - t / TIERS));
         ctx.beginPath();
         for (n = 0; n < list.length; n++) trail(list[n], Math.round(t * per), Math.round((t + 1) * per));
         ctx.stroke();
@@ -238,7 +238,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     if (cyanPath.length) {
       for (t = 0; t < TIERS; t++) {
-        ctx.strokeStyle = P.rgba(P.accent, 0.5 * (1 - t / TIERS));
+        ctx.strokeStyle = P.rgba(P.accent, 0.68 * (1 - t / TIERS));
+        ctx.lineWidth = 1.3;
         ctx.beginPath();
         for (n = 0; n < cyanPath.length; n++) trail(cyanPath[n], Math.round(t * per), Math.round((t + 1) * per));
         ctx.stroke();
@@ -256,12 +257,18 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ---------------------------------------------------------- 操作 */
-  var down = false, last = null, lastTime = 0;
+  var down = false, last = null, lastTime = 0, spin = 1;
   canvas.addEventListener('pointerdown', function (e) {
     down = true; last = { x: e.clientX, y: e.clientY }; lastTime = performance.now();
     var cx = last.x / W * NX, cy = last.y / H * NY;
-    twist(cx, cy, NY * 0.12, 40 * (Math.random() < 0.5 ? -1 : 1));
-    mark(last.x, last.y, 46);
+    /* 押した所に、はっきり分かる渦を一つ起こす。まわりの線は青く光って巻き込まれる */
+    spin = Math.random() < 0.5 ? -1 : 1;
+    twist(cx, cy, NY * 0.17, 110 * spin);
+    for (var a = 0; a < 8; a++) {
+      var an = a / 8 * Math.PI * 2;
+      push(cx + Math.cos(an) * NY * 0.06, cy + Math.sin(an) * NY * 0.06, NY * 0.07, Math.cos(an) * 26, Math.sin(an) * 26);
+    }
+    mark(last.x, last.y, 105);
     SFX.play('spawn', 200);
     canvas.setPointerCapture(e.pointerId);
   });
@@ -272,14 +279,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (dist < 3) return;
     var dts = Math.max(0.008, (now - lastTime) / 1000);
     var vx = dx / W * NX / dts, vy = dy / H * NY / dts;
-    var sp = Math.hypot(vx, vy), lim = 40;
+    var sp = Math.hypot(vx, vy), lim = 70;
     if (sp > lim) { vx *= lim / sp; vy *= lim / sp; }
     var n = Math.ceil(dist / 10);
     for (var i = 1; i <= n; i++) {
       var x = last.x + dx * i / n, y = last.y + dy * i / n;
-      push(x / W * NX, y / H * NY, 3.2, vx * 0.3 / n, vy * 0.3 / n);
+      push(x / W * NX, y / H * NY, 5.2, vx * 1.1 / n, vy * 1.1 / n);
     }
-    mark(p.x, p.y, 38);
+    mark(p.x, p.y, 85);
     last = p; lastTime = now;
     SFX.play('move', 160);
   });
@@ -302,6 +309,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
     clock += dt;
+    /* 押したままなら、その場で渦を回し続ける */
+    if (down && last) twist(last.x / W * NX, last.y / H * NY, NY * 0.14, 90 * spin * Math.min(dt, 1 / 30));
     simulate(Math.min(dt, 1 / 30), clock);
     draw();
     requestAnimationFrame(frame);

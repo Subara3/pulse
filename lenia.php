@@ -5,7 +5,7 @@ recordPageView('lenia');
 
 $pageName = 'lenia';
 $pageTitle = 'LENIA - PULSE';
-$pageDesc = '点の集まりでできた丸い形がいくつか、後ろに薄い跡を残しながらゆっくり進んでいく。ぶつかると混ざったり消えたりする。触ったところに新しい形が1つ置かれる。';
+$pageDesc = '点の集まりでできた丸い形がいくつか、後ろに薄い跡を残しながらゆっくり進んでいく。ぶつかると混ざったり消えたりする。押したところに新しい形が1つ置かれ、なぞった跡には点の筋が残る。';
 $pageCanonical = 'https://pulse.subara3.com/lenia.php';
 $extraStyle = '';
 
@@ -16,7 +16,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
 <div id="controls" class="drawer-controls">
   <div class="ctl-row"><label for="k-pace">PACE</label><input type="range" id="k-pace" min="0" max="100" value="45"></div>
-  <div class="ctl-row"><label for="k-crowd">CROWD</label><input type="range" id="k-crowd" min="0" max="100" value="60"></div>
+  <div class="ctl-row"><label for="k-crowd">CROWD</label><input type="range" id="k-crowd" min="0" max="100" value="75"></div>
   <div class="ctl-btns"><button type="button" class="active" data-look="trail">TRAIL</button><button type="button" data-look="halo">HALO</button></div>
   <div class="ctl-btns"><button type="button" id="k-clear">CLEAR</button></div>
 </div>
@@ -31,8 +31,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* 連続値のセルオートマトン。各点は「まわりの輪の中の濃さ」で増えたり減ったりする。
      輪の重みでのたたみ込みは FFT で一度に計算する（格子は 2 のべき乗） */
   var NX, NY, N, A, A0, T, fade, label, queue, U, KR, KI, FR, FI, heat;
-  var R = 16, MU = 0.15, SIG = 0.015, DT = 0.1;
-  var look = 'trail', pace = 0.45, crowd = 0.6;
+  var R = 18, MU = 0.15, SIG = 0.015, DT = 0.1;
+  var look = 'trail', pace = 0.45, crowd = 0.75;
 
   /* 滑るように進む形（Orbium）。20×20 の濃さの表 */
   var ORB = [
@@ -195,7 +195,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var v = A[k] + DT * (2 * Math.exp(-d * d / s2) - 1);
       if (fade[k] > 0) { v -= fade[k] * 0.06; fade[k] *= 0.99; }
       A[k] = v < 0 ? 0 : v > 1 ? 1 : v;
-      var tr = T[k] * 0.978;
+      var tr = T[k] * 0.982;
       T[k] = A[k] > tr ? A[k] : tr;
     }
   }
@@ -256,7 +256,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
         var c4 = [r0 + i, r0 + i1, j1 + i, j1 + i1];
         for (var q = 0; q < 4; q++) {
           var kk = c4[q], m = A[kk] > A0[kk] ? A[kk] : A0[kk];
-          if (keep && T[kk] * 0.42 > m) m = T[kk] * 0.42;
+          if (keep && T[kk] * 0.55 > m) m = T[kk] * 0.55;
           if (m > mx) mx = m;
         }
         live[r0 + i] = mx > 0.03 ? 1 : 0;
@@ -266,14 +266,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (!live[dotCell[n >> 1]]) continue;
       var x = dots[n], y = dots[n + 1];
       var v = sampleA(x, y);
-      if (keep) { var tv = sample(T, x, y) * 0.42; if (tv > v) v = tv; }
+      if (keep) { var tv = sample(T, x, y) * 0.55; if (tv > v) v = tv; }
       if (v < 0.035) continue;
       b = Math.min(BUCKETS - 1, (v * BUCKETS) | 0);
-      var r = 0.45 + Math.sqrt(v) * 1.55;
+      var r = 0.6 + Math.sqrt(v) * 1.6;
       (sample(heat, x, y) > 0.25 ? hot : paths)[b].push(x, y, r);
     }
     for (b = 0; b < BUCKETS; b++) {
-      var alpha = 0.32 + 0.68 * (b + 1) / BUCKETS;
+      var alpha = 0.42 + 0.58 * (b + 1) / BUCKETS;
       fillDots(paths[b], P.rgba(P.line, alpha));
       fillDots(hot[b], P.rgba(P.accent, alpha));
     }
@@ -323,10 +323,22 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ---------------------------------------------------------- 操作 */
-  var down = false, last = null, rings = [];
+  var down = false, last = null, trailP = null;
+  function dust(gx, gy, r) {
+    for (var j = Math.floor(gy - r); j <= gy + r; j++) {
+      for (var i = Math.floor(gx - r); i <= gx + r; i++) {
+        var d = Math.hypot(i - gx, j - gy) / r;
+        if (d >= 1) continue;
+        var k = ((j % NY + NY) % NY) * NX + (i % NX + NX) % NX, v = 0.62 * (1 - d * d);
+        if (v > A[k]) A[k] = v;
+        if (v > T[k]) T[k] = v;
+        heat[k] = 1;
+      }
+    }
+  }
   function toGrid(e) { return { x: (e.clientX - ox) / cell, y: (e.clientY - oy) / cell, px: e.clientX, py: e.clientY }; }
   canvas.addEventListener('pointerdown', function (e) {
-    down = true; last = toGrid(e);
+    down = true; last = toGrid(e); trailP = last;
     placeOrb(last.x, last.y, Math.random() * Math.PI * 2, true);
     SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
@@ -334,7 +346,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
     var p = toGrid(e);
-    if (Math.hypot(p.px - last.px, p.py - last.py) < cell * 34) return;
+    /* なぞった跡には、すぐに点の筋が残る（多くはそのまま薄れて消え、ときどき形になって動き出す） */
+    var dd = Math.hypot(p.px - trailP.px, p.py - trailP.py), n = Math.ceil(dd / 6);
+    for (var i = 1; i <= n; i++) dust(trailP.x + (p.x - trailP.x) * i / n, trailP.y + (p.y - trailP.y) * i / n, 4);
+    trailP = p;
+    SFX.play('move', 160);
+    if (Math.hypot(p.px - last.px, p.py - last.py) < cell * 40) return;
     placeOrb(p.x, p.y, Math.atan2(p.py - last.py, p.px - last.px), true);
     last = p;
     SFX.play('spawn', 300);

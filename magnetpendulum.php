@@ -5,7 +5,7 @@ recordPageView('magnetpendulum');
 
 $pageName = 'magnetpendulum';
 $pageTitle = 'MAGNETPENDULUM - PULSE';
-$pageDesc = '振り子のおもりが3つの磁石のあいだを揺れ、最後にどれか1つの上で止まる。背景は、どこから放すとどの磁石で止まるかを濃さで塗り分けた図になっている。押さえて放すと、そこから振り子が動き出す。';
+$pageDesc = '振り子のおもりが3つの磁石のあいだを揺れ、最後にどれか1つの上で止まる。背景は、どこから放すとどの磁石で止まるかを濃さで塗り分けた図になっている。押さえているあいだは、そこから放したときの道筋と、同じ磁石で止まる場所が明るく示され、放すと振り子が動き出す。';
 $pageCanonical = 'https://pulse.subara3.com/magnetpendulum.php';
 $extraStyle = '';
 
@@ -177,10 +177,60 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ---------------------------------------------------------- 操作 */
   var held = null;
   function world(e) { return [(e.clientX - W / 2) / SC, (e.clientY - H / 2) / SC]; }
+
+  /* 押さえている所から放したら、どの磁石へ行くか: その磁石に行く場所を地図の上で明るくする */
+  var hlLabel = -1, hlA = 0, hlImg = null, hlBuf = null, hlCtx = null, hlX = 0, hlY = 0;
+  function buildHighlight(L, fx, fy) {
+    if (!hlImg || hlImg.width !== NX || hlImg.height !== NY) {
+      hlImg = new ImageData(NX, NY);
+      hlBuf = document.createElement('canvas'); hlBuf.width = NX; hlBuf.height = NY;
+      hlCtx = hlBuf.getContext('2d');
+    }
+    var d = hlImg.data, cx = fx / CELL, cy = fy / CELL, R = 170 / CELL;
+    var LN = P.line, AC = P.accent;
+    for (var k = 0, n = NX * NY; k < n; k++) {
+      var o = k * 4;
+      if (label[k] !== L) { d[o + 3] = 0; continue; }
+      var i = k % NX, j = (k / NX) | 0, dd = Math.hypot(i - cx, j - cy) / R;
+      var near = dd < 1 ? (1 - dd) * (1 - dd) : 0;
+      d[o] = LN[0] + (AC[0] - LN[0]) * near; d[o + 1] = LN[1] + (AC[1] - LN[1]) * near; d[o + 2] = LN[2] + (AC[2] - LN[2]) * near;
+      d[o + 3] = 70 + near * 110;
+    }
+    hlCtx.putImageData(hlImg, 0, 0);
+    hlLabel = L;
+  }
+  function labelAt(x, y) {
+    var i = Math.floor(x / CELL), j = Math.floor(y / CELL);
+    if (i < 0 || j < 0 || i >= NX || j >= NY) return -1;
+    var L = label[j * NX + i];
+    if (L < 0) { var w = [(x - W / 2) / SC, (y - H / 2) / SC]; L = (settle(w[0], w[1]) / 4096) | 0; }
+    return L;
+  }
+  /* 押さえている所から放したときの道筋を先に計算しておく */
+  var preview = new Float32Array(2 * 700), previewN = 0;
+  function predict(x, y) {
+    var vx = 0, vy = 0, dt = 0.03;
+    previewN = 0;
+    for (var s2 = 0; s2 < 700; s2++) {
+      accel(x, y, vx, vy, A);
+      vx += A[0] * dt; vy += A[1] * dt; x += vx * dt; y += vy * dt;
+      preview[previewN * 2] = x; preview[previewN * 2 + 1] = y; previewN++;
+      if (vx * vx + vy * vy < 0.002 && s2 > 60) break;
+    }
+  }
+  function touchAt(e) {
+    var L = labelAt(e.clientX, e.clientY);
+    if (L >= 0 && (L !== hlLabel || Math.hypot(e.clientX - hlX, e.clientY - hlY) > 24)) {
+      buildHighlight(L, e.clientX, e.clientY); hlX = e.clientX; hlY = e.clientY;
+    }
+    var w = world(e);
+    predict(w[0], w[1]);
+  }
   canvas.addEventListener('pointerdown', function (e) {
     var w = world(e);
     held = addBob(w[0], w[1], true);
     held.held = true;
+    touchAt(e);
     SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
   });
@@ -188,9 +238,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (!held) return;
     var w = world(e);
     held.x = w[0]; held.y = w[1]; held.n = 0;
+    touchAt(e);
     SFX.play('move', 260);
   });
-  function up() { if (held) { held.held = false; held.vx = (Math.random() - 0.5) * 0.02; held.vy = (Math.random() - 0.5) * 0.02; held = null; } }
+  function up() {
+    if (held) { held.held = false; held.vx = (Math.random() - 0.5) * 0.02; held.vy = (Math.random() - 0.5) * 0.02; held = null; }
+  }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);
 
@@ -228,6 +281,21 @@ require_once __DIR__ . '/includes/floating-nav.php';
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'low';
     ctx.drawImage(buf, 0, 0, W, H);
+    /* 押さえているあいだは行き先の地図を明るく、放すとゆっくり戻す */
+    hlA = held ? Math.min(1, hlA + dt * 10) : Math.max(0, hlA - dt * 0.9);
+    if (hlA > 0 && hlBuf) {
+      ctx.globalAlpha = hlA;
+      ctx.drawImage(hlBuf, 0, 0, W, H);
+      ctx.globalAlpha = 1;
+    }
+    if (held && previewN > 1) {
+      ctx.strokeStyle = P.rgba(P.accent, 0.75);
+      ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      ctx.moveTo(sxp(preview[0]), syp(preview[1]));
+      for (var pv = 1; pv < previewN; pv++) ctx.lineTo(sxp(preview[pv * 2]), syp(preview[pv * 2 + 1]));
+      ctx.stroke();
+    }
 
     /* しばらくすると磁石の並びが少し回り、地図が中心から描き変わる */
     if (scan >= NX * NY) {
@@ -281,6 +349,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
       ctx.beginPath(); ctx.arc(X, Y, 7, 0, Math.PI * 2); ctx.stroke();
       ctx.fillStyle = P.rgba(P.line, 0.9);
       ctx.beginPath(); ctx.arc(X, Y, 2, 0, Math.PI * 2); ctx.fill();
+      if (hlA > 0.01 && i === hlLabel) {
+        ctx.strokeStyle = P.rgba(P.accent, 0.8 * hlA); ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.arc(X, Y, 13, 0, Math.PI * 2); ctx.stroke();
+      }
     }
     for (var r = rings.length - 1; r >= 0; r--) {
       var rg = rings[r]; rg.t += dt;

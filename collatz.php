@@ -5,7 +5,7 @@ recordPageView('collatz');
 
 $pageName = 'collatz';
 $pageTitle = 'COLLATZ - PULSE';
-$pageDesc = '偶数なら半分に、奇数なら3倍して1を足す。これを繰り返すと、どの数もやがて1になる。その道筋を束ねると海藻のような枝になって揺れ、触れた枝は根元までの道が光る。';
+$pageDesc = '偶数なら半分に、奇数なら3倍して1を足す。これを繰り返すとどの数も1になり、その道筋を束ねると海藻のような枝になる。触ると近くの枝の束が指のほうへ寄り、触れた枝から根元までの道が水色に光る。';
 $pageCanonical = 'https://pulse.subara3.com/collatz.php';
 $extraStyle = '';
 
@@ -29,7 +29,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   /* ---------------------------------------------------------- 木を組む
      1 から n までの道を逆向きにたどると、どの道も 1 を根にした 1 本の木に合流する。 */
-  var NMAX = 5200;
+  var NMAX = 4500;
   var index = new Map();
   var val = [], par = [], dep = [];
   function addNode(v, p) {
@@ -67,15 +67,15 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function layout() {
     /* 偶数で少し右へ、奇数で大きく左へ曲がる。曲がり方が時間でわずかに揺れる */
     var s = sway;
-    var ea = 0.150 + s * 0.022 * Math.sin(t * 0.13) + bend;
-    var oa = -0.272 + s * 0.035 * Math.sin(t * 0.083 + 1.7) + bend * 0.5;
-    var ripple = s * 0.010;
-    X[0] = 0; Y[0] = 0; A[0] = -Math.PI / 2;
+    var ea = 0.150 + s * 0.0005 * Math.sin(t * 0.09) + bend;
+    var oa = -0.272 + s * 0.0008 * Math.sin(t * 0.06 + 1.7) + bend * 0.5;
+    var ripple = s * 0.0004;
+    X[0] = 0; Y[0] = 0; A[0] = -Math.PI / 2 + 0.55;   /* 枝の重みが画面の中ほどに来る向き */
     for (var i = 1; i < M; i++) {
       var p = parent[i];
       if (depth[i] > reveal + 1) { X[i] = X[p]; Y[i] = Y[p]; A[i] = A[p]; continue; }
       /* 根元から先へ、波がゆっくり伝わるように揺らす */
-      var a = A[p] + (odd[i] ? oa : ea) + ripple * Math.sin(t * 0.7 - depth[i] * 0.09);
+      var a = A[p] + (odd[i] ? oa : ea) + ripple * Math.sin(t * 0.35 - depth[i] * 0.09);
       var len = 1;
       var g = reveal - depth[i] + 1;           /* 伸びかけの枝 */
       if (g < 1) len = Math.max(0, g);
@@ -100,16 +100,34 @@ require_once __DIR__ . '/includes/floating-nav.php';
     view.init = true;
     view.s += (s - view.s) * k; view.cx += (cx - view.cx) * k; view.cy += (cy - view.cy) * k;
   }
-  function sx(i) { return W / 2 + (X[i] - view.cx) * view.s; }
-  function sy(i) { return H / 2 + (Y[i] - view.cy) * view.s; }
+  /* 画面上の位置。指のまわりの枝は押しのけられる（水をかき分けるように） */
+  var SX = new Float32Array(M), SY = new Float32Array(M), NEAR = new Float32Array(M);
+  function project() {
+    var R2 = 130 * 130;
+    for (var i = 0; i < M; i++) {
+      var x = W / 2 + (X[i] - view.cx) * view.s, y = H / 2 + (Y[i] - view.cy) * view.s, nr = 0;
+      if (pe > 0.01) {
+        var dx = ptr.x - x, dy = ptr.y - y, d2 = dx * dx + dy * dy;
+        if (d2 < R2 * 5) {
+          /* 指のまわりの枝の束が指のほうへ寄せられる */
+          var e = Math.exp(-d2 / R2);
+          x += dx * 0.45 * e * pe; y += dy * 0.45 * e * pe;
+          nr = Math.exp(-d2 / (R2 * 1.8)) * pe;
+        }
+      }
+      SX[i] = x; SY[i] = y; NEAR[i] = nr;
+    }
+  }
+  function sx(i) { return SX[i]; }
+  function sy(i) { return SY[i]; }
 
   var LN = P.line, AC = P.accent, ST = P.steel;
-  var LW = [0.6, 0.8, 1.05, 1.4, 1.9, 2.5];
-  var LA = [0.22, 0.34, 0.5, 0.66, 0.82, 0.95];
+  var LW = [1.2, 1.3, 1.5, 1.8, 2.2, 2.8];
+  var LA = [0.38, 0.46, 0.58, 0.7, 0.84, 0.95];
   function draw() {
     var paths = [];
     for (var q = 0; q < 6; q++) paths.push(new Path2D());
-    var tips = new Path2D(), glowP = new Path2D(), anyLit = false;
+    var tips = new Path2D(), glowP = new Path2D(), anyLit = false, nearP = new Path2D(), anyNear = false;
     var dr = 0.9;
     for (var i = 1; i < M; i++) {
       if (depth[i] > reveal + 1) continue;
@@ -119,6 +137,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       path.moveTo(px, py); path.lineTo(x, y);
       if (kids[i] === 0 && depth[i] <= reveal) { tips.moveTo(x + dr, y); tips.arc(x, y, dr, 0, Math.PI * 2); }
       if (lit[i] > 0.03) { glowP.moveTo(px, py); glowP.lineTo(x, y); anyLit = true; }
+      if (NEAR[i] > 0.08) { nearP.moveTo(px, py); nearP.lineTo(x, y); anyNear = true; }
     }
     ctx.lineCap = 'round';
     for (var q2 = 0; q2 < 6; q2++) {
@@ -128,17 +147,28 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     ctx.fillStyle = P.rgba(LN, 0.55);
     ctx.fill(tips);
+    /* 押しのけられた枝は白く太る */
+    if (anyNear) {
+      ctx.lineWidth = 2.6;
+      ctx.strokeStyle = P.rgba(LN, 0.95 * Math.min(1, pe * 1.5));
+      ctx.stroke(nearP);
+    }
+    /* 触れた枝から根元までの道 */
     if (anyLit) {
-      ctx.lineWidth = 1.6;
-      ctx.strokeStyle = P.rgba(AC, 0.85 * litLevel);
+      ctx.lineWidth = 12;
+      ctx.strokeStyle = P.rgba(AC, 0.22 * litLevel);
+      ctx.stroke(glowP);
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = P.rgba(P.mix(AC, LN, 0.25), litLevel);
       ctx.stroke(glowP);
     }
+    ctx.lineCap = 'butt';
   }
 
   /* ---------------------------------------------------------- 操作 */
-  var hold = false, ptr = { x: 0, y: 0 }, litLevel = 0, litFrom = -1;
+  var hold = false, ptr = { x: -999, y: -999 }, litLevel = 0, litFrom = -1, pe = 0;
   function nearest(x, y) {
-    var best = -1, bd = 40 * 40;
+    var best = -1, bd = 90 * 90;
     for (var i = 1; i < M; i++) {
       if (depth[i] > reveal) continue;
       var dx = sx(i) - x, dy = sy(i) - y, d = dx * dx + dy * dy;
@@ -155,7 +185,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     litLevel = 1;
   }
   canvas.addEventListener('pointerdown', function (e) {
-    hold = true; ptr.x = e.clientX; ptr.y = e.clientY;
+    hold = true; ptr.x = e.clientX; ptr.y = e.clientY; pe = 1;
     light(nearest(ptr.x, ptr.y));
     canvas.setPointerCapture(e.pointerId);
   });
@@ -164,7 +194,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (!hold) return;
     light(nearest(ptr.x, ptr.y));
     /* 触ったまま横へ動かすと、水の流れのように枝がそちらへなびく */
-    bendT = (ptr.x / W - 0.5) * 0.02;
+    bendT = (ptr.x / W - 0.5) * 0.008;
   });
   function up() { hold = false; bendT = 0; }
   canvas.addEventListener('pointerup', up);
@@ -180,20 +210,22 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   /* ---------------------------------------------------------- 回す */
   var lastT = performance.now(), chime = 0;
-  reveal = maxDepth * 0.42;
+  reveal = maxDepth + 2;   /* 開いたときは育ちきった姿。REGROW で根元から育て直す */
   function frame(now) {
-    var dt = Math.min(0.05, (now - lastT) / 1000);
+    var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));
     lastT = now;
     t += dt;
     if (reveal < maxDepth + 2) {
-      reveal += dt * (6 + reveal * 0.04);
+      reveal += dt * (10 + reveal * 0.06);
       chime += dt;
       if (chime > 3) { chime = 0; SFX.play('grow', 2500); }
     }
     bend += (bendT - bend) * Math.min(1, dt * 1.2);
-    if (!hold) litLevel = Math.max(0, litLevel - dt * 0.3);
+    if (!hold) litLevel = Math.max(0, litLevel - dt * 0.6);
+    pe = hold ? 1 : pe * Math.exp(-dt * 1.6);
     layout();
     fitView(dt);
+    project();
     P.fill(ctx, W, H);
     P.grid(ctx, W, H, { alpha: 0.6 });
     draw();
