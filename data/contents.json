@@ -853,6 +853,19 @@
     "updated": "2026-10-10"
   },
   {
+    "page": "waterwheel",
+    "title": "WATERWHEEL",
+    "desc": "上から水を受ける水車が、右に回ったり左に回ったりを、決まった順番なしにくり返す。押すとそこから水が落ちて下のカップにたまり、水車をなぞるとその向きに水車が回る。",
+    "desc_en": "A water wheel catches water from a spout above and keeps switching between turning left and turning right, with no fixed pattern. Press to pour water onto the cups below your finger, and trace along the wheel to turn it that way.",
+    "icon": "fa-water",
+    "group": "chaos",
+    "category": "予測できないもの",
+    "category_en": "CHAOS",
+    "meta": "水の重さで回る向きが入れ替わる",
+    "meta_en": "The weight of water flips its turn",
+    "added": "2026-10-10"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
