@@ -5,315 +5,188 @@ recordPageView('galaxy');
 
 $pageName = 'galaxy';
 $pageTitle = 'GALAXY - PULSE';
-$pageDesc = '渦巻銀河の密度波シミュレーション。数千の星が差動回転し、腕の密度波が構造を生む。';
+$pageDesc = '何万もの星が中心のまわりを回っている。星は流れていくのに、渦の腕は形を保ったままゆっくり回る。指を置くと近くの星が引き寄せられ、離すと元の流れに戻る。';
 $pageCanonical = 'https://pulse.subara3.com/galaxy.php';
-
-$extraStyle = '
-body{background:#0a0a0f;min-height:100vh;overflow:hidden}
-#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
-.hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Space Grotesk","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,0.34);font-size:0.64rem;text-align:right;letter-spacing:0.05em;line-height:1.8}
-.hud .v{color:#00f5d4;font-weight:700}
-#info{position:fixed;bottom:1.5rem;left:1.5rem;color:rgba(255,255,255,0.22);font-family:"JetBrains Mono",monospace;font-size:0.6rem;line-height:1.7;letter-spacing:0.03em;pointer-events:none;z-index:50}
-#info .v{color:rgba(0,245,212,0.5)}
-@media(max-width:768px){.hud{top:3rem;right:0.6rem;font-size:0.54rem}#info{bottom:1rem;left:1rem;font-size:0.5rem}}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
-
 <canvas id="canvas"></canvas>
 
-<div class="hud" id="hud">
-  STARS: <span class="v" id="hud-stars">0</span><br>
-  ARMS: <span class="v" id="hud-arms">2</span><br>
-  SPEED: <span class="v" id="hud-speed">1.0</span>
-</div>
-
-<div id="info">
-  <span class="v">density wave theory</span><br>
-  Lin & Shu (1964) · differential rotation
-</div>
-
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'burst'],
-  ['type' => 'drag', 'label' => 'perturb'],
-  ['type' => 'wheel', 'label' => 'zoom'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
-
 <div id="controls" class="drawer-controls">
-  <div>
-    <span class="slider-label">ARMS</span>
-    <div class="btn-row" id="arms-btns">
-      <button class="control-btn" data-arms="1">1</button>
-      <button class="control-btn active" data-arms="2">2</button>
-      <button class="control-btn" data-arms="3">3</button>
-      <button class="control-btn" data-arms="4">4</button>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <div class="slider-row">
-      <span class="slider-label">TIGHTNESS</span>
-      <input type="range" id="tight-slider" min="10" max="80" value="35">
-      <span class="slider-value" id="tight-val">35</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <div class="slider-row">
-      <span class="slider-label">SPEED</span>
-      <input type="range" id="speed-slider" min="10" max="200" value="100">
-      <span class="slider-value" id="speed-val">1.0</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <div class="slider-row">
-      <span class="slider-label">DISPERSION</span>
-      <input type="range" id="disp-slider" min="5" max="60" value="25">
-      <span class="slider-value" id="disp-val">25</span>
-    </div>
-  </div>
-  <div class="btn-row">
-    <button class="control-btn" id="reset-btn">RESET</button>
-  </div>
+  <div class="ctl-row"><label for="k-twist">TWIST</label><input type="range" id="k-twist" min="0" max="100" value="50"></div>
+  <div class="ctl-row"><label for="k-tilt">TILT</label><input type="range" id="k-tilt" min="0" max="100" value="35"></div>
+  <div class="ctl-btns"><button type="button" class="active" data-shape="spiral">SPIRAL</button><button type="button" data-shape="bar">BAR</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-  function brandHue(t){t=t<0?0:t>1?1:t;var e=t<0.5?0.5*Math.pow(2*t,3.2):1-0.5*Math.pow(2*(1-t),3.2);return 172+e*118}
-(function() {
-  var C = document.getElementById('canvas');
-  var ctx = C.getContext('2d');
-  var W, H, cx, cy;
-  var dpr = window.devicePixelRatio || 1;
+(function () {
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0, CX = 0, CY = 0, RS = 1;
+  var CELL = 2, GX = 0, GY = 0, dens, img, buf, bctx;
+  var ctx = P.fit(canvas, function (w, h) {
+    W = w; H = h; CX = w / 2; CY = h / 2;
+    RS = Math.min(w * 0.5, h * 0.62) * 1.05;
+    GX = Math.ceil(w / CELL); GY = Math.ceil(h / CELL);
+    dens = new Float32Array(GX * GY);
+    img = new ImageData(GX, GY);
+    buf = document.createElement('canvas'); buf.width = GX; buf.height = GY;
+    bctx = buf.getContext('2d');
+  });
 
-  var NUM_STARS = 4000;
-  var arms = 2;
-  var tightness = 0.35;
-  var speedMul = 1.0;
-  var dispersion = 0.25;
-  var zoom = 1.0;
-  var time = 0;
-
-  var stars = [];
-  var perturbX = 0, perturbY = 0;
-  var dragging = false;
-  var dragX = 0, dragY = 0;
-
-  function resize() {
-    W = window.innerWidth;
-    H = window.innerHeight;
-    C.width = W * dpr;
-    C.height = H * dpr;
-    C.style.width = W + 'px';
-    C.style.height = H + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    cx = W / 2;
-    cy = H / 2;
+  /* ---------------------------------------------------------- 星
+     どの星も楕円の軌道を回る。楕円の向きを半径ごとに少しずつずらすと、
+     楕円が混み合うところが腕になる。腕は星の集まりではなく、混み具合の波。 */
+  var N = 25000;
+  var A = new Float32Array(N), TH = new Float32Array(N), LUM = new Float32Array(N);
+  var OX = new Float32Array(N), OY = new Float32Array(N);
+  var EC = new Float32Array(N), OC = new Float32Array(N), OS = new Float32Array(N);
+  var JO = new Float32Array(N), JE = new Float32Array(N);   /* 星ごとのばらつき（腕がぼやけて見える） */
+  function gauss() { return (Math.random() + Math.random() + Math.random() - 1.5) * 1.15; }
+  for (var i = 0; i < N; i++) {
+    /* 円盤: 中ほどまでほぼ一様、外へなだらかに減る */
+    var a = -Math.log(1 - Math.random() * 0.96) * 0.27;
+    if (Math.random() < 0.35) a = Math.sqrt(Math.random()) * 0.62;
+    if (Math.random() < 0.06) a = Math.random() * Math.random() * 0.12;   /* 中心のふくらみ */
+    A[i] = Math.min(1.1, a + 0.006);
+    TH[i] = Math.random() * Math.PI * 2;
+    JO[i] = gauss() * 0.16; JE[i] = gauss() * 0.22;
+    var r = Math.random();
+    LUM[i] = (r < 0.012 ? 2.8 : 0.5 + r * 0.7) * (A[i] < 0.08 ? 0.45 : 1);
   }
-
-  function createStar(rOverride) {
-    var r = rOverride !== undefined ? rOverride : Math.pow(Math.random(), 0.6) * Math.min(W, H) * 0.42;
-    var armIdx = Math.floor(Math.random() * arms);
-    var baseAngle = (armIdx / arms) * Math.PI * 2;
-    var spiralOffset = tightness * Math.log(1 + r * 0.01);
-    var scatter = (Math.random() - 0.5) * dispersion * (1 + r * 0.002);
-    var angle = baseAngle + spiralOffset + scatter;
-    var orbitalSpeed = 0.3 / Math.sqrt(0.5 + r * 0.005);
-    var brightness = 0.3 + Math.random() * 0.7;
-    var size = 0.5 + Math.random() * 1.5;
-    if (r < 30) { brightness = 0.8 + Math.random() * 0.2; size *= 0.7; }
-    var hue = brandHue(r / (Math.min(W, H) * 0.42) * 0.8);
-    return { r: r, angle: angle, orbitalSpeed: orbitalSpeed, brightness: brightness, size: size, hue: hue, armIdx: armIdx };
-  }
-
-  function initStars() {
-    stars = [];
-    for (var i = 0; i < NUM_STARS; i++) {
-      stars.push(createStar());
+  /* 半径ごとの楕円のつぶれと向きは、形を変えたときだけ計算し直す */
+  function prepare() {
+    for (var i = 0; i < N; i++) {
+      EC[i] = 1 - ecc(A[i]) * (1 + JE[i]);
+      var o = orient(A[i]) + JO[i];
+      OC[i] = Math.cos(o); OS[i] = Math.sin(o);
     }
   }
 
-  function addBurst(x, y) {
-    var dx = x - cx, dy = y - cy;
-    var dist = Math.sqrt(dx * dx + dy * dy);
-    for (var i = 0; i < 60; i++) {
-      var r = dist + (Math.random() - 0.5) * 40;
-      if (r < 5) r = 5;
-      var s = createStar(r);
-      s.angle = Math.atan2(dy, dx) + (Math.random() - 0.5) * 0.5;
-      stars.push(s);
+  var shape = 'spiral', twist = 3.2, tilt = 0.35, t = 0;
+  var pattern = 0, view = 0;
+
+  function ecc(a) {
+    if (shape === 'bar') return a < 0.24 ? 0.62 * Math.min(1, a / 0.05) : 0.42 * Math.exp(-(a - 0.24) * 1.4) + 0.12;
+    return 0.42 * Math.min(1, a / 0.14) * Math.exp(-a * 0.6);
+  }
+  function orient(a) {
+    if (shape === 'bar') return a < 0.22 ? 0 : (a - 0.22) * twist * 1.25;
+    return a * twist;
+  }
+
+  function splat() {
+    var f = 0.55;                       /* 前のフレームを少し残して流れをなめらかに */
+    for (var k = 0; k < dens.length; k++) dens[k] *= f;
+    var cv = Math.cos(view + pattern), sv = Math.sin(view + pattern);
+    var incl = 1 - tilt * 0.62 - 0.06 * Math.sin(t * 0.021);
+    var cxg = CX / CELL, cyg = CY / CELL, sc = RS / CELL;
+    var px = hold ? ptr.x : -1e9, py = hold ? ptr.y : -1e9, pr2 = Math.pow(Math.max(90, RS * 0.28), 2);
+    for (var i = 0; i < N; i++) {
+      var a = A[i];
+      var psi = TH[i] - pattern;
+      var x0 = a * Math.cos(psi), y0 = a * EC[i] * Math.sin(psi);
+      var cp = OC[i], sp = OS[i];
+      var x = x0 * cp - y0 * sp, y = x0 * sp + y0 * cp;
+      var xr = x * cv - y * sv, yr = (x * sv + y * cv) * incl;
+      var sxp = CX + xr * RS + OX[i], syp = CY + yr * RS + OY[i];
+      /* 指に引かれる */
+      if (hold) {
+        var dx = px - sxp, dy = py - syp, d2 = dx * dx + dy * dy;
+        if (d2 < pr2 * 4) {
+          var g = Math.exp(-d2 / pr2) * 0.9 * DT;
+          OX[i] += dx * g; OY[i] += dy * g;
+        }
+      }
+      OX[i] *= RELAX; OY[i] *= RELAX;
+      var gx = (sxp / CELL) | 0, gy = (syp / CELL) | 0;
+      if (gx < 0 || gy < 0 || gx >= GX || gy >= GY) continue;
+      dens[gy * GX + gx] += LUM[i];
     }
-    if (stars.length > 8000) stars.splice(0, stars.length - 8000);
-    if (typeof SFX !== 'undefined') SFX.play('spawn');
   }
 
-  function update(dt) {
-    time += dt * speedMul;
-    perturbX *= 0.95;
-    perturbY *= 0.95;
-  }
-
-  function draw() {
-    ctx.fillStyle = 'rgba(10,10,15,0.15)';
-    ctx.fillRect(0, 0, W, H);
-
-    var coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 20 * zoom);
-    coreGrad.addColorStop(0, 'rgba(0,245,212,0.15)');
-    coreGrad.addColorStop(0.5, 'rgba(123,44,191,0.05)');
-    coreGrad.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.fillStyle = coreGrad;
-    ctx.fillRect(cx - 30 * zoom, cy - 30 * zoom, 60 * zoom, 60 * zoom);
-
-    for (var i = 0; i < stars.length; i++) {
-      var s = stars[i];
-      s.angle += s.orbitalSpeed * speedMul * 0.002;
-      var spiralPhase = tightness * Math.log(1 + s.r * 0.01);
-      var armAngle = (s.armIdx / arms) * Math.PI * 2;
-      var densityAngle = armAngle + spiralPhase - time * 0.0003 * speedMul;
-      var angleDiff = ((s.angle - densityAngle) % (Math.PI * 2 / arms) + Math.PI * 2) % (Math.PI * 2 / arms);
-      var nearArm = Math.cos(angleDiff * arms) * 0.5 + 0.5;
-      var effBright = s.brightness * (0.4 + nearArm * 0.6);
-
-      var px = cx + Math.cos(s.angle) * s.r * zoom + perturbX * (s.r * 0.001);
-      var py = cy + Math.sin(s.angle) * s.r * zoom + perturbY * (s.r * 0.001);
-
-      var alpha = effBright * (0.5 + nearArm * 0.5);
-      var sat = 60 + nearArm * 30;
-      var light = 45 + effBright * 20;
-      ctx.fillStyle = 'hsla(' + s.hue + ',' + sat + '%,' + light + '%,' + alpha + ')';
-      var sz = s.size * (0.7 + nearArm * 0.5) * zoom;
-      ctx.beginPath();
-      ctx.arc(px, py, sz, 0, Math.PI * 2);
-      ctx.fill();
+  /* 明るさの対応表: 藍 → 鋼 → 白。密なところほど白に近づくが、白には届かせない */
+  var LUT = 1024, LR = new Uint8ClampedArray(LUT), LG = new Uint8ClampedArray(LUT), LB = new Uint8ClampedArray(LUT);
+  (function () {
+    var BG = P.bg, ST = P.steel, LN = P.line;
+    for (var i = 0; i < LUT; i++) {
+      var v = 1 - Math.exp(-i / LUT * 6 * 0.42);
+      var c = v < 0.55 ? P.mix(BG, ST, Math.pow(v / 0.55, 0.85)) : P.mix(ST, LN, (v - 0.55) / 0.45 * 0.9);
+      LR[i] = c[0]; LG[i] = c[1]; LB[i] = c[2];
     }
-
-    document.getElementById('hud-stars').textContent = stars.length;
-  }
-
-  var last = 0;
-  function loop(ts) {
-    var dt = last ? Math.min(ts - last, 50) : 16;
-    last = ts;
-    update(dt);
-    draw();
-    requestAnimationFrame(loop);
-  }
-
-  function handlePointerDown(x, y, btn) {
-    if (btn === 2) return;
-    dragging = true;
-    dragX = x;
-    dragY = y;
-  }
-
-  function handlePointerMove(x, y) {
-    if (!dragging) return;
-    perturbX += (x - dragX) * 0.5;
-    perturbY += (y - dragY) * 0.5;
-    dragX = x;
-    dragY = y;
-    if (typeof SFX !== 'undefined') SFX.play('move', 100);
-  }
-
-  function handlePointerUp(x, y, wasDrag) {
-    if (!wasDrag) {
-      addBurst(x, y);
+  })();
+  function shade() {
+    var d = img.data, k2 = LUT / 6;
+    for (var k = 0, o = 0; k < dens.length; k++, o += 4) {
+      var q = (dens[k] * k2) | 0;
+      if (q >= LUT) q = LUT - 1;
+      d[o] = LR[q]; d[o + 1] = LG[q]; d[o + 2] = LB[q]; d[o + 3] = 255;
     }
-    dragging = false;
+    bctx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(buf, 0, 0, GX * CELL, GY * CELL);
   }
 
-  var pointerMoved = false;
-  C.addEventListener('mousedown', function(e) {
-    e.preventDefault();
-    pointerMoved = false;
-    handlePointerDown(e.clientX, e.clientY, e.button);
+  /* ---------------------------------------------------------- 操作 */
+  var hold = false, ptr = { x: 0, y: 0 }, mark = 0, DT = 0.016, RELAX = 1;
+  canvas.addEventListener('pointerdown', function (e) {
+    hold = true; ptr.x = e.clientX; ptr.y = e.clientY;
+    SFX.play('grow');
+    canvas.setPointerCapture(e.pointerId);
   });
-  C.addEventListener('mousemove', function(e) {
-    pointerMoved = true;
-    handlePointerMove(e.clientX, e.clientY);
+  canvas.addEventListener('pointermove', function (e) {
+    if (!hold) return;
+    ptr.x = e.clientX; ptr.y = e.clientY;
+    SFX.play('move', 300);
   });
-  C.addEventListener('mouseup', function(e) {
-    handlePointerUp(e.clientX, e.clientY, pointerMoved && dragging);
-  });
-  C.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+  function up() { hold = false; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
 
-  var touchMoved = false;
-  C.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    touchMoved = false;
-    var t = e.touches[0];
-    handlePointerDown(t.clientX, t.clientY, 0);
-  }, { passive: false });
-  C.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    touchMoved = true;
-    var t = e.touches[0];
-    handlePointerMove(t.clientX, t.clientY);
-  }, { passive: false });
-  C.addEventListener('touchend', function(e) {
-    handlePointerUp(dragX, dragY, touchMoved);
-  });
-
-  C.addEventListener('wheel', function(e) {
-    e.preventDefault();
-    zoom *= e.deltaY > 0 ? 0.95 : 1.05;
-    zoom = Math.max(0.3, Math.min(3.0, zoom));
-    if (typeof SFX !== 'undefined') SFX.play('tick', 80);
-  }, { passive: false });
-
-  var armBtns = document.querySelectorAll('#arms-btns .control-btn');
-  armBtns.forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      armBtns.forEach(function(b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      arms = parseInt(btn.dataset.arms);
-      document.getElementById('hud-arms').textContent = arms;
-      initStars();
-      if (typeof SFX !== 'undefined') SFX.play('toggle');
+  var twistEl = document.getElementById('k-twist'), tiltEl = document.getElementById('k-tilt');
+  function readTwist() { twist = 2 + twistEl.value / 100 * 8; }
+  function readTilt() { tilt = tiltEl.value / 100; }
+  twistEl.addEventListener('input', readTwist);
+  tiltEl.addEventListener('input', readTilt);
+  readTwist(); readTilt(); prepare();
+  twistEl.addEventListener('input', prepare);
+  document.querySelectorAll('[data-shape]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-shape]').forEach(function (o) { o.classList.toggle('active', o === b); });
+      shape = b.dataset.shape;
+      prepare();
+      SFX.play('toggle');
     });
   });
 
-  var tightSlider = document.getElementById('tight-slider');
-  tightSlider.addEventListener('input', function() {
-    tightness = parseInt(this.value) / 100;
-    document.getElementById('tight-val').textContent = this.value;
-    initStars();
-  });
-
-  var speedSlider = document.getElementById('speed-slider');
-  speedSlider.addEventListener('input', function() {
-    speedMul = parseInt(this.value) / 100;
-    document.getElementById('speed-val').textContent = speedMul.toFixed(1);
-    document.getElementById('hud-speed').textContent = speedMul.toFixed(1);
-  });
-
-  var dispSlider = document.getElementById('disp-slider');
-  dispSlider.addEventListener('input', function() {
-    dispersion = parseInt(this.value) / 100;
-    document.getElementById('disp-val').textContent = this.value;
-    initStars();
-  });
-
-  document.getElementById('reset-btn').addEventListener('click', function() {
-    zoom = 1.0;
-    perturbX = 0;
-    perturbY = 0;
-    time = 0;
-    initStars();
-    if (typeof SFX !== 'undefined') SFX.play('click');
-  });
-
-  resize();
-  window.addEventListener('resize', resize);
-  initStars();
-
-  ctx.fillStyle = '#0a0a0f';
-  ctx.fillRect(0, 0, W, H);
-
-  requestAnimationFrame(loop);
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now();
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    t += dt; DT = dt; RELAX = Math.exp(-dt * 0.7);
+    /* 星はそれぞれの速さで、腕の模様はゆっくり一定の速さで回る */
+    for (var i = 0; i < N; i++) TH[i] += dt * 0.32 / Math.sqrt(A[i] * A[i] + 0.012);
+    pattern += dt * 0.07;
+    view += dt * 0.004;
+    splat();
+    shade();
+    P.grid(ctx, W, H, { alpha: 0.45 });
+    mark += ((hold ? 1 : 0) - mark) * Math.min(1, dt * 3);
+    if (mark > 0.02) {
+      ctx.strokeStyle = P.rgba(P.accent, 0.45 * mark);
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(ptr.x, ptr.y, 14 + (1 - mark) * 10, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = P.rgba(P.accent, 0.8 * mark);
+      ctx.beginPath(); ctx.arc(ptr.x, ptr.y, 2.4, 0, Math.PI * 2); ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

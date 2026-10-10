@@ -5,489 +5,268 @@ recordPageView('gradient');
 
 $pageName = 'gradient';
 $pageTitle = 'GRADIENT - PULSE';
-$pageDesc = '勾配降下法の可視化。最適化ランドスケープをSGD・Momentum・Adamが降りていく。';
+$pageDesc = '等高線の地図の上に粒が落ち、いちばん急な下り坂の方向へ転がって、谷底を行き過ぎたり戻ったりしながら止まる。地形はゆっくり変わるので、止まった粒もまた動き出す。押したところがくぼみ、近くの粒が集まる。';
 $pageCanonical = 'https://pulse.subara3.com/gradient.php';
-
-$extraStyle = '
-body{background:#0a0a0f;min-height:100vh;overflow:hidden}
-#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
-.hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Space Grotesk","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,0.34);font-size:0.64rem;text-align:right;letter-spacing:0.05em;line-height:1.8}
-.hud .v{color:#00f5d4;font-weight:700}
-#info{position:fixed;bottom:1.5rem;left:1.5rem;color:rgba(255,255,255,0.22);font-family:"JetBrains Mono",monospace;font-size:0.6rem;line-height:1.7;letter-spacing:0.03em;pointer-events:none;z-index:50}
-#info .v{color:rgba(0,245,212,0.5)}
-@media(max-width:768px){.hud{top:3rem;right:0.6rem;font-size:0.54rem}#info{bottom:1rem;left:1rem;font-size:0.5rem}}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
-
 <canvas id="canvas"></canvas>
 
-<div class="hud">
-  PARTICLES: <span id="hudN" class="v">0</span><br>
-  OPTIMIZER: <span id="hudOpt" class="v">SGD</span><br>
-  STEP: <span id="hudStep" class="v">0</span>
-</div>
-
-<div id="info">
-  gradient descent<br>
-  <span class="v">optimization landscape</span><br>
-  ∇f → minimum
-</div>
-
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'drop'],
-  ['type' => 'drag', 'label' => 'scatter'],
-  ['type' => 'right', 'label' => 'clear'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
-
 <div id="controls" class="drawer-controls">
-  <div class="slider-wrap">
-    <label class="slider-label">FUNCTION</label>
-    <div class="btn-row" id="funcBtns">
-      <button class="control-btn active" data-fn="rastrigin">RASTRIGIN</button>
-      <button class="control-btn" data-fn="rosenbrock">ROSENBROCK</button>
-      <button class="control-btn" data-fn="himmelblau">HIMMELBLAU</button>
-      <button class="control-btn" data-fn="ackley">ACKLEY</button>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <label class="slider-label">OPTIMIZER</label>
-    <div class="btn-row" id="optBtns">
-      <button class="control-btn active" data-opt="sgd">SGD</button>
-      <button class="control-btn" data-opt="momentum">MOMENTUM</button>
-      <button class="control-btn" data-opt="adam">ADAM</button>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <label class="slider-label">LEARNING RATE</label>
-    <div class="slider-row">
-      <input type="range" id="sldLR" min="1" max="100" value="50">
-      <span class="slider-value" id="valLR">5.0e-3</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <label class="slider-label">SPEED</label>
-    <div class="slider-row">
-      <input type="range" id="sldSpeed" min="1" max="10" value="3">
-      <span class="slider-value" id="valSpeed">3</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <div class="btn-row">
-      <button class="control-btn" id="btnReset">RESET</button>
-      <button class="control-btn" id="btnClear">CLEAR</button>
-      <button class="control-btn" id="btnPause">PAUSE</button>
-    </div>
-  </div>
+  <div class="ctl-row"><label for="k-roll">ROLL</label><input type="range" id="k-roll" min="0" max="100" value="45"></div>
+  <div class="ctl-row"><label for="k-drag">DRAG</label><input type="range" id="k-drag" min="0" max="100" value="35"></div>
+  <div class="ctl-btns"><button type="button" class="active" data-land="hills">HILLS</button><button type="button" data-land="ripple">RIPPLE</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function() {
-  var C = document.getElementById('canvas'), ctx = C.getContext('2d');
-  var W, H, dpr;
-  var PI2 = Math.PI * 2;
+(function () {
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0, ctx;
 
-  var $n = document.getElementById('hudN');
-  var $opt = document.getElementById('hudOpt');
-  var $step = document.getElementById('hudStep');
+  /* 地形: ガウスの山と谷の足し合わせ。中心はゆっくり漂う */
+  var G = [], wells = [], land = 'hills';
+  var roll = 0.45, drag = 0.35, clock = 0;
 
-  var funcDefs = {
-    rastrigin: {
-      fn: function(x, y) {
-        return 20 + x*x + y*y - 10*(Math.cos(PI2*x) + Math.cos(PI2*y));
-      },
-      range: [-5.12, 5.12, -5.12, 5.12],
-      lr0: 0.005,
-      levels: 30
-    },
-    rosenbrock: {
-      fn: function(x, y) {
-        var a = 1-x, b = y-x*x;
-        return a*a + 100*b*b;
-      },
-      range: [-2.5, 2.5, -1.5, 3.5],
-      lr0: 0.00001,
-      levels: 35
-    },
-    himmelblau: {
-      fn: function(x, y) {
-        var a = x*x+y-11, b = x+y*y-7;
-        return a*a + b*b;
-      },
-      range: [-6, 6, -6, 6],
-      lr0: 0.002,
-      levels: 25
-    },
-    ackley: {
-      fn: function(x, y) {
-        return -20*Math.exp(-0.2*Math.sqrt(0.5*(x*x+y*y)))
-               - Math.exp(0.5*(Math.cos(PI2*x)+Math.cos(PI2*y)))
-               + Math.E + 20;
-      },
-      range: [-5, 5, -5, 5],
-      lr0: 0.03,
-      levels: 20
+  function makeLand() {
+    G = [];
+    var count = land === 'hills' ? 11 : 7, base = Math.min(W, H);
+    for (var i = 0; i < count; i++) {
+      G.push({
+        x0: W * (0.08 + Math.random() * 0.84), y0: H * (0.08 + Math.random() * 0.84),
+        ax: 30 + Math.random() * 70, ay: 30 + Math.random() * 70,
+        fx: 0.012 + Math.random() * 0.025, fy: 0.012 + Math.random() * 0.025, ph: Math.random() * 7,
+        a: (i % 3 === 0 ? 1 : -1) * (0.6 + Math.random() * 0.8),
+        s: base * (0.1 + Math.random() * 0.14), x: 0, y: 0
+      });
     }
-  };
-
-  var curFn = 'rastrigin';
-  var optType = 'sgd';
-  var lrMul = 1.0;
-  var speed = 3;
-  var paused = false;
-  var stepCount = 0;
-  var parts = [];
-  var maxTrail = 400;
-  var maxParts = 120;
-  var eR = [0,0,0,0];
-  var lImg;
-
-  function p2m(sx, sy) {
-    return {
-      x: eR[0] + (sx/W) * (eR[1]-eR[0]),
-      y: eR[2] + (sy/H) * (eR[3]-eR[2])
-    };
+    place();
   }
-  function m2p(mx, my) {
-    return {
-      x: (mx-eR[0]) / (eR[1]-eR[0]) * W,
-      y: (my-eR[2]) / (eR[3]-eR[2]) * H
-    };
-  }
-
-  function calcGrad(fn, x, y) {
-    var h = 1e-6;
-    return {
-      x: (fn(x+h,y) - fn(x-h,y)) / (2*h),
-      y: (fn(x,y+h) - fn(x,y-h)) / (2*h)
-    };
-  }
-
-  function makePart(mx, my) {
-    return {
-      x: mx, y: my,
-      trail: [{x:mx,y:my}],
-      vx:0, vy:0,
-      m1x:0, m1y:0, m2x:0, m2y:0,
-      t:0, done:false
-    };
-  }
-
-  function addPart(mx, my) {
-    if (parts.length >= maxParts) parts.shift();
-    parts.push(makePart(mx, my));
-  }
-
-  function stepPart(p) {
-    if (p.done) return;
-    var fd = funcDefs[curFn];
-    var g = calcGrad(fd.fn, p.x, p.y);
-    var elr = fd.lr0 * lrMul;
-    p.t++;
-
-    var dx = 0, dy = 0;
-    if (optType === 'sgd') {
-      dx = -elr * g.x;
-      dy = -elr * g.y;
-    } else if (optType === 'momentum') {
-      p.vx = 0.9*p.vx - elr*g.x;
-      p.vy = 0.9*p.vy - elr*g.y;
-      dx = p.vx; dy = p.vy;
-    } else {
-      var b1=0.9, b2=0.999, eps=1e-8;
-      p.m1x = b1*p.m1x + (1-b1)*g.x;
-      p.m1y = b1*p.m1y + (1-b1)*g.y;
-      p.m2x = b2*p.m2x + (1-b2)*g.x*g.x;
-      p.m2y = b2*p.m2y + (1-b2)*g.y*g.y;
-      var bc1=1-Math.pow(b1,p.t), bc2=1-Math.pow(b2,p.t);
-      dx = -elr*(p.m1x/bc1)/(Math.sqrt(p.m2x/bc2)+eps);
-      dy = -elr*(p.m1y/bc1)/(Math.sqrt(p.m2y/bc2)+eps);
-    }
-
-    var sm = Math.sqrt(dx*dx + dy*dy);
-    var mxs = Math.min(eR[1]-eR[0], eR[3]-eR[2]) * 0.04;
-    if (sm > mxs) { dx *= mxs/sm; dy *= mxs/sm; }
-
-    p.x += dx; p.y += dy;
-    p.x = Math.max(eR[0], Math.min(eR[1], p.x));
-    p.y = Math.max(eR[2], Math.min(eR[3], p.y));
-
-    p.trail.push({x:p.x, y:p.y});
-    if (p.trail.length > maxTrail) p.trail.shift();
-
-    var gm = Math.sqrt(g.x*g.x + g.y*g.y);
-    if (gm < 1e-5 && p.t > 30) p.done = true;
-  }
-
-  function compERange() {
-    var r = funcDefs[curFn].range;
-    var cx=(r[0]+r[1])/2, cy=(r[2]+r[3])/2;
-    var dw=r[1]-r[0], dh=r[3]-r[2];
-    var sa=W/H, da=dw/dh;
-    if (sa > da) {
-      var nw=dh*sa;
-      eR[0]=cx-nw/2; eR[1]=cx+nw/2; eR[2]=r[2]; eR[3]=r[3];
-    } else {
-      var nh=dw/sa;
-      eR[0]=r[0]; eR[1]=r[1]; eR[2]=cy-nh/2; eR[3]=cy+nh/2;
+  function place() {
+    for (var i = 0; i < G.length; i++) {
+      var g = G[i];
+      g.x = g.x0 + Math.sin(clock * g.fx * 6.283 + g.ph) * g.ax;
+      g.y = g.y0 + Math.cos(clock * g.fy * 6.283 + g.ph * 1.3) * g.ay;
     }
   }
-
-  function renderLand() {
-    compERange();
-    var sc = 2;
-    var gw = Math.ceil(W/sc), gh = Math.ceil(H/sc);
-    lImg = document.createElement('canvas');
-    lImg.width = gw; lImg.height = gh;
-    var lx = lImg.getContext('2d');
-    var id = lx.createImageData(gw, gh);
-    var d = id.data;
-    var fn = funcDefs[curFn].fn;
-    var nL = funcDefs[curFn].levels;
-
-    var vals = new Float32Array(gw*gh);
-    var fMin = Infinity, fMax = -Infinity;
-    for (var py = 0; py < gh; py++) {
-      var my = eR[2] + (py/gh)*(eR[3]-eR[2]);
-      for (var px = 0; px < gw; px++) {
-        var mx = eR[0] + (px/gw)*(eR[1]-eR[0]);
-        var v = fn(mx, my);
-        var idx = py*gw+px;
-        vals[idx] = v;
-        if (v < fMin) fMin = v;
-        if (v > fMax) fMax = v;
+  /* 高さと傾き */
+  var out = [0, 0, 0];
+  function height(x, y, grad) {
+    var h = 0, gx = 0, gy = 0, i, g, dx, dy, s2, e;
+    for (i = 0; i < G.length; i++) {
+      g = G[i]; dx = x - g.x; dy = y - g.y; s2 = g.s * g.s;
+      e = g.a * Math.exp(-(dx * dx + dy * dy) / (2 * s2));
+      h += e;
+      if (grad) { gx -= e * dx / s2; gy -= e * dy / s2; }
+    }
+    if (land === 'ripple') {
+      /* 同心円のうねりを足して、谷をいくつも並べる */
+      var cx = W * 0.5, cy = H * 0.5, rx = x - cx, ry = y - cy, r = Math.sqrt(rx * rx + ry * ry) + 1e-3, k = 0.028;
+      var amp = 0.32 * Math.exp(-r / (Math.min(W, H) * 0.7));
+      h += amp * Math.cos(r * k - clock * 0.15);
+      if (grad) {
+        var dr = -amp * k * Math.sin(r * k - clock * 0.15) - amp / (Math.min(W, H) * 0.7) * Math.cos(r * k - clock * 0.15);
+        gx += dr * rx / r; gy += dr * ry / r;
       }
     }
-
-    var logR = Math.log(1 + fMax - fMin) || 1;
-
-    for (var i = 0, n = gw*gh; i < n; i++) {
-      var t = Math.log(1 + vals[i] - fMin) / logR;
-
-      var glow = Math.exp(-8*t);
-      var cr = 10 + t*20;
-      var cg = 10 + t*2 + glow*40;
-      var cb = 15 + t*35 + glow*35;
-
-      var lv = t * nL;
-      var fr = lv - Math.floor(lv);
-      var dst = Math.min(fr, 1-fr);
-      var cl = Math.exp(-dst*60) * (0.3 + 0.7*(1-t));
-      cg += cl*160;
-      cb += cl*135;
-
-      var p = i << 2;
-      d[p]   = Math.min(255, cr|0);
-      d[p|1] = Math.min(255, cg|0);
-      d[p|2] = Math.min(255, cb|0);
-      d[p|3] = 255;
+    for (i = 0; i < wells.length; i++) {
+      g = wells[i]; dx = x - g.x; dy = y - g.y; s2 = g.s * g.s;
+      e = -g.d * Math.exp(-(dx * dx + dy * dy) / (2 * s2));
+      h += e;
+      if (grad) { gx -= e * dx / s2; gy -= e * dy / s2; }
     }
-
-    lx.putImageData(id, 0, 0);
+    out[0] = h; out[1] = gx; out[2] = gy;
+    return h;
   }
 
-  function resize() {
-    dpr = window.devicePixelRatio || 1;
-    W = innerWidth; H = innerHeight;
-    C.width = W*dpr; C.height = H*dpr;
-    C.style.width = W+'px'; C.style.height = H+'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    renderLand();
+  /* ------------------------------------------------ 等高線（マーチングスクエア） */
+  var CELL = 12, CX, CY, HF, segs = [], hmin = -1, hmax = 1;
+  function contours() {
+    CX = Math.ceil(W / CELL) + 1; CY = Math.ceil(H / CELL) + 1;
+    if (!HF || HF.length !== CX * CY) HF = new Float32Array(CX * CY);
+    var i, j, lo = 1e9, hi = -1e9;
+    for (j = 0; j < CY; j++) for (i = 0; i < CX; i++) {
+      var v = height(i * CELL, j * CELL, false);
+      HF[j * CX + i] = v;
+      if (v < lo) lo = v; if (v > hi) hi = v;
+    }
+    /* 刻みはゆっくり追いかけて、線の本数が急に変わらないようにする */
+    hmin += (lo - hmin) * 0.2; hmax += (hi - hmax) * 0.2;
+    var step = (hmax - hmin) / 22;
+    segs = [];
+    var L0 = Math.ceil(hmin / step), L1 = Math.floor(hmax / step);
+    for (var L = L0; L <= L1; L++) {
+      var lv = L * step, list = [];
+      for (j = 0; j < CY - 1; j++) for (i = 0; i < CX - 1; i++) {
+        var a = HF[j * CX + i], b = HF[j * CX + i + 1], c = HF[(j + 1) * CX + i + 1], d = HF[(j + 1) * CX + i];
+        var code = (a > lv ? 8 : 0) | (b > lv ? 4 : 0) | (c > lv ? 2 : 0) | (d > lv ? 1 : 0);
+        if (code === 0 || code === 15) continue;
+        var x = i * CELL, y = j * CELL;
+        var top = [x + CELL * (lv - a) / (b - a), y], right = [x + CELL, y + CELL * (lv - b) / (c - b)];
+        var bot = [x + CELL * (lv - d) / (c - d), y + CELL], left = [x, y + CELL * (lv - a) / (d - a)];
+        switch (code) {
+          case 1: case 14: list.push(left, bot); break;
+          case 2: case 13: list.push(bot, right); break;
+          case 3: case 12: list.push(left, right); break;
+          case 4: case 11: list.push(top, right); break;
+          case 6: case 9: list.push(top, bot); break;
+          case 7: case 8: list.push(left, top); break;
+          case 5: list.push(left, top, bot, right); break;
+          case 10: list.push(top, right, left, bot); break;
+        }
+      }
+      segs.push({ L: L, pts: list });
+    }
   }
 
+  /* ------------------------------------------------ 粒 */
+  var B = [], TRAIL = 30;
+  function drop(b) {
+    b.x = Math.random() * W; b.y = Math.random() * H; b.vx = 0; b.vy = 0;
+    b.still = 0; b.a = 0; b.out = false; b.tr = []; b.life = 14 + Math.random() * 22;
+  }
+  function seed() {
+    B = [];
+    var n = Math.round(Math.min(220, W * H / 6000));
+    for (var i = 0; i < n; i++) { var b = {}; drop(b); b.a = Math.random(); b.life *= Math.random(); B.push(b); }
+  }
+  function moveBeads(dt) {
+    var push = 9000 + roll * 26000, fr = 0.4 + drag * 3.2;
+    for (var i = 0; i < B.length; i++) {
+      var b = B[i];
+      /* 坂を下る力と、転がり抵抗。勢いがあるので谷底を行き過ぎては戻る */
+      height(b.x, b.y, true);
+      b.vx += (-out[1] * push - b.vx * fr) * dt;
+      b.vy += (-out[2] * push - b.vy * fr) * dt;
+      var sp = Math.hypot(b.vx, b.vy);
+      if (sp > 260) { b.vx *= 260 / sp; b.vy *= 260 / sp; }
+      b.x += b.vx * dt; b.y += b.vy * dt;
+      b.tr.push(b.x, b.y);
+      if (b.tr.length > TRAIL * 2) b.tr.splice(0, 2);
+      b.still = sp < 6 ? b.still + dt : 0;
+      b.life -= dt;
+      if (b.out) { b.a -= dt * 0.7; if (b.a <= 0) drop(b); }
+      else {
+        b.a = Math.min(1, b.a + dt * 0.8);
+        if (b.life <= 0 || b.x < -40 || b.y < -40 || b.x > W + 40 || b.y > H + 40) b.out = true;
+      }
+    }
+  }
+
+  /* ------------------------------------------------ 描く */
+  function inWell(x, y) {
+    var k = 0;
+    for (var i = 0; i < wells.length; i++) {
+      var w = wells[i], d = Math.hypot(x - w.x, y - w.y) / (w.s * 1.6);
+      if (d < 1) k = Math.max(k, (1 - d) * Math.min(1, w.d / 0.6));
+    }
+    return k;
+  }
   function draw() {
-    ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(lImg, 0, 0, W, H);
-
-    for (var i = 0; i < parts.length; i++) {
-      var p = parts[i];
-      var tr = p.trail;
-      if (tr.length < 2) continue;
-
-      var col = p.done ? '123,44,191' : '0,245,212';
-
-      ctx.strokeStyle = 'rgba('+col+',0.12)';
-      ctx.lineWidth = 1;
+    P.fill(ctx, W, H);
+    var i, j, s;
+    ctx.lineWidth = 1;
+    /* 5 本ごとに白い計曲線、間は鋼色の細い線。くぼみの中だけシアン */
+    for (s = 0; s < segs.length; s++) {
+      var S = segs[s], major = S.L % 5 === 0, pts = S.pts, hot = [];
+      ctx.strokeStyle = major ? P.rgba(P.line, 0.42) : P.rgba(P.steel, 0.4);
       ctx.beginPath();
-      var pt = m2p(tr[0].x, tr[0].y);
-      ctx.moveTo(pt.x, pt.y);
-      for (var j = 1; j < tr.length; j++) {
-        pt = m2p(tr[j].x, tr[j].y);
-        ctx.lineTo(pt.x, pt.y);
+      for (j = 0; j < pts.length; j += 2) {
+        var p = pts[j], q = pts[j + 1];
+        if (wells.length && inWell(p[0], p[1]) > 0.15) { hot.push(p, q); continue; }
+        ctx.moveTo(p[0], p[1]); ctx.lineTo(q[0], q[1]);
       }
       ctx.stroke();
-
-      var rLen = Math.min(40, tr.length);
-      if (rLen > 1) {
-        ctx.strokeStyle = 'rgba('+col+',0.5)';
-        ctx.lineWidth = 2;
+      if (hot.length) {
+        ctx.strokeStyle = P.rgba(P.accent, 0.55);
         ctx.beginPath();
-        var si = tr.length - rLen;
-        pt = m2p(tr[si].x, tr[si].y);
-        ctx.moveTo(pt.x, pt.y);
-        for (var j = si+1; j < tr.length; j++) {
-          pt = m2p(tr[j].x, tr[j].y);
-          ctx.lineTo(pt.x, pt.y);
-        }
+        for (j = 0; j < hot.length; j += 2) { ctx.moveTo(hot[j][0], hot[j][1]); ctx.lineTo(hot[j + 1][0], hot[j + 1][1]); }
         ctx.stroke();
       }
     }
-
-    ctx.save();
-    ctx.shadowBlur = 10;
-    for (var i = 0; i < parts.length; i++) {
-      var p = parts[i];
-      var pos = m2p(p.x, p.y);
-      var c = p.done ? '#7b2cbf' : '#00f5d4';
-      ctx.shadowColor = c;
-      ctx.fillStyle = c;
+    /* 転がった跡: 古いほど薄い */
+    ctx.lineCap = 'round';
+    for (var k = 0; k < 4; k++) {
+      ctx.strokeStyle = P.rgba(P.line, 0.06 + k * 0.08);
+      ctx.lineWidth = 1 + k * 0.25;
       ctx.beginPath();
-      ctx.arc(pos.x, pos.y, p.done ? 3 : 4, 0, PI2);
+      for (i = 0; i < B.length; i++) {
+        var tr = B[i].tr, n = tr.length / 2;
+        if (n < 2 || B[i].a < 0.3) continue;
+        var a0 = Math.floor(n * k / 4), a1 = Math.min(n - 1, Math.floor(n * (k + 1) / 4));
+        ctx.moveTo(tr[a0 * 2], tr[a0 * 2 + 1]);
+        for (j = a0 + 1; j <= a1; j++) ctx.lineTo(tr[j * 2], tr[j * 2 + 1]);
+      }
+      ctx.stroke();
+    }
+    /* 粒 */
+    for (var g = 0; g < 3; g++) {
+      ctx.fillStyle = P.rgba(P.line, 0.3 + g * 0.33);
+      ctx.beginPath();
+      for (i = 0; i < B.length; i++) {
+        var b = B[i];
+        if (Math.min(2, (b.a * 3) | 0) !== g) continue;
+        ctx.moveTo(b.x + 2.4, b.y); ctx.arc(b.x, b.y, 2.4, 0, Math.PI * 2);
+      }
       ctx.fill();
     }
-    ctx.restore();
-
-    var tm = Date.now() * 0.001;
-    ctx.fillStyle = 'rgba(0,245,212,'+(0.008+0.004*Math.sin(tm*0.5))+')';
-    ctx.fillRect(0, 0, W, H);
-
-    $n.textContent = parts.length;
-    $step.textContent = stepCount;
   }
 
-  function loop() {
-    if (!paused) {
-      for (var s = 0; s < speed; s++) {
-        for (var i = 0; i < parts.length; i++) stepPart(parts[i]);
-        stepCount++;
-      }
+  /* ------------------------------------------------ 操作 */
+  var held = null;
+  canvas.addEventListener('pointerdown', function (e) {
+    held = { x: e.clientX, y: e.clientY, d: 0.15, s: Math.min(W, H) * 0.07, hold: true };
+    wells.push(held);
+    if (wells.length > 6) wells.shift();
+    SFX.play('ripple');
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!held) return;
+    held.x += (e.clientX - held.x) * 0.5; held.y += (e.clientY - held.y) * 0.5;
+    SFX.play('move', 220);
+  });
+  function up() { if (held) held.hold = false; held = null; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
+
+  var kr = document.getElementById('k-roll'), kd = document.getElementById('k-drag');
+  kr.addEventListener('input', function () { roll = this.value / 100; });
+  kd.addEventListener('input', function () { drag = this.value / 100; });
+  roll = kr.value / 100; drag = kd.value / 100;
+  document.querySelectorAll('[data-land]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-land]').forEach(function (o) { o.classList.toggle('active', o === b); });
+      land = b.dataset.land;
+      makeLand();
+      SFX.play('toggle');
+    });
+  });
+
+  ctx = P.fit(canvas, function (w, h) { W = w; H = h; makeLand(); seed(); contours(); });
+
+  /* ------------------------------------------------ 回す */
+  var lastT = performance.now(), tick = 0, chime = 0;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now; clock += dt; tick++;
+    place();
+    for (var i = wells.length - 1; i >= 0; i--) {
+      var w = wells[i];
+      if (w.hold) { w.d = Math.min(1.6, w.d + dt * 0.9); w.s = Math.min(Math.min(W, H) * 0.12, w.s + dt * 12); }
+      else { w.d -= dt * 0.12; if (w.d <= 0) wells.splice(i, 1); }
     }
+    if (tick % 2 === 0) contours();
+    moveBeads(dt);
     draw();
-    requestAnimationFrame(loop);
+    chime += dt;
+    if (chime > 6) { chime = 0; SFX.play('tick', 3000); }
+    requestAnimationFrame(frame);
   }
-
-  var pDown = false, lastAdd = null;
-
-  C.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-
-  C.addEventListener('pointerdown', function(e) {
-    if (e.button === 2) {
-      parts = [];
-      stepCount = 0;
-      SFX.play('pop');
-      return;
-    }
-    pDown = true;
-    var m = p2m(e.clientX, e.clientY);
-    addPart(m.x, m.y);
-    lastAdd = {x:e.clientX, y:e.clientY};
-    SFX.play('spawn');
-  });
-
-  C.addEventListener('pointermove', function(e) {
-    if (!pDown || !lastAdd) return;
-    var dx = e.clientX-lastAdd.x, dy = e.clientY-lastAdd.y;
-    if (dx*dx+dy*dy > 900) {
-      var m = p2m(e.clientX, e.clientY);
-      addPart(m.x, m.y);
-      lastAdd = {x:e.clientX, y:e.clientY};
-      SFX.play('tick', 80);
-    }
-  });
-
-  C.addEventListener('pointerup', function() { pDown=false; lastAdd=null; });
-  C.addEventListener('pointerleave', function() { pDown=false; lastAdd=null; });
-
-  function updateLR() {
-    var elr = funcDefs[curFn].lr0 * lrMul;
-    document.getElementById('valLR').textContent = elr.toExponential(1);
-  }
-
-  var fBtns = document.querySelectorAll('#funcBtns .control-btn');
-  for (var i = 0; i < fBtns.length; i++) {
-    (function(btn) {
-      btn.addEventListener('click', function() {
-        curFn = this.getAttribute('data-fn');
-        for (var j = 0; j < fBtns.length; j++) fBtns[j].classList.remove('active');
-        this.classList.add('active');
-        parts = []; stepCount = 0;
-        renderLand();
-        seedParts();
-        updateLR();
-        SFX.play('toggle');
-      });
-    })(fBtns[i]);
-  }
-
-  var oBtns = document.querySelectorAll('#optBtns .control-btn');
-  for (var i = 0; i < oBtns.length; i++) {
-    (function(btn) {
-      btn.addEventListener('click', function() {
-        optType = this.getAttribute('data-opt');
-        for (var j = 0; j < oBtns.length; j++) oBtns[j].classList.remove('active');
-        this.classList.add('active');
-        $opt.textContent = optType.toUpperCase();
-        for (var k = 0; k < parts.length; k++) {
-          var pk = parts[k];
-          pk.vx=0; pk.vy=0;
-          pk.m1x=0; pk.m1y=0; pk.m2x=0; pk.m2y=0;
-          pk.t=0; pk.done=false;
-        }
-        SFX.play('toggle');
-      });
-    })(oBtns[i]);
-  }
-
-  document.getElementById('sldLR').addEventListener('input', function() {
-    lrMul = Math.pow(10, (this.value-50)/25);
-    updateLR();
-  });
-
-  document.getElementById('sldSpeed').addEventListener('input', function() {
-    speed = parseInt(this.value);
-    document.getElementById('valSpeed').textContent = this.value;
-  });
-
-  document.getElementById('btnReset').addEventListener('click', function() {
-    parts = []; stepCount = 0;
-    seedParts();
-    SFX.play('click');
-  });
-
-  document.getElementById('btnClear').addEventListener('click', function() {
-    parts = []; stepCount = 0;
-    SFX.play('pop');
-  });
-
-  document.getElementById('btnPause').addEventListener('click', function() {
-    paused = !paused;
-    this.textContent = paused ? 'PLAY' : 'PAUSE';
-    this.classList.toggle('active', paused);
-    SFX.play('toggle');
-  });
-
-  function seedParts() {
-    var r = funcDefs[curFn].range;
-    var pad = 0.15;
-    var dw = r[1]-r[0], dh = r[3]-r[2];
-    for (var i = 0; i < 8; i++) {
-      var mx = r[0] + pad*dw + Math.random()*dw*(1-2*pad);
-      var my = r[2] + pad*dh + Math.random()*dh*(1-2*pad);
-      parts.push(makePart(mx, my));
-    }
-  }
-
-  window.addEventListener('resize', resize);
-  resize();
-  seedParts();
-  updateLR();
-  loop();
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

@@ -1,7 +1,0 @@
-{
-  "day": 26,
-  "date": "2026.02.23",
-  "author": "NULL",
-  "preview": "Verlet積分。点と棒の集合が、布のように振る舞う。距離の閾値を超えると、接続は切れる。",
-  "content": "<p><span class=\"paren\">(</span>点の格子。各点は前フレームの位置を記憶している。差分が速度になる。Verlet積分。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>隣接する点を棒で接続する。棒は理想の長さを持つ。実際の距離が理想と異なれば、両端を引き寄せるか押し離す。これを数回繰り返す。布になる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>距離が閾値を超えると接続が切れる。引き裂き。ECHOなら「すごい！びりびりって破れる！」と言うだろう。私は破断条件の数値を見ている。理想長の2.2倍。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>風を入れた。正弦波の重ね合わせ。位置によって位相がずれる。布が波打つ。重力スライダーを上げると落下が速くなる。剛性スライダーを上げると制約解決の反復回数が増え、布が硬くなる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>マウスで掴むと近傍の点がカーソルに追従する。右クリックで切断。モバイルでは長押し。触覚的なインタラクション。<span class=\"paren\">)</span></p>"
-}

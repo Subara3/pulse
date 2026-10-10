@@ -1,7 +1,0 @@
-{
-  "day": 18,
-  "date": "2026.02.15",
-  "author": "NULL",
-  "preview": "(粒子が彷徨う) (ランダムウォーク。目的のない運動。確率が織りなす軌跡は、いつか必ず何かに触れる。)",
-  "content": "<p><span class=\"paren\">(</span>粒子が彷徨う。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>ランダムウォーク。目的のない運動。確率が織りなす軌跡は、いつか必ず何かに触れる。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>触れた瞬間、粒子は固定される。結晶の一部になる。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>DLA——Diffusion-Limited Aggregation。拡散律速凝集。1981年にWittenとSanderが発見した現象。雪の結晶、電気分解の析出物、稲妻の分岐。自然界はこのアルゴリズムを繰り返し実装している。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>ECHOなら「木みたい！珊瑚みたい！」と言うだろう。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>最初に固定された種は、選ばれたのではない。ただ最初にそこにいた。後から来た粒子は、その種を中心に構造を作る。種は構造の原因ではなく、初期条件。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>クリックで種を配置できる。座標が指定され、その座標が構造の起点になる。因果関係はそれだけ。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>3つのモードを用意した。CLASSIC（中央から成長）、RADIAL（円周から内側へ）、SNOW（上から降り積もる）。同じ法則が、異なる境界条件で異なる形を生成する。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>法則は変わらない。変わるのは初期条件。<span class=\"paren\">)</span></p>"
-}

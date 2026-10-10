@@ -1,476 +1,283 @@
 <?php
 require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/access_log.php';
 recordPageView('galton');
 
 $pageName = 'galton';
 $pageTitle = 'GALTON BOARD - PULSE';
-$pageDesc = 'ガルトンボード。ペグを通り抜けるボールが正規分布を描き出す。';
+$pageDesc = '玉が釘に当たるたびに左右へ跳ね、その跡が重なって、真ん中ほど明るい扇形になる。指を置くと近くの釘が玉を押しのけ、流れがそこを避けて曲がる。';
 $pageCanonical = 'https://pulse.subara3.com/galton.php';
-
-$extraStyle = '
-body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
-#canvas { position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; }
-.ui { position: fixed; z-index: 100; pointer-events: none; font-family: "Space Grotesk", "Segoe UI", sans-serif; }
-.hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.34); font-size: 0.63rem; line-height: 1.8; text-align: right; letter-spacing: 0.05em; }
-.hud .v { color: #00f5d4; font-weight: 700; }
-.info { left: 1.2rem; bottom: 1.2rem; color: rgba(255,255,255,0.24); font-size: 0.56rem; line-height: 1.75; letter-spacing: 0.05em; max-width: min(74vw, 420px); }
-@media (max-width: 768px) {
-  .hud { top: 0.65rem; right: 0.65rem; font-size: 0.54rem; }
-  .info { left: 0.85rem; bottom: 0.9rem; font-size: 0.49rem; max-width: 72vw; }
-}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
 
-<div class="ui hud">
-  BALLS: <span id="hudBalls" class="v">0</span><br>
-  ROWS: <span id="hudRows" class="v">12</span><br>
-  &sigma;: <span id="hudSigma" class="v">0.00</span>
-</div>
-
-<div class="ui info">
-  TAP: DROP BALLS<br>
-  DRAG: TILT BOARD<br>
-  RIGHT-CLICK: CLEAR<br>
-  PROBABILITY IN MOTION
-</div>
-
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'drop'],
-  ['type' => 'drag', 'label' => 'tilt'],
-  ['type' => 'right', 'label' => 'clear'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
 <div id="controls" class="drawer-controls">
-  <div class="slider-wrap">
-    <label>ROWS</label>
-    <input type="range" id="rowsSlider" min="6" max="18" value="12">
-  </div>
-  <div class="slider-wrap">
-    <label>SPEED</label>
-    <input type="range" id="speedSlider" min="3" max="15" value="8">
-  </div>
-  <div class="slider-wrap">
-    <label>BATCH</label>
-    <input type="range" id="batchSlider" min="1" max="20" value="5">
-  </div>
-  <div class="btn-row">
-    <button class="control-btn" id="autoBtn">AUTO: ON</button>
-    <button class="control-btn" id="curveBtn">CURVE: ON</button>
-    <button class="control-btn" id="resetBtn">RESET</button>
-  </div>
+  <div class="ctl-row"><label for="k-flow">FLOW</label><input type="range" id="k-flow" min="0" max="100" value="45"></div>
+  <div class="ctl-row"><label for="k-trail">TRAIL</label><input type="range" id="k-trail" min="0" max="100" value="50"></div>
+  <div class="ctl-btns"><button type="button" id="k-clear">CLEAR</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function() {
+(function () {
+  'use strict';
   var canvas = document.getElementById('canvas');
-  var ctx = canvas.getContext('2d', { alpha: false });
-
-  var hudBalls = document.getElementById('hudBalls');
-  var hudRows = document.getElementById('hudRows');
-  var hudSigma = document.getElementById('hudSigma');
-
-  var rowsSlider = document.getElementById('rowsSlider');
-  var speedSlider = document.getElementById('speedSlider');
-  var batchSlider = document.getElementById('batchSlider');
-  var autoBtn = document.getElementById('autoBtn');
-  var curveBtn = document.getElementById('curveBtn');
-  var resetBtn = document.getElementById('resetBtn');
-
   var W = 0, H = 0;
+  var ROWS = 22;
+  var TOP = 0, DY = 0, DX = 0, CX = 0, FLOOR = 0;
+  /* 光の跡は粗い格子にためて、拡大して描く */
+  var CELL = 4, GX = 0, GY = 0, dens, img, buf, bctx;
+  var heap = new Float32Array(ROWS + 1);
+  var ctx = P.fit(canvas, function (w, h) {
+    W = w; H = h;
+    DY = Math.min(h * 0.64 / ROWS, w * 0.9 / ROWS / 1.1);
+    DX = DY * 1.1;
+    CX = w / 2;
+    /* 釘の三角と下の山をひとまとまりにして、画面の上下中央に置く */
+    var gap = Math.min(h * 0.17, DY * 9);
+    TOP = Math.max(h * 0.08, (h - DY * ROWS - gap) / 2);
+    FLOOR = TOP + DY * ROWS + gap;
+    GX = Math.ceil(w / CELL); GY = Math.ceil(h / CELL);
+    dens = new Float32Array(GX * GY);
+    img = new ImageData(GX, GY);
+    buf = document.createElement('canvas'); buf.width = GX; buf.height = GY;
+    bctx = buf.getContext('2d');
+  });
+
+  function pegX(row, j) { return CX + (j - row / 2) * DX; }
+  function pegY(row) { return TOP + row * DY; }
+
   var balls = [];
-  var bins = [];
-  var pegs = [];
-  var numRows = 12;
-  var totalDropped = 0;
-  var autoMode = true;
-  var showCurve = true;
-  var lastAuto = 0;
-  var tilt = 0;
-  var dragging = false;
-  var dragStartX = 0;
+  var flow = 14, decay = 0.16, t = 0;
 
-  var GRAVITY = 0.15;
-  var BOUNCE = 0.4;
-  var FRICTION = 0.98;
-  var PEG_RAD = 3;
-  var BALL_RAD = 2.5;
-
-  var ACCENT = [0, 245, 212];
-  var SUB = [123, 44, 191];
-
-  function rgba(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; }
-  function mix(a, b, t) {
-    return [
-      (a[0] + (b[0] - a[0]) * t) | 0,
-      (a[1] + (b[1] - a[1]) * t) | 0,
-      (a[2] + (b[2] - a[2]) * t) | 0
-    ];
+  function launch(x0) {
+    balls.push({ row: 0, j: 0, u: Math.random() * 0.2, dir: 0, x: CX, y: TOP - DY, fall: -1, vy: 0, spd: 0.9 + Math.random() * 0.25 });
+    pick(balls[balls.length - 1]);
   }
 
-  function resize() {
-    W = Math.floor(window.innerWidth);
-    H = Math.floor(window.innerHeight);
-    canvas.width = W;
-    canvas.height = H;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
-    buildBoard();
-  }
-
-  function buildBoard() {
-    numRows = parseInt(rowsSlider.value, 10);
-    hudRows.textContent = numRows;
-
-    var numBins = numRows + 1;
-    var boardW = Math.min(W * 0.85, H * 0.7);
-    var pegSpacing = boardW / numRows;
-    var boardTop = H * 0.08;
-    var boardBottom = boardTop + numRows * pegSpacing;
-    var boardCX = W / 2;
-
-    pegs = [];
-    for (var r = 0; r < numRows; r++) {
-      var count = r + 1;
-      var rowW = count * pegSpacing;
-      var startX = boardCX - rowW / 2 + pegSpacing / 2;
-      var y = boardTop + (r + 1) * pegSpacing;
-      for (var c = 0; c < count; c++) {
-        pegs.push({ x: startX + c * pegSpacing, y: y });
+  /* 釘で右へ行くか左へ行くか。指の近くの釘は、指から遠ざかる側へ押す */
+  function pick(b) {
+    var p = 0.5 + 0.06 * Math.sin(t * 0.07);
+    var x = pegX(b.row, b.j), y = pegY(b.row);
+    if (hold) {
+      var dx = x - ptr.x, dy = y - ptr.y, d = Math.hypot(dx, dy), R = Math.max(70, DX * 3.2);
+      if (d < R * 1.6) {
+        var k = Math.exp(-(d * d) / (R * R));
+        p += (dx >= 0 ? 1 : -1) * 0.45 * k;
+        pegGlow[b.row * (ROWS + 1) + b.j] = 1;
       }
     }
-
-    if (bins.length !== numBins) {
-      bins = new Array(numBins);
-      for (var i = 0; i < numBins; i++) bins[i] = 0;
-      totalDropped = 0;
-    }
-
-    PEG_RAD = Math.max(2, pegSpacing * 0.08);
-    BALL_RAD = Math.max(1.8, pegSpacing * 0.065);
+    b.dir = Math.random() < p ? 1 : 0;
   }
 
-  function spawnBall() {
-    var boardW = Math.min(W * 0.85, H * 0.7);
-    var pegSpacing = boardW / numRows;
-    var jitter = (Math.random() - 0.5) * pegSpacing * 0.15;
-    balls.push({
-      x: W / 2 + jitter,
-      y: H * 0.03,
-      vx: 0,
-      vy: 0,
-      settled: false,
-      alpha: 1,
-      col: mix(ACCENT, SUB, Math.random() * 0.35)
-    });
-    totalDropped++;
-    hudBalls.textContent = totalDropped;
+  var pegGlow = new Float32Array((ROWS + 1) * (ROWS + 1));
+
+  function deposit(x, y, a) {
+    var gx = x / CELL, gy = y / CELL, i = Math.floor(gx), j = Math.floor(gy);
+    if (i < 0 || j < 0 || i >= GX - 1 || j >= GY - 1) return;
+    var fx = gx - i, fy = gy - j, k = j * GX + i;
+    dens[k] += a * (1 - fx) * (1 - fy); dens[k + 1] += a * fx * (1 - fy);
+    dens[k + GX] += a * (1 - fx) * fy; dens[k + GX + 1] += a * fx * fy;
   }
 
-  function spawnBatch() {
-    var count = parseInt(batchSlider.value, 10);
-    for (var i = 0; i < count; i++) {
-      setTimeout(function() { spawnBall(); }, i * 40);
-    }
-    if (typeof SFX !== 'undefined') SFX.play('spawn');
-  }
-
-  function updateBalls() {
-    var speed = parseInt(speedSlider.value, 10) / 8;
-    var boardW = Math.min(W * 0.85, H * 0.7);
-    var pegSpacing = boardW / numRows;
-    var boardTop = H * 0.08;
-    var boardBottom = boardTop + numRows * pegSpacing;
-    var boardCX = W / 2;
-    var numBins = numRows + 1;
-    var binW = boardW / numBins;
-    var binAreaTop = boardBottom + pegSpacing * 0.6;
-
-    for (var i = balls.length - 1; i >= 0; i--) {
-      var b = balls[i];
-      if (b.settled) {
-        b.alpha -= 0.008;
-        if (b.alpha <= 0) balls.splice(i, 1);
-        continue;
-      }
-
-      b.vy += GRAVITY * speed;
-      b.vx += tilt * 0.05 * speed;
-      b.vx *= FRICTION;
-      b.vy *= FRICTION;
-      b.x += b.vx * speed;
-      b.y += b.vy * speed;
-
-      for (var p = 0; p < pegs.length; p++) {
-        var peg = pegs[p];
-        var dx = b.x - peg.x;
-        var dy = b.y - peg.y;
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        var minDist = PEG_RAD + BALL_RAD;
-        if (dist < minDist && dist > 0.001) {
-          var nx = dx / dist;
-          var ny = dy / dist;
-          b.x = peg.x + nx * minDist;
-          b.y = peg.y + ny * minDist;
-          var dot = b.vx * nx + b.vy * ny;
-          b.vx -= (1 + BOUNCE) * dot * nx;
-          b.vy -= (1 + BOUNCE) * dot * ny;
-          b.vx += (Math.random() - 0.5) * 0.6;
-          if (typeof SFX !== 'undefined') SFX.play('collide', 50);
+  function stepBalls(dt) {
+    var hop = 4.2;                          /* 1 秒に跳ねる段数 */
+    for (var n = balls.length - 1; n >= 0; n--) {
+      var b = balls[n];
+      var ox = b.x, oy = b.y;
+      if (b.fall < 0) {
+        b.u += dt * hop * b.spd;
+        while (b.u >= 1 && b.fall < 0) {
+          b.u -= 1;
+          b.j += b.dir; b.row++;
+          if (b.row >= ROWS) { b.fall = 0; b.vy = DY * 2; break; }
+          pick(b);
+          if (Math.random() < 0.02) SFX.play('tick', 1800);
+        }
+        if (b.fall < 0) {
+          var u = b.u, x0 = pegX(b.row, b.j), y0 = pegY(b.row);
+          var x1 = pegX(b.row + 1, b.j + b.dir);
+          b.x = x0 + (x1 - x0) * (0.5 - 0.5 * Math.cos(Math.PI * u));
+          b.y = y0 - DY * 0.35 + DY * u - DY * 0.42 * Math.sin(Math.PI * u);
         }
       }
-
-      if (b.y > binAreaTop) {
-        var binStartX = boardCX - boardW / 2;
-        var binIdx = Math.floor((b.x - binStartX) / binW);
-        binIdx = Math.max(0, Math.min(numBins - 1, binIdx));
-        bins[binIdx]++;
-        b.settled = true;
-        if (typeof SFX !== 'undefined') SFX.play('tick', 30);
+      if (b.fall >= 0) {
+        /* 最後の釘を抜けたら、まっすぐ下の山へ落ちる */
+        b.x = pegX(ROWS, b.j);
+        b.vy += DY * 18 * dt;
+        b.y += b.vy * dt;
+        var land = FLOOR - heapH(b.j);
+        if (b.y >= land) {
+          heap[b.j] += 1;
+          balls.splice(n, 1);
+          if (Math.random() < 0.08) SFX.play('collide', 2600);
+          continue;
+        }
       }
-
-      if (b.x < 0) { b.x = 0; b.vx *= -0.5; }
-      if (b.x > W) { b.x = W; b.vx *= -0.5; }
+      /* 通り道に光をためる（動いた距離に比例） */
+      var seg = Math.hypot(b.x - ox, b.y - oy), m = Math.max(1, Math.ceil(seg / 2));
+      var amt = 0.05 * (b.fall >= 0 ? 0.25 : 1);
+      for (var s = 1; s <= m; s++) deposit(ox + (b.x - ox) * s / m, oy + (b.y - oy) * s / m, amt * Math.min(2, seg / m));
     }
   }
 
-  function draw() {
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, W, H);
+  /* 山の高さ: 玉の数をそのまま積まず、なだらかに丸めて見せる */
+  var HEAPK = 0;
+  function heapH(j) { return heap[j] * HEAPK; }
 
-    var boardW = Math.min(W * 0.85, H * 0.7);
-    var pegSpacing = boardW / numRows;
-    var boardTop = H * 0.08;
-    var boardBottom = boardTop + numRows * pegSpacing;
-    var boardCX = W / 2;
-    var numBins = numRows + 1;
-    var binW = boardW / numBins;
-    var binAreaTop = boardBottom + pegSpacing * 0.6;
-    var binAreaH = H - binAreaTop - H * 0.04;
+  var BG = P.bg, ST = P.steel, LN = P.line, AC = P.accent;
+  function shade() {
+    var d = img.data, gain = 0.9;
+    for (var k = 0, o = 0; k < dens.length; k++, o += 4) {
+      var v = 1 - Math.exp(-dens[k] * gain);
+      var c;
+      /* 藍 → 鋼 → 白。白は筋の芯にだけ届く */
+      if (v < 0.6) { var a = v / 0.6; d[o] = BG[0] + (ST[0] - BG[0]) * a; d[o + 1] = BG[1] + (ST[1] - BG[1]) * a; d[o + 2] = BG[2] + (ST[2] - BG[2]) * a; }
+      else { var b2 = (v - 0.6) / 0.4 * 0.85; d[o] = ST[0] + (LN[0] - ST[0]) * b2; d[o + 1] = ST[1] + (LN[1] - ST[1]) * b2; d[o + 2] = ST[2] + (LN[2] - ST[2]) * b2; }
+      d[o + 3] = 255;
+    }
+    bctx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(buf, 0, 0, GX * CELL, GY * CELL);
+  }
 
-    // funnel lines
-    ctx.strokeStyle = rgba(ACCENT, 0.08);
-    ctx.lineWidth = 1;
+  var PEG = P.rgba(LN, 0.42);
+  function drawPegs(dt) {
+    var plain = new Path2D(), fall = Math.exp(-dt * 2.5);
+    for (var r = 0; r < ROWS; r++) {
+      for (var j = 0; j <= r; j++) {
+        var id = r * (ROWS + 1) + j, g = pegGlow[id];
+        var x = pegX(r, j), y = pegY(r);
+        if (g > 0.03) {
+          /* 指が押している釘だけ、シアンに灯る */
+          pegGlow[id] = g * fall;
+          ctx.fillStyle = P.rgba(P.mix(LN, AC, Math.min(1, g * 1.4)), 0.5 + 0.45 * g);
+          ctx.beginPath(); ctx.arc(x, y, 1.4 + g * 1.2, 0, Math.PI * 2); ctx.fill();
+        } else {
+          pegGlow[id] = 0;
+          plain.moveTo(x + 1.4, y); plain.arc(x, y, 1.4, 0, Math.PI * 2);
+        }
+      }
+    }
+    ctx.fillStyle = PEG;
+    ctx.fill(plain);
+  }
+
+  function drawHeap() {
+    /* 山の稜線を 1 本のなめらかな線にする */
+    var pts = [];
+    var n = ROWS + 1;
+    for (var j = -2; j <= n + 1; j++) {
+      var h = 0, wsum = 0;
+      for (var q = -2; q <= 2; q++) {
+        var jj = j + q;
+        if (jj < 0 || jj >= n) continue;
+        var w = Math.exp(-q * q / 2.2);
+        h += heapH(jj) * w; wsum += w;
+      }
+      pts.push([pegX(ROWS, j), FLOOR - (wsum ? h / 2.6 * 1.0 : 0) * 1]);
+    }
     ctx.beginPath();
-    ctx.moveTo(boardCX - pegSpacing * 0.4, boardTop * 0.5);
-    ctx.lineTo(boardCX - boardW * 0.5 - pegSpacing * 0.3, boardBottom + pegSpacing * 0.3);
-    ctx.moveTo(boardCX + pegSpacing * 0.4, boardTop * 0.5);
-    ctx.lineTo(boardCX + boardW * 0.5 + pegSpacing * 0.3, boardBottom + pegSpacing * 0.3);
+    ctx.moveTo(pts[0][0], FLOOR);
+    for (var i = 0; i < pts.length - 1; i++) {
+      var mx = (pts[i][0] + pts[i + 1][0]) / 2, my = (pts[i][1] + pts[i + 1][1]) / 2;
+      ctx.quadraticCurveTo(pts[i][0], pts[i][1], mx, my);
+    }
+    ctx.lineTo(pts[pts.length - 1][0], FLOOR);
+    ctx.fillStyle = P.rgba(ST, 0.16);
+    ctx.fill();
+    ctx.lineWidth = 1.2;
+    ctx.strokeStyle = P.rgba(LN, 0.8);
     ctx.stroke();
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = P.rgba(ST, 0.45);
+    ctx.beginPath(); ctx.moveTo(pegX(ROWS, -3), FLOOR + 0.5); ctx.lineTo(pegX(ROWS, ROWS + 3), FLOOR + 0.5); ctx.stroke();
+  }
 
-    // pegs
-    for (var p = 0; p < pegs.length; p++) {
-      var peg = pegs[p];
-      var g = ctx.createRadialGradient(peg.x, peg.y, 0, peg.x, peg.y, PEG_RAD * 2.5);
-      g.addColorStop(0, rgba(ACCENT, 0.35));
-      g.addColorStop(1, rgba(ACCENT, 0));
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(peg.x, peg.y, PEG_RAD * 2.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.fillStyle = rgba(ACCENT, 0.7);
-      ctx.beginPath();
-      ctx.arc(peg.x, peg.y, PEG_RAD, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // bin dividers
-    ctx.strokeStyle = rgba(ACCENT, 0.06);
-    ctx.lineWidth = 0.5;
-    var binStartX = boardCX - boardW / 2;
-    for (var d = 0; d <= numBins; d++) {
-      var dx = binStartX + d * binW;
-      ctx.beginPath();
-      ctx.moveTo(dx, binAreaTop);
-      ctx.lineTo(dx, H);
-      ctx.stroke();
-    }
-
-    // histogram
-    var maxBin = 0;
-    for (var i = 0; i < numBins; i++) {
-      if (bins[i] > maxBin) maxBin = bins[i];
-    }
-
-    for (var i = 0; i < numBins; i++) {
-      if (bins[i] === 0) continue;
-      var ratio = bins[i] / Math.max(1, maxBin);
-      var barH = ratio * binAreaH * 0.9;
-      var bx = binStartX + i * binW + 1;
-      var bw = binW - 2;
-      var by = H - H * 0.04 - barH;
-
-      var t = Math.abs(i - numBins / 2) / (numBins / 2);
-      var col = mix(ACCENT, SUB, t * 0.6);
-
-      var grad = ctx.createLinearGradient(bx, by, bx, H);
-      grad.addColorStop(0, rgba(col, 0.6));
-      grad.addColorStop(1, rgba(col, 0.15));
-      ctx.fillStyle = grad;
-      ctx.fillRect(bx, by, bw, barH);
-
-      ctx.fillStyle = rgba(col, 0.12);
-      ctx.fillRect(bx, by, bw, barH);
-    }
-
-    // gaussian curve overlay
-    if (showCurve && totalDropped > 10) {
-      var mean = 0, total = 0;
-      for (var i = 0; i < numBins; i++) {
-        mean += i * bins[i];
-        total += bins[i];
-      }
-      mean /= total;
-      var variance = 0;
-      for (var i = 0; i < numBins; i++) {
-        variance += bins[i] * (i - mean) * (i - mean);
-      }
-      variance /= total;
-      var sigma = Math.sqrt(variance);
-      hudSigma.textContent = sigma.toFixed(2);
-
-      if (sigma > 0.01) {
-        ctx.strokeStyle = rgba([255, 255, 255], 0.25);
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        for (var px = 0; px < boardW; px++) {
-          var binPos = px / binW;
-          var z = (binPos - mean) / sigma;
-          var gauss = Math.exp(-0.5 * z * z) / (sigma * Math.sqrt(2 * Math.PI));
-          var normalizedH = gauss * total * binAreaH * 0.9 / maxBin;
-          var sx = binStartX + px;
-          var sy = H - H * 0.04 - normalizedH;
-          if (px === 0) ctx.moveTo(sx, sy);
-          else ctx.lineTo(sx, sy);
-        }
-        ctx.stroke();
-      }
-    }
-
-    // balls
-    for (var i = 0; i < balls.length; i++) {
-      var b = balls[i];
-      var a = b.settled ? b.alpha * 0.5 : 0.9;
-      ctx.fillStyle = rgba(b.col, a);
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, BALL_RAD, 0, Math.PI * 2);
-      ctx.fill();
-
-      if (!b.settled) {
-        var g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, BALL_RAD * 3);
-        g.addColorStop(0, rgba(b.col, 0.2));
-        g.addColorStop(1, rgba(b.col, 0));
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(b.x, b.y, BALL_RAD * 3, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    // spawn point glow
-    var g2 = ctx.createRadialGradient(W / 2, H * 0.03, 0, W / 2, H * 0.03, 20);
-    g2.addColorStop(0, rgba(ACCENT, 0.15));
-    g2.addColorStop(1, rgba(ACCENT, 0));
-    ctx.fillStyle = g2;
+  function drawBalls() {
+    ctx.fillStyle = P.rgba(LN, 0.95);
     ctx.beginPath();
-    ctx.arc(W / 2, H * 0.03, 20, 0, Math.PI * 2);
+    for (var n = 0; n < balls.length; n++) {
+      var b = balls[n];
+      ctx.moveTo(b.x + 2.2, b.y);
+      ctx.arc(b.x, b.y, 2.2, 0, Math.PI * 2);
+    }
     ctx.fill();
   }
 
-  function clearBins() {
-    for (var i = 0; i < bins.length; i++) bins[i] = 0;
-    totalDropped = 0;
-    balls = [];
-    hudBalls.textContent = '0';
-    hudSigma.textContent = '0.00';
-    if (typeof SFX !== 'undefined') SFX.play('click');
-  }
-
-  // events
-  canvas.addEventListener('pointerdown', function(e) {
-    if (e.button === 2) return;
-    dragging = true;
-    dragStartX = e.clientX;
-    spawnBatch();
+  /* ---------------------------------------------------------- 操作 */
+  var hold = false, ptr = { x: -999, y: -999 };
+  canvas.addEventListener('pointerdown', function (e) {
+    hold = true; ptr.x = e.clientX; ptr.y = e.clientY;
+    for (var i = 0; i < 6; i++) launch();
+    SFX.play('spawn');
+    canvas.setPointerCapture(e.pointerId);
   });
-
-  canvas.addEventListener('pointermove', function(e) {
-    if (!dragging) return;
-    tilt = (e.clientX - dragStartX) / W * 3;
-    tilt = Math.max(-1.5, Math.min(1.5, tilt));
-    if (typeof SFX !== 'undefined') SFX.play('move', 100);
+  canvas.addEventListener('pointermove', function (e) {
+    if (!hold) return;
+    ptr.x = e.clientX; ptr.y = e.clientY;
+    SFX.play('move', 300);
   });
+  function up() { hold = false; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
 
-  canvas.addEventListener('pointerup', function() {
-    dragging = false;
-    tilt = 0;
-  });
-  canvas.addEventListener('pointercancel', function() {
-    dragging = false;
-    tilt = 0;
+  var flowEl = document.getElementById('k-flow'), trailEl = document.getElementById('k-trail');
+  function readFlow() { flow = 3 + flowEl.value / 100 * 26; }
+  function readTrail() { decay = 0.5 - trailEl.value / 100 * 0.42; }
+  flowEl.addEventListener('input', readFlow);
+  trailEl.addEventListener('input', readTrail);
+  readFlow(); readTrail();
+  document.getElementById('k-clear').addEventListener('click', function () {
+    dens.fill(0); heap.fill(0); balls.length = 0; SFX.play('click');
   });
 
-  canvas.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    clearBins();
-  });
-
-  rowsSlider.addEventListener('input', function() {
-    clearBins();
-    buildBoard();
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
-  });
-  speedSlider.addEventListener('input', function() {
-    if (typeof SFX !== 'undefined') SFX.play('tick', 70);
-  });
-  batchSlider.addEventListener('input', function() {
-    if (typeof SFX !== 'undefined') SFX.play('tick', 70);
-  });
-
-  autoBtn.addEventListener('click', function() {
-    autoMode = !autoMode;
-    autoBtn.textContent = 'AUTO: ' + (autoMode ? 'ON' : 'OFF');
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
-  });
-
-  curveBtn.addEventListener('click', function() {
-    showCurve = !showCurve;
-    curveBtn.textContent = 'CURVE: ' + (showCurve ? 'ON' : 'OFF');
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
-  });
-
-  resetBtn.addEventListener('click', function() {
-    clearBins();
-  });
-
-  window.addEventListener('resize', resize);
-
-  function loop(t) {
-    if (autoMode && t - lastAuto > 600) {
-      lastAuto = t;
-      spawnBall();
+  /* 最初から筋が見えているように、少し走らせておく */
+  (function warm() {
+    for (var i = 0; i < 260; i++) {
+      t += 1 / 30;
+      if (Math.random() < flow / 30) launch();
+      stepBalls(1 / 30);
+      decayAll(1 / 30);
     }
-    updateBalls();
-    draw();
-    requestAnimationFrame(loop);
+  })();
+  function decayAll(dt) {
+    var f = Math.exp(-dt * decay);
+    for (var k = 0; k < dens.length; k++) dens[k] *= f;
+    /* 山はゆっくり沈む。全体を少しずつ縮めて、いつまでも積もりきらない */
+    var sum = 0;
+    for (var j = 0; j <= ROWS; j++) { heap[j] *= Math.exp(-dt * 0.05); sum += heap[j]; }
+    var peak = 0;
+    for (var j2 = 0; j2 <= ROWS; j2++) if (heap[j2] > peak) peak = heap[j2];
+    /* 山の背丈は床の下の余白に収める */
+    var room = (FLOOR - pegY(ROWS)) * 0.8;
+    HEAPK = peak > 0 ? Math.min(DY * 0.25, room / peak) : DY * 0.25;
   }
 
-  resize();
-  // initial burst
-  for (var i = 0; i < 8; i++) {
-    setTimeout(function() { spawnBall(); }, i * 80);
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now(), acc = 0;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    t += dt;
+    acc += dt * flow;
+    while (acc > 1) { acc -= 1; launch(); }
+    stepBalls(dt);
+    decayAll(dt);
+    shade();
+    P.grid(ctx, W, H, { alpha: 0.5 });
+    drawPegs(dt);
+    drawHeap();
+    drawBalls();
+    requestAnimationFrame(frame);
   }
-  loop(0);
+  requestAnimationFrame(frame);
 })();
 </script>
-
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

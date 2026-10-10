@@ -5,864 +5,330 @@ recordPageView('topopt');
 
 $pageName = 'topopt';
 $pageTitle = 'TOPOPT - PULSE';
-$pageDesc = '位相最適化。荷重と支持を配置すると、最小限の材料で力を伝える最も効率的な構造が自己組織的に現れる。';
+$pageDesc = '四角い板に重さがかかると、力のかからない部分から材料が削られ、橋の骨組みのような形が残る。重りの位置がゆっくり動くと、骨組みの形も変わる。触ったところへ重りを移せる。';
 $pageCanonical = 'https://pulse.subara3.com/topopt.php';
-$extraStyle = '
-body{background:#0a0a0f;overflow:hidden}
-#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}
-.hud{position:fixed;top:1rem;left:1rem;z-index:20;font:12px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;color:rgba(255,255,255,.55);letter-spacing:.08em;background:rgba(10,10,15,.48);border:1px solid rgba(0,245,212,.16);padding:.75rem .85rem;border-radius:8px;backdrop-filter:blur(12px)}
-.hud b{color:#00f5d4;font-weight:700}
-.hud .sub{color:rgba(181,140,255,.9)}
-.mark{position:fixed;left:1rem;bottom:1rem;z-index:20;font:11px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.24em;color:rgba(255,255,255,.18)}
-@media(max-width:760px){.hud{top:.75rem;left:.75rem;font-size:10px;padding:.55rem .65rem}.mark{font-size:9px}}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
-<div class="hud"><span class="sub">TOPOPT</span><br>ITER <b id="h-iter">0</b><br>C <b id="h-comp">&mdash;</b><br>VOL <b id="h-vol">0.40</b></div>
-<div class="mark">TOPOPT</div>
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'load'],
-  ['type' => 'drag', 'label' => 'direct'],
-  ['type' => 'right', 'label' => 'reset'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
+
 <div id="controls" class="drawer-controls">
-  <div>
-    <div class="slider-row">
-      <label class="ctrl-label">VOLUME</label>
-      <input type="range" id="sl-vol" min="15" max="70" step="1" value="40">
-      <span class="slider-value" id="sv-vol">0.40</span>
-    </div>
-  </div>
-  <div>
-    <div class="btn-row">
-      <button class="mode-btn active" data-preset="cantilever">CANTILEVER</button>
-      <button class="mode-btn" data-preset="bridge">BRIDGE</button>
-      <button class="mode-btn" data-preset="mbb">MBB</button>
-      <button class="mode-btn" data-preset="tower">TOWER</button>
-    </div>
-  </div>
-  <div>
-    <div class="btn-row">
-      <button id="btn-reset">RESET</button>
-    </div>
-  </div>
+  <div class="ctl-row"><label for="k-mass">MASS</label><input type="range" id="k-mass" min="0" max="100" value="45"></div>
+  <div class="ctl-btns"><button type="button" class="active" data-span="bridge">BRIDGE</button><button type="button" data-span="arm">ARM</button></div>
+  <div class="ctl-btns"><button type="button" id="k-reset">RESET</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function(){ 'use strict';
+(function () {
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0, ctx;
 
-  /* ── Canvas ── */
-  var C = document.getElementById('canvas');
-  var ctx = C.getContext('2d');
-  var W, H, dpr;
-
-  /* ── Grid parameters ── */
-  var NEX = 60, NEY = 30;
-  var nNodes = (NEX + 1) * (NEY + 1);
-  var nDof = 2 * nNodes;
-  var nEl = NEX * NEY;
-
-  /* ── SIMP parameters ── */
-  var penal = 3.0;
-  var E0 = 1.0;
-  var Emin = 1e-9;
-  var rmin = 1.5;
-  var volFrac = 0.40;
-  var moveLimit = 0.2;
-
-  /* ── State arrays ── */
-  var rho = new Float64Array(nEl);
-  var dc = new Float64Array(nEl);
-  var dcFiltered = new Float64Array(nEl);
-  var U = new Float64Array(nDof);
-  var F = new Float64Array(nDof);
-
-  /* ── Element DOF mapping (precomputed) ── */
-  var edof = new Int32Array(nEl * 8);
-  (function buildEdof() {
-    for (var ey = 0; ey < NEY; ey++) {
-      for (var ex = 0; ex < NEX; ex++) {
-        var eIdx = ey * NEX + ex;
-        var n1 = ey * (NEX + 1) + ex;         // BL
-        var n2 = n1 + 1;                        // BR
-        var n3 = (ey + 1) * (NEX + 1) + ex + 1; // TR
-        var n4 = (ey + 1) * (NEX + 1) + ex;     // TL
-        var base = eIdx * 8;
-        edof[base    ] = 2 * n1;
-        edof[base + 1] = 2 * n1 + 1;
-        edof[base + 2] = 2 * n2;
-        edof[base + 3] = 2 * n2 + 1;
-        edof[base + 4] = 2 * n3;
-        edof[base + 5] = 2 * n3 + 1;
-        edof[base + 6] = 2 * n4;
-        edof[base + 7] = 2 * n4 + 1;
-      }
-    }
-  })();
-
-  /* ── Element stiffness matrix (8x8, from 88-line code) ── */
+  /* ------------------------------------------------ 有限要素（4 節点の正方形要素・平面応力） */
+  var nu = 0.3, E0 = 1, Emin = 1e-3, PEN = 3;
+  var kk = [0.5 - nu / 6, 0.125 + nu / 8, -0.25 - nu / 12, -0.125 + 3 * nu / 8, -0.25 + nu / 12, -0.125 - nu / 8, nu / 6, 0.125 - 3 * nu / 8];
+  var KI = [
+    [0, 1, 2, 3, 4, 5, 6, 7], [1, 0, 7, 6, 5, 4, 3, 2], [2, 7, 0, 5, 6, 3, 4, 1], [3, 6, 5, 0, 7, 2, 1, 4],
+    [4, 5, 6, 7, 0, 1, 2, 3], [5, 4, 3, 2, 1, 0, 7, 6], [6, 3, 4, 1, 2, 7, 0, 5], [7, 2, 1, 4, 3, 6, 5, 0]
+  ];
   var KE = new Float64Array(64);
-  (function buildKE() {
-    var nu = 0.3;
-    var k = new Float64Array(8);
-    k[0] = 1/2 - nu/6;
-    k[1] = 1/8 + nu/8;
-    k[2] = -1/4 - nu/12;
-    k[3] = -1/8 + 3*nu/8;
-    k[4] = -1/4 + nu/12;
-    k[5] = -1/8 - nu/8;
-    k[6] = nu/6;
-    k[7] = 1/8 - 3*nu/8;
+  for (var i0 = 0; i0 < 8; i0++) for (var j0 = 0; j0 < 8; j0++) KE[i0 * 8 + j0] = kk[KI[i0][j0]] / (1 - nu * nu);
 
-    // Pattern: row i maps to indices in k[]
-    var pat = [
-      [0,1,2,3,4,5,6,7],
-      [1,0,7,6,5,4,3,2],
-      [2,7,0,5,6,3,4,1],
-      [3,6,5,0,7,2,1,4],
-      [4,5,6,7,0,1,2,3],
-      [5,4,3,2,1,0,7,6],
-      [6,3,4,1,2,7,0,5],
-      [7,2,1,4,3,6,5,0]
-    ];
+  var NX, NY, NE, ND, EDOF, X, XN, DC, CE, EE, U, F, FIX, R, Z, Pp, Q, DIAG, FW, FI;
+  var span = 'bridge', mass = 0.45, vol = 1, volT = 0.4;
 
-    var scale = 1 / (1 - nu * nu);
-    for (var i = 0; i < 8; i++) {
-      for (var j = 0; j < 8; j++) {
-        KE[i * 8 + j] = scale * k[pat[i][j]];
-      }
+  function build() {
+    var aw = W * 0.84, ah = H * 0.66, asp = Math.max(0.7, Math.min(2.6, aw / ah));
+    NY = Math.round(Math.sqrt(2600 / asp)); NX = Math.round(NY * asp);
+    NE = NX * NY; ND = 2 * (NX + 1) * (NY + 1);
+    EDOF = new Int32Array(NE * 8);
+    for (var ex = 0; ex < NX; ex++) for (var ey = 0; ey < NY; ey++) {
+      var e = ey * NX + ex, n1 = (NY + 1) * ex + ey, n2 = (NY + 1) * (ex + 1) + ey;
+      /* 左下・右下・右上・左上の順（上の行ほど ey が小さい） */
+      var d = [2 * (n1 + 1), 2 * (n1 + 1) + 1, 2 * (n2 + 1), 2 * (n2 + 1) + 1, 2 * n2, 2 * n2 + 1, 2 * n1, 2 * n1 + 1];
+      for (var k = 0; k < 8; k++) EDOF[e * 8 + k] = d[k];
     }
-  })();
-
-  /* ── Sensitivity filter weights (precomputed) ── */
-  var filterNeighbors = []; // filterNeighbors[e] = [{idx, weight}, ...]
-  (function buildFilter() {
-    var rmin2 = rmin;
-    for (var e = 0; e < nEl; e++) {
-      var ey = (e / NEX) | 0;
-      var ex = e % NEX;
-      var cx = ex + 0.5;
-      var cy = ey + 0.5;
-      var neighbors = [];
-      var iMin = Math.max(0, Math.floor(cx - rmin2 - 1));
-      var iMax = Math.min(NEX - 1, Math.ceil(cx + rmin2));
-      var jMin = Math.max(0, Math.floor(cy - rmin2 - 1));
-      var jMax = Math.min(NEY - 1, Math.ceil(cy + rmin2));
-      for (var jj = jMin; jj <= jMax; jj++) {
-        for (var ii = iMin; ii <= iMax; ii++) {
-          var dist = Math.sqrt((ii + 0.5 - cx) * (ii + 0.5 - cx) + (jj + 0.5 - cy) * (jj + 0.5 - cy));
-          if (dist < rmin2) {
-            neighbors.push({ idx: jj * NEX + ii, weight: rmin2 - dist });
-          }
+    X = new Float64Array(NE).fill(1); XN = new Float64Array(NE);
+    DC = new Float64Array(NE); CE = new Float64Array(NE); EE = new Float64Array(NE);
+    U = new Float64Array(ND); F = new Float64Array(ND); FIX = new Uint8Array(ND);
+    R = new Float64Array(ND); Z = new Float64Array(ND); Pp = new Float64Array(ND); Q = new Float64Array(ND); DIAG = new Float64Array(ND);
+    /* 感度フィルタ: 半径 2 要素の重み */
+    var rmin = 2.1, list = [], wts = [];
+    FI = []; FW = [];
+    for (ey = 0; ey < NY; ey++) for (ex = 0; ex < NX; ex++) {
+      var idx = [], w = [];
+      for (var j = Math.max(0, ey - 2); j <= Math.min(NY - 1, ey + 2); j++)
+        for (var i = Math.max(0, ex - 2); i <= Math.min(NX - 1, ex + 2); i++) {
+          var r = rmin - Math.hypot(i - ex, j - ey);
+          if (r > 0) { idx.push(j * NX + i); w.push(r); }
         }
-      }
-      filterNeighbors.push(neighbors);
+      FI.push(idx); FW.push(w);
     }
-  })();
-
-  /* ── Boundary conditions ── */
-  var fixedDofs = [];
-  var loads = []; // [{node, fx, fy}]
-  var userLoads = []; // [{node, fx, fy}]
-  var currentPreset = 'cantilever';
-
-  function setupPreset(name) {
-    currentPreset = name;
-    fixedDofs = [];
-    loads = [];
-
-    if (name === 'cantilever') {
-      // Left wall fully fixed
-      for (var iy = 0; iy <= NEY; iy++) {
-        var n = iy * (NEX + 1);
-        fixedDofs.push(2 * n, 2 * n + 1);
-      }
-      // Downward point load at mid-right
-      var loadNode = Math.round(NEY / 2) * (NEX + 1) + NEX;
-      loads.push({ node: loadNode, fx: 0, fy: -1 });
-    }
-    else if (name === 'bridge') {
-      // Bottom-left corner pinned
-      var bl = 0;
-      fixedDofs.push(2 * bl, 2 * bl + 1);
-      // Bottom-right corner pinned
-      var br = NEX;
-      fixedDofs.push(2 * br, 2 * br + 1);
-      // Downward load at top center
-      var topCenter = NEY * (NEX + 1) + Math.round(NEX / 2);
-      loads.push({ node: topCenter, fx: 0, fy: -1 });
-    }
-    else if (name === 'mbb') {
-      // Left edge x-fixed (roller)
-      for (var iy2 = 0; iy2 <= NEY; iy2++) {
-        var n2 = iy2 * (NEX + 1);
-        fixedDofs.push(2 * n2); // x-fixed only
-      }
-      // Bottom-right corner y-fixed
-      var brCorner = NEX;
-      fixedDofs.push(2 * brCorner + 1);
-      // Downward load at top-left
-      var topLeft = NEY * (NEX + 1);
-      loads.push({ node: topLeft, fx: 0, fy: -1 });
-    }
-    else if (name === 'tower') {
-      // Bottom wall fully fixed
-      for (var ix = 0; ix <= NEX; ix++) {
-        fixedDofs.push(2 * ix, 2 * ix + 1);
-      }
-      // Downward load at top center
-      var topC = NEY * (NEX + 1) + Math.round(NEX / 2);
-      loads.push({ node: topC, fx: 0, fy: -1 });
-    }
+    supports();
+    vol = 1;
+    loadX = span === 'bridge' ? NX / 2 : NX; loadY = span === 'bridge' ? NY : NY / 2;
+    SHADE = null;
   }
-
-  /* ── Assemble force vector ── */
-  function assembleForce() {
-    for (var i = 0; i < nDof; i++) F[i] = 0;
-    var allLoads = loads.concat(userLoads);
-    for (var k = 0; k < allLoads.length; k++) {
-      var ld = allLoads[k];
-      F[2 * ld.node]     += ld.fx;
-      F[2 * ld.node + 1] += ld.fy;
-    }
-  }
-
-  /* ── Matrix-free CG solver ── */
-  // Compute K*v product element-by-element (matrix-free)
-  var Kv_temp = new Float64Array(nDof);
-  var ue_temp = new Float64Array(8);
-  var ke_temp = new Float64Array(8);
-
-  function matVecProduct(v, result) {
-    for (var i = 0; i < nDof; i++) result[i] = 0;
-
-    for (var e = 0; e < nEl; e++) {
-      var Ee = Emin + Math.pow(rho[e], penal) * (E0 - Emin);
-      var base = e * 8;
-
-      // Gather element DOFs
-      for (var ii = 0; ii < 8; ii++) ue_temp[ii] = v[edof[base + ii]];
-
-      // ke = KE * ue * Ee
-      for (var ii2 = 0; ii2 < 8; ii2++) {
-        var s = 0;
-        var row = ii2 * 8;
-        for (var jj = 0; jj < 8; jj++) s += KE[row + jj] * ue_temp[jj];
-        ke_temp[ii2] = s * Ee;
+  function node(ix, iy) { return (NY + 1) * ix + iy; }
+  function supports() {
+    FIX.fill(0);
+    if (span === 'bridge') {
+      /* 下の両端をピンで留める */
+      for (var k = 0; k <= 1; k++) {
+        var a = node(k, NY), b = node(NX - k, NY);
+        FIX[2 * a] = FIX[2 * a + 1] = 1; FIX[2 * b] = FIX[2 * b + 1] = 1;
       }
-
-      // Scatter
-      for (var ii3 = 0; ii3 < 8; ii3++) result[edof[base + ii3]] += ke_temp[ii3];
+    } else {
+      /* 左の壁にがっちり固定 */
+      for (var iy = 0; iy <= NY; iy++) { var n = node(0, iy); FIX[2 * n] = FIX[2 * n + 1] = 1; }
     }
-
-    // Apply fixed DOFs (large-number method contribution to product)
-    for (var f = 0; f < fixedDofs.length; f++) {
-      var d = fixedDofs[f];
-      result[d] += 1e9 * v[d];
-    }
+    U.fill(0);
   }
-
-  // Diagonal preconditioner
-  var diagK = new Float64Array(nDof);
-  function buildDiagPrecond() {
-    for (var i = 0; i < nDof; i++) diagK[i] = 0;
-    for (var e = 0; e < nEl; e++) {
-      var Ee = Emin + Math.pow(rho[e], penal) * (E0 - Emin);
-      var base = e * 8;
-      for (var ii = 0; ii < 8; ii++) {
-        diagK[edof[base + ii]] += Ee * KE[ii * 8 + ii];
+  /* 重りは 4 節点に分けて置き、動きをなめらかにする */
+  var loadX = 0, loadY = 0;
+  function setLoad() {
+    F.fill(0);
+    var ix, d;
+    /* 橋: 道路の重さが下の縁に均等にかかる */
+    if (span === 'bridge') {
+      for (ix = 0; ix <= NX; ix++) { d = 2 * node(ix, NY) + 1; if (!FIX[d]) F[d] -= 1.6 / NX; }
+    }
+    var x = Math.max(0, Math.min(NX, loadX)), y = Math.max(0, Math.min(NY, loadY));
+    ix = Math.min(NX - 1, Math.floor(x));
+    var iy = Math.min(NY - 1, Math.floor(y)), fx = x - ix, fy = y - iy;
+    var w = [[ix, iy, (1 - fx) * (1 - fy)], [ix + 1, iy, fx * (1 - fy)], [ix, iy + 1, (1 - fx) * fy], [ix + 1, iy + 1, fx * fy]];
+    var pw = span === 'bridge' ? 0.7 : 1;
+    for (var k = 0; k < 4; k++) { d = 2 * node(w[k][0], w[k][1]) + 1; if (!FIX[d]) F[d] -= w[k][2] * pw; }
+  }
+  var ue = new Float64Array(8);
+  function matvec(x, y) {
+    y.fill(0);
+    for (var e = 0; e < NE; e++) {
+      var o = e * 8, Ee = EE[e];
+      for (var k = 0; k < 8; k++) ue[k] = x[EDOF[o + k]];
+      for (var i = 0; i < 8; i++) {
+        var s = 0, ro = i * 8;
+        for (var j = 0; j < 8; j++) s += KE[ro + j] * ue[j];
+        y[EDOF[o + i]] += Ee * s;
       }
     }
-    for (var f = 0; f < fixedDofs.length; f++) {
-      diagK[fixedDofs[f]] += 1e9;
-    }
-    // Invert for preconditioner
-    for (var i2 = 0; i2 < nDof; i2++) {
-      diagK[i2] = diagK[i2] > 1e-30 ? 1 / diagK[i2] : 0;
-    }
+    for (var d = 0; d < ND; d++) if (FIX[d]) y[d] = x[d];
   }
-
-  var cg_r = new Float64Array(nDof);
-  var cg_z = new Float64Array(nDof);
-  var cg_p = new Float64Array(nDof);
-  var cg_Ap = new Float64Array(nDof);
-
-  function solveCG(maxIter, tol) {
-    // Apply large-number method to RHS as well
-    assembleForce();
-    for (var f = 0; f < fixedDofs.length; f++) {
-      var d = fixedDofs[f];
-      F[d] = 0; // fixed DOFs: displacement = 0
-    }
-
-    buildDiagPrecond();
-
-    // Initial guess: use previous U
-    matVecProduct(U, cg_r);
-    for (var i = 0; i < nDof; i++) cg_r[i] = F[i] - cg_r[i];
-
-    // z = M^-1 * r
+  /* 前の答えから始める共役勾配法。毎フレーム少しずつ解き進める */
+  function solve(iters) {
+    var d, e;
+    DIAG.fill(0);
+    for (e = 0; e < NE; e++) for (var k = 0; k < 8; k++) DIAG[EDOF[e * 8 + k]] += EE[e] * KE[0];
+    for (d = 0; d < ND; d++) { if (FIX[d]) { DIAG[d] = 1; U[d] = 0; } }
+    matvec(U, Q);
     var rz = 0;
-    for (var i2 = 0; i2 < nDof; i2++) {
-      cg_z[i2] = diagK[i2] * cg_r[i2];
-      rz += cg_r[i2] * cg_z[i2];
+    for (d = 0; d < ND; d++) { R[d] = (FIX[d] ? 0 : F[d]) - Q[d]; Z[d] = R[d] / DIAG[d]; Pp[d] = Z[d]; rz += R[d] * Z[d]; }
+    for (var it = 0; it < iters; it++) {
+      matvec(Pp, Q);
+      var pq = 0;
+      for (d = 0; d < ND; d++) pq += Pp[d] * Q[d];
+      if (pq <= 0) break;
+      var al = rz / pq, rz2 = 0;
+      for (d = 0; d < ND; d++) { U[d] += al * Pp[d]; R[d] -= al * Q[d]; Z[d] = R[d] / DIAG[d]; rz2 += R[d] * Z[d]; }
+      var be = rz2 / rz; rz = rz2;
+      for (d = 0; d < ND; d++) Pp[d] = Z[d] + be * Pp[d];
+      if (rz < 1e-14) break;
     }
-
-    for (var i3 = 0; i3 < nDof; i3++) cg_p[i3] = cg_z[i3];
-
-    for (var iter = 0; iter < maxIter; iter++) {
-      matVecProduct(cg_p, cg_Ap);
-
-      var pAp = 0;
-      for (var i4 = 0; i4 < nDof; i4++) pAp += cg_p[i4] * cg_Ap[i4];
-
-      if (pAp < 1e-30) break;
-      var alpha = rz / pAp;
-
-      var rz_new = 0;
-      for (var i5 = 0; i5 < nDof; i5++) {
-        U[i5] += alpha * cg_p[i5];
-        cg_r[i5] -= alpha * cg_Ap[i5];
-        cg_z[i5] = diagK[i5] * cg_r[i5];
-        rz_new += cg_r[i5] * cg_z[i5];
+  }
+  /* 最適性規準法で密度を 1 歩更新する */
+  function optimize() {
+    var e, k;
+    for (e = 0; e < NE; e++) EE[e] = Emin + Math.pow(X[e], PEN) * (E0 - Emin);
+    setLoad();
+    solve(24);
+    for (e = 0; e < NE; e++) {
+      var o = e * 8, s = 0;
+      for (var i = 0; i < 8; i++) {
+        var ui = U[EDOF[o + i]], t = 0;
+        for (var j = 0; j < 8; j++) t += KE[i * 8 + j] * U[EDOF[o + j]];
+        s += ui * t;
       }
-
-      if (Math.sqrt(Math.abs(rz_new)) < tol) break;
-
-      var beta = rz_new / rz;
-      for (var i6 = 0; i6 < nDof; i6++) {
-        cg_p[i6] = cg_z[i6] + beta * cg_p[i6];
+      CE[e] = s;
+      DC[e] = -PEN * Math.pow(X[e], PEN - 1) * (E0 - Emin) * s;
+    }
+    /* 感度をならして、市松模様を防ぐ */
+    for (e = 0; e < NE; e++) {
+      var idx = FI[e], w = FW[e], num = 0, den = 0;
+      for (k = 0; k < idx.length; k++) { num += w[k] * X[idx[k]] * DC[idx[k]]; den += w[k]; }
+      XN[e] = num / (den * Math.max(1e-3, X[e]));
+    }
+    for (e = 0; e < NE; e++) DC[e] = XN[e];
+    var l1 = 0, l2 = 1e9, move = 0.06, target = Math.min(0.98, vol) * NE;
+    while ((l2 - l1) / (l1 + l2) > 1e-3 && l2 > 1e-30) {
+      var lm = 0.5 * (l1 + l2), sum = 0;
+      for (e = 0; e < NE; e++) {
+        var xn = X[e] * Math.sqrt(Math.max(0, -DC[e]) / lm);
+        xn = Math.max(0, Math.max(X[e] - move, Math.min(1, Math.min(X[e] + move, xn))));
+        XN[e] = xn; sum += xn;
       }
-      rz = rz_new;
+      if (sum > target) l1 = lm; else l2 = lm;
     }
+    for (e = 0; e < NE; e++) X[e] = XN[e];
+    /* 橋の道路（いちばん下の 1 段）は削らない */
+    if (span === 'bridge') for (e = (NY - 1) * NX; e < NE; e++) X[e] = 1;
   }
 
-  /* ── Compute element compliance sensitivities ── */
-  var ue_sens = new Float64Array(8);
-  function computeSensitivities() {
-    for (var e = 0; e < nEl; e++) {
-      var base = e * 8;
-      // Gather element displacements
-      for (var ii = 0; ii < 8; ii++) ue_sens[ii] = U[edof[base + ii]];
-
-      // u^T * KE * u
-      var uKu = 0;
-      for (var ii2 = 0; ii2 < 8; ii2++) {
-        var s = 0;
-        var row = ii2 * 8;
-        for (var jj = 0; jj < 8; jj++) s += KE[row + jj] * ue_sens[jj];
-        uKu += ue_sens[ii2] * s;
-      }
-
-      dc[e] = -penal * Math.pow(rho[e], penal - 1) * (E0 - Emin) * uKu;
-    }
+  /* ------------------------------------------------ 描く */
+  var SUB = 4, SW, SH, SHADE = null, simg, sbuf, sctx, OX, OY, ES;
+  function layout() {
+    ES = Math.min(W * 0.84 / NX, H * 0.66 / NY);
+    OX = (W - ES * NX) / 2; OY = (H - ES * NY) / 2 - H * 0.02;
+    SW = NX * SUB; SH = NY * SUB;
+    SHADE = new Float32Array(SW * SH);
+    simg = new ImageData(SW, SH);
+    sbuf = document.createElement('canvas'); sbuf.width = SW; sbuf.height = SH;
+    sctx = sbuf.getContext('2d');
   }
-
-  /* ── Sensitivity filter ── */
-  function filterSensitivities() {
-    for (var e = 0; e < nEl; e++) {
-      var neighbors = filterNeighbors[e];
-      var sumHxDc = 0;
-      var sumH = 0;
-      for (var k = 0; k < neighbors.length; k++) {
-        var nb = neighbors[k];
-        sumHxDc += nb.weight * rho[nb.idx] * dc[nb.idx];
-        sumH += nb.weight;
-      }
-      dcFiltered[e] = sumHxDc / (rho[e] * sumH);
-    }
-  }
-
-  /* ── OC update ── */
-  var rhoNew = new Float64Array(nEl);
-  function ocUpdate() {
-    var l1 = 0, l2 = 1e9;
-    var move = moveLimit;
-
-    while (l2 - l1 > 1e-9) {
-      var lmid = 0.5 * (l1 + l2);
-      var vol = 0;
-      for (var e = 0; e < nEl; e++) {
-        var Be = Math.sqrt(-dcFiltered[e] / lmid);
-        var xnew = rho[e] * Be;
-        var lo = Math.max(0.001, rho[e] - move);
-        var hi = Math.min(1.0, rho[e] + move);
-        if (xnew < lo) xnew = lo;
-        if (xnew > hi) xnew = hi;
-        rhoNew[e] = xnew;
-        vol += xnew;
-      }
-      if (vol / nEl > volFrac) l1 = lmid; else l2 = lmid;
-    }
-
-    var maxChange = 0;
-    for (var e2 = 0; e2 < nEl; e2++) {
-      var ch = Math.abs(rhoNew[e2] - rho[e2]);
-      if (ch > maxChange) maxChange = ch;
-      rho[e2] = rhoNew[e2];
-    }
-    return maxChange;
-  }
-
-  /* ── Compute compliance ── */
-  function computeCompliance() {
-    var c = 0;
-    for (var i = 0; i < nDof; i++) c += F[i] * U[i];
-    return c;
-  }
-
-  /* ── Optimization state ── */
-  var iteration = 0;
-  var converged = false;
-  var compliance = 0;
-  var running = true;
-
-  function initDensity() {
-    for (var e = 0; e < nEl; e++) rho[e] = volFrac;
-    for (var i = 0; i < nDof; i++) U[i] = 0;
-    iteration = 0;
-    converged = false;
-    compliance = 0;
-    particles = [];
-  }
-
-  function restart() {
-    setupPreset(currentPreset);
-    initDensity();
-    running = true;
-  }
-
-  /* ── Particles (post-convergence) ── */
-  var particles = [];
-  var maxParticles = 80;
-
-  function spawnParticle() {
-    // Spawn from load points, drift toward supports
-    var allLoads2 = loads.concat(userLoads);
-    if (allLoads2.length === 0) return;
-    var ld = allLoads2[(Math.random() * allLoads2.length) | 0];
-    var nx = ld.node % (NEX + 1);
-    var ny = (ld.node / (NEX + 1)) | 0;
-
-    particles.push({
-      x: nx, y: ny,
-      vx: (Math.random() - 0.5) * 0.3,
-      vy: (Math.random() - 0.5) * 0.3,
-      life: 1.0,
-      decay: 0.003 + Math.random() * 0.004
-    });
-  }
-
-  function updateParticles() {
-    for (var i = particles.length - 1; i >= 0; i--) {
-      var p = particles[i];
-      // Follow density gradient
-      var gx = Math.round(p.x);
-      var gy = Math.round(p.y);
-      if (gx >= 0 && gx < NEX && gy >= 0 && gy < NEY) {
-        var eIdx = gy * NEX + gx;
-        // Drift toward higher density neighbors
-        var dxGrad = 0, dyGrad = 0;
-        if (gx > 0) dxGrad -= rho[eIdx] - rho[eIdx - 1];
-        if (gx < NEX - 1) dxGrad += rho[eIdx + 1] - rho[eIdx];
-        if (gy > 0) dyGrad -= rho[eIdx] - rho[eIdx - NEX];
-        if (gy < NEY - 1) dyGrad += rho[eIdx + NEX] - rho[eIdx];
-
-        p.vx += dxGrad * 0.05;
-        p.vy += dyGrad * 0.05;
-      }
-
-      p.vx *= 0.97;
-      p.vy *= 0.97;
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life -= p.decay;
-
-      if (p.life <= 0 || p.x < -1 || p.x > NEX + 1 || p.y < -1 || p.y > NEY + 1) {
-        particles.splice(i, 1);
-      }
-    }
-    if (particles.length < maxParticles && Math.random() < 0.15) {
-      spawnParticle();
-    }
-  }
-
-  /* ── Rendering ── */
-  var offCanvas = document.createElement('canvas');
-  offCanvas.width = NEX;
-  offCanvas.height = NEY;
-  var offCtx = offCanvas.getContext('2d');
-  var imgData = offCtx.createImageData(NEX, NEY);
-  var pixData = imgData.data;
-
-  // Domain layout
-  var domX, domY, elemSize;
-
-  function calcLayout() {
-    var margin = 80;
-    var availW = W / dpr - margin * 2;
-    var availH = H / dpr - margin * 2;
-    elemSize = Math.min(availW / NEX, availH / NEY);
-    if (elemSize < 2) elemSize = 2;
-    var domW = NEX * elemSize;
-    var domH = NEY * elemSize;
-    domX = (W / dpr - domW) / 2;
-    domY = (H / dpr - domH) / 2;
-  }
-
-  function renderDensity() {
-    for (var ey = 0; ey < NEY; ey++) {
-      for (var ex = 0; ex < NEX; ex++) {
-        var e = ey * NEX + ex;
-        var d = rho[e];
-        // Flip Y: ey=0 is bottom in physical space, but top of image for screen
-        var imgY = NEY - 1 - ey;
-        var off = (imgY * NEX + ex) * 4;
-        pixData[off]     = 0;
-        pixData[off + 1] = Math.round(245 * d);
-        pixData[off + 2] = Math.round(212 * d);
-        var a = Math.round(255 * d * d * 1.5);
-        if (a > 255) a = 255;
-        pixData[off + 3] = a;
-      }
-    }
-    offCtx.putImageData(imgData, 0, 0);
-
-    ctx.save();
-    ctx.imageSmoothingEnabled = false;
-    ctx.drawImage(offCanvas, domX * dpr, domY * dpr, NEX * elemSize * dpr, NEY * elemSize * dpr);
-    ctx.restore();
-  }
-
-  function drawDomainOutline() {
-    ctx.save();
-    ctx.strokeStyle = 'rgba(0,245,212,0.12)';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(domX * dpr, domY * dpr, NEX * elemSize * dpr, NEY * elemSize * dpr);
-    ctx.restore();
-  }
-
-  // Convert grid node to screen coordinates (node at physical position)
-  function nodeToScreen(node) {
-    var nx = node % (NEX + 1);
-    var ny = (node / (NEX + 1)) | 0;
-    // ey=0 is bottom in physical, screen Y increases downward
-    var sx = domX + nx * elemSize;
-    var sy = domY + (NEY - ny) * elemSize;
-    return { x: sx * dpr, y: sy * dpr };
-  }
-
-  function drawSupports() {
-    ctx.save();
-    var triSize = Math.max(4, elemSize * 0.5) * dpr;
-    ctx.fillStyle = 'rgba(123,44,191,0.7)';
-
-    // Collect unique fixed nodes
-    var fixedNodes = {};
-    for (var i = 0; i < fixedDofs.length; i++) {
-      fixedNodes[(fixedDofs[i] / 2) | 0] = true;
-    }
-    for (var nodeId in fixedNodes) {
-      var pos = nodeToScreen(parseInt(nodeId));
-      ctx.beginPath();
-      ctx.moveTo(pos.x, pos.y);
-      ctx.lineTo(pos.x - triSize * 0.5, pos.y + triSize);
-      ctx.lineTo(pos.x + triSize * 0.5, pos.y + triSize);
-      ctx.closePath();
-      ctx.fill();
-    }
-    ctx.restore();
-  }
-
-  function drawLoads() {
-    ctx.save();
-    var arrowLen = Math.max(10, elemSize * 1.5) * dpr;
-    var arrowHead = arrowLen * 0.35;
-    ctx.strokeStyle = 'rgba(181,140,255,0.9)';
-    ctx.fillStyle = 'rgba(181,140,255,0.9)';
-    ctx.lineWidth = 2 * dpr;
-
-    var allLoads3 = loads.concat(userLoads);
-    for (var i = 0; i < allLoads3.length; i++) {
-      var ld = allLoads3[i];
-      var pos = nodeToScreen(ld.node);
-      var dx = ld.fx;
-      var dy = -ld.fy; // screen Y is flipped
-      var mag = Math.sqrt(dx * dx + dy * dy);
-      if (mag < 1e-10) continue;
-      dx /= mag; dy /= mag;
-
-      var startX = pos.x - dx * arrowLen;
-      var startY = pos.y - dy * arrowLen;
-
-      ctx.beginPath();
-      ctx.moveTo(startX, startY);
-      ctx.lineTo(pos.x, pos.y);
-      ctx.stroke();
-
-      // Arrowhead
-      var ax = -dx, ay = -dy;
-      var px = -ay, py = ax;
-      ctx.beginPath();
-      ctx.moveTo(pos.x, pos.y);
-      ctx.lineTo(pos.x + (ax + px * 0.4) * arrowHead, pos.y + (ay + py * 0.4) * arrowHead);
-      ctx.lineTo(pos.x + (ax - px * 0.4) * arrowHead, pos.y + (ay - py * 0.4) * arrowHead);
-      ctx.closePath();
-      ctx.fill();
-    }
-    ctx.restore();
-  }
-
-  function drawParticles() {
-    if (!converged) return;
-    updateParticles();
-    ctx.save();
-    for (var i = 0; i < particles.length; i++) {
-      var p = particles[i];
-      // Convert to screen
-      var sx = (domX + p.x * elemSize) * dpr;
-      var sy = (domY + (NEY - p.y) * elemSize) * dpr;
-      var alpha = p.life * 0.6;
-      var r = (1.5 + p.life) * dpr;
-      ctx.beginPath();
-      ctx.arc(sx, sy, r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(0,245,212,' + alpha.toFixed(3) + ')';
-      ctx.fill();
-    }
-    ctx.restore();
-  }
-
+  var BG = P.bg, LN = P.line, ST = P.steel, DEEP = P.deep;
   function render() {
-    ctx.clearRect(0, 0, W, H);
-    renderDensity();
-    drawDomainOutline();
+    if (!SHADE) layout();
+    var i, j;
+    /* 要素の中心で持っている密度を、細かい格子へなめらかに広げる */
+    for (j = 0; j < SH; j++) {
+      var gy = (j + 0.5) / SUB - 0.5, y0 = Math.max(0, Math.min(NY - 1, Math.floor(gy))), y1 = Math.min(NY - 1, y0 + 1), fy = Math.max(0, Math.min(1, gy - y0));
+      for (i = 0; i < SW; i++) {
+        var gx = (i + 0.5) / SUB - 0.5, x0 = Math.max(0, Math.min(NX - 1, Math.floor(gx))), x1 = Math.min(NX - 1, x0 + 1), fx = Math.max(0, Math.min(1, gx - x0));
+        var a = X[y0 * NX + x0] * (1 - fx) + X[y0 * NX + x1] * fx, b = X[y1 * NX + x0] * (1 - fx) + X[y1 * NX + x1] * fx;
+        SHADE[j * SW + i] = a * (1 - fy) + b * fy;
+      }
+    }
+    var d = simg.data;
+    for (j = 0; j < SH; j++) for (i = 0; i < SW; i++) {
+      var k = j * SW + i, v = SHADE[k], o = k * 4;
+      var gxx = (i > 0 && i < SW - 1) ? (SHADE[k + 1] - SHADE[k - 1]) * 0.5 : 0;
+      var gyy = (j > 0 && j < SH - 1) ? (SHADE[k + SW] - SHADE[k - SW]) * 0.5 : 0;
+      var g = Math.sqrt(gxx * gxx + gyy * gyy) + 1e-4;
+      /* 材料は鋼色の面、輪郭は白い線、削れたところは藍に沈む */
+      var fill = Math.max(0, Math.min(1, (v - 0.25) / 0.5));
+      fill = fill * fill * (3 - 2 * fill) * 0.42;
+      var r = BG[0] + (ST[0] - BG[0]) * fill, gg = BG[1] + (ST[1] - BG[1]) * fill, bb = BG[2] + (ST[2] - BG[2]) * fill;
+      var dist = Math.abs(v - 0.5) / g;
+      var line = Math.max(0, 1 - dist / 1.1) * 0.85;
+      r += (LN[0] - r) * line; gg += (LN[1] - gg) * line; bb += (LN[2] - bb) * line;
+      d[o] = r; d[o + 1] = gg; d[o + 2] = bb; d[o + 3] = 255;
+    }
+    sctx.putImageData(simg, 0, 0);
+
+    P.fill(ctx, W, H);
+    P.grid(ctx, W, H, { step: 32, major: 4, alpha: 0.6 });
+    /* 設計できる範囲を薄い枠で示す */
+    ctx.strokeStyle = P.rgba(P.steel, 0.35);
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 6]);
+    ctx.strokeRect(OX - 0.5, OY - 0.5, ES * NX + 1, ES * NY + 1);
+    ctx.setLineDash([]);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(sbuf, OX, OY, ES * NX, ES * NY);
     drawSupports();
-    drawLoads();
-    drawParticles();
+    drawLoad();
   }
-
-  /* ── HUD update ── */
-  var elIter = document.getElementById('h-iter');
-  var elComp = document.getElementById('h-comp');
-  var elVol = document.getElementById('h-vol');
-
-  function updateHUD() {
-    elIter.textContent = iteration;
-    elComp.textContent = compliance > 0 ? compliance.toFixed(2) : '—';
-    var vol = 0;
-    for (var e = 0; e < nEl; e++) vol += rho[e];
-    elVol.textContent = (vol / nEl).toFixed(3);
-  }
-
-  /* ── Resize ── */
-  function resize() {
-    dpr = window.devicePixelRatio || 1;
-    W = window.innerWidth * dpr;
-    H = window.innerHeight * dpr;
-    C.width = W;
-    C.height = H;
-    C.style.width = window.innerWidth + 'px';
-    C.style.height = window.innerHeight + 'px';
-    calcLayout();
-  }
-  window.addEventListener('resize', resize);
-
-  /* ── Main loop ── */
-  var sfxTickLast = 0;
-
-  function step() {
-    requestAnimationFrame(step);
-
-    if (running && !converged) {
-      // One optimization iteration
-      solveCG(500, 1e-6);
-      computeSensitivities();
-      filterSensitivities();
-      var maxChange = ocUpdate();
-      iteration++;
-      compliance = computeCompliance();
-
-      // SFX tick every ~10 iterations
-      var now = Date.now();
-      if (iteration % 10 === 0 && now - sfxTickLast > 200) {
-        SFX.play('tick', 200);
-        sfxTickLast = now;
-      }
-
-      if (maxChange < 0.01 && iteration > 10) {
-        converged = true;
-        SFX.play('complete');
-      }
+  function hatch(x, y, w, horizontal) {
+    ctx.beginPath();
+    if (horizontal) {
+      ctx.moveTo(x - w, y); ctx.lineTo(x + w, y);
+      for (var t = -w; t < w; t += 6) { ctx.moveTo(x + t, y); ctx.lineTo(x + t - 5, y + 6); }
+    } else {
+      ctx.moveTo(x, y - w); ctx.lineTo(x, y + w);
+      for (var s = -w; s < w; s += 6) { ctx.moveTo(x, y + s); ctx.lineTo(x - 6, y + s + 5); }
     }
+    ctx.stroke();
+  }
+  function drawSupports() {
+    ctx.strokeStyle = P.rgba(P.line, 0.6);
+    ctx.lineWidth = 1;
+    if (span === 'bridge') {
+      [OX + ES, OX + ES * (NX - 1)].forEach(function (x) {
+        var y = OY + ES * NY;
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x - 9, y + 14); ctx.lineTo(x + 9, y + 14); ctx.closePath(); ctx.stroke();
+        hatch(x, y + 16, 14, true);
+      });
+    } else {
+      hatch(OX - 2, OY + ES * NY / 2, ES * NY / 2 + 6, false);
+    }
+  }
+  function drawLoad() {
+    var x = OX + loadX * ES, y = OY + loadY * ES;
+    var len = 44;
+    ctx.strokeStyle = P.rgba(P.accent, 0.9);
+    ctx.fillStyle = P.rgba(P.accent, 0.9);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(x, y - len); ctx.lineTo(x, y - 5); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x, y - 1); ctx.lineTo(x - 5, y - 10); ctx.lineTo(x + 5, y - 10); ctx.closePath(); ctx.fill();
+    var g = ctx.createRadialGradient(x, y, 0, x, y, 22);
+    g.addColorStop(0, P.rgba(P.accent, 0.25)); g.addColorStop(1, P.rgba(P.accent, 0));
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(x, y, 22, 0, Math.PI * 2); ctx.fill();
+  }
 
+  /* ------------------------------------------------ 操作 */
+  var down = false, idle = 99, autoT = 0, wantX = 0, wantY = 0;
+  function toGrid(e) {
+    return [Math.max(0, Math.min(NX, (e.clientX - OX) / ES)), Math.max(0, Math.min(NY, (e.clientY - OY) / ES))];
+  }
+  canvas.addEventListener('pointerdown', function (e) {
+    down = true; idle = 0;
+    var g = toGrid(e); wantX = g[0]; wantY = g[1];
+    SFX.play('collide');
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    var g = toGrid(e); wantX = g[0]; wantY = g[1]; idle = 0;
+    SFX.play('move', 240);
+  });
+  function up() { down = false; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
+
+  var km = document.getElementById('k-mass');
+  km.addEventListener('input', function () { mass = this.value / 100; });
+  mass = km.value / 100;
+  document.querySelectorAll('[data-span]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-span]').forEach(function (o) { o.classList.toggle('active', o === b); });
+      span = b.dataset.span;
+      build(); idle = 99; autoT = 0;
+      SFX.play('toggle');
+    });
+  });
+  document.getElementById('k-reset').addEventListener('click', function () { build(); autoT = 0; SFX.play('click'); });
+
+  ctx = P.fit(canvas, function (w, h) { W = w; H = h; build(); });
+
+  /* ------------------------------------------------ 回す */
+  var lastT = performance.now(), chime = 0;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    /* 材料の量は MASS で決まる。最初は板いっぱいから少しずつ削る */
+    volT = 0.2 + mass * 0.4;
+    vol += (volT - vol) * Math.min(1, dt * 0.45);
+    idle += dt;
+    if (idle > 7) {
+      /* 放っておくと、重りがゆっくり行き来する */
+      autoT += dt;
+      var s = Math.sin(autoT * 2 * Math.PI / 46);
+      if (span === 'bridge') { wantX = NX * (0.5 + 0.32 * s); wantY = NY; }
+      else { wantX = NX; wantY = NY * (0.5 + 0.38 * s); }
+    }
+    loadX += (wantX - loadX) * Math.min(1, dt * (idle > 7 ? 0.8 : 4));
+    loadY += (wantY - loadY) * Math.min(1, dt * (idle > 7 ? 0.8 : 4));
+    optimize();
     render();
-    updateHUD();
+    chime += dt;
+    if (chime > 8) { chime = 0; SFX.play('tick', 4000); }
+    requestAnimationFrame(frame);
   }
-
-  /* ── Interaction: click to add load ── */
-  function screenToNode(sx, sy) {
-    // sx, sy in CSS pixels
-    var gx = (sx - domX) / elemSize;
-    var gy = NEY - (sy - domY) / elemSize; // flip Y
-    var ix = Math.round(gx);
-    var iy = Math.round(gy);
-    if (ix < 0) ix = 0; if (ix > NEX) ix = NEX;
-    if (iy < 0) iy = 0; if (iy > NEY) iy = NEY;
-    return iy * (NEX + 1) + ix;
-  }
-
-  var dragStart = null;
-  var dragNode = -1;
-
-  C.addEventListener('pointerdown', function(e) {
-    if (e.button === 2) return; // right-click handled separately
-    e.preventDefault();
-    var rect = C.getBoundingClientRect();
-    var sx = e.clientX - rect.left;
-    var sy = e.clientY - rect.top;
-    dragNode = screenToNode(sx, sy);
-    dragStart = { x: e.clientX, y: e.clientY };
-  });
-
-  C.addEventListener('pointerup', function(e) {
-    if (e.button === 2) return;
-    if (dragNode < 0 || !dragStart) { dragNode = -1; dragStart = null; return; }
-    var dx = e.clientX - dragStart.x;
-    var dy = e.clientY - dragStart.y;
-    var dist = Math.sqrt(dx * dx + dy * dy);
-
-    var fx = 0, fy = 0;
-    if (dist < 10) {
-      // Simple click: downward load
-      fy = -1;
-    } else {
-      // Drag: force in drag direction (screen to physical)
-      var mag = dist;
-      fx = dx / mag;
-      fy = -(dy / mag); // flip Y for physical
-    }
-
-    // Toggle: if same node already has a user load, remove it
-    var found = -1;
-    for (var i = 0; i < userLoads.length; i++) {
-      if (userLoads[i].node === dragNode) { found = i; break; }
-    }
-    if (found >= 0 && dist < 10) {
-      userLoads.splice(found, 1);
-      SFX.play('pop');
-    } else {
-      if (found >= 0) userLoads.splice(found, 1);
-      userLoads.push({ node: dragNode, fx: fx, fy: fy });
-      SFX.play('spawn');
-    }
-
-    // Restart optimization with current density as starting point
-    converged = false;
-    iteration = 0;
-    particles = [];
-    running = true;
-
-    dragNode = -1;
-    dragStart = null;
-  });
-
-  C.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    userLoads = [];
-    SFX.play('click');
-    restart();
-  });
-
-  /* ── Touch support ── */
-  C.addEventListener('touchstart', function(e) {
-    if (e.touches.length === 1) {
-      e.preventDefault();
-      var t = e.touches[0];
-      var rect = C.getBoundingClientRect();
-      dragNode = screenToNode(t.clientX - rect.left, t.clientY - rect.top);
-      dragStart = { x: t.clientX, y: t.clientY };
-    }
-  }, { passive: false });
-
-  C.addEventListener('touchend', function(e) {
-    if (dragNode < 0 || !dragStart) return;
-    var t = e.changedTouches[0];
-    var dx = t.clientX - dragStart.x;
-    var dy = t.clientY - dragStart.y;
-    var dist = Math.sqrt(dx * dx + dy * dy);
-
-    var fx = 0, fy = 0;
-    if (dist < 10) {
-      fy = -1;
-    } else {
-      var mag = dist;
-      fx = dx / mag;
-      fy = -(dy / mag);
-    }
-
-    var found = -1;
-    for (var i = 0; i < userLoads.length; i++) {
-      if (userLoads[i].node === dragNode) { found = i; break; }
-    }
-    if (found >= 0 && dist < 10) {
-      userLoads.splice(found, 1);
-      SFX.play('pop');
-    } else {
-      if (found >= 0) userLoads.splice(found, 1);
-      userLoads.push({ node: dragNode, fx: fx, fy: fy });
-      SFX.play('spawn');
-    }
-
-    converged = false;
-    iteration = 0;
-    particles = [];
-    running = true;
-    dragNode = -1;
-    dragStart = null;
-  });
-
-  /* ── Controls ── */
-  var slVol = document.getElementById('sl-vol');
-  var svVol = document.getElementById('sv-vol');
-  slVol.addEventListener('input', function() {
-    volFrac = parseInt(slVol.value) / 100;
-    svVol.textContent = volFrac.toFixed(2);
-    initDensity();
-    running = true;
-  });
-
-  var presetBtns = document.querySelectorAll('[data-preset]');
-  for (var b = 0; b < presetBtns.length; b++) {
-    presetBtns[b].addEventListener('click', (function(btn) {
-      return function() {
-        for (var i = 0; i < presetBtns.length; i++) presetBtns[i].classList.remove('active');
-        btn.classList.add('active');
-        currentPreset = btn.getAttribute('data-preset');
-        userLoads = [];
-        SFX.play('toggle');
-        restart();
-      };
-    })(presetBtns[b]));
-  }
-
-  document.getElementById('btn-reset').addEventListener('click', function() {
-    SFX.play('click');
-    userLoads = [];
-    restart();
-  });
-
-  /* ── Init ── */
-  resize();
-  setupPreset('cantilever');
-  initDensity();
-  step();
-
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

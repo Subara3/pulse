@@ -19,8 +19,8 @@ $_footCollections = array_slice(array_keys($PULSE_COLLECTIONS), 0, 6);
       <div class="foot-col">
         <a href="index.php" class="wordmark" style="font-size:1.15rem"><span class="dot" aria-hidden="true"></span>PULSE</a>
         <p class="dim" style="margin-top:.9rem;font-size:.8rem;line-height:1.9">
-          数式と規則が動いているところだけを集めた、<br>
-          <?php echo $_workCount; ?> 本のインタラクティブ・アーカイブ。
+          数式どおりに動く絵を集めたサイトです。<br>
+          いまは <?php echo $_workCount; ?> 本あります。
         </p>
       </div>
 
@@ -29,7 +29,6 @@ $_footCollections = array_slice(array_keys($PULSE_COLLECTIONS), 0, 6);
         <ul>
           <li><a href="index.php">ホーム</a></li>
           <li><a href="contents.php">作品をさがす（全<?php echo $_workCount; ?>本）</a></li>
-          <li><a href="log.php">日記</a></li>
           <li><a href="about.php">PULSE について</a></li>
           <li><a href="random.php">ランダムに1本</a></li>
         </ul>
@@ -59,7 +58,7 @@ $_footCollections = array_slice(array_keys($PULSE_COLLECTIONS), 0, 6);
 
     <div class="foot-bottom">
       <span>&copy; 2026 PULSE</span>
-      <span>ECHO &amp; NULL — 毎日 1 本ずつ増えています</span>
+      <span>毎日 1 本ずつ追加しています</span>
     </div>
   </div>
 </footer>

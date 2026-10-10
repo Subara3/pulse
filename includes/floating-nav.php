@@ -8,7 +8,7 @@
  *  - メニューを開くと同じコレクションの全作品とサイト内リンク
  * 狭い画面では作品名とメニューだけを出し、ほかの操作はメニューの中に入れる。
  *
- * お気に入り・達成・共有の中身は js/pulse-kit.js。ここでは PULSE.page を置くだけ。
+ * お気に入り・共有の中身は js/pulse-kit.js。ここでは PULSE.page を置くだけ。
  */
 require_once __DIR__ . '/contents-data.php';
 
@@ -30,7 +30,6 @@ $_prev = $_n > 1 ? $_siblings[($_pos - 1 + $_n) % $_n] : null;
 $_next = $_n > 1 ? $_siblings[($_pos + 1) % $_n] : null;
 $_navPages = array_map(fn($c) => $c['page'], $_navPool);
 $_h = fn($s) => htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8');
-$_challenge = $_navCurrent['challenge'] ?? '';
 ?>
 <script>window.PULSE = window.PULSE || {}; PULSE.page = <?php echo json_encode($_navSelf); ?>;</script>
 
@@ -40,7 +39,7 @@ $_challenge = $_navCurrent['challenge'] ?? '';
   </a>
 
   <div class="fn-label">
-    <span class="fn-title"><?php echo $_h($_navCurrent['title'] ?? strtoupper($_navSelf)); ?><i class="fa-solid fa-check fn-clear" aria-label="達成済み" hidden></i></span>
+    <span class="fn-title"><?php echo $_h($_navCurrent['title'] ?? strtoupper($_navSelf)); ?></span>
     <?php if ($_navGroup): ?>
     <span class="fn-sub"><?php echo $_h($_navGroupLabel); ?> <span class="fn-pos"><?php echo $_pos + 1; ?> / <?php echo $_n; ?></span></span>
     <?php endif; ?>
@@ -65,10 +64,6 @@ $_challenge = $_navCurrent['challenge'] ?? '';
       <button type="button" data-act="random"><i class="fa-solid fa-shuffle" aria-hidden="true"></i><span>ランダム</span></button>
     </div>
 
-    <?php if ($_challenge): ?>
-    <p class="fp-goal" id="fpGoal"><span class="fp-goal-tag">挑戦</span><?php echo $_h($_challenge); ?></p>
-    <?php endif; ?>
-
     <?php if ($_siblings): ?>
     <p class="fp-head"><?php echo $_h($_navGroupLabel); ?></p>
     <div class="fp-list">
@@ -83,7 +78,6 @@ $_challenge = $_navCurrent['challenge'] ?? '';
 
     <div class="fp-foot">
       <a href="contents.php">さがす</a>
-      <a href="log.php">日記</a>
       <a href="about.php">PULSE について</a>
     </div>
   </div>
@@ -100,7 +94,7 @@ $_challenge = $_navCurrent['challenge'] ?? '';
   gap: 0.2rem;
   max-width: calc(100vw - 2.5rem);
   padding: 0.35rem 0.4rem 0.35rem 0.35rem;
-  background: rgba(10, 10, 15, 0.84);
+  background: rgba(13, 34, 56, 0.84);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--line-mid);
@@ -126,8 +120,6 @@ $_challenge = $_navCurrent['challenge'] ?? '';
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   display: flex; align-items: center; gap: 0.4rem;
 }
-.fn-clear { color: var(--teal); font-size: 0.7rem; }
-.fn-clear[hidden] { display: none; }
 .fn-sub { font-size: 0.66rem; color: var(--text-3); white-space: nowrap; }
 .fn-pos { font-family: var(--font-mono); margin-left: 0.3rem; }
 .fn-actions { display: flex; align-items: center; gap: 0.15rem; }
@@ -156,7 +148,7 @@ $_challenge = $_navCurrent['challenge'] ?? '';
   width: 300px;
   max-width: calc(100vw - 2.5rem);
   padding: 0.9rem;
-  background: rgba(12, 12, 18, 0.97);
+  background: rgba(10, 28, 47, 0.97);
   backdrop-filter: blur(14px);
   border: 1px solid var(--line-mid);
   border-radius: 10px;
@@ -174,13 +166,6 @@ $_challenge = $_navCurrent['challenge'] ?? '';
   background: var(--ink-2); border: 1px solid var(--line); border-radius: 6px; cursor: pointer;
 }
 .fp-acts button[aria-pressed="true"] { color: var(--teal); border-color: var(--teal-line); }
-.fp-goal {
-  display: flex; gap: 0.5rem; align-items: baseline;
-  font-size: 0.76rem; line-height: 1.7; color: var(--violet-lit);
-  padding-bottom: 0.75rem; margin-bottom: 0.75rem; border-bottom: 1px solid var(--line);
-}
-.fp-goal-tag { flex: none; font-size: 0.64rem; padding: 0 0.35rem; border: 1px solid currentColor; border-radius: 2px; }
-.fp-goal.is-cleared { color: var(--teal); }
 .fp-head { font-size: 0.72rem; color: var(--text-3); margin-bottom: 0.45rem; }
 .fp-list { display: grid; gap: 0.2rem; max-height: 44vh; overflow-y: auto; }
 .fp-item {
@@ -190,7 +175,7 @@ $_challenge = $_navCurrent['challenge'] ?? '';
   transition: background 0.2s var(--ease), color 0.2s var(--ease);
 }
 .fp-item:hover { background: var(--teal-soft); color: var(--teal); }
-.fp-item.is-current { color: var(--teal); background: rgba(0, 245, 212, 0.06); }
+.fp-item.is-current { color: var(--teal); background: rgba(95, 208, 255, 0.06); }
 .fp-item img, .fp-noimg {
   width: 56px; height: 32px; flex: none; object-fit: cover;
   border-radius: 2px; background: var(--ink-0); opacity: 0.8;
@@ -250,17 +235,9 @@ $_challenge = $_navCurrent['challenge'] ?? '';
       var i = b.querySelector('i');
       i.className = (fav ? 'fa-solid' : 'fa-regular') + ' fa-star';
     });
-    var done = PULSE.cleared(PULSE.page);
-    nav.querySelector('.fn-clear').hidden = !done;
-    var g = document.getElementById('fpGoal');
-    if (g) {
-      g.classList.toggle('is-cleared', done);
-      g.querySelector('.fp-goal-tag').textContent = done ? '達成' : '挑戦';
-    }
   }
   document.addEventListener('DOMContentLoaded', paint);
   document.addEventListener('pulse:fav', paint);
-  document.addEventListener('pulse:clear', paint);
 
   function close() { panel.classList.remove('open'); menuBtn.setAttribute('aria-expanded', 'false'); }
   menuBtn.addEventListener('click', function (e) {

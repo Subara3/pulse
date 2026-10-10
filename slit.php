@@ -5,370 +5,262 @@ recordPageView('slit');
 
 $pageName = 'slit';
 $pageTitle = 'SLIT - PULSE';
-$pageDesc = '二重スリット実験。粒子が一つずつスリットを通過し、干渉縞が浮かび上がる。';
+$pageDesc = '左から来た波が壁のすき間を抜けて広がり、右の板に粒が1つずつ当たる。当たった跡はしだいに縞模様になる。上下にドラッグするとすき間の間隔が変わり、縞の間隔も変わる。';
 $pageCanonical = 'https://pulse.subara3.com/slit.php';
-
-$extraStyle = '
-body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
-#canvas { position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; }
-.ui { position: fixed; z-index: 100; font-family: "Space Grotesk", "Segoe UI", sans-serif; pointer-events: none; }
-.hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.34); font-size: 0.64rem; text-align: right; letter-spacing: 0.05em; line-height: 1.8; }
-.hud .v { color: #00f5d4; font-weight: 700; }
-@media (max-width: 768px) {
-  .hud { top: 0.6rem; right: 0.6rem; font-size: 0.54rem; }
-}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
-
 <canvas id="canvas"></canvas>
 
-<div class="ui hud">
-  PARTICLES: <span id="hudN" class="v">0</span><br>
-  SLITS: <span id="hudS" class="v">2</span>
-</div>
-
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'burst'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
-
 <div id="controls" class="drawer-controls">
-  <div class="slider-wrap">
-    <div class="slider-row">
-      <label class="slider-label">SLITS</label>
-      <span class="slider-value" id="valSlits">2</span>
-    </div>
-    <input type="range" id="rngSlits" min="1" max="6" step="1" value="2">
-  </div>
-  <div class="slider-wrap">
-    <div class="slider-row">
-      <label class="slider-label">WIDTH</label>
-      <span class="slider-value" id="valWidth">15</span>
-    </div>
-    <input type="range" id="rngWidth" min="5" max="40" step="1" value="15">
-  </div>
-  <div class="slider-wrap">
-    <div class="slider-row">
-      <label class="slider-label">GAP</label>
-      <span class="slider-value" id="valGap">55</span>
-    </div>
-    <input type="range" id="rngGap" min="20" max="120" step="1" value="55">
-  </div>
-  <div class="slider-wrap">
-    <div class="slider-row">
-      <label class="slider-label">RATE</label>
-      <span class="slider-value" id="valRate">40</span>
-    </div>
-    <input type="range" id="rngRate" min="5" max="200" step="5" value="40">
-  </div>
-  <div class="btn-row">
-    <button class="control-btn" id="btnTheory">THEORY</button>
-    <button class="control-btn" id="btnReset">RESET</button>
-  </div>
+  <div class="ctl-row"><label for="k-gap">GAP</label><input type="range" id="k-gap" min="0" max="100" value="40"></div>
+  <div class="ctl-row"><label for="k-rate">RATE</label><input type="range" id="k-rate" min="0" max="100" value="45"></div>
+  <div class="ctl-btns"><button type="button" data-slits="1">ONE</button><button type="button" class="active" data-slits="2">TWO</button><button type="button" data-slits="4">FOUR</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function() {
+(function () {
   'use strict';
+  var canvas = document.getElementById('canvas');
+  var ctx = canvas.getContext('2d');
+  var W = 0, H = 0;
 
-  var C = document.getElementById('canvas');
-  var ctx = C.getContext('2d', {alpha: false});
+  /* 配置: 左に波の出どころ、中ほどにすき間のある壁、右に粒が当たる板 */
+  var SX = 0, BX = 0, PX = 0, PW = 0, CY = 0;
+  var LAM = 22, K = 2 * Math.PI / 22, OMEGA = 2.2;
+  var slits = 2, gap = 70, SLW = 10;
 
-  var hudN = document.getElementById('hudN');
-  var hudS = document.getElementById('hudS');
-  var rngSlits = document.getElementById('rngSlits');
-  var rngWidth = document.getElementById('rngWidth');
-  var rngGap = document.getElementById('rngGap');
-  var rngRate = document.getElementById('rngRate');
-  var valSlits = document.getElementById('valSlits');
-  var valWidth = document.getElementById('valWidth');
-  var valGap = document.getElementById('valGap');
-  var valRate = document.getElementById('valRate');
-  var btnTheory = document.getElementById('btnTheory');
-  var btnReset = document.getElementById('btnReset');
-
-  var numSlits = 2;
-  var slitW = 0.015;
-  var slitD = 0.055;
-  var rate = 40;
-  var showTheory = false;
-
-  var W = 0, H = 0, sourceY, barrierY, screenY;
-  var particles = [];
-  var total = 0;
-  var BINS = 300;
-  var bins, maxBin;
-  var offCvs, offCtx;
-  var prob, cdf;
-  var lastT = 0, acc = 0;
-
-  function resize() {
-    W = C.width = window.innerWidth;
-    H = C.height = window.innerHeight;
-    sourceY = H * 0.07;
-    barrierY = H * 0.38;
-    screenY = H * 0.78;
-    offCvs = document.createElement('canvas');
-    offCvs.width = W; offCvs.height = H;
-    offCtx = offCvs.getContext('2d');
-    reset();
+  /* 波は粗い格子で、各マスの振れ幅と位相を先に求めておき、毎フレームは cos だけ取る */
+  var C = 4, GX = 1, GY = 1, amp, pha, acs, asn, img, buf, bctx;
+  var cdf = null, cdfN = 0;
+  function layout() {
+    SX = W * 0.06; BX = W * 0.34; PX = W * 0.8; PW = Math.min(W * 0.13, 150); CY = H / 2;
+    if (W < 700) { BX = W * 0.3; PX = W * 0.76; PW = W * 0.17; }
+    LAM = Math.max(14, Math.min(24, W / 55)); K = 2 * Math.PI / LAM;
+    GX = Math.ceil(W / C); GY = Math.ceil(H / C);
+    amp = new Float32Array(GX * GY); pha = new Float32Array(GX * GY);
+    acs = new Float32Array(GX * GY); asn = new Float32Array(GX * GY);
+    img = new ImageData(GX, GY);
+    buf = document.createElement('canvas'); buf.width = GX; buf.height = GY;
+    bctx = buf.getContext('2d');
+    solve();
   }
-
-  function reset() {
-    particles = [];
-    total = 0;
-    bins = new Float64Array(BINS);
-    maxBin = 1;
-    if (offCtx) offCtx.clearRect(0, 0, W, H);
-    computeDist();
+  function slitYs() {
+    var ys = [];
+    for (var s = 0; s < slits; s++) ys.push(CY + (s - (slits - 1) / 2) * gap);
+    return ys;
   }
-
-  function computeDist() {
-    var a = slitW * W;
-    var d = slitD * W;
-    var wl = 0.3 * W * a / (screenY - barrierY);
-    var L = screenY - barrierY;
-    var lambdaL = wl * L;
-    prob = new Float64Array(BINS);
-    cdf = new Float64Array(BINS);
-    var sum = 0;
-    for (var i = 0; i < BINS; i++) {
-      var x = ((i + 0.5) / BINS - 0.5) * W;
-      var beta = Math.PI * a * x / lambdaL;
-      var sc = Math.abs(beta) < 1e-8 ? 1 : Math.sin(beta) / beta;
-      var val = sc * sc;
-      if (numSlits > 1) {
-        var alpha = Math.PI * d * x / lambdaL;
-        var sa = Math.sin(alpha);
-        if (Math.abs(sa) < 1e-10) {
-          val *= numSlits * numSlits;
-        } else {
-          var s = Math.sin(numSlits * alpha) / sa;
-          val *= s * s;
+  function solve() {
+    var ys = slitYs(), pts = [];
+    /* すき間 1 本を 5 点で近似する */
+    for (var s = 0; s < ys.length; s++) for (var q = -2; q <= 2; q++) pts.push(ys[s] + q * SLW / 5);
+    var norm = 1 / Math.sqrt(pts.length);
+    for (var j = 0; j < GY; j++) {
+      var y = (j + 0.5) * C;
+      for (var i = 0; i < GX; i++) {
+        var x = (i + 0.5) * C, k = j * GX + i;
+        if (x < BX) { amp[k] = 0.34 * Math.min(1, (x - SX) / 60 + 1); pha[k] = K * x; continue; }
+        if (x > PX - 6) { amp[k] = 0; pha[k] = 0; continue; }
+        var re = 0, im = 0;
+        for (var p = 0; p < pts.length; p++) {
+          var dx = x - BX, dy = y - pts[p], r = Math.sqrt(dx * dx + dy * dy) + 1;
+          var a = 1 / Math.sqrt(r / 40 + 1), ph = K * (BX + r);
+          re += Math.cos(ph) * a; im += Math.sin(ph) * a;
         }
-      }
-      prob[i] = val;
-      sum += val;
-    }
-    var cum = 0;
-    for (var i = 0; i < BINS; i++) {
-      prob[i] /= sum;
-      cum += prob[i];
-      cdf[i] = cum;
-    }
-  }
-
-  function sampleX() {
-    var r = Math.random();
-    var lo = 0, hi = BINS - 1;
-    while (lo < hi) {
-      var m = (lo + hi) >> 1;
-      if (cdf[m] < r) lo = m + 1; else hi = m;
-    }
-    return ((lo + Math.random()) / BINS) * W;
-  }
-
-  function getSlits() {
-    var out = [];
-    var cx = W / 2, d = slitD * W, a = slitW * W;
-    for (var i = 0; i < numSlits; i++) {
-      out.push({x: cx + (i - (numSlits - 1) / 2) * d, w: a});
-    }
-    return out;
-  }
-
-  function fire() {
-    var tx = sampleX();
-    var slits = getSlits();
-    var best = slits[0], bd = Math.abs(slits[0].x - tx);
-    for (var i = 1; i < slits.length; i++) {
-      var dd = Math.abs(slits[i].x - tx);
-      if (dd < bd) { bd = dd; best = slits[i]; }
-    }
-    var sx = best.x + (Math.random() - 0.5) * best.w * 0.7;
-    particles.push({
-      sx: W / 2 + (Math.random() - 0.5) * 16,
-      ex: sx, tx: tx, p: 0,
-      sp: 0.012 + Math.random() * 0.008
-    });
-    total++;
-  }
-
-  function ppos(pt) {
-    var t = pt.p;
-    if (t < 0.45) {
-      var u = t / 0.45;
-      return {x: pt.sx + (pt.ex - pt.sx) * u, y: sourceY + (barrierY - sourceY) * u};
-    }
-    var u = (t - 0.45) / 0.55;
-    return {x: pt.ex + (pt.tx - pt.ex) * u, y: barrierY + (screenY - barrierY) * u};
-  }
-
-  function update(dt) {
-    acc += dt;
-    var iv = 1000 / rate;
-    while (acc >= iv) { acc -= iv; fire(); }
-    for (var i = particles.length - 1; i >= 0; i--) {
-      var pt = particles[i];
-      pt.p += pt.sp;
-      if (pt.p >= 1) {
-        offCtx.fillStyle = 'rgba(0,245,212,0.45)';
-        offCtx.beginPath();
-        offCtx.arc(pt.tx, screenY + Math.random() * 5, 1.2, 0, 6.2832);
-        offCtx.fill();
-        var b = Math.floor((pt.tx / W) * BINS);
-        if (b >= 0 && b < BINS) { bins[b]++; if (bins[b] > maxBin) maxBin = bins[b]; }
-        if (typeof SFX !== 'undefined') SFX.play('tick', 30);
-        particles.splice(i, 1);
+        re *= norm; im *= norm;
+        amp[k] = Math.min(1, Math.sqrt(re * re + im * im) * 1.25);
+        pha[k] = Math.atan2(im, re);
       }
     }
+    /* 板の上の明るさの分布（当たりやすさ）を作る */
+    cdfN = Math.ceil(H / 2);
+    cdf = new Float32Array(cdfN);
+    var acc = 0, L = PX - BX;
+    for (var n = 0; n < cdfN; n++) {
+      var yy = (n + 0.5) * H / cdfN, rr = 0, ii = 0;
+      for (var p2 = 0; p2 < pts.length; p2++) {
+        var rdy = yy - pts[p2], rlen = Math.sqrt(L * L + rdy * rdy);
+        rr += Math.cos(K * rlen); ii += Math.sin(K * rlen);
+      }
+      acc += rr * rr + ii * ii;
+      cdf[n] = acc;
+    }
+    for (n = 0; n < cdfN; n++) cdf[n] /= acc;
+    /* 毎フレームの cos を省くため、振れ幅×cos(位相)・振れ幅×sin(位相) にしておく */
+    for (var q2 = 0; q2 < GX * GY; q2++) { acs[q2] = amp[q2] * Math.cos(pha[q2]); asn[q2] = amp[q2] * Math.sin(pha[q2]); }
+  }
+  function sampleY() {
+    var u = Math.random(), lo = 0, hi = cdfN - 1;
+    while (lo < hi) { var mid = (lo + hi) >> 1; if (cdf[mid] < u) lo = mid + 1; else hi = mid; }
+    return (lo + Math.random()) * H / cdfN;
   }
 
+  var BG = P.bg, ST = P.steel;
+  function shade(t) {
+    var d = img.data, cw = Math.cos(OMEGA * t), sw = Math.sin(OMEGA * t);
+    for (var k = 0, n = GX * GY; k < n; k++) {
+      var a = amp[k], o = k * 4;
+      var b = a > 0 ? 0.5 * a + 0.5 * (acs[k] * cw + asn[k] * sw) : 0;
+      b = b * b * 0.5;
+      d[o] = BG[0] + (ST[0] - BG[0]) * b; d[o + 1] = BG[1] + (ST[1] - BG[1]) * b; d[o + 2] = BG[2] + (ST[2] - BG[2]) * b; d[o + 3] = 255;
+    }
+    bctx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(buf, 0, 0, W, H);
+  }
+
+  /* ---------------------------------------------------------- 粒 */
+  var flying = [];
+  var HMAX = 6000, hx = new Float32Array(HMAX), hy = new Float32Array(HMAX), hb = new Float32Array(HMAX), hN = 0, hHead = 0;
+  var LIFE = 70;
+  function emit() {
+    var ys = slitYs(), sy = ys[(Math.random() * ys.length) | 0] + (Math.random() - 0.5) * SLW;
+    flying.push({ x: SX, y: CY + (Math.random() - 0.5) * 20, sy: sy, ty: sampleY(), t: 0, stage: 0 });
+  }
+  function land(y) {
+    hx[hHead] = PX + 4 + Math.random() * PW; hy[hHead] = y; hb[hHead] = T;
+    hHead = (hHead + 1) % HMAX; if (hN < HMAX) hN++;
+  }
+  function moveFlying(dt) {
+    var SPEED = Math.max(220, W * 0.28);
+    for (var i = flying.length - 1; i >= 0; i--) {
+      var f = flying[i];
+      var tx = f.stage ? PX + 2 : BX, ty = f.stage ? f.ty : f.sy;
+      var dx = tx - f.x, dy = ty - f.y, d = Math.sqrt(dx * dx + dy * dy);
+      var stepLen = SPEED * dt;
+      if (d <= stepLen) {
+        f.x = tx; f.y = ty;
+        if (f.stage) { land(f.ty); flying.splice(i, 1); SFX.play('tick', 2600); continue; }
+        f.stage = 1;
+      } else { f.x += dx / d * stepLen; f.y += dy / d * stepLen; }
+    }
+  }
+
+  var T = 0, LN = P.line;
   function draw() {
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, W, H);
-    ctx.drawImage(offCvs, 0, 0);
-
-    // Source glow
-    var g = ctx.createRadialGradient(W / 2, sourceY, 0, W / 2, sourceY, 28);
-    g.addColorStop(0, 'rgba(0,245,212,0.35)');
-    g.addColorStop(1, 'rgba(0,245,212,0)');
-    ctx.fillStyle = g;
+    shade(T);
+    /* 壁: すき間を残して白い線 */
+    var ys = slitYs(), i;
+    ctx.strokeStyle = P.rgba(LN, 0.8);
+    ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(W / 2, sourceY, 28, 0, 6.2832);
+    var yPrev = 0;
+    for (i = 0; i < ys.length; i++) { ctx.moveTo(BX, yPrev); ctx.lineTo(BX, ys[i] - SLW / 2); yPrev = ys[i] + SLW / 2; }
+    ctx.moveTo(BX, yPrev); ctx.lineTo(BX, H);
+    ctx.stroke();
+    /* 出どころ */
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = P.rgba(LN, 0.5);
+    ctx.beginPath(); ctx.arc(SX, CY, 5, 0, Math.PI * 2); ctx.stroke();
+    /* 板 */
+    ctx.strokeStyle = P.rgba(LN, 0.35);
+    ctx.beginPath(); ctx.moveTo(PX, 0); ctx.lineTo(PX, H); ctx.stroke();
+    ctx.strokeStyle = P.rgba(ST, 0.25);
+    ctx.beginPath(); ctx.moveTo(PX + PW + 8, 0); ctx.lineTo(PX + PW + 8, H); ctx.stroke();
+
+    /* 当たった跡: 古いものほど淡い。新しい 1 つだけシアン */
+    var bands = 5;
+    for (var bnd = 0; bnd < bands; bnd++) {
+      var lo = bnd / bands, hi = (bnd + 1) / bands;
+      ctx.fillStyle = P.rgba(LN, 0.12 + (1 - lo) * 0.6);
+      ctx.beginPath();
+      for (i = 0; i < hN; i++) {
+        var age = (T - hb[i]) / LIFE;
+        if (age < lo || age >= hi || age < 0) continue;
+        ctx.rect(hx[i] - 0.8, hy[i] - 0.8, 1.6, 1.6);
+      }
+      ctx.fill();
+    }
+    if (hN) {
+      var last = (hHead - 1 + HMAX) % HMAX, la = 1 - (T - hb[last]) / 0.8;
+      if (la > 0) { ctx.fillStyle = P.rgba(P.accent, la); ctx.beginPath(); ctx.arc(hx[last], hy[last], 2.2, 0, Math.PI * 2); ctx.fill(); }
+    }
+    /* 飛んでいる粒 */
+    ctx.fillStyle = P.rgba(LN, 0.9);
+    ctx.beginPath();
+    for (i = 0; i < flying.length; i++) { var f = flying[i]; ctx.moveTo(f.x + 1.6, f.y); ctx.arc(f.x, f.y, 1.6, 0, Math.PI * 2); }
     ctx.fill();
-
-    // Barrier
-    var slits = getSlits();
-    var sorted = slits.slice().sort(function(a, b) { return a.x - b.x; });
-    ctx.fillStyle = 'rgba(123,44,191,0.3)';
-    var left = 0;
-    for (var i = 0; i < sorted.length; i++) {
-      var r = sorted[i].x - sorted[i].w / 2;
-      if (r > left) ctx.fillRect(left, barrierY - 2, r - left, 4);
-      left = sorted[i].x + sorted[i].w / 2;
+    /* 触ったところ */
+    for (i = rings.length - 1; i >= 0; i--) {
+      var rg = rings[i], a = 1 - rg.t / 1.4;
+      if (a <= 0) { rings.splice(i, 1); continue; }
+      ctx.strokeStyle = P.rgba(P.accent, a * 0.5);
+      ctx.beginPath(); ctx.arc(rg.x, rg.y, 6 + rg.t * 50, 0, Math.PI * 2); ctx.stroke();
     }
-    if (left < W) ctx.fillRect(left, barrierY - 2, W - left, 4);
-
-    // Slit openings glow
-    for (var i = 0; i < slits.length; i++) {
-      var s = slits[i];
-      var gg = ctx.createLinearGradient(s.x - s.w / 2, 0, s.x + s.w / 2, 0);
-      gg.addColorStop(0, 'rgba(0,245,212,0)');
-      gg.addColorStop(0.3, 'rgba(0,245,212,0.12)');
-      gg.addColorStop(0.5, 'rgba(0,245,212,0.22)');
-      gg.addColorStop(0.7, 'rgba(0,245,212,0.12)');
-      gg.addColorStop(1, 'rgba(0,245,212,0)');
-      ctx.fillStyle = gg;
-      ctx.fillRect(s.x - s.w / 2, barrierY - 14, s.w, 28);
+    if (dragging) {
+      ctx.fillStyle = P.rgba(P.accent, 0.85);
+      for (i = 0; i < ys.length; i++) { ctx.beginPath(); ctx.arc(BX, ys[i], 3, 0, Math.PI * 2); ctx.fill(); }
     }
-
-    // Detection screen line
-    ctx.fillStyle = 'rgba(123,44,191,0.08)';
-    ctx.fillRect(0, screenY - 1, W, 1);
-
-    // Histogram
-    var histH = H - screenY - 16;
-    var histY = screenY + 8;
-    var bw = W / BINS;
-    if (maxBin > 0) {
-      ctx.fillStyle = 'rgba(0,245,212,0.06)';
-      for (var i = 0; i < BINS; i++) {
-        if (bins[i] > 0) {
-          var h = (bins[i] / maxBin) * histH * 0.9;
-          ctx.fillRect(i * bw, histY + histH - h, bw + 0.5, h);
-        }
-      }
-    }
-
-    // Theory curve
-    if (showTheory && total > 20) {
-      ctx.beginPath();
-      ctx.strokeStyle = 'rgba(123,44,191,0.7)';
-      ctx.lineWidth = 1.5;
-      for (var i = 0; i < BINS; i++) {
-        var x = (i + 0.5) * bw;
-        var ec = total * prob[i];
-        var h = Math.min((ec / maxBin) * histH * 0.9, histH * 0.9);
-        var y = histY + histH - h;
-        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-    }
-
-    // Active particles
-    ctx.fillStyle = '#00f5d4';
-    for (var i = 0; i < particles.length; i++) {
-      var pos = ppos(particles[i]);
-      ctx.beginPath();
-      ctx.arc(pos.x, pos.y, 1.5, 0, 6.2832);
-      ctx.fill();
-    }
-    ctx.fillStyle = 'rgba(0,245,212,0.1)';
-    for (var i = 0; i < particles.length; i++) {
-      var pos = ppos(particles[i]);
-      ctx.beginPath();
-      ctx.arc(pos.x, pos.y, 5, 0, 6.2832);
-      ctx.fill();
-    }
-
-    hudN.textContent = total;
-    hudS.textContent = numSlits;
   }
 
-  function loop(ts) {
-    var dt = lastT ? ts - lastT : 16;
-    lastT = ts;
-    if (dt > 100) dt = 16;
-    update(dt);
+  /* ---------------------------------------------------------- 操作 */
+  var rings = [], down = false, dragging = false, startY = 0, startGap = 0;
+  var gapEl = document.getElementById('k-gap');
+  function gapFrom(v) { return 24 + v / 100 * 150; }
+  function setGap(g) {
+    g = Math.max(24, Math.min(174, g));
+    if (Math.abs(g - gap) < 0.5) return;
+    gap = g; solve();
+    /* 古い跡は早めに薄れさせ、新しい縞に入れ替わりやすくする */
+    for (var i = 0; i < hN; i++) hb[i] -= 0.4;
+  }
+  canvas.addEventListener('pointerdown', function (e) {
+    down = true; dragging = false; startY = e.clientY; startGap = gap;
+    rings.push({ x: e.clientX, y: e.clientY, t: 0 });
+    for (var i = 0; i < 24; i++) emit();
+    SFX.play('ripple');
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    var dy = startY - e.clientY;
+    if (!dragging && Math.abs(dy) > 8) dragging = true;
+    if (dragging) {
+      setGap(startGap + dy * 0.6);
+      gapEl.value = Math.round((gap - 24) / 150 * 100);
+      SFX.play('move', 160);
+    }
+  });
+  function up() { down = false; dragging = false; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
+
+  var rate = 20;
+  function rateFrom(v) { return 4 + v / 100 * 60; }
+  gapEl.addEventListener('input', function () { setGap(gapFrom(+this.value)); });
+  document.getElementById('k-rate').addEventListener('input', function () { rate = rateFrom(+this.value); });
+  document.querySelectorAll('[data-slits]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-slits]').forEach(function (o) { o.classList.toggle('active', o === b); });
+      slits = +b.dataset.slits; solve();
+      for (var i = 0; i < hN; i++) hb[i] -= LIFE * 0.5;
+      SFX.play('toggle');
+    });
+  });
+  gap = gapFrom(+gapEl.value);
+  rate = rateFrom(+document.getElementById('k-rate').value);
+
+  ctx = P.fit(canvas, function (w, h) { W = w; H = h; layout(); hN = 0; hHead = 0; flying.length = 0; });
+  /* 開いたときから縞がうっすら見えているよう、跡を少し置いておく */
+  for (var w0 = 0; w0 < 1400; w0++) { land(sampleY()); hb[(hHead - 1 + HMAX) % HMAX] = -Math.random() * LIFE * 0.6; }
+
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now(), acc = 0;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now; T += dt;
+    acc += dt * rate;
+    while (acc > 1) { acc -= 1; emit(); }
+    moveFlying(dt);
+    for (var i = 0; i < rings.length; i++) rings[i].t += dt;
     draw();
-    requestAnimationFrame(loop);
+    requestAnimationFrame(frame);
   }
-
-  // Events
-  function burst() {
-    for (var i = 0; i < 25; i++) fire();
-    if (typeof SFX !== 'undefined') SFX.play('spawn');
-  }
-  C.addEventListener('click', burst);
-  C.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    burst();
-  }, {passive: false});
-
-  // Controls
-  rngSlits.addEventListener('input', function() {
-    numSlits = +this.value; valSlits.textContent = numSlits; reset();
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
-  });
-  rngWidth.addEventListener('input', function() {
-    slitW = +this.value / 1000; valWidth.textContent = this.value; reset();
-  });
-  rngGap.addEventListener('input', function() {
-    slitD = +this.value / 1000; valGap.textContent = this.value; reset();
-  });
-  rngRate.addEventListener('input', function() {
-    rate = +this.value; valRate.textContent = this.value;
-  });
-  btnTheory.addEventListener('click', function() {
-    showTheory = !showTheory;
-    this.classList.toggle('active', showTheory);
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
-  });
-  btnReset.addEventListener('click', function() {
-    reset();
-    if (typeof SFX !== 'undefined') SFX.play('click');
-  });
-
-  window.addEventListener('resize', resize);
-  resize();
-  requestAnimationFrame(loop);
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

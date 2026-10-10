@@ -5,508 +5,274 @@ recordPageView('recaman');
 
 $pageName = 'recaman';
 $pageTitle = 'RECAMÁN - PULSE';
-$pageDesc = 'レカマン数列。引けなければ足す——その単純なルールが描く半円弧の軌跡。';
+$pageDesc = '戻れるときは戻り、戻れないときは進む。この決まりで、一本の線の上に半円を重ねていく。クリックした位置からも、同じ決まりでもう一本描き始める。';
 $pageCanonical = 'https://pulse.subara3.com/recaman.php';
-
-$extraStyle = '
-body{background:#0a0a0f;min-height:100vh;overflow:hidden}
-#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
-.hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Space Grotesk","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,0.34);font-size:0.64rem;text-align:right;letter-spacing:0.05em;line-height:1.8}
-.hud .v{color:#00f5d4;font-weight:700}
-#info{position:fixed;bottom:1.5rem;left:1.5rem;color:rgba(255,255,255,0.22);font-family:"JetBrains Mono",monospace;font-size:0.6rem;line-height:1.7;letter-spacing:0.03em;pointer-events:none;z-index:50}
-#info .v{color:rgba(0,245,212,0.5)}
-@media(max-width:768px){.hud{top:3rem;right:0.6rem;font-size:0.54rem}#info{bottom:1rem;left:1rem;font-size:0.5rem}}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
-
 <canvas id="canvas"></canvas>
 
-<div class="hud">
-  STEP: <span id="hudStep" class="v">0</span><br>
-  VALUE: <span id="hudVal" class="v">0</span><br>
-  ARCS: <span id="hudArcs" class="v">0</span>
-</div>
-
-<div id="info">
-  recam&aacute;n sequence<br>
-  a(n) = <span class="v">a(n-1) &minus; n</span> if positive &amp; new<br>
-  a(n) = <span class="v">a(n-1) + n</span> otherwise
-</div>
-
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'step'],
-  ['type' => 'drag', 'label' => 'pan'],
-  ['type' => 'wheel', 'label' => 'zoom'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
-
 <div id="controls" class="drawer-controls">
-  <div class="slider-wrap">
-    <label class="slider-label">SPEED</label>
-    <div class="slider-row">
-      <input type="range" id="sldSpeed" min="1" max="60" value="8">
-      <span class="slider-value" id="valSpeed">8</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <label class="slider-label">ARC WIDTH</label>
-    <div class="slider-row">
-      <input type="range" id="sldWidth" min="1" max="8" value="2">
-      <span class="slider-value" id="valWidth">2</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <label class="slider-label">MODE</label>
-    <div class="preset-group" id="modeGroup">
-      <button class="preset-btn active" data-m="0">LINEAR</button>
-      <button class="preset-btn" data-m="1">SPIRAL</button>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <div class="btn-row">
-      <button class="control-btn" id="btnAuto">AUTO: ON</button>
-      <button class="control-btn" id="btnReset">RESET</button>
-    </div>
-  </div>
+  <div class="ctl-row"><label for="k-pace">PACE</label><input type="range" id="k-pace" min="0" max="100" value="40"></div>
+  <div class="ctl-btns"><button type="button" class="active" data-look="line">LINE</button><button type="button" data-look="ring">RING</button></div>
+  <div class="ctl-btns"><button type="button" id="k-reset">RESET</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function() {
-  var C = document.getElementById('canvas');
-  var ctx = C.getContext('2d');
-  var W, H, dpr;
+(function () {
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0;
+  var ctx = P.fit(canvas, function (w, h) { W = w; H = h; });
 
-  function resize() {
-    dpr = window.devicePixelRatio || 1;
-    W = window.innerWidth;
-    H = window.innerHeight;
-    C.width = W * dpr;
-    C.height = H * dpr;
-    C.style.width = W + 'px';
-    C.style.height = H + 'px';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  var NMAX = 420;          /* 1 本の道はここまで描いたら薄れて描き直す */
+  var MEMORY = 160;        /* 古い弧がどれくらいの手数で薄れるか */
+  var look = 'line', morph = 0;   /* 0 = 直線, 1 = 輪 */
+  var pace = 1.6;          /* 1 秒あたりの手数 */
+  var walks = [];
+  var STARTS = [0, 0, 7, 20, 3, 41, 12];
+  var cycle = 0;
+
+  /* 引けるなら引く、引けなければ足す */
+  function Walk(a0, main) {
+    this.vals = [a0];
+    this.seen = {}; this.seen[a0] = 1;
+    this.n = 0;            /* 描き終えた弧の数 */
+    this.prog = 0;         /* 描きかけの弧の進み 0..1 */
+    this.alpha = 0;        /* 全体の濃さ（出入りでゆっくり変わる） */
+    this.fade = false;
+    this.main = main;
+    this.max = a0;
   }
-  resize();
-  window.addEventListener('resize', resize);
-
-  var seq = [0];
-  var visited = new Set([0]);
-  var arcs = [];
-  var step = 0;
-  var autoPlay = true;
-  var speed = 8;
-  var arcWidth = 2;
-  var mode = 0;
-
-  var cam = { x: 0, y: 0, zoom: 1 };
-  var targetCam = { x: 0, y: 0, zoom: 1 };
-  var dragging = false;
-  var dragStart = { x: 0, y: 0 };
-  var camStart = { x: 0, y: 0 };
-  var userPanned = false;
-
-  var TEAL = [0, 245, 212];
-  var PURPLE = [123, 44, 191];
-
-  function lerpColor(a, b, t) {
-    return [
-      a[0] + (b[0] - a[0]) * t,
-      a[1] + (b[1] - a[1]) * t,
-      a[2] + (b[2] - a[2]) * t
-    ];
-  }
-
-  function rgba(c, a) {
-    return 'rgba(' + Math.round(c[0]) + ',' + Math.round(c[1]) + ',' + Math.round(c[2]) + ',' + a + ')';
-  }
-
-  function nextStep() {
-    step++;
-    var prev = seq[seq.length - 1];
-    var sub = prev - step;
-    var next;
-    if (sub > 0 && !visited.has(sub)) {
-      next = sub;
-    } else {
-      next = prev + step;
+  Walk.prototype.next = function () {
+    var k = this.vals.length, a = this.vals[k - 1];
+    var b = a - k;
+    if (b < 0 || this.seen[b]) b = a + k;
+    this.seen[b] = 1;
+    this.vals.push(b);
+    if (b > this.max) this.max = b;
+  };
+  Walk.prototype.advance = function (steps) {
+    this.prog += steps;
+    while (this.prog >= 1) {
+      this.prog -= 1; this.n++;
+      if (this.vals.length <= this.n + 1) this.next();
     }
-    seq.push(next);
-    visited.add(next);
+    while (this.vals.length <= this.n + 1) this.next();
+  };
 
-    var from = prev;
-    var to = next;
-    var dir = (step % 2 === 0) ? 1 : -1;
-    arcs.push({
-      from: Math.min(from, to),
-      to: Math.max(from, to),
-      dir: dir,
-      step: step,
-      birth: performance.now()
-    });
+  function reset() {
+    walks.length = 0;
+    var w = new Walk(STARTS[cycle % STARTS.length], true);
+    for (var i = 0; i < 36; i++) w.advance(1);
+    walks.push(w);
+    view.span = Math.max(20, w.max * 1.1);
+    view.step = Math.max(8, w.n + 1);
+  }
 
-    if (typeof SFX !== 'undefined') {
-      if (next < prev) {
-        SFX.play('tick', 30);
-      } else {
-        SFX.play('ripple', 30);
-      }
+  /* ---------------------------------------------------------- 見え方 */
+  var view = { span: 40, step: 20 };   /* 横幅に入れる値の幅 / いちばん大きい弧の幅 */
+  var X0 = 0, S = 1, Y0 = 0;
+  function frameView(dt) {
+    var span = 10, step = 6;
+    for (var i = 0; i < walks.length; i++) {
+      var w = walks[i];
+      var top = w.vals[w.n + 1] > w.max ? w.vals[w.n + 1] : w.max;
+      span = Math.max(span, top * 1.06 + 2);
+      step = Math.max(step, w.n + 1);
     }
-
-    updateHud();
+    /* 広げるときは早めに、縮めるときはゆっくり */
+    view.span += (span - view.span) * Math.min(1, dt * (span > view.span ? 3 : 0.4));
+    view.step += (step - view.step) * Math.min(1, dt * (step > view.step ? 3 : 0.4));
+    S = Math.min((W * 0.9) / view.span, (H * 0.84) / view.step);
+    X0 = (W - view.span * S) / 2;
+    Y0 = H / 2;
   }
 
-  function updateHud() {
-    document.getElementById('hudStep').textContent = step;
-    document.getElementById('hudVal').textContent = seq[seq.length - 1];
-    document.getElementById('hudArcs').textContent = arcs.length;
+  /* 直線上の点（値 v, 高さ h）を画面へ。輪のときは数直線を円に巻く */
+  var out = [0, 0];
+  function map(v, h) {
+    if (morph < 0.001) { out[0] = X0 + v * S; out[1] = Y0 - h * S; return out; }
+    var R0 = Math.min(W, H) * 0.29;
+    var ang = -Math.PI / 2 + (v / view.span) * Math.PI * 2;
+    /* 上の弧は輪の外へ、下の弧は内へふくらむ。ふくらみは輪の幅に収める */
+    var hh = h / view.span * 3.4, th = (Math.exp(2 * hh) - 1) / (Math.exp(2 * hh) + 1);
+    var rr = R0 * (1 + 0.62 * th);
+    var rx = W / 2 + Math.cos(ang) * rr, ry = H / 2 + Math.sin(ang) * rr;
+    var lx = X0 + v * S, ly = Y0 - h * S;
+    var e = morph * morph * (3 - 2 * morph);
+    out[0] = lx + (rx - lx) * e; out[1] = ly + (ry - ly) * e;
+    return out;
   }
 
-  function seqToLinearXY(val) {
-    return { x: val * 4, y: 0 };
-  }
-
-  function seqToSpiralXY(val) {
-    var a = 0.15;
-    var theta = Math.sqrt(val) * 2.5;
-    var r = a * theta * 30;
-    return { x: Math.cos(theta) * r, y: Math.sin(theta) * r };
-  }
-
-  function seqToXY(val) {
-    return mode === 1 ? seqToSpiralXY(val) : seqToLinearXY(val);
-  }
-
-  function autoFit() {
-    if (userPanned || arcs.length === 0) return;
-    if (mode === 0) {
-      var maxVal = 0;
-      for (var i = 0; i < arcs.length; i++) {
-        if (arcs[i].to > maxVal) maxVal = arcs[i].to;
-      }
-      var span = maxVal * 4;
-      var maxArcH = 0;
-      for (var i = 0; i < arcs.length; i++) {
-        var r = (arcs[i].to - arcs[i].from) * 4 / 2;
-        if (r > maxArcH) maxArcH = r;
-      }
-      var viewW = span + 100;
-      var viewH = maxArcH * 2 + 100;
-      var zx = W / viewW;
-      var zy = H / viewH;
-      targetCam.zoom = Math.min(zx, zy, 2);
-      targetCam.x = span / 2;
-      targetCam.y = 0;
-    } else {
-      var maxR = 0;
-      for (var i = 0; i < arcs.length; i++) {
-        var p1 = seqToSpiralXY(arcs[i].from);
-        var p2 = seqToSpiralXY(arcs[i].to);
-        var d1 = Math.sqrt(p1.x * p1.x + p1.y * p1.y);
-        var d2 = Math.sqrt(p2.x * p2.x + p2.y * p2.y);
-        if (d1 > maxR) maxR = d1;
-        if (d2 > maxR) maxR = d2;
-      }
-      var viewSize = maxR * 2 + 200;
-      targetCam.zoom = Math.min(W, H) / viewSize;
-      targetCam.x = 0;
-      targetCam.y = 0;
+  /* 弧 k（vals[k] から vals[k+1] へ）を u0..u1 だけ描く */
+  function arcPath(p, w, k, u1) {
+    var a = w.vals[k], b = w.vals[k + 1];
+    var side = (k % 2 === 0) ? 1 : -1;
+    var c = (a + b) / 2, r = Math.abs(b - a) / 2, dir = b > a ? 1 : -1;
+    var seg = Math.max(8, Math.min(140, Math.ceil(r * S / 2.2)));
+    var m = Math.max(1, Math.ceil(seg * u1));
+    for (var i = 0; i <= m; i++) {
+      var phi = Math.PI * Math.min(u1, i / seg);
+      var q = map(c - dir * r * Math.cos(phi), side * r * Math.sin(phi));
+      if (i === 0) p.moveTo(q[0], q[1]); else p.lineTo(q[0], q[1]);
     }
+    return out;
   }
 
-  function worldToScreen(wx, wy) {
-    return {
-      x: (wx - cam.x) * cam.zoom + W / 2,
-      y: -(wy - cam.y) * cam.zoom + H / 2
-    };
-  }
-
-  function drawArc(arc, now) {
-    var age = (now - arc.birth) / 1000;
-    var fadeIn = Math.min(age * 3, 1);
-    var t = (arc.step % 200) / 200;
-    var col = lerpColor(TEAL, PURPLE, t);
-
-    if (mode === 0) {
-      var cx = (arc.from + arc.to) / 2 * 4;
-      var r = (arc.to - arc.from) * 4 / 2;
-      var sc = worldToScreen(cx, 0);
-      var sr = r * cam.zoom;
-
-      if (sc.x + sr < -50 || sc.x - sr > W + 50) return;
-      if (sc.y + sr < -50 || sc.y - sr > H + 50) return;
-
-      ctx.beginPath();
-      if (arc.dir > 0) {
-        ctx.arc(sc.x, sc.y, sr, Math.PI, 0, false);
-      } else {
-        ctx.arc(sc.x, sc.y, sr, 0, Math.PI, false);
-      }
-      ctx.strokeStyle = rgba(col, 0.6 * fadeIn);
-      ctx.lineWidth = arcWidth;
-      ctx.stroke();
-    } else {
-      var p1 = seqToSpiralXY(arc.from);
-      var p2 = seqToSpiralXY(arc.to);
-      var s1 = worldToScreen(p1.x, p1.y);
-      var s2 = worldToScreen(p2.x, p2.y);
-
-      var mx = (s1.x + s2.x) / 2;
-      var my = (s1.y + s2.y) / 2;
-      var dx = s2.x - s1.x;
-      var dy = s2.y - s1.y;
-      var dist = Math.sqrt(dx * dx + dy * dy);
-      var bulge = dist * 0.3 * arc.dir;
-      var nx = -dy / (dist || 1);
-      var ny = dx / (dist || 1);
-      var cpx = mx + nx * bulge;
-      var cpy = my + ny * bulge;
-
-      ctx.beginPath();
-      ctx.moveTo(s1.x, s1.y);
-      ctx.quadraticCurveTo(cpx, cpy, s2.x, s2.y);
-      ctx.strokeStyle = rgba(col, 0.6 * fadeIn);
-      ctx.lineWidth = arcWidth;
-      ctx.stroke();
+  var LN = P.line, AC = P.accent, ST = P.steel;
+  var BUCKETS = 6;
+  function drawWalk(w) {
+    if (w.alpha <= 0.002) return;
+    var paths = [];
+    for (var q = 0; q < BUCKETS; q++) paths.push(new Path2D());
+    var near = [];
+    for (var k = 0; k < w.n; k++) {
+      var age = (w.n - k + w.prog) / MEMORY;
+      var a = 0.1 + 0.9 * Math.exp(-age * 1.6);
+      var bi = Math.min(BUCKETS - 1, Math.floor(a * BUCKETS));
+      arcPath(paths[bi], w, k, 1);
+      if (glowArcs[k + ':' + walks.indexOf(w)]) near.push(k);
     }
-  }
-
-  function drawNumberLine() {
-    if (mode !== 0) return;
-    var s0 = worldToScreen(0, 0);
-
-    var left = worldToScreen(-50, 0);
-    var right = worldToScreen(seq[seq.length - 1] * 4 + 200, 0);
-
-    ctx.beginPath();
-    ctx.moveTo(Math.max(0, left.x), s0.y);
-    ctx.lineTo(Math.min(W, right.x), s0.y);
-    ctx.strokeStyle = 'rgba(255,255,255,0.08)';
     ctx.lineWidth = 1;
-    ctx.stroke();
-
-    var spacing = 10;
-    if (cam.zoom < 0.3) spacing = 100;
-    else if (cam.zoom < 0.8) spacing = 50;
-    else if (cam.zoom < 1.5) spacing = 20;
-
-    var startVal = Math.max(0, Math.floor((-W / 2 / cam.zoom + cam.x) / 4 / spacing) * spacing);
-    var endVal = Math.ceil((W / 2 / cam.zoom + cam.x) / 4 / spacing) * spacing;
-
-    ctx.font = '9px "JetBrains Mono", monospace';
-    ctx.fillStyle = 'rgba(255,255,255,0.12)';
-    ctx.textAlign = 'center';
-
-    for (var v = startVal; v <= endVal; v += spacing) {
-      var sx = worldToScreen(v * 4, 0);
-      if (sx.x < -20 || sx.x > W + 20) continue;
-      ctx.beginPath();
-      ctx.moveTo(sx.x, s0.y - 3);
-      ctx.lineTo(sx.x, s0.y + 3);
-      ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-      ctx.fillText(v, sx.x, s0.y + 14);
+    for (var q2 = 0; q2 < BUCKETS; q2++) {
+      ctx.strokeStyle = P.rgba(LN, ((q2 + 0.5) / BUCKETS) * 0.85 * w.alpha);
+      ctx.stroke(paths[q2]);
     }
+    /* 描きかけの弧と、その先端 */
+    var cur = new Path2D();
+    arcPath(cur, w, w.n, w.prog);
+    var tip = [out[0], out[1]];
+    ctx.lineWidth = 1.4;
+    ctx.strokeStyle = P.rgba(LN, 0.95 * w.alpha);
+    ctx.stroke(cur);
+    /* 触った所の弧はシアンに */
+    if (near.length) {
+      var hp = new Path2D();
+      for (var j = 0; j < near.length; j++) arcPath(hp, w, near[j], 1);
+      ctx.lineWidth = 1.2;
+      ctx.strokeStyle = P.rgba(AC, 0.7 * w.alpha);
+      ctx.stroke(hp);
+    }
+    ctx.fillStyle = P.rgba(w.main ? LN : AC, w.alpha);
+    ctx.beginPath(); ctx.arc(tip[0], tip[1], 2.2, 0, Math.PI * 2); ctx.fill();
   }
 
-  function drawCurrentDot() {
-    var val = seq[seq.length - 1];
-    var p = seqToXY(val);
-    var s = worldToScreen(p.x, p.y);
-    var pulse = 0.5 + 0.5 * Math.sin(performance.now() / 200);
-    var r = 4 + pulse * 2;
-
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
-    ctx.fillStyle = rgba(TEAL, 0.8);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(s.x, s.y, r + 4, 0, Math.PI * 2);
-    ctx.strokeStyle = rgba(TEAL, 0.2 + pulse * 0.15);
+  function drawAxis() {
     ctx.lineWidth = 1;
+    ctx.strokeStyle = P.rgba(ST, 0.35);
+    ctx.beginPath();
+    var n = 80;
+    for (var i = 0; i <= n; i++) {
+      var q = map(view.span * i / n, 0);
+      if (i === 0) ctx.moveTo(q[0], q[1]); else ctx.lineTo(q[0], q[1]);
+    }
     ctx.stroke();
   }
 
-  var lastAutoStep = 0;
-
-  function draw(now) {
-    if (autoPlay && now - lastAutoStep > 1000 / speed) {
-      nextStep();
-      autoFit();
-      lastAutoStep = now;
+  /* ---------------------------------------------------------- 操作 */
+  var glowArcs = {}, glowT = {};
+  var hold = false, ptr = { x: 0, y: 0 };
+  /* 画面の点から値を逆算（直線と輪で別） */
+  function valueAt(x, y) {
+    if (morph > 0.5) {
+      var ang = Math.atan2(y - H / 2, x - W / 2) + Math.PI / 2;
+      if (ang < 0) ang += Math.PI * 2;
+      return ang / (Math.PI * 2) * view.span;
     }
-
-    cam.x += (targetCam.x - cam.x) * 0.08;
-    cam.y += (targetCam.y - cam.y) * 0.08;
-    cam.zoom += (targetCam.zoom - cam.zoom) * 0.08;
-
-    ctx.clearRect(0, 0, W, H);
-
-    drawNumberLine();
-
-    for (var i = 0; i < arcs.length; i++) {
-      drawArc(arcs[i], now);
-    }
-
-    drawCurrentDot();
-
-    requestAnimationFrame(draw);
+    return (x - X0) / S;
   }
-
-  for (var i = 0; i < 20; i++) {
-    nextStep();
-  }
-  autoFit();
-  cam.x = targetCam.x;
-  cam.y = targetCam.y;
-  cam.zoom = targetCam.zoom;
-
-  requestAnimationFrame(draw);
-
-  C.addEventListener('mousedown', function(e) {
-    if (e.button === 2) return;
-    dragging = true;
-    dragStart.x = e.clientX;
-    dragStart.y = e.clientY;
-    camStart.x = targetCam.x;
-    camStart.y = targetCam.y;
-  });
-
-  C.addEventListener('mousemove', function(e) {
-    if (!dragging) return;
-    var dx = e.clientX - dragStart.x;
-    var dy = e.clientY - dragStart.y;
-    targetCam.x = camStart.x - dx / cam.zoom;
-    targetCam.y = camStart.y + dy / cam.zoom;
-    if (Math.abs(dx) > 5 || Math.abs(dy) > 5) userPanned = true;
-  });
-
-  window.addEventListener('mouseup', function() { dragging = false; });
-
-  C.addEventListener('click', function(e) {
-    if (userPanned) return;
-    if (!autoPlay) {
-      nextStep();
-      autoFit();
-    }
-  });
-
-  C.addEventListener('wheel', function(e) {
-    e.preventDefault();
-    var factor = e.deltaY > 0 ? 0.9 : 1.1;
-    targetCam.zoom *= factor;
-    targetCam.zoom = Math.max(0.01, Math.min(10, targetCam.zoom));
-    userPanned = true;
-  }, { passive: false });
-
-  var touchDist0 = 0;
-  var touchMid0 = { x: 0, y: 0 };
-  var pinching = false;
-
-  C.addEventListener('touchstart', function(e) {
-    if (e.touches.length === 2) {
-      pinching = true;
-      var dx = e.touches[1].clientX - e.touches[0].clientX;
-      var dy = e.touches[1].clientY - e.touches[0].clientY;
-      touchDist0 = Math.sqrt(dx * dx + dy * dy);
-      touchMid0.x = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-      touchMid0.y = (e.touches[0].clientY + e.touches[1].clientY) / 2;
-      camStart.x = targetCam.x;
-      camStart.y = targetCam.y;
-    } else if (e.touches.length === 1) {
-      dragging = true;
-      dragStart.x = e.touches[0].clientX;
-      dragStart.y = e.touches[0].clientY;
-      camStart.x = targetCam.x;
-      camStart.y = targetCam.y;
-      userPanned = false;
-    }
-  }, { passive: true });
-
-  C.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    if (pinching && e.touches.length === 2) {
-      var dx = e.touches[1].clientX - e.touches[0].clientX;
-      var dy = e.touches[1].clientY - e.touches[0].clientY;
-      var dist = Math.sqrt(dx * dx + dy * dy);
-      var scale = dist / touchDist0;
-      targetCam.zoom = Math.max(0.01, Math.min(10, cam.zoom * scale));
-      touchDist0 = dist;
-      userPanned = true;
-    } else if (dragging && e.touches.length === 1) {
-      var ddx = e.touches[0].clientX - dragStart.x;
-      var ddy = e.touches[0].clientY - dragStart.y;
-      targetCam.x = camStart.x - ddx / cam.zoom;
-      targetCam.y = camStart.y + ddy / cam.zoom;
-      if (Math.abs(ddx) > 5 || Math.abs(ddy) > 5) userPanned = true;
-    }
-  }, { passive: false });
-
-  C.addEventListener('touchend', function(e) {
-    if (e.touches.length < 2) pinching = false;
-    if (e.touches.length === 0) {
-      if (!userPanned && !autoPlay) {
-        nextStep();
-        autoFit();
+  function touchArcs(x, y) {
+    /* 指の近くを通る弧を探して、しばらく灯す */
+    for (var wi = 0; wi < walks.length; wi++) {
+      var w = walks[wi];
+      for (var k = 0; k < w.n; k++) {
+        var a = w.vals[k], b = w.vals[k + 1], side = (k % 2 === 0) ? 1 : -1;
+        var c = (a + b) / 2, r = Math.abs(b - a) / 2;
+        for (var s = 1; s < 8; s++) {
+          var q = map(c - r * Math.cos(Math.PI * s / 8), side * r * Math.sin(Math.PI * s / 8));
+          if (Math.abs(q[0] - x) < 26 && Math.abs(q[1] - y) < 26) { glowT[k + ':' + wi] = 1.6; break; }
+        }
       }
-      dragging = false;
     }
-  }, { passive: true });
-
-  C.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-
-  var sldSpeed = document.getElementById('sldSpeed');
-  var valSpeed = document.getElementById('valSpeed');
-  sldSpeed.addEventListener('input', function() {
-    speed = parseInt(this.value);
-    valSpeed.textContent = speed;
+  }
+  canvas.addEventListener('pointerdown', function (e) {
+    hold = true; ptr.x = e.clientX; ptr.y = e.clientY;
+    var v = Math.max(0, Math.round(valueAt(ptr.x, ptr.y)));
+    /* もう一本の道をそこから始める。多すぎたら古いものから薄れる */
+    var side = walks.filter(function (w) { return !w.main && !w.fade; });
+    if (side.length >= 2) side[0].fade = true;
+    walks.push(new Walk(v, false));
+    touchArcs(ptr.x, ptr.y);
+    SFX.play('spawn');
+    canvas.setPointerCapture(e.pointerId);
   });
-
-  var sldWidth = document.getElementById('sldWidth');
-  var valWidth = document.getElementById('valWidth');
-  sldWidth.addEventListener('input', function() {
-    arcWidth = parseInt(this.value);
-    valWidth.textContent = arcWidth;
+  canvas.addEventListener('pointermove', function (e) {
+    if (!hold) return;
+    ptr.x = e.clientX; ptr.y = e.clientY;
+    touchArcs(ptr.x, ptr.y);
+    SFX.play('move', 260);
   });
+  function up() { hold = false; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
 
-  document.querySelectorAll('#modeGroup .preset-btn').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('#modeGroup .preset-btn').forEach(function(b) { b.classList.remove('active'); });
-      this.classList.add('active');
-      mode = parseInt(this.dataset.m);
-      userPanned = false;
-      autoFit();
-      if (typeof SFX !== 'undefined') SFX.play('toggle');
+  var paceEl = document.getElementById('k-pace');
+  function readPace() { pace = 0.5 + paceEl.value / 100 * 4.5; }
+  paceEl.addEventListener('input', readPace);
+  readPace();
+  document.querySelectorAll('[data-look]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-look]').forEach(function (o) { o.classList.toggle('active', o === b); });
+      look = b.dataset.look;
+      SFX.play('toggle');
     });
   });
-
-  var btnAuto = document.getElementById('btnAuto');
-  btnAuto.addEventListener('click', function() {
-    autoPlay = !autoPlay;
-    this.textContent = 'AUTO: ' + (autoPlay ? 'ON' : 'OFF');
-    this.classList.toggle('active', autoPlay);
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
+  document.getElementById('k-reset').addEventListener('click', function () {
+    cycle++; reset(); SFX.play('click');
   });
 
-  document.getElementById('btnReset').addEventListener('click', function() {
-    seq = [0];
-    visited = new Set([0]);
-    arcs = [];
-    step = 0;
-    userPanned = false;
-    targetCam = { x: 0, y: 0, zoom: 1 };
-    updateHud();
-    for (var i = 0; i < 20; i++) nextStep();
-    autoFit();
-    if (typeof SFX !== 'undefined') SFX.play('click');
-  });
+  /* ---------------------------------------------------------- 回す */
+  reset();
+  walks[0].alpha = 1;
+  var lastT = performance.now();
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    morph += ((look === 'ring' ? 1 : 0) - morph) * Math.min(1, dt * 1.5);
+    if (Math.abs(morph - (look === 'ring' ? 1 : 0)) < 0.001) morph = look === 'ring' ? 1 : 0;
+
+    for (var i = walks.length - 1; i >= 0; i--) {
+      var w = walks[i];
+      /* 大きな弧ほどゆっくり描く */
+      var r = Math.abs(w.vals[w.n + 1] - w.vals[w.n]);
+      w.advance(dt * pace * Math.min(1.6, 6 / Math.sqrt(r + 4)) * 1.4);
+      if (w.n >= NMAX || (!w.main && w.n >= NMAX * 0.6)) w.fade = true;
+      w.alpha += ((w.fade ? 0 : 1) - w.alpha) * Math.min(1, dt * (w.fade ? 0.5 : 1.2));
+      if (w.fade && w.alpha < 0.01) {
+        walks.splice(i, 1);
+        if (w.main) { cycle++; var nw = new Walk(STARTS[cycle % STARTS.length], true); nw.advance(3); walks.push(nw); }
+      }
+    }
+    if (!walks.some(function (w) { return w.main; })) { var m = new Walk(0, true); walks.push(m); }
+
+    glowArcs = {};
+    for (var key in glowT) {
+      glowT[key] -= dt;
+      if (glowT[key] <= 0) delete glowT[key]; else glowArcs[key] = 1;
+    }
+
+    frameView(dt);
+    P.fill(ctx, W, H);
+    P.grid(ctx, W, H, { alpha: 0.6 });
+    drawAxis();
+    for (var j = 0; j < walks.length; j++) drawWalk(walks[j]);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

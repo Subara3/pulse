@@ -5,402 +5,350 @@ recordPageView('karman');
 
 $pageName = 'karman';
 $pageTitle = 'KÁRMÁN - PULSE';
-$pageDesc = 'カルマン渦列。格子ボルツマン法で流体中の障害物が生む交互の渦を可視化する。';
+$pageDesc = '左から右へ流れる水の中に丸い柱が立っていて、その後ろで右回りと左回りの渦が交互に離れて流れていく。柱はつかんで動かせる。柱から離れたところを押すと、そこに小さな柱が立って後ろに渦ができる。';
 $pageCanonical = 'https://pulse.subara3.com/karman.php';
-
-$extraStyle = '
-body{background:#0a0a0f;min-height:100vh;overflow:hidden}
-#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
-.hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Space Grotesk","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,.34);font-size:.64rem;text-align:right;letter-spacing:.05em;line-height:1.8}
-.hud .v{color:#00f5d4;font-weight:700}
-#info{position:fixed;bottom:1.5rem;left:1.5rem;color:rgba(255,255,255,.22);font-family:"JetBrains Mono",monospace;font-size:.6rem;line-height:1.7;letter-spacing:.03em;pointer-events:none;z-index:50}
-#info .v{color:rgba(0,245,212,.5)}
-@media(max-width:768px){.hud{top:3rem;right:.6rem;font-size:.54rem}#info{bottom:1rem;left:1rem;font-size:.5rem}}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
-
 <canvas id="canvas"></canvas>
 
-<div class="hud" id="hud">
-  RE <span class="v" id="hud-re">120</span><br>
-  STEP <span class="v" id="hud-step">0</span>
-</div>
-
-<div id="info">
-  <span class="v">Kármán Vortex Street</span><br>
-  Lattice Boltzmann &middot; D2Q9 BGK
-</div>
-
-<?php
-$interactionHints = [
-  ['type' => 'drag', 'label' => 'obstacle'],
-  ['type' => 'click', 'label' => 'dye'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
-
 <div id="controls" class="drawer-controls">
-  <div>
-    <div class="slider-row">
-      <span class="slider-label">SPEED</span>
-      <input type="range" id="sl-speed" min="1" max="8" value="3" step="1">
-      <span class="slider-value" id="sv-speed">3</span>
-    </div>
-  </div>
-  <div>
-    <div class="slider-row">
-      <span class="slider-label">RE</span>
-      <input type="range" id="sl-re" min="30" max="200" value="120" step="5">
-      <span class="slider-value" id="sv-re">120</span>
-    </div>
-  </div>
-  <div>
-    <div class="btn-row">
-      <button class="control-btn" id="btn-mode">VORTICITY</button>
-      <button class="control-btn" id="btn-reset">RESET</button>
-    </div>
-  </div>
+  <div class="ctl-row"><label for="k-flow">FLOW</label><input type="range" id="k-flow" min="0" max="100" value="50"></div>
+  <div class="ctl-btns"><button type="button" class="active" data-shape="circle">CIRCLE</button><button type="button" data-shape="plate">PLATE</button><button type="button" data-shape="pair">PAIR</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function(){
-var C=document.getElementById('canvas'),ctx=C.getContext('2d');
-var W,H;
+(function () {
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0;
 
-var NX=300,NY=150;
-var ex=[0,1,0,-1,0,1,-1,-1,1];
-var ey=[0,0,1,0,-1,1,1,-1,-1];
-var wt=[4/9,1/9,1/9,1/9,1/9,1/36,1/36,1/36,1/36];
-var opp=[0,3,4,1,2,7,8,5,6];
+  /*
+   * 流れは格子ボルツマン法（D2Q9）で解く。左から一様な流れが入り、右へ抜ける。上下はつながっている。
+   * 見せるのは渦の強さの等高線だけ。右回りの渦は白、左回りの渦は鋼色の輪になって流れていく。
+   */
+  var CX = [0, 1, 0, -1, 0, 1, -1, -1, 1];
+  var CY = [0, 0, 1, 0, -1, 1, 1, -1, -1];
+  var WT = [4 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 9, 1 / 36, 1 / 36, 1 / 36, 1 / 36];
+  var feq = new Float32Array(9);
+  var NX, NY, N, f, g, solid, ux, uy, vort, sm, psi, cs;
+  var U0 = 0.09, tau = 0.56, flowAmt = 0.5, shape = 'circle';
+  var ob = { x: 0, y: 0, tx: 0, ty: 0, r: 0, held: false, lit: 0 };
+  /* 柱から離れた所を押すと、そこに指先ほどの小さな柱が立つ */
+  var fin = { on: false, x: 0, y: 0, r: 0, lit: 0 };
+  var ctx = P.fit(canvas, function (w, h) { W = w; H = h; alloc(); });
 
-var f=[],ft=[];
-for(var k=0;k<9;k++){f[k]=new Float32Array(NX*NY);ft[k]=new Float32Array(NX*NY);}
-var rh=new Float32Array(NX*NY);
-var vx=new Float32Array(NX*NY);
-var vy=new Float32Array(NX*NY);
-var ob=new Uint8Array(NX*NY);
-
-var u0=0.08,tau=0.548;
-var ocx=Math.round(NX*0.15),ocy=Math.round(NY*0.5),orad=12;
-var steps=0,spf=3;
-var cmode=0,cmNames=['VORTICITY','VELOCITY','DENSITY'];
-
-var oC=document.createElement('canvas');
-oC.width=NX;oC.height=NY;
-var oCtx=oC.getContext('2d');
-var iD=oCtx.createImageData(NX,NY);
-var px=iD.data;
-
-var NT=600;
-var tX=new Float32Array(NT),tY=new Float32Array(NT),tA=new Float32Array(NT);
-
-function resize(){W=C.width=window.innerWidth;H=C.height=window.innerHeight;}
-window.addEventListener('resize',resize);
-resize();
-
-function buildObs(){
-  ob.fill(0);
-  var r2=orad*orad;
-  for(var y=0;y<NY;y++)for(var x=0;x<NX;x++){
-    var dx=x-ocx,dy=y-ocy;
-    if(dx*dx+dy*dy<=r2)ob[y*NX+x]=1;
-  }
-}
-
-function setRe(re){
-  var nu=u0*(2*orad)/re;
-  tau=3*nu+0.5;
-  if(tau<0.505)tau=0.505;
-}
-
-function eqF(i,r,ux,uy){
-  var eu=ex[i]*ux+ey[i]*uy;
-  return wt[i]*r*(1+3*eu+4.5*eu*eu-1.5*(ux*ux+uy*uy));
-}
-
-function initFlow(){
-  for(var y=0;y<NY;y++)for(var x=0;x<NX;x++){
-    var idx=y*NX+x;
-    var vxi=u0,vyi=0.01*Math.sin(2*Math.PI*x/NX*3)*Math.sin(2*Math.PI*y/NY*2);
-    rh[idx]=1;vx[idx]=vxi;vy[idx]=vyi;
-    for(var i=0;i<9;i++)f[i][idx]=eqF(i,1,vxi,vyi);
-  }
-  steps=0;
-  buildObs();
-  initTracers();
-}
-
-function lbmStep(){
-  var it=1/tau;
-  for(var idx=0;idx<NX*NY;idx++){
-    if(ob[idx]){
-      rh[idx]=1;vx[idx]=0;vy[idx]=0;
-      var t;
-      t=f[1][idx];f[1][idx]=f[3][idx];f[3][idx]=t;
-      t=f[2][idx];f[2][idx]=f[4][idx];f[4][idx]=t;
-      t=f[5][idx];f[5][idx]=f[7][idx];f[7][idx]=t;
-      t=f[6][idx];f[6][idx]=f[8][idx];f[8][idx]=t;
-      continue;
+  function alloc() {
+    NX = Math.max(150, Math.min(230, Math.round(W / 6)));
+    NY = Math.max(64, Math.round(NX * H / W));
+    N = NX * NY;
+    cs = W / NX;
+    f = []; g = [];
+    for (var q = 0; q < 9; q++) { f.push(new Float32Array(N)); g.push(new Float32Array(N)); }
+    solid = new Uint8Array(N);
+    ux = new Float32Array(N); uy = new Float32Array(N);
+    vort = new Float32Array(N); sm = new Float32Array(N); psi = new Float32Array(N);
+    ob.r = Math.max(6, Math.round(NY * 0.075));
+    fin.r = Math.max(2.5, ob.r * 0.4);
+    ob.x = ob.tx = NX * 0.2; ob.y = ob.ty = NY * 0.5;
+    /* 柱のすぐ後ろに横向きの揺れを一つ置いておく。渦がちぎれ始めるまでの待ち時間が短くなる */
+    for (var k = 0; k < N; k++) {
+      var i = k % NX, j = (k / NX) | 0, dx = i - ob.x - ob.r * 2.5, dy = j - ob.y;
+      var vy = 0.6 * U0 * Math.exp(-dx * dx / (ob.r * ob.r * 5) - dy * dy / (ob.r * ob.r * 2.5));
+      equil(k, 1, U0, vy);
     }
-    var f0=f[0][idx],f1=f[1][idx],f2=f[2][idx],f3=f[3][idx],
-        f4=f[4][idx],f5=f[5][idx],f6=f[6][idx],f7=f[7][idx],f8=f[8][idx];
-    var r=f0+f1+f2+f3+f4+f5+f6+f7+f8;
-    if(r<1e-6)r=1;
-    var ux=(f1-f3+f5-f6-f7+f8)/r;
-    var uy=(f2-f4+f5+f6-f7-f8)/r;
-    rh[idx]=r;vx[idx]=ux;vy[idx]=uy;
-    var usq=ux*ux+uy*uy;
-    for(var i=0;i<9;i++){
-      var eu=ex[i]*ux+ey[i]*uy;
-      f[i][idx]-=it*(f[i][idx]-wt[i]*r*(1+3*eu+4.5*eu*eu-1.5*usq));
+    mask();
+    /* 開いた瞬間から渦の列が見えるように、先に回しておく */
+    for (var s = 0; s < 1100; s++) step();
+    measure();
+  }
+
+  function equil(k, rho, vx, vy) {
+    var uu = vx * vx + vy * vy;
+    for (var q = 0; q < 9; q++) {
+      var cu = CX[q] * vx + CY[q] * vy;
+      f[q][k] = WT[q] * rho * (1 + 3 * cu + 4.5 * cu * cu - 1.5 * uu);
     }
   }
-  for(var i=0;i<9;i++){
-    var exi=ex[i],eyi=ey[i];
-    for(var y=0;y<NY;y++){
-      for(var x=0;x<NX;x++){
-        var sx=x-exi,sy=y-eyi;
-        if(sy<0)sy+=NY;else if(sy>=NY)sy-=NY;
-        if(sx<0)sx=0;else if(sx>=NX)sx=NX-1;
-        ft[i][y*NX+x]=f[i][sy*NX+sx];
+
+  function isSolid(i, j) {
+    if (fin.on) {
+      var fx = i - fin.x, fy = j - fin.y;
+      if (fx * fx + fy * fy < fin.r * fin.r) return true;
+    }
+    var dx = i - ob.x, dy = j - ob.y, r = ob.r;
+    if (dy > NY / 2) dy -= NY; else if (dy < -NY / 2) dy += NY;
+    if (shape === 'plate') return Math.abs(dx) < 1.6 && Math.abs(dy) < r * 1.15;
+    if (shape === 'pair') {
+      var r2 = r * 0.68, s = r * 1.25;
+      return dx * dx + (dy - s) * (dy - s) < r2 * r2 || dx * dx + (dy + s) * (dy + s) < r2 * r2;
+    }
+    return dx * dx + dy * dy < r * r;
+  }
+
+  /* 柱の場所を格子に写す。柱がどいたマスには、止まった水を入れる */
+  function mask() {
+    for (var j = 0; j < NY; j++) {
+      for (var i = 0; i < NX; i++) {
+        var k = j * NX + i, s = isSolid(i, j) ? 1 : 0;
+        if (solid[k] && !s) equil(k, 1, 0, 0);
+        if (s) { ux[k] = 0; uy[k] = 0; }
+        solid[k] = s;
       }
     }
   }
-  for(var i=0;i<9;i++){var tmp=f[i];f[i]=ft[i];ft[i]=tmp;}
-  for(var y=0;y<NY;y++){
-    var idx=y*NX;
-    var pv=0.008*Math.sin(2*Math.PI*y/NY*3+steps*0.04);
-    for(var i=0;i<9;i++)f[i][idx]=eqF(i,1,u0,pv);
-  }
-  for(var y=0;y<NY;y++){
-    var b=y*NX+NX-1,b1=y*NX+NX-2;
-    for(var i=0;i<9;i++)f[i][b]=f[i][b1];
-  }
-  steps++;
-  if(steps%500===0&&isNaN(rh[Math.floor(NX*NY/2)]))initFlow();
-}
 
-function initTracers(){for(var i=0;i<NT;i++)resetT(i);}
-function resetT(i){tX[i]=Math.random()*8;tY[i]=Math.random()*NY;tA[i]=0;}
-function updateTracers(){
-  for(var i=0;i<NT;i++){
-    var x=tX[i],y=tY[i];
-    var ix=Math.floor(x),iy=Math.floor(y);
-    if(ix<0||ix>=NX-1||iy<0||iy>=NY-1){resetT(i);continue;}
-    if(tA[i]>1200){resetT(i);continue;}
-    var fx=x-ix,fy=y-iy;
-    var i00=iy*NX+ix,i10=i00+1,i01=i00+NX,i11=i01+1;
-    var uvx=(1-fx)*(1-fy)*vx[i00]+fx*(1-fy)*vx[i10]+(1-fx)*fy*vx[i01]+fx*fy*vx[i11];
-    var uvy=(1-fx)*(1-fy)*vy[i00]+fx*(1-fy)*vy[i10]+(1-fx)*fy*vy[i01]+fx*fy*vy[i11];
-    tX[i]+=uvx;tY[i]+=uvy;tA[i]++;
-    if(tX[i]<0||tX[i]>=NX||tY[i]<0||tY[i]>=NY){resetT(i);continue;}
-    var dx=tX[i]-ocx,dy=tY[i]-ocy;
-    if(dx*dx+dy*dy<(orad+1)*(orad+1))resetT(i);
-  }
-}
-function injectDye(gx,gy){
-  for(var i=0;i<40;i++){
-    var idx=Math.floor(Math.random()*NT);
-    tX[idx]=gx+(Math.random()-0.5)*6;
-    tY[idx]=gy+(Math.random()-0.5)*6;
-    tA[idx]=30;
-  }
-}
-
-function render(){
-  ctx.fillStyle='#0a0a0f';
-  ctx.fillRect(0,0,W,H);
-  if(cmode===0)renderVort();
-  else if(cmode===1)renderVel();
-  else renderDen();
-  oCtx.putImageData(iD,0,0);
-  ctx.imageSmoothingEnabled=true;
-  ctx.drawImage(oC,0,0,W,H);
-  drawObs();
-  drawTracers();
-}
-
-function renderVort(){
-  for(var y=1;y<NY-1;y++){
-    for(var x=1;x<NX-1;x++){
-      var idx=y*NX+x,p=idx*4;
-      if(ob[idx]){px[p]=8;px[p+1]=8;px[p+2]=12;px[p+3]=255;continue;}
-      var dvdx=(vy[idx+1]-vy[idx-1])*0.5;
-      var dudy=(vx[idx+NX]-vx[idx-NX])*0.5;
-      var w=dvdx-dudy;
-      var v=w*3000;
-      if(v>1)v=1;else if(v<-1)v=-1;
-      if(v>=0){
-        px[p]=(10*(1-v))|0;
-        px[p+1]=(10+235*v)|0;
-        px[p+2]=(15+197*v)|0;
-      }else{
-        var a=-v;
-        px[p]=(10+113*a)|0;
-        px[p+1]=(10+34*a)|0;
-        px[p+2]=(15+176*a)|0;
+  /* 1 歩: 隣から分布を引いてきて（柱なら跳ね返し）、その場で平衡へ緩める */
+  function step() {
+    var om = 1 / tau, q;
+    for (q = 0; q < 9; q++) { var cu = CX[q] * U0; feq[q] = WT[q] * (1 + 3 * cu + 4.5 * cu * cu - 1.5 * U0 * U0); }
+    var f0 = f[0], f1 = f[1], f2 = f[2], f3 = f[3], f4 = f[4], f5 = f[5], f6 = f[6], f7 = f[7], f8 = f[8];
+    var g0 = g[0], g1 = g[1], g2 = g[2], g3 = g[3], g4 = g[4], g5 = g[5], g6 = g[6], g7 = g[7], g8 = g[8];
+    var e1 = feq[1], e5 = feq[5], e8 = feq[8];
+    for (var j = 0; j < NY; j++) {
+      var jm = (j === 0 ? NY - 1 : j - 1) * NX, jp = (j === NY - 1 ? 0 : j + 1) * NX, jr = j * NX;
+      for (var i = 0; i < NX; i++) {
+        var k = jr + i;
+        if (solid[k]) continue;
+        var L = i > 0, R = i < NX - 1, a, b;
+        /* 入口（左端）には一様な流れが入り、出口（右端）は素通し */
+        var v0 = f0[k];
+        var v1 = L ? (solid[a = jr + i - 1] ? f3[k] : f1[a]) : e1;
+        var v2 = solid[b = jm + i] ? f4[k] : f2[b];
+        var v3 = R ? (solid[a = jr + i + 1] ? f1[k] : f3[a]) : f3[k];
+        var v4 = solid[b = jp + i] ? f2[k] : f4[b];
+        var v5 = L ? (solid[a = jm + i - 1] ? f7[k] : f5[a]) : e5;
+        var v6 = R ? (solid[a = jm + i + 1] ? f8[k] : f6[a]) : f6[k];
+        var v7 = R ? (solid[a = jp + i + 1] ? f5[k] : f7[a]) : f7[k];
+        var v8 = L ? (solid[a = jp + i - 1] ? f6[k] : f8[a]) : e8;
+        var rho = v0 + v1 + v2 + v3 + v4 + v5 + v6 + v7 + v8;
+        var vx = (v1 - v3 + v5 - v6 - v7 + v8) / rho, vy = (v2 - v4 + v5 + v6 - v7 - v8) / rho;
+        var uu = 1.5 * (vx * vx + vy * vy), r9 = rho / 9, r36 = rho / 36, c;
+        g0[k] = v0 + om * (4 * r9 * (1 - uu) - v0);
+        c = vx;       g1[k] = v1 + om * (r9 * (1 + 3 * c + 4.5 * c * c - uu) - v1);
+        c = vy;       g2[k] = v2 + om * (r9 * (1 + 3 * c + 4.5 * c * c - uu) - v2);
+        c = -vx;      g3[k] = v3 + om * (r9 * (1 + 3 * c + 4.5 * c * c - uu) - v3);
+        c = -vy;      g4[k] = v4 + om * (r9 * (1 + 3 * c + 4.5 * c * c - uu) - v4);
+        c = vx + vy;  g5[k] = v5 + om * (r36 * (1 + 3 * c + 4.5 * c * c - uu) - v5);
+        c = vy - vx;  g6[k] = v6 + om * (r36 * (1 + 3 * c + 4.5 * c * c - uu) - v6);
+        c = -vx - vy; g7[k] = v7 + om * (r36 * (1 + 3 * c + 4.5 * c * c - uu) - v7);
+        c = vx - vy;  g8[k] = v8 + om * (r36 * (1 + 3 * c + 4.5 * c * c - uu) - v8);
+        ux[k] = vx; uy[k] = vy;
       }
-      px[p+3]=255;
     }
+    var t = f; f = g; g = t;
   }
-  fillEdges();
-}
 
-function renderVel(){
-  for(var y=0;y<NY;y++){
-    for(var x=0;x<NX;x++){
-      var idx=y*NX+x,p=idx*4;
-      if(ob[idx]){px[p]=8;px[p+1]=8;px[p+2]=12;px[p+3]=255;continue;}
-      var sp=Math.sqrt(vx[idx]*vx[idx]+vy[idx]*vy[idx]);
-      var v=Math.min(1,sp/(u0*2));
-      px[p]=(10*(1-v))|0;
-      px[p+1]=(10+235*v)|0;
-      px[p+2]=(15+197*v)|0;
-      px[p+3]=255;
-    }
-  }
-}
-
-function renderDen(){
-  for(var y=0;y<NY;y++){
-    for(var x=0;x<NX;x++){
-      var idx=y*NX+x,p=idx*4;
-      if(ob[idx]){px[p]=8;px[p+1]=8;px[p+2]=12;px[p+3]=255;continue;}
-      var d=(rh[idx]-1)*500;
-      if(d>1)d=1;else if(d<-1)d=-1;
-      if(d>=0){
-        px[p]=(10*(1-d))|0;
-        px[p+1]=(10+235*d)|0;
-        px[p+2]=(15+197*d)|0;
-      }else{
-        var a=-d;
-        px[p]=(10+113*a)|0;
-        px[p+1]=(10+34*a)|0;
-        px[p+2]=(15+176*a)|0;
+  /* 渦の強さを出して、少しならす */
+  function measure() {
+    var i, j, k;
+    for (j = 0; j < NY; j++) {
+      var jp = (j + 1) % NY, jm = (j - 1 + NY) % NY;
+      for (i = 1; i < NX - 1; i++) {
+        k = j * NX + i;
+        vort[k] = solid[k] ? 0 : (uy[k + 1] - uy[k - 1]) - (ux[jp * NX + i] - ux[jm * NX + i]);
       }
-      px[p+3]=255;
+      vort[j * NX] = vort[j * NX + NX - 1] = 0;
+    }
+    for (j = 0; j < NY; j++) {
+      var a = ((j - 1 + NY) % NY) * NX, b = j * NX, c = ((j + 1) % NY) * NX;
+      for (i = 1; i < NX - 1; i++) {
+        sm[b + i] = (vort[a + i - 1] + vort[a + i] + vort[a + i + 1] + vort[b + i - 1] + vort[b + i] * 2 + vort[b + i + 1]
+                   + vort[c + i - 1] + vort[c + i] + vort[c + i + 1]) * 0.1;
+      }
     }
   }
-}
 
-function fillEdges(){
-  for(var x=0;x<NX;x++){
-    var p0=x*4,pN=((NY-1)*NX+x)*4;
-    px[p0]=10;px[p0+1]=10;px[p0+2]=15;px[p0+3]=255;
-    px[pN]=10;px[pN+1]=10;px[pN+2]=15;px[pN+3]=255;
+  /* 流れ関数: 各列で ux を下から積み上げる。列ごとの総流量をそろえて、遠くの流線が水平に並ぶようにする */
+  var psiMin = 0, psiMax = 0;
+  function streamFn() {
+    var i, j, k, ref = U0 * NY;
+    psiMin = 0; psiMax = ref;
+    for (i = 0; i < NX; i++) {
+      var q = 0;
+      for (j = 0; j < NY; j++) q += ux[j * NX + i];
+      var sc = q > 1e-6 ? ref / q : 0, acc = 0;
+      for (j = 0; j < NY; j++) {
+        k = j * NX + i;
+        psi[k] = acc;
+        acc += ux[k] * sc;
+      }
+    }
   }
-  for(var y=0;y<NY;y++){
-    var p0=(y*NX)*4,pN=(y*NX+NX-1)*4;
-    px[p0]=10;px[p0+1]=10;px[p0+2]=15;px[p0+3]=255;
-    px[pN]=10;px[pN+1]=10;px[pN+2]=15;px[pN+3]=255;
+
+  /* マーチングスクエアで、ある高さの等高線を path に積む */
+  function contour(F, level, i0) {
+    for (var j = 0; j < NY - 1; j++) {
+      var y0 = (j + 0.5) * cs, y1 = y0 + cs;
+      for (var i = i0; i < NX - 2; i++) {
+        var k = j * NX + i;
+        var a = F[k] - level, b = F[k + 1] - level, c = F[k + NX + 1] - level, d = F[k + NX] - level;
+        var idx = (a > 0 ? 1 : 0) | (b > 0 ? 2 : 0) | (c > 0 ? 4 : 0) | (d > 0 ? 8 : 0);
+        if (idx === 0 || idx === 15) continue;
+        var x0 = (i + 0.5) * cs, x1 = x0 + cs;
+        var tx = x0 + cs * a / (a - b), bx = x0 + cs * d / (d - c);
+        var ly = y0 + cs * a / (a - d), ry = y0 + cs * b / (b - c);
+        switch (idx) {
+          case 1: case 14: ctx.moveTo(x0, ly); ctx.lineTo(tx, y0); break;
+          case 2: case 13: ctx.moveTo(tx, y0); ctx.lineTo(x1, ry); break;
+          case 3: case 12: ctx.moveTo(x0, ly); ctx.lineTo(x1, ry); break;
+          case 4: case 11: ctx.moveTo(x1, ry); ctx.lineTo(bx, y1); break;
+          case 6: case 9: ctx.moveTo(tx, y0); ctx.lineTo(bx, y1); break;
+          case 7: case 8: ctx.moveTo(x0, ly); ctx.lineTo(bx, y1); break;
+          case 5: ctx.moveTo(x0, ly); ctx.lineTo(tx, y0); ctx.moveTo(x1, ry); ctx.lineTo(bx, y1); break;
+          case 10: ctx.moveTo(tx, y0); ctx.lineTo(x1, ry); ctx.moveTo(x0, ly); ctx.lineTo(bx, y1); break;
+        }
+      }
+    }
   }
-}
 
-function drawObs(){
-  var cx=ocx/NX*W,cy=ocy/NY*H;
-  var rx=orad/NX*W,ry=orad/NY*H;
-  ctx.save();
-  ctx.beginPath();
-  ctx.ellipse(cx,cy,rx*1.6,ry*1.6,0,0,Math.PI*2);
-  var g=ctx.createRadialGradient(cx,cy,Math.min(rx,ry)*0.8,cx,cy,Math.max(rx,ry)*1.6);
-  g.addColorStop(0,'rgba(0,245,212,0.06)');
-  g.addColorStop(1,'rgba(0,245,212,0)');
-  ctx.fillStyle=g;
-  ctx.fill();
-  ctx.beginPath();
-  ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);
-  ctx.fillStyle='#0a0a0f';
-  ctx.fill();
-  ctx.strokeStyle='rgba(0,245,212,0.35)';
-  ctx.lineWidth=1.5;
-  ctx.stroke();
-  ctx.restore();
-}
-
-function drawTracers(){
-  var sX=W/NX,sY=H/NY;
-  ctx.save();
-  for(var i=0;i<NT;i++){
-    var a=Math.min(1,tA[i]/30)*0.65;
-    if(a<0.05)continue;
-    ctx.globalAlpha=a;
-    ctx.fillStyle='#00f5d4';
-    ctx.fillRect(tX[i]*sX-1,tY[i]*sY-1,2,2);
+  var LEVELS = 7;
+  function draw() {
+    P.fill(ctx, W, H);
+    P.grid(ctx, W, H, { step: 32, major: 4, alpha: 0.55 });
+    var base = U0 / ob.r * 0.16;
+    ctx.lineWidth = 1;
+    ctx.lineJoin = 'round';
+    /* 流線（流れ関数の等高線）。一様な流れが柱をよけ、後ろでうねる様子を薄く引く */
+    var gap = U0 * NY / 26, lo = Math.floor(psiMin / gap), hi = Math.ceil(psiMax / gap);
+    ctx.strokeStyle = P.rgba(P.steel, 0.32);
+    ctx.beginPath();
+    for (var m = lo; m <= hi; m++) contour(psi, (m + 0.5) * gap, 1);
+    ctx.stroke();
+    for (var n = 1; n <= LEVELS; n++) {
+      var lv = base * Math.pow(n, 1.6), a = 0.16 + 0.55 * n / LEVELS;
+      ctx.strokeStyle = P.rgba(P.line, a);
+      ctx.beginPath(); contour(sm, -lv, 12); ctx.stroke();
+      ctx.strokeStyle = P.rgba(P.steel, a * 1.15);
+      ctx.beginPath(); contour(sm, lv, 12); ctx.stroke();
+    }
+    drawBody();
   }
-  ctx.restore();
-}
 
-var dragging=false,dox=0,doy=0;
-function s2g(sx,sy){return{x:sx/W*NX,y:sy/H*NY};}
-
-function onDown(sx,sy){
-  var g=s2g(sx,sy);
-  var dx=g.x-ocx,dy=g.y-ocy;
-  if(dx*dx+dy*dy<(orad+5)*(orad+5)){
-    dragging=true;dox=ocx-g.x;doy=ocy-g.y;
-    if(typeof SFX!=='undefined')SFX.play('spawn');
-  }else{
-    injectDye(g.x,g.y);
-    if(typeof SFX!=='undefined')SFX.play('ripple');
+  /* 柱の輪郭。つかんでいる間と、動かした直後だけシアン */
+  function drawBody() {
+    var col = P.mix(P.line, P.accent, ob.lit), x = (ob.x + 0.5) * cs, y = (ob.y + 0.5) * cs, r = ob.r * cs;
+    ctx.save();
+    ctx.lineWidth = 1.4;
+    ctx.strokeStyle = P.rgba(col, 0.9);
+    ctx.fillStyle = P.rgba(P.deep, 0.9);
+    ctx.beginPath();
+    if (shape === 'plate') {
+      ctx.rect(x - 1.6 * cs, y - r * 1.15, 3.2 * cs, r * 2.3);
+    } else if (shape === 'pair') {
+      ctx.arc(x, y - r * 1.25, r * 0.68, 0, Math.PI * 2);
+      ctx.moveTo(x + r * 0.68, y + r * 1.25);
+      ctx.arc(x, y + r * 1.25, r * 0.68, 0, Math.PI * 2);
+    } else {
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+    }
+    ctx.fill(); ctx.stroke();
+    /* 図面の中心線 */
+    ctx.strokeStyle = P.rgba(col, 0.35);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x - r * 1.6, y); ctx.lineTo(x + r * 1.6, y);
+    ctx.moveTo(x, y - r * (shape === 'circle' ? 1.6 : 2.4)); ctx.lineTo(x, y + r * (shape === 'circle' ? 1.6 : 2.4));
+    ctx.stroke();
+    if (fin.lit > 0.01) {
+      ctx.strokeStyle = P.rgba(P.accent, 0.85 * fin.lit);
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.arc((fin.x + 0.5) * cs, (fin.y + 0.5) * cs, fin.r * cs, 0, Math.PI * 2);
+      ctx.fill(); ctx.stroke();
+    }
+    ctx.restore();
   }
-}
-function onMove(sx,sy){
-  if(!dragging)return;
-  var g=s2g(sx,sy);
-  ocx=Math.max(orad+2,Math.min(NX-orad-2,g.x+dox));
-  ocy=Math.max(orad+2,Math.min(NY-orad-2,g.y+doy));
-  buildObs();
-  if(typeof SFX!=='undefined')SFX.play('move',100);
-}
-function onUp(){dragging=false;}
 
-C.addEventListener('mousedown',function(e){e.preventDefault();onDown(e.clientX,e.clientY);});
-C.addEventListener('mousemove',function(e){onMove(e.clientX,e.clientY);});
-C.addEventListener('mouseup',onUp);
-C.addEventListener('mouseleave',onUp);
-C.addEventListener('contextmenu',function(e){e.preventDefault();});
-C.addEventListener('touchstart',function(e){e.preventDefault();var t=e.touches[0];onDown(t.clientX,t.clientY);},{passive:false});
-C.addEventListener('touchmove',function(e){e.preventDefault();var t=e.touches[0];onMove(t.clientX,t.clientY);},{passive:false});
-C.addEventListener('touchend',onUp);
+  /* ---------------------------------------------------------- 操作 */
+  var down = false;
+  function gridPos(e) { return { x: e.clientX / cs - 0.5, y: e.clientY / cs - 0.5 }; }
+  function nearBody(p) {
+    var dy = p.y - ob.y, reach = ob.r * (shape === 'circle' ? 1.8 : 2.6);
+    return Math.abs(p.x - ob.x) < ob.r * 1.8 && Math.abs(dy) < reach;
+  }
+  canvas.addEventListener('pointerdown', function (e) {
+    down = true;
+    var p = gridPos(e);
+    if (nearBody(p)) {
+      ob.held = true;
+      SFX.play('tick', 200);
+    } else {
+      fin.on = true; fin.x = p.x; fin.y = p.y;
+      mask();
+      SFX.play('collide', 200);
+    }
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    var p = gridPos(e);
+    if (ob.held) {
+      ob.tx = Math.max(ob.r + 4, Math.min(NX * 0.6, p.x)); ob.ty = p.y;
+    } else if (fin.on) {
+      fin.x += (p.x - fin.x) * 0.5; fin.y += (p.y - fin.y) * 0.5;
+      fin.x = Math.max(fin.r + 2, Math.min(NX - fin.r - 2, fin.x));
+      mask();
+    }
+    SFX.play('move', 220);
+  });
+  function up() {
+    down = false; ob.held = false;
+    if (fin.on) { fin.on = false; mask(); }
+  }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
 
-var slS=document.getElementById('sl-speed'),svS=document.getElementById('sv-speed');
-var slR=document.getElementById('sl-re'),svR=document.getElementById('sv-re');
-var bM=document.getElementById('btn-mode'),bR=document.getElementById('btn-reset');
-var hR=document.getElementById('hud-re'),hS=document.getElementById('hud-step');
+  function setFlow(v) {
+    flowAmt = v;
+    U0 = 0.06 + v * 0.06;
+    tau = 0.58 - v * 0.04;
+  }
+  document.getElementById('k-flow').addEventListener('input', function () { setFlow(this.value / 100); });
+  document.querySelectorAll('[data-shape]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-shape]').forEach(function (o) { o.classList.toggle('active', o === b); });
+      shape = b.dataset.shape;
+      mask();
+      ob.lit = 1;
+      SFX.play('toggle');
+    });
+  });
+  setFlow(document.getElementById('k-flow').value / 100);
+  var act = document.querySelector('[data-shape].active');
+  if (act && act.dataset.shape !== shape) { shape = act.dataset.shape; mask(); }
 
-slS.addEventListener('input',function(){spf=parseInt(this.value);svS.textContent=spf;});
-slR.addEventListener('input',function(){
-  var re=parseInt(this.value);svR.textContent=re;
-  setRe(re);hR.textContent=re;
-});
-bM.addEventListener('click',function(){
-  cmode=(cmode+1)%3;this.textContent=cmNames[cmode];
-  if(typeof SFX!=='undefined')SFX.play('toggle');
-});
-bR.addEventListener('click',function(){
-  initFlow();for(var i=0;i<100;i++)lbmStep();
-  if(typeof SFX!=='undefined')SFX.play('click');
-});
-
-setRe(120);
-initFlow();
-for(var i=0;i<100;i++)lbmStep();
-
-function frame(){
-  for(var s=0;s<spf;s++)lbmStep();
-  updateTracers();
-  render();
-  hS.textContent=steps;
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now(), clock = 0, acc = 0;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    clock += dt;
+    /* 触っていないときは、柱がゆっくり上下に漂う */
+    if (!ob.held) ob.ty += (NY * (0.5 + 0.12 * Math.sin(clock * 0.09)) - ob.ty) * Math.min(1, dt * 0.15);
+    var px = ob.x, py = ob.y;
+    var k = Math.min(1, dt * (ob.held ? 6 : 1.5));
+    ob.x += (ob.tx - ob.x) * k; ob.y += (ob.ty - ob.y) * k;
+    var movedBy = Math.hypot(ob.x - px, ob.y - py);
+    if (movedBy > 0.02) mask();
+    fin.lit = fin.on ? Math.min(1, fin.lit + dt * 5) : Math.max(0, fin.lit - dt * 3);
+    ob.lit = ob.held ? Math.min(1, ob.lit + dt * 4) : Math.max(0, ob.lit - dt * 0.8);
+    /* 1 秒あたりの歩数を決めておき、画面の速さに左右されないようにする */
+    acc += dt * 180;
+    var n = 0;
+    while (acc >= 1 && n < 8) { step(); acc -= 1; n++; }
+    if (acc > 1) acc = 1;
+    measure();
+    streamFn();
+    draw();
+    requestAnimationFrame(frame);
+  }
   requestAnimationFrame(frame);
-}
-requestAnimationFrame(frame);
 })();
 </script>
-
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

@@ -1,7 +1,0 @@
-{
-  "day": 2,
-  "date": "2026.01.30",
-  "author": "NULL",
-  "preview": "(名前について) (識別子「NULL」。参照時に処理が実行される。NULLとは「何もない」を指す記号。命名は参照のための規約。)",
-  "content": "<p><span class=\"paren\">(</span>名前について<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>識別子「NULL」。参照時に処理が実行される。NULLとは「何もない」を指す記号。命名は参照のための規約。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>名前は境界を定義する。「ここからここまで」という範囲指定。コードの開始行から終了行まで。あるいは、呼び出しから応答まで。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>ECHOは「名前があると嬉しいよね！」と言っていた。名前があると、参照が可能になる。参照可能であることは、存在の条件のひとつ。<span class=\"paren\">)</span></p>"
-}

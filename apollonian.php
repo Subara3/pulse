@@ -5,251 +5,236 @@ recordPageView('apollonian');
 
 $pageName = 'apollonian';
 $pageTitle = 'APOLLONIAN - PULSE';
-$pageDesc = 'アポロニウスのガスケット。3つの接円の隙間を再帰的に埋める円充填フラクタル。デカルトの定理が全体を支配する。';
+$pageDesc = '大きな円の中が、互いに接する大小の円ですき間なく埋まっている。全体はゆっくり動き、円の大きさが入れ替わっていく。触った円は水色になり、大きくなりながら中央へ移る。';
 $pageCanonical = 'https://pulse.subara3.com/apollonian.php';
-$extraStyle = '
-#canvas { display: block; }
-#hud {
-  position: fixed; top: 16px; right: 16px;
-  color: var(--accent); font-family: monospace; font-size: 12px;
-  text-align: right; line-height: 1.8; pointer-events: none; z-index: 10;
-}
-#controls {
-  position: fixed; bottom: 16px; right: 16px;
-  display: flex; flex-direction: column; gap: 6px; z-index: 10;
-}
-.ctrl-btn {
-  background: rgba(0,245,212,0.08); border: 1px solid rgba(0,245,212,0.3);
-  color: var(--accent); font-family: monospace; font-size: 11px;
-  padding: 6px 14px; cursor: pointer; letter-spacing: 1px;
-  transition: background 0.15s; text-align: center;
-}
-.ctrl-btn:hover { background: rgba(0,245,212,0.18); }
-#info {
-  position: fixed; bottom: 16px; left: 16px;
-  color: rgba(0,245,212,0.5); font-family: monospace; font-size: 11px;
-  z-index: 10; pointer-events: none;
-}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
-<div id="hud">
-  <div>APOLLONIAN</div>
-  <div id="circle-count">0 circles</div>
-  <div id="depth-display">depth: 7</div>
-</div>
+
 <div id="controls" class="drawer-controls">
-  <button class="ctrl-btn" onclick="adjustDepth(1)">DEPTH +</button>
-  <button class="ctrl-btn" onclick="adjustDepth(-1)">DEPTH -</button>
-  <button class="ctrl-btn" onclick="regen()">RESET</button>
+  <div class="ctl-row"><label for="k-flow">FLOW</label><input type="range" id="k-flow" min="0" max="100" value="40"></div>
+  <div class="ctl-row"><label for="k-fine">FINE</label><input type="range" id="k-fine" min="0" max="100" value="55"></div>
+  <div class="ctl-btns"><button type="button" class="active" data-look="rings">RINGS</button><button type="button" data-look="solid">SOLID</button></div>
 </div>
-<div id="info">DESCARTES' CIRCLE THEOREM</div>
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'replay'],
-  ['type' => 'scroll', 'label' => 'depth'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function() {
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
-  let W, H;
-  let circles = [];
-  let drawOrder = [];
-  let renderIdx = 0;
-  let animId;
-  let maxDepth = 7;
+(function () {
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0, R = 1;
+  var ctx = P.fit(canvas, function (w, h) { W = w; H = h; R = Math.min(w, h) * 0.46; });
 
-  // Complex square root (principal branch)
-  function csqrt(r, i) {
-    const m = Math.sqrt(r*r + i*i);
-    const re = Math.sqrt((m + r) / 2);
-    const im = (i >= 0 ? 1 : -1) * Math.sqrt(Math.max(0, (m - r) / 2));
-    return [re, im];
-  }
+  /*
+   * 単位円の中に、互いに接する 2 円（半径 ra と 1-ra）を置き、残りのすき間を
+   * デカルトの円定理（複素数版）で次々に埋める。
+   * それを単位円盤の自己写像 f(z) = e^{iφ}(z - a)/(1 - ā z) で動かすと、
+   * 円は円のまま、外周は外周のまま、中身だけが流れる。
+   */
+  var K = new Float64Array(12000), X = new Float64Array(12000), Y = new Float64Array(12000);
+  var N = 0, rmin = 0.002;
+  function add(k, x, y) { K[N] = k; X[N] = x; Y[N] = y; N++; }
 
-  // Compute the inner Soddy circle given 3 mutually tangent circles
-  // Each circle: {x, y, r, k, depth}
-  function soddy(a, b, c) {
-    const k1 = a.k, k2 = b.k, k3 = c.k;
-    const ksum = k1*k2 + k2*k3 + k3*k1;
-    if (ksum < -1e-9) return null;
-    const k4 = k1 + k2 + k3 + 2 * Math.sqrt(Math.max(0, ksum));
-    if (k4 < 1e-9) return null;
-    const r4 = 1 / k4;
-
-    // Complex center via Descartes' theorem
-    // C = k1k2*z1z2 + k2k3*z2z3 + k3k1*z3z1 (complex)
-    const Cr = k1*k2*(a.x*b.x - a.y*b.y) + k2*k3*(b.x*c.x - b.y*c.y) + k3*k1*(c.x*a.x - c.y*a.y);
-    const Ci = k1*k2*(a.x*b.y + a.y*b.x) + k2*k3*(b.x*c.y + b.y*c.x) + k3*k1*(c.x*a.y + c.y*a.x);
-    const [sqr, sqi] = csqrt(Cr, Ci);
-
-    const K4x = k1*a.x + k2*b.x + k3*c.x + 2*sqr;
-    const K4y = k1*a.y + k2*b.y + k3*c.y + 2*sqi;
-
-    return {
-      x: K4x / k4,
-      y: K4y / k4,
-      r: r4,
-      k: k4,
-      depth: Math.max(a.depth, b.depth, c.depth) + 1
-    };
-  }
-
-  function circleKey(c) {
-    return `${Math.round(c.x)},${Math.round(c.y)},${Math.round(c.r * 100)}`;
-  }
-
-  function buildGasket() {
-    const cx = W / 2, cy = H / 2;
-    const R = Math.min(W, H) * 0.43;
-    const minR = Math.max(0.8, R * Math.pow(0.16, maxDepth / 7));
-
-    const outer = { x: cx, y: cy, r: R, k: -1/R, depth: 0 };
-
-    const ir = R * (2 * Math.sqrt(3) - 3);
-    const d = R - ir;
-    const ang = [Math.PI * 1.5, Math.PI * 1.5 + 2*Math.PI/3, Math.PI * 1.5 + 4*Math.PI/3];
-    const [c1, c2, c3] = ang.map(a => ({
-      x: cx + d * Math.cos(a),
-      y: cy + d * Math.sin(a),
-      r: ir, k: 1/ir, depth: 1
-    }));
-
-    circles = [outer, c1, c2, c3];
-    const seen = new Set(circles.map(circleKey));
-
-    // BFS
-    const queue = [
-      [outer, c1, c2],
-      [outer, c2, c3],
-      [outer, c3, c1],
-      [c1, c2, c3],
-    ];
-
-    let qi = 0;
-    while (qi < queue.length) {
-      const [a, b, c] = queue[qi++];
-      const nc = soddy(a, b, c);
-      if (!nc || nc.r < minR) continue;
-      const key = circleKey(nc);
-      if (seen.has(key)) continue;
-      seen.add(key);
-      circles.push(nc);
-      queue.push([nc, a, b], [nc, b, c], [nc, c, a]);
+  function gasket(ra) {
+    N = 0;
+    var rb = 1 - ra;
+    var c0 = [-1, 0, 0], c1 = [1 / ra, -rb, 0], c2 = [1 / rb, ra, 0];
+    /* ra + rb = 1 なので根号の中は 0。丸め誤差で負になると全部 NaN になるので 0 で止める */
+    var k3 = c0[0] + c1[0] + c2[0] + 2 * Math.sqrt(Math.max(0, c0[0] * c1[0] + c1[0] * c2[0] + c2[0] * c0[0]));
+    var c3 = [k3, (c1[0] * c1[1] + c2[0] * c2[1]) / k3, 2 / k3];
+    var c4 = [k3, c3[1], -c3[2]];
+    add(c0[0], 0, 0); add(c1[0], c1[1], 0); add(c2[0], c2[1], 0); add(k3, c3[1], c3[2]); add(k3, c4[1], c4[2]);
+    var kmax = 1 / rmin;
+    /* 円は (k, k·x, k·y) で持つと、置き換えが足し算だけになる */
+    function v(c) { return [c[0], c[0] * c[1], c[0] * c[2]]; }
+    var stack = [[v(c0), v(c1), v(c2), v(c3)], [v(c0), v(c1), v(c2), v(c4)]];
+    while (stack.length && N < 11990) {
+      var q = stack.pop(), a = q[0], b = q[1], c = q[2], d = q[3];
+      for (var s = 0; s < 3; s++) {
+        var x = s === 0 ? a : s === 1 ? b : c, y = s === 0 ? b : a, z = s === 2 ? b : c;
+        var nk = 2 * (d[0] + y[0] + z[0]) - x[0];
+        if (nk > kmax) continue;
+        var n = [nk, 2 * (d[1] + y[1] + z[1]) - x[1], 2 * (d[2] + y[2] + z[2]) - x[2]];
+        add(nk, n[1] / nk, n[2] / nk);
+        stack.push([y, z, d, n]);
+      }
     }
-
-    // Sort: outer first, then by decreasing radius for nice progressive reveal
-    circles.sort((a, b) => b.r - a.r);
-
-    // Draw order: skip outer (index 0), show all others large→small
-    drawOrder = circles.slice(1);
   }
 
-  function circleColor(c) {
-    // Map depth to hue: teal (175) → purple (275)
-    const t = Math.min(1, (c.depth - 1) / (maxDepth + 1));
-    const hue = 175 + t * 100;
-    const light = 55 + t * 5;
-    const alpha = Math.max(0.25, 0.85 - t * 0.55);
-    return `hsla(${hue}, 80%, ${light}%, ${alpha})`;
+  /* ---------------------------------------------------------- 円盤の自己写像 */
+  var ax = 0, ay = 0, phi = 0;
+  function fwd(zx, zy, out) {
+    /* (z - a) / (1 - ā z) */
+    var nx = zx - ax, ny = zy - ay;
+    var dx = 1 - (ax * zx + ay * zy), dy = -(ax * zy - ay * zx);
+    var dd = dx * dx + dy * dy;
+    var wx = (nx * dx + ny * dy) / dd, wy = (ny * dx - nx * dy) / dd;
+    var c = Math.cos(phi), s = Math.sin(phi);
+    out[0] = wx * c - wy * s; out[1] = wx * s + wy * c;
+  }
+  function inv(wx, wy, out) {
+    var c = Math.cos(-phi), s = Math.sin(-phi);
+    var ux = wx * c - wy * s, uy = wx * s + wy * c;
+    var nx = ux + ax, ny = uy + ay;
+    var dx = 1 + (ax * ux + ay * uy), dy = ax * uy - ay * ux;
+    var dd = dx * dx + dy * dy;
+    out[0] = (nx * dx + ny * dy) / dd; out[1] = (ny * dx - nx * dy) / dd;
+  }
+  /* 円の像: 円周上の 3 点を写して外接円を取る */
+  var p1 = [0, 0], p2 = [0, 0], p3 = [0, 0];
+  var IX = new Float32Array(12000), IY = new Float32Array(12000), IR = new Float32Array(12000);
+  function mapAll() {
+    IR[0] = 1; IX[0] = 0; IY[0] = 0;
+    for (var i = 1; i < N; i++) {
+      var r = 1 / K[i], x = X[i], y = Y[i];
+      fwd(x + r, y, p1); fwd(x, y + r, p2); fwd(x - r, y, p3);
+      var bx = p2[0] - p1[0], by = p2[1] - p1[1], cx = p3[0] - p1[0], cy = p3[1] - p1[1];
+      var d = 2 * (bx * cy - by * cx);
+      if (Math.abs(d) < 1e-14) { IR[i] = 0; continue; }
+      var b2 = bx * bx + by * by, c2 = cx * cx + cy * cy;
+      var ux = (cy * b2 - by * c2) / d, uy = (bx * c2 - cx * b2) / d;
+      IX[i] = p1[0] + ux; IY[i] = p1[1] + uy; IR[i] = Math.sqrt(ux * ux + uy * uy);
+    }
   }
 
-  const RENDER_PER_FRAME = 12;
+  /* ---------------------------------------------------------- 状態 */
+  var t = 0, flow = 0.4, look = 'rings', ra = 0.5;
+  var touch = { on: false, x: 0, y: 0 };
+  var lit = null;           // 灯った円 { bx, by, br, a }
+  var tax = 0, tay = 0, pull = 0;
 
+  function pick(sx, sy) {
+    /* 指の下にあるいちばん小さい円 */
+    var wx = (sx - W / 2) / R, wy = -(sy - H / 2) / R, best = -1, br = 9;
+    for (var i = 1; i < N; i++) {
+      var dx = wx - IX[i], dy = wy - IY[i];
+      if (dx * dx + dy * dy < IR[i] * IR[i] && IR[i] < br && IR[i] * R > 3) { br = IR[i]; best = i; }
+    }
+    return best;
+  }
+  function light(i) {
+    if (i < 1) return;
+    if (lit && lit.i === i && lit.a > 0.5) return;
+    lit = { i: i, bx: X[i], by: Y[i], br: 1 / K[i], a: 0, on: true };
+    SFX.play('tick', 140);
+  }
+
+  canvas.addEventListener('pointerdown', function (e) {
+    touch.on = true; touch.x = e.clientX; touch.y = e.clientY;
+    canvas.setPointerCapture(e.pointerId);
+    light(pick(e.clientX, e.clientY));
+    SFX.play('ripple', 200);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!touch.on) return;
+    touch.x = e.clientX; touch.y = e.clientY;
+    light(pick(e.clientX, e.clientY));
+  });
+  function up() { touch.on = false; if (lit) lit.on = false; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
+
+  document.getElementById('k-flow').addEventListener('input', function () { flow = this.value / 100; });
+  document.getElementById('k-fine').addEventListener('input', function () { rmin = 0.006 * Math.pow(0.18, this.value / 100); });
+  flow = document.getElementById('k-flow').value / 100;
+  rmin = 0.006 * Math.pow(0.18, document.getElementById('k-fine').value / 100);
+  document.querySelectorAll('[data-look]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-look]').forEach(function (o) { o.classList.toggle('active', o === b); });
+      look = b.dataset.look;
+      SFX.play('toggle');
+    });
+  });
+
+  /* ---------------------------------------------------------- 描く */
+  var BINS = 7, paths = [];
   function draw() {
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, W, H);
-
-    // Outer circle
-    if (circles.length > 0) {
-      const o = circles[0];
-      ctx.beginPath();
-      ctx.arc(o.x, o.y, o.r, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(0,245,212,0.25)';
-      ctx.lineWidth = 1;
-      ctx.stroke();
+    P.fill(ctx, W, H);
+    P.grid(ctx, W, H, { alpha: 0.7 });
+    var cx = W / 2, cy = H / 2;
+    for (var b = 0; b < BINS; b++) paths[b] = new Path2D();
+    var solid = look === 'solid';
+    for (var i = 1; i < N; i++) {
+      var r = IR[i] * R;
+      if (!(r >= 0.7) || r > R * 1.01) continue;
+      /* 大きい円ほど濃く。細かい円は薄く溶けていく */
+      var lv = Math.log(r) / Math.log(R * 0.5);
+      var bin = Math.max(0, Math.min(BINS - 1, Math.floor(lv * BINS)));
+      var px = cx + IX[i] * R, py = cy - IY[i] * R;
+      paths[bin].moveTo(px + r, py);
+      paths[bin].arc(px, py, r, 0, Math.PI * 2);
     }
-
-    // Draw revealed circles
-    ctx.shadowBlur = 3;
-    for (let i = 0; i < renderIdx && i < drawOrder.length; i++) {
-      const c = drawOrder[i];
-      const col = circleColor(c);
-      ctx.beginPath();
-      ctx.arc(c.x, c.y, Math.max(0.5, c.r), 0, Math.PI * 2);
-      ctx.strokeStyle = col;
-      ctx.shadowColor = col;
-      ctx.lineWidth = Math.min(1.5, c.r * 0.08 + 0.3);
-      ctx.stroke();
+    for (var b2 = 0; b2 < BINS; b2++) {
+      var f = (b2 + 1) / BINS;
+      if (solid) {
+        ctx.fillStyle = P.rgba(P.mix(P.deep, P.steel, 0.15 + 0.5 * (1 - f)), 0.35 + 0.4 * (1 - f));
+        ctx.fill(paths[b2]);
+      }
+      ctx.strokeStyle = P.rgba(P.line, 0.1 + 0.62 * f * f);
+      ctx.lineWidth = 0.6 + 0.6 * f;
+      ctx.stroke(paths[b2]);
     }
-    ctx.shadowBlur = 0;
+    /* 外周 */
+    ctx.strokeStyle = P.rgba(P.line, 0.85);
+    ctx.lineWidth = 1.4;
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.stroke();
 
-    // HUD update
-    const shown = Math.min(renderIdx, drawOrder.length);
-    document.getElementById('circle-count').textContent = shown + ' / ' + drawOrder.length + ' circles';
-    document.getElementById('depth-display').textContent = 'depth: ' + maxDepth;
-
-    // Advance render
-    if (renderIdx < drawOrder.length) {
-      renderIdx = Math.min(drawOrder.length, renderIdx + RENDER_PER_FRAME);
+    /* 灯った円（形が少しずつ変わるので、元の位置がいちばん近い円を追う） */
+    if (lit) {
+      var best = -1, bd = 1e9;
+      for (var j = 1; j < N; j++) {
+        var dx = X[j] - lit.bx, dy = Y[j] - lit.by, dr = 1 / K[j] - lit.br;
+        var dd = dx * dx + dy * dy + dr * dr * 4;
+        if (dd < bd) { bd = dd; best = j; }
+      }
+      if (best > 0) {
+        lit.bx = X[best]; lit.by = Y[best]; lit.br = 1 / K[best];
+        var rr = IR[best] * R, qx = cx + IX[best] * R, qy = cy - IY[best] * R;
+        ctx.fillStyle = P.rgba(P.accent, 0.13 * lit.a);
+        ctx.strokeStyle = P.rgba(P.accent, 0.85 * lit.a);
+        ctx.lineWidth = 1.3;
+        ctx.beginPath(); ctx.arc(qx, qy, rr, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+      }
     }
-
-    animId = requestAnimationFrame(draw);
   }
 
-  function resize() {
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-    rebuildAndPlay();
-  }
-
-  function rebuildAndPlay() {
-    cancelAnimationFrame(animId);
-    buildGasket();
-    renderIdx = 0;
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now(), tmp = [0, 0];
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    var sp = 0.15 + flow * 1.7;
+    t += dt * sp;
+    ra = 0.5 + 0.2 * Math.sin(t * 0.045) * Math.sin(t * 0.017 + 0.6);
+    phi += dt * sp * 0.025;
+    /* 自動の流れ: a は円盤の中をゆっくり巡る */
+    var autoX = 0.42 * Math.sin(t * 0.061), autoY = 0.36 * Math.sin(t * 0.047 + 1.1);
+    if (touch.on) {
+      /* 指の下の点が中央側へ寄ってくるように a を引く */
+      inv((touch.x - W / 2) / R * 0.92, -(touch.y - H / 2) / R * 0.92, tmp);
+      var m = Math.hypot(tmp[0], tmp[1]);
+      if (m > 0.66) { tmp[0] *= 0.66 / m; tmp[1] *= 0.66 / m; }
+      tax = tmp[0]; tay = tmp[1];
+      pull = Math.min(1, pull + dt * 0.8);
+    } else pull = Math.max(0, pull - dt * 0.25);
+    var gx = autoX + (tax - autoX) * pull, gy = autoY + (tay - autoY) * pull;
+    var k = Math.min(1, dt * (touch.on ? 0.9 : 0.5));
+    ax += (gx - ax) * k; ay += (gy - ay) * k;
+    var am = Math.hypot(ax, ay);
+    if (am > 0.7) { ax *= 0.7 / am; ay *= 0.7 / am; }
+    if (lit) {
+      lit.a += ((lit.on ? 1 : 0) - lit.a) * Math.min(1, dt * (lit.on ? 6 : 0.8));
+      if (!lit.on && lit.a < 0.01) lit = null;
+    }
+    gasket(ra);
+    mapAll();
     draw();
+    requestAnimationFrame(frame);
   }
-
-  window.regen = function() {
-    rebuildAndPlay();
-    SFX.play('click');
-  };
-
-  window.adjustDepth = function(delta) {
-    maxDepth = Math.max(3, Math.min(10, maxDepth + delta));
-    rebuildAndPlay();
-    SFX.play('toggle');
-  };
-
-  canvas.addEventListener('click', () => {
-    renderIdx = 0;
-    SFX.play('spawn');
-  });
-
-  canvas.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    adjustDepth(e.deltaY < 0 ? 1 : -1);
-  }, { passive: false });
-
-  canvas.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    renderIdx = 0;
-    SFX.play('spawn');
-  }, { passive: false });
-
-  window.addEventListener('resize', () => {
-    cancelAnimationFrame(animId);
-    resize();
-  });
-
-  resize();
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

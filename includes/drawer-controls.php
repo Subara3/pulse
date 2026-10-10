@@ -1,388 +1,203 @@
 <?php
 /**
- * Shared drawer-style controls for full-screen Canvas pages.
+ * 全画面Canvasページの設定パネル（2026-10 青焼き版）
  *
- * Usage:
+ * 画面には何も出さず、右下の小さなボタンだけを置く。押すと設定が開く。
+ * 眺めるのが主で、設定は「いじりたい人だけが開く」もの。
+ *
+ * 使い方:
  * <div id="controls" class="drawer-controls">
- *   <!-- page controls -->
+ *   <div class="ctl-row"><label for="k-speed">SPEED</label><input type="range" id="k-speed" min="0" max="100" value="40"></div>
+ *   <div class="ctl-btns"><button type="button" class="active" data-mode="a">CALM</button><button type="button" data-mode="b">DENSE</button></div>
+ *   <div class="ctl-btns"><button type="button" id="k-reset">RESET</button></div>
  * </div>
  * <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
+ *
+ * - スライダーは <input type="range" id="...">、選んだボタンには .active。左下の「共有」がこの 2 つを URL に残す
+ * - ラベルは英語の短い単語 1 つ。数値の表示は付けない
+ * - 旧クラス（.slider-row / .btn-row / .control-btn など）も同じ見た目で受ける
  */
 ?>
-
-<button id="drawer-toggle" class="drawer-toggle" type="button" aria-label="Open controls" aria-controls="controls" aria-expanded="false">
-  <i class="fa-solid fa-gear" aria-hidden="true"></i>
+<button id="drawer-toggle" class="drawer-toggle" type="button" aria-label="Open settings" aria-controls="controls" aria-expanded="false">
+  <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M3 6h9M15 6h2M3 14h2M8 14h9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><circle cx="13.5" cy="6" r="1.8" fill="none" stroke="currentColor" stroke-width="1.4"/><circle cx="6.5" cy="14" r="1.8" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>
 </button>
-
 <div id="drawer-overlay" class="drawer-overlay" aria-hidden="true"></div>
 
 <style>
-.control-btn,
-.drawer-controls .btn,
-.drawer-controls .ctrl-btn,
-.drawer-controls .mode-btn,
-.drawer-controls button {
-  padding: 0.5rem 1rem;
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.2);
-  color: rgba(255,255,255,0.62);
-  font-family: var(--font-display, "Space Grotesk", sans-serif);
-  font-size: 0.7rem;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
-  letter-spacing: 0.05em;
-}
-
-.control-btn:hover,
-.drawer-controls .btn:hover,
-.drawer-controls .ctrl-btn:hover,
-.drawer-controls .mode-btn:hover,
-.drawer-controls button:hover {
-  background: rgba(0, 245, 212, 0.1);
-  border-color: rgba(0, 245, 212, 0.5);
-  color: #00f5d4;
-}
-
-.control-btn.active,
-.drawer-controls .btn.active,
-.drawer-controls .ctrl-btn.active,
-.drawer-controls .mode-btn.active,
-.drawer-controls button.active {
-  background: rgba(0, 245, 212, 0.18);
-  border-color: #00f5d4;
-  color: #00f5d4;
-}
-
-.btn-row,
-.button-group,
-.control-group,
-.mode-group,
-.action-group,
-.theme-group {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.slider-wrap,
-.slider-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.slider-row,
-.ctrl-row,
-.control-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.slider-wrap label,
-.slider-group label,
-.slider-row label,
-.ctrl-row label,
-.control-row label,
-.slider-label,
-.ctrl-label {
-  color: rgba(255,255,255,0.56);
-  font-family: var(--font-display, "Space Grotesk", sans-serif);
-  font-size: 0.65rem;
-  letter-spacing: 0.05em;
-}
-
-.slider-value,
-.ctrl-val {
-  font-family: var(--font-mono, "JetBrains Mono", monospace);
-  font-size: 0.6rem;
-  color: #00f5d4;
-  min-width: 2rem;
-  text-align: right;
-}
-
-.drawer-controls input[type="range"] {
-  width: 100px;
-  height: 4px;
-  -webkit-appearance: none;
-  appearance: none;
-  background: rgba(255,255,255,0.15);
-  border-radius: 2px;
-  outline: none;
-  accent-color: #00f5d4;
-}
-
-.drawer-controls input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 14px;
-  height: 14px;
-  background: #00f5d4;
-  border-radius: 50%;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.drawer-controls input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-}
-
-.drawer-controls input[type="range"]::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  background: #00f5d4;
-  border-radius: 50%;
-  cursor: pointer;
-  border: none;
-}
-
-.preset-btn {
-  padding: 0.4rem 0.8rem;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.48);
-  font-family: var(--font-mono, "JetBrains Mono", monospace);
-  font-size: 0.65rem;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.25s ease;
-  text-align: left;
-}
-
-.preset-btn:hover,
-.preset-btn.active {
-  background: rgba(0, 245, 212, 0.12);
-  border-color: rgba(0, 245, 212, 0.45);
-  color: #00f5d4;
-}
-
-.preset-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  margin-top: 0.5rem;
-}
-
-.drawer-controls > div + div {
-  margin-top: 0.8rem;
-}
-
 .drawer-toggle {
-  display: none;
   position: fixed;
-  bottom: 80px;
-  right: 16px;
-  width: 46px;
-  height: 46px;
-  border-radius: 50%;
-  background: rgba(10, 10, 15, 0.9);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 245, 212, 0.4);
-  color: #00f5d4;
-  font-size: 1.1rem;
-  cursor: pointer;
+  right: 1.25rem;
+  bottom: 1.25rem;
   z-index: 9101;
-  transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  color: var(--text-2);
+  background: rgba(13, 34, 56, 0.84);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--line-mid);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
 }
+.drawer-toggle:hover { color: var(--cyan); border-color: var(--cyan-line); }
+.drawer-toggle.open { color: var(--cyan); border-color: var(--cyan-line); transform: rotate(90deg); }
 
-.drawer-toggle:hover {
-  transform: scale(1.08);
-  border-color: #00f5d4;
-  background: rgba(0, 245, 212, 0.1);
-}
-
-.drawer-toggle.open {
-  transform: rotate(90deg);
-  background: rgba(0, 245, 212, 0.2);
-}
-
-.drawer-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 9098;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.drawer-overlay.visible {
-  display: block;
-  opacity: 1;
-}
+.drawer-overlay { display: none; position: fixed; inset: 0; z-index: 9098; }
+.drawer-overlay.visible { display: block; }
 
 .drawer-controls {
   position: fixed;
-  bottom: calc(150px + env(safe-area-inset-bottom));
-  right: 16px;
+  right: 1.25rem;
+  bottom: calc(1.25rem + 54px);
+  z-index: 9099;
+  width: 264px;
+  max-height: min(68vh, 560px);
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  z-index: 9099;
-  transition: transform 0.25s ease, opacity 0.25s ease;
+  gap: 0.85rem;
+  padding: 1rem 1.05rem 1.1rem;
+  background: rgba(10, 28, 47, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--line-mid);
+  border-radius: 6px;
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(6px);
+  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease), visibility 0.25s;
 }
+.drawer-controls.open { opacity: 1; visibility: visible; transform: none; }
+
+/* 行 */
+.drawer-controls .ctl-row,
+.drawer-controls .slider-row,
+.drawer-controls .ctrl-row,
+.drawer-controls .control-row {
+  display: grid;
+  grid-template-columns: 4.6rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.7rem;
+}
+.drawer-controls label,
+.drawer-controls .slider-label,
+.drawer-controls .ctrl-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--text-3);
+  text-transform: uppercase;
+}
+.drawer-controls .slider-value,
+.drawer-controls .ctrl-val { display: none; }
+
+.drawer-controls input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 18px;
+  background: transparent;
+  cursor: pointer;
+}
+.drawer-controls input[type="range"]::-webkit-slider-runnable-track { height: 1px; background: var(--line-strong); }
+.drawer-controls input[type="range"]::-moz-range-track { height: 1px; background: var(--line-strong); }
+.drawer-controls input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px; height: 12px; margin-top: -6px;
+  border-radius: 50%;
+  background: var(--ink-1);
+  border: 1.5px solid var(--cyan);
+}
+.drawer-controls input[type="range"]::-moz-range-thumb {
+  width: 10px; height: 10px; border-radius: 50%;
+  background: var(--ink-1); border: 1.5px solid var(--cyan);
+}
+
+/* ボタン */
+.drawer-controls .ctl-btns,
+.drawer-controls .btn-row,
+.drawer-controls .button-group,
+.drawer-controls .control-group,
+.drawer-controls .mode-group,
+.drawer-controls .action-group,
+.drawer-controls .preset-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.drawer-controls button {
+  padding: 0.42rem 0.7rem;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-2);
+  background: transparent;
+  border: 1px solid var(--line-mid);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.drawer-controls button:hover { color: var(--text); border-color: var(--line-strong); }
+.drawer-controls button.active { color: var(--cyan); border-color: var(--cyan-line); background: var(--cyan-soft); }
 
 @media (max-width: 768px) {
-  .drawer-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    bottom: calc(120px + env(safe-area-inset-bottom));
-  }
-
+  .drawer-toggle { right: 0.75rem; bottom: 0.75rem; }
   .drawer-controls {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    left: 0; right: 0; bottom: 0;
     width: 100%;
-    max-height: 60vh;
-    padding: 20px;
-    padding-bottom: calc(20px + env(safe-area-inset-bottom));
-    background: linear-gradient(to top, rgba(10, 10, 15, 0.98), rgba(10, 10, 15, 0.95));
-    backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(0, 245, 212, 0.3);
-    border-radius: 20px 20px 0 0;
-    z-index: 9099;
-    overflow-y: auto;
+    max-height: 62vh;
+    padding: 1.1rem 1.2rem calc(1.4rem + env(safe-area-inset-bottom));
+    border-radius: 10px 10px 0 0;
+    border-width: 1px 0 0;
     transform: translateY(100%);
-    opacity: 0;
-    pointer-events: none;
   }
-
-  .drawer-controls.open {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: auto;
-  }
-
+  .drawer-controls.open { transform: none; }
   .drawer-controls::before {
-    content: '';
-    display: block;
-    width: 40px;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 2px;
-    margin: 0 auto 16px;
-    flex-shrink: 0;
+    content: ''; display: block; flex: none;
+    width: 36px; height: 3px; margin: 0 auto 0.3rem;
+    background: var(--line-strong); border-radius: 2px;
   }
-
-  .drawer-controls input[type="range"] {
-    flex: 1;
-    width: auto !important;
-    min-width: 0;
-  }
-
-  .drawer-controls .slider-wrap,
-  .drawer-controls .slider-group,
-  .drawer-controls .slider-row,
-  .drawer-controls .ctrl-row,
-  .drawer-controls .control-row {
-    width: 100%;
-  }
-
-  .drawer-controls .control-btn,
-  .drawer-controls .btn,
-  .drawer-controls .ctrl-btn,
-  .drawer-controls .mode-btn,
-  .drawer-controls button {
-    padding: 0.6rem 1rem;
-    font-size: 0.75rem;
-  }
-
-  .drawer-controls .preset-group {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-  }
-
-  .drawer-controls .btn-row,
-  .drawer-controls .button-group,
-  .drawer-controls .control-group,
-  .drawer-controls .mode-group,
-  .drawer-controls .action-group,
-  .drawer-controls .theme-group {
-    width: 100%;
-    justify-content: flex-start;
-  }
-}
-
-@media (max-width: 375px) {
-  .drawer-controls #preset-btns {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .drawer-toggle {
-    width: 50px;
-    height: 50px;
-    font-size: 20px;
-    bottom: calc(120px + env(safe-area-inset-bottom));
-    right: 16px;
-  }
+  .drawer-controls button { padding: 0.55rem 0.8rem; }
 }
 </style>
 
 <script>
-(function() {
-  const toggle = document.getElementById('drawer-toggle');
-  const overlay = document.getElementById('drawer-overlay');
-  const controls = document.querySelector('.drawer-controls');
-
+(function () {
+  var toggle = document.getElementById('drawer-toggle');
+  var overlay = document.getElementById('drawer-overlay');
+  var controls = document.querySelector('.drawer-controls');
   if (!toggle || !controls) return;
+  var isOpen = false, y0 = 0, y1 = 0;
 
-  let isOpen = false;
-  let touchStartY = 0;
-  let touchCurrentY = 0;
-
-  function openDrawer() {
-    isOpen = true;
-    toggle.classList.add('open');
-    toggle.setAttribute('aria-expanded', 'true');
-    toggle.setAttribute('aria-label', 'Close controls');
-    overlay.classList.add('visible');
-    controls.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closeDrawer() {
-    isOpen = false;
-    toggle.classList.remove('open');
-    toggle.setAttribute('aria-expanded', 'false');
-    toggle.setAttribute('aria-label', 'Open controls');
-    overlay.classList.remove('visible');
-    controls.classList.remove('open');
+  function set(open) {
+    isOpen = open;
+    toggle.classList.toggle('open', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    toggle.setAttribute('aria-label', open ? 'Close settings' : 'Open settings');
+    overlay.classList.toggle('visible', open);
+    controls.classList.toggle('open', open);
     controls.style.transform = '';
-    document.body.style.overflow = '';
   }
-
-  toggle.addEventListener('click', () => {
-    if (isOpen) closeDrawer();
-    else openDrawer();
+  toggle.addEventListener('click', function (e) {
+    e.stopPropagation();
+    set(!isOpen);
     if (typeof SFX !== 'undefined') SFX.play('toggle');
   });
+  overlay.addEventListener('click', function () { set(false); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isOpen) set(false); });
 
-  overlay.addEventListener('click', closeDrawer);
-
-  controls.addEventListener('touchstart', (e) => {
-    touchStartY = e.touches[0].clientY;
-    touchCurrentY = touchStartY;
+  /* スマホは下に引いて閉じる */
+  controls.addEventListener('touchstart', function (e) { y0 = y1 = e.touches[0].clientY; }, { passive: true });
+  controls.addEventListener('touchmove', function (e) {
+    y1 = e.touches[0].clientY;
+    if (y1 - y0 > 0 && controls.scrollTop === 0) controls.style.transform = 'translateY(' + (y1 - y0) + 'px)';
   }, { passive: true });
-
-  controls.addEventListener('touchmove', (e) => {
-    touchCurrentY = e.touches[0].clientY;
-    const diff = touchCurrentY - touchStartY;
-    if (diff > 0) controls.style.transform = 'translateY(' + diff + 'px)';
-  }, { passive: true });
-
-  controls.addEventListener('touchend', () => {
-    const diff = touchCurrentY - touchStartY;
+  controls.addEventListener('touchend', function () {
     controls.style.transform = '';
-    if (diff > 80) closeDrawer();
-  });
-
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && isOpen) closeDrawer();
+    if (y1 - y0 > 80 && controls.scrollTop === 0) set(false);
   });
 })();
 </script>

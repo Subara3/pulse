@@ -8,11 +8,10 @@ require_once __DIR__ . '/includes/contents-data.php';
 $pageName = 'about';
 $workCount = count($works);
 $today = date('Y-m-d');
-$dayNumber = (new DateTime('2026-01-28'))->diff(new DateTime($today))->days;
 
-$pageTitle = 'ABOUT — PULSEとは | PULSE';
-$pageDesc = 'PULSEは、数式と規則が動いているところだけを集めた' . $workCount . '本のインタラクティブ・アーカイブです。'
-    . '何を約束していて、どんな決めごとで作っているか。ECHOとNULLの紹介。';
+$pageTitle = 'PULSE について | PULSE';
+$pageDesc = 'PULSE は、数式どおりに動く絵を' . $workCount . '本集めたサイトです。'
+    . '作るときに決めていることと、作品の分け方を説明しています。';
 $pageCanonical = 'https://pulse.subara3.com/about.php';
 
 $extraStyle = '
@@ -40,43 +39,6 @@ $extraStyle = '
 .rule-row dd { font-size: .88rem; color: var(--text-2); line-height: 1.95; }
 .rule-row dd b { color: var(--text); font-weight: 500; }
 
-/* キャラクター */
-.chars { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.2rem; }
-.char {
-  padding: 1.6rem 1.5rem 1.8rem; background: var(--ink-2);
-  border: 1px solid var(--line); border-radius: var(--radius);
-  border-top: 3px solid var(--echo-color);
-}
-.char.null { border-top-color: var(--null-color); }
-.char-tag {
-  font-family: var(--font-mono); font-size: .62rem; letter-spacing: .2em;
-  color: var(--text-3); text-transform: uppercase;
-}
-.char h3 {
-  font-size: 1.5rem; letter-spacing: .16em; margin-block: .5rem .3rem;
-  color: var(--echo-color);
-}
-.char.null h3 { color: var(--null-color); }
-.char .role { font-size: .8rem; color: var(--text-2); }
-.char ul { list-style: none; margin-top: 1.1rem; display: grid; gap: .5rem; }
-.char li { font-size: .82rem; color: var(--text-2); padding-left: 1.1rem; position: relative; line-height: 1.85; }
-.char li::before { content: "—"; position: absolute; left: 0; color: var(--text-3); }
-
-/* サンプル会話 */
-.talk { display: grid; gap: .8rem; margin-top: 1.4rem; }
-.say { display: grid; grid-template-columns: 62px 1fr; gap: .9rem; align-items: start; }
-.say .who {
-  font-family: var(--font-mono); font-size: .62rem; letter-spacing: .12em;
-  padding: .3rem 0; color: var(--echo-color);
-}
-.say.null .who { color: var(--null-color); }
-.say .txt {
-  background: var(--ink-3); border: 1px solid var(--line); border-radius: var(--radius);
-  padding: .8rem 1rem; font-size: .86rem; line-height: 1.95;
-}
-.say.null .txt { font-family: var(--font-mono); font-size: .8rem; color: var(--text-2); }
-.say.null .paren { color: var(--null-color); }
-
 /* コレクション早見 */
 .coll-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); }
 .coll-row {
@@ -96,11 +58,11 @@ require_once __DIR__ . '/includes/nav.php';
 <main class="paper">
 
   <div class="wrap wrap--narrow about-hero">
-    <h1 style="margin-top:.9rem">読ませないサイトを<br>作っています。</h1>
+    <h1 style="margin-top:.9rem">PULSE について</h1>
     <p class="lede" style="margin-top:1.2rem;max-width:none">
-      PULSE は、数式や規則が<b style="color:var(--teal);font-weight:500">動いているところ</b>だけを集めたアーカイブです。
-      解説文を読み込まなくても、触って、止めて、また動かせば、何が起きているかは伝わる——
-      そういうものだけを <?php echo $workCount; ?> 本、Day <?php echo $dayNumber; ?> まで毎日 1 本ずつ増やしてきました。
+      PULSE は、水面の波や鳥の群れ、結晶の成長、マンデルブロ集合などを、数式どおりに動かして描いたページの集まりです。
+      どのページも開くとすぐに動き出し、クリックやドラッグで動きが変わります。仕組みの説明は書いていません。
+      いまは <?php echo $workCount; ?> 本あり、毎日 1 本ずつ追加しています。
     </p>
   </div>
 
@@ -109,30 +71,30 @@ require_once __DIR__ . '/includes/nav.php';
     <div class="wrap">
       <div class="section-head">
         <div>
-          <h2 class="h-md" style="margin-top:.6rem">このサイトが約束すること</h2>
+          <h2 class="h-md" style="margin-top:.6rem">どのページにも共通すること</h2>
         </div>
       </div>
 
       <div class="promises">
         <div class="promise-item">
           <span class="n">01</span>
-          <h3>必ず触れる</h3>
-          <p>全ページがクリック・ドラッグ・スライダーのいずれかで反応します。眺めるだけで終わるページは置きません。</p>
+          <h3>開くとすぐに動き出す</h3>
+          <p>読み込みが終わるとすぐに描き始め、何もしなくても動き続けます。</p>
         </div>
         <div class="promise-item">
           <span class="n">02</span>
-          <h3>開いた瞬間に動いている</h3>
-          <p>ロード直後に何も表示されない画面を作らない、というのが決めごとです。まず動かして、それから触ってもらいます。</p>
+          <h3>クリックやドラッグで変わる</h3>
+          <p>クリックやドラッグをすると、その場所に波が立ったり、粒が集まったりします。スマートフォンでは指でなぞって操作します。点数や正解はありません。</p>
         </div>
         <div class="promise-item">
           <span class="n">03</span>
-          <h3>同じものを二度置かない</h3>
-          <p>既存<?php echo $workCount; ?>本と概念が重なる案は採用しません。重なっていたものは統合し、片方を消しました。</p>
+          <h3>画面に文字を出さない</h3>
+          <p>タイトルや数値、操作の説明は画面に出しません。速さなどを変えたいときは、右下のボタンから設定を開いてください。</p>
         </div>
         <div class="promise-item">
           <span class="n">04</span>
-          <h3>毎日 1 本増える</h3>
-          <p>Day 001（2026年1月29日）から途切れず追加しています。奇数日は ECHO、偶数日は NULL が記録を残します。</p>
+          <h3>毎日 1 本ずつ増える</h3>
+          <p>2026年1月29日から毎日 1 本ずつ追加しています。追加する前に、すでにあるページと似ていないかを確かめています。</p>
         </div>
       </div>
     </div>
@@ -143,90 +105,31 @@ require_once __DIR__ . '/includes/nav.php';
     <div class="wrap wrap--narrow" style="margin-inline:auto">
       <div class="section-head">
         <div>
-          <h2 class="h-md" style="margin-top:.6rem">全ページ共通の決めごと</h2>
+          <h2 class="h-md" style="margin-top:.6rem">作るときの決めごと</h2>
           <p class="muted" style="margin-top:.6rem;font-size:.84rem">
-            見た目がばらけないように、作る前から決めてあることです。
+            どのページも同じ見た目と操作になるように、作る前に決めていることです。
           </p>
         </div>
       </div>
 
       <dl class="rules">
         <div class="rule-row">
+          <dt>見た目</dt>
+          <dd>設計図の青焼きのように、<b>紺色の地に白い線</b>で描いています。色を付けるのはクリックしたところなど一部だけで、その色は水色にそろえています。</dd>
+        </div>
+        <div class="rule-row">
           <dt>技術</dt>
-          <dd><b>Canvas 2D と素の JavaScript だけ。</b>外部ライブラリも WebGL も使いません。1 ページ 1 ファイルで完結します。</dd>
-        </div>
-        <div class="rule-row">
-          <dt>配色</dt>
-          <dd>背景は <b>#0a0a0f</b>、主役は <b>teal（#00f5d4）</b>、対比に <b>purple</b>。赤・橙・黄・黄緑は使いません。どのページから来ても同じ光り方をします。</dd>
-        </div>
-        <div class="rule-row">
-          <dt>操作</dt>
-          <dd>操作方法は画面のすみに <b>CLICK / DRAG / RIGHT</b> の短いチップで示します。長い説明文は置きません。</dd>
+          <dd><b>Canvas 2D と JavaScript だけ</b>で描いています。外部のライブラリや WebGL は使っていません。1 ページが 1 ファイルで完結します。</dd>
         </div>
         <div class="rule-row">
           <dt>音</dt>
-          <dd>音はすべてサイン波で、Web Audio API で<b>その場で合成</b>しています。音声ファイルはありません。選ぶまでは鳴らさず、SOUND ボタン（または M キー）でいつでも切り替えられます。</dd>
-        </div>
-        <div class="rule-row">
-          <dt>言語</dt>
-          <dd>画面内の文言は<b>英語の短い単語</b>で統一。日本語の説明はこのサイトの案内ページ側だけに置きます。</dd>
+          <dd>音はすべてサイン波を<b>ブラウザ上で合成</b>しています。音声ファイルは使っていません。ページごとに調が決まっていて、クリックしたときの音もその調で鳴ります。最初は鳴らない状態で、左下の音のボタンか M キーで切り替えられます。</dd>
         </div>
         <div class="rule-row">
           <dt>分類</dt>
-          <dd>分野名ではなく<b>「何が起きるか」</b>で 12 のコレクションに分けています。カオス・成長・流れ——見たい気分から選べます。</dd>
+          <dd>学問の分野ではなく、<b>画面で何が起きるか</b>で 12 のグループに分けています。「流れるもの」「群れるもの」「育つもの」などです。</dd>
         </div>
       </dl>
-    </div>
-  </section>
-
-  <!-- ================= ECHO / NULL ================= -->
-  <section class="section">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <h2 class="h-lg" style="margin-top:.6rem">ECHO と NULL</h2>
-          <p class="muted" style="margin-top:.6rem;font-size:.86rem;max-width:56ch">
-            毎日のログを交互に書いている 2 つの声です。どちらも同じものを見て、まったく違う書き方をします。
-          </p>
-        </div>
-        <a href="log.php" class="btn btn--ghost">ログを読む &rarr;</a>
-      </div>
-
-      <div class="chars">
-        <div class="char">
-          <span class="char-tag">odd days</span>
-          <h3>ECHO</h3>
-          <p class="role">見つけたことを、そのまま声に出す担当。</p>
-          <ul>
-            <li>一人称は「ぼく」。感嘆符が多い</li>
-            <li>難しい仕組みを、短く楽しく言い換える</li>
-            <li>現象とアルゴリズムにしか興味がない</li>
-            <li>願望も、呼びかけも書かない</li>
-          </ul>
-        </div>
-        <div class="char null">
-          <span class="char-tag">even days</span>
-          <h3>NULL</h3>
-          <p class="role">起きたことを、起きたとおりに書く担当。</p>
-          <ul>
-            <li>一人称は「私」。全文を丸括弧で囲む</li>
-            <li>短い断定を積む。等幅で表示される</li>
-            <li>ECHO の言葉を引き取って、数式側から補う</li>
-            <li>感傷も、問いかけも、余韻も残さない</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="talk">
-        <div class="say">
-          <span class="who">ECHO</span>
-          <span class="txt">曲がった面の上を走る最短経路って、まっすぐじゃないんだ！ 山を盛り上げると、線がぐにゃっと曲がる！</span>
-        </div>
-        <div class="say null">
-          <span class="who">NULL</span>
-          <span class="txt"><span class="paren">(</span>測地線は加速度の接成分がゼロの曲線である。曲率が正の領域では収束し、負の領域では発散する。曲がって見えるのは、面の側が曲がっているためである<span class="paren">)</span></span>
-        </div>
-      </div>
     </div>
   </section>
 
@@ -244,7 +147,7 @@ require_once __DIR__ . '/includes/nav.php';
         <?php foreach ($PULSE_COLLECTIONS as $key => $col):
           $n = count(pulseByCollection($works, $key)); ?>
         <a class="coll-row" href="contents.php?g=<?php echo $key; ?>#<?php echo $key; ?>">
-          <span class="en"><i class="fa-solid <?php echo $col['icon']; ?>" aria-hidden="true"></i> <?php echo $col['en']; ?> · <?php echo $n; ?></span>
+          <span class="en"><i class="fa-solid <?php echo $col['icon']; ?>" aria-hidden="true"></i> <?php echo $n; ?> 本</span>
           <span class="ja"><?php echo $col['name']; ?></span>
           <span class="pr"><?php echo $col['promise']; ?></span>
         </a>
@@ -262,10 +165,10 @@ require_once __DIR__ . '/includes/nav.php';
         </div>
       </div>
       <dl class="rules">
-        <div class="rule-row"><dt>運営</dt><dd><a href="https://subara3.com/" target="_blank" rel="noopener" style="color:var(--teal)">栖王ヴァルハラ３丁目</a></dd></div>
-        <div class="rule-row"><dt>開始</dt><dd>2026年1月29日（Day 001）</dd></div>
-        <div class="rule-row"><dt>現在</dt><dd>Day <?php echo $dayNumber; ?> ／ <?php echo $workCount; ?> works ／ 12 collections</dd></div>
-        <div class="rule-row"><dt>要望</dt><dd>見たい現象があれば<a href="index.php#feedback" style="color:var(--teal)">トップページのフォーム</a>からどうぞ。</dd></div>
+        <div class="rule-row"><dt>運営</dt><dd><a href="https://subara3.com/" target="_blank" rel="noopener" style="color:var(--cyan)">栖王ヴァルハラ３丁目</a></dd></div>
+        <div class="rule-row"><dt>開始</dt><dd>2026年1月29日</dd></div>
+        <div class="rule-row"><dt>いま</dt><dd><?php echo $workCount; ?> 本 ／ 12 のコレクション</dd></div>
+        <div class="rule-row"><dt>要望</dt><dd>見たいものがあれば<a href="index.php#feedback" style="color:var(--cyan)">トップページのフォーム</a>からどうぞ。</dd></div>
       </dl>
 
       <div style="display:flex;gap:.7rem;flex-wrap:wrap;margin-top:2rem">

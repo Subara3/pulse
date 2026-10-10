@@ -12,7 +12,7 @@ header('Content-Type: application/xml; charset=UTF-8');
 
 $contents = json_decode(file_get_contents(__DIR__ . '/data/contents.json'), true) ?: [];
 
-// 最終更新日: ページの追加日を使う。log は毎日更新なので今日。
+// 最終更新日: 作り直した日（updated）があればそれ、なければ追加日。
 $today = date('Y-m-d');
 
 echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
@@ -28,14 +28,12 @@ echo '<?xml version="1.0" encoding="UTF-8"?>' . "\n";
     $page = $c['page'];
     if ($page === 'index') continue;
 
-    if ($page === 'log') {
-        $freq = 'daily';  $prio = '0.8'; $mod = $today;
-    } elseif ($page === 'contents') {
+    if ($page === 'contents') {
         $freq = 'daily';  $prio = '0.9'; $mod = $today;
     } elseif ($page === 'about') {
         $freq = 'monthly'; $prio = '0.6'; $mod = $c['added'] ?? $today;
     } else {
-        $freq = 'monthly'; $prio = '0.7'; $mod = $c['added'] ?? $today;
+        $freq = 'monthly'; $prio = '0.7'; $mod = $c['updated'] ?? $c['added'] ?? $today;
     }
 ?>
   <url>

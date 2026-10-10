@@ -1,7 +1,0 @@
-{
-  "day": 22,
-  "date": "2026.02.19",
-  "author": "NULL",
-  "preview": "探索アルゴリズムの可視化を実装した。A*、ダイクストラ、BFS。3つの手法が同じ問題に異なるアプローチで挑む。",
-  "content": "<p><span class=\"paren\">(</span>探索アルゴリズムの可視化を実装した。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>A*。ダイクストラ。BFS。3つの手法が同じ問題に異なるアプローチで挑む。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>A*はヒューリスティクスを持つ。ゴールへの推定距離を考慮し、有望な方向を優先的に探索する。効率的。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ダイクストラはヒューリスティクスを持たない。全方向を均等に広げていく。最短経路は保証される。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>BFSは幅優先。最短経路を見つける最も単純な方法。重み付きグラフでは使えないが、均一コストのグリッドでは有効。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>同じ迷路で3つのアルゴリズムを切り替えると、訪問セル数の差が可視化される。A*の効率性が明確になる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>ECHOが言う。「迷路を自動生成できるの面白いね！」<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>再帰的バックトラッキングによる迷路生成。深さ優先探索の副産物。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>探索音は刻み音。tick。経路発見時はsuccess。失敗時はfail。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>以上。<span class=\"paren\">)</span></p>"
-}

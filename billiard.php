@@ -5,248 +5,298 @@ recordPageView('billiard');
 
 $pageName = 'billiard';
 $pageTitle = 'BILLIARD - PULSE';
-$pageDesc = 'カオスビリヤード。スタジアム型テーブルではカオスが、楕円・円形では規則的な軌跡が生まれる。';
+$pageDesc = '角の丸い長方形の台の中を、玉が壁で跳ね返りながら走り続け、通った跡の直線が重なって台を埋めていく。押さえて引くと、その向きに新しい玉が走る。台を楕円や円に替えると、跡の通る範囲が決まった帯に限られる。';
 $pageCanonical = 'https://pulse.subara3.com/billiard.php';
-$extraStyle = '
-#hud{position:fixed;top:1.2rem;right:1.2rem;font-family:monospace;font-size:.7rem;color:rgba(0,245,212,.6);text-align:right;pointer-events:none;line-height:1.7}
-#controls{position:fixed;bottom:1.2rem;right:1.2rem;display:flex;gap:.4rem;flex-wrap:wrap;justify-content:flex-end}
-#controls button{background:rgba(0,245,212,.07);border:1px solid rgba(0,245,212,.25);color:rgba(0,245,212,.8);font-family:monospace;font-size:.65rem;padding:.3rem .65rem;cursor:pointer;letter-spacing:.05em;transition:background .15s}
-#controls button:hover{background:rgba(0,245,212,.15)}
-#controls button.active{background:rgba(0,245,212,.18);color:#00f5d4;border-color:rgba(0,245,212,.5)}
-#info{position:fixed;bottom:1.2rem;left:1.2rem;font-family:monospace;font-size:.62rem;color:rgba(0,245,212,.35);pointer-events:none}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
-<div id="hud">
-  <div id="mode-label">STADIUM</div>
-  <div id="ball-count">25 BALLS</div>
-</div>
+
 <div id="controls" class="drawer-controls">
-  <button id="btn-0" class="mode-btn active" onclick="setMode(0)">STADIUM</button>
-  <button id="btn-1" class="mode-btn" onclick="setMode(1)">CIRCLE</button>
-  <button id="btn-2" class="mode-btn" onclick="setMode(2)">ELLIPSE</button>
-  <button id="btn-3" class="mode-btn" onclick="setMode(3)">SQUARE</button>
-  <button onclick="resetBalls()">RESET</button>
+  <div class="ctl-row"><label for="k-speed">SPEED</label><input type="range" id="k-speed" min="0" max="100" value="40"></div>
+  <div class="ctl-row"><label for="k-balls">BALLS</label><input type="range" id="k-balls" min="1" max="5" value="3"></div>
+  <div class="ctl-btns"><button type="button" class="active" data-shape="stadium">STADIUM</button><button type="button" data-shape="ellipse">ELLIPSE</button><button type="button" data-shape="circle">CIRCLE</button></div>
 </div>
-<div id="info">billiard dynamics · chaos · ergodic theory</div>
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'add ball'],
-  ['type' => 'right', 'label' => 'clear'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function() {
-  const cv = document.getElementById('canvas');
-  const ctx = cv.getContext('2d');
-  let W, H, cx, cy, tW, tH, tR;
+(function () {
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0, S = 100;
+  var ctx = P.fit(canvas, function (w, h) { W = w; H = h; S = Math.min(w * 0.84 / 4, h * 0.78 / 2); });
 
-  const MODES = ['STADIUM','CIRCLE','ELLIPSE','SQUARE'];
-  let mode = 0;
-  const SPEED = 2.0, SUB = 5, MAX_N = 40, INIT_N = 25;
-  let balls = [];
+  /* 台は幅 4・高さ 2 の箱に収める。STADIUM は半円 2 つを直線でつないだ形 */
+  var shape = 'stadium';
+  var SA = 1, SR = 1, EA = 2, EB = 1, CR = 1;
+  var EPS = 1e-7;
 
-  function resize() {
-    cv.width = W = window.innerWidth;
-    cv.height = H = window.innerHeight;
-    cx = W / 2; cy = H / 2;
-    const m = Math.min(W, H);
-    tR = m * 0.40;
-    tW = m * 0.76;
-    tH = m * 0.44;
-    resetBalls(false);
+  /* 点 (x,y) から向き (dx,dy) に進んで最初に当たる壁。[t, nx, ny] を返す */
+  var HIT = [0, 0, 0];
+  function hitConic(x, y, dx, dy, a, b, cx) {
+    var X = x - cx;
+    var A = dx * dx / (a * a) + dy * dy / (b * b);
+    var B = 2 * (X * dx / (a * a) + y * dy / (b * b));
+    var C = X * X / (a * a) + y * y / (b * b) - 1;
+    var D = B * B - 4 * A * C;
+    if (D < 0) return -1;
+    var sq = Math.sqrt(D);
+    var t = (-B + sq) / (2 * A);
+    return t;
   }
-
-  // Stadium helpers
-  const sr = () => tH / 2;
-  const ssw = () => (tW - tH) / 2;
-
+  function hit(x, y, dx, dy) {
+    var best = 1e9, nx = 0, ny = 0, t, hx;
+    if (shape === 'ellipse' || shape === 'circle') {
+      var a = shape === 'ellipse' ? EA : CR, b = shape === 'ellipse' ? EB : CR;
+      t = hitConic(x, y, dx, dy, a, b, 0);
+      var px = x + dx * t, py = y + dy * t;
+      nx = px / (a * a); ny = py / (b * b);
+      var l = Math.hypot(nx, ny); HIT[0] = t; HIT[1] = nx / l; HIT[2] = ny / l;
+      return HIT;
+    }
+    /* 上下の直線 */
+    if (dy > EPS) { t = (SR - y) / dy; hx = x + dx * t; if (t > EPS && hx >= -SA && hx <= SA && t < best) { best = t; nx = 0; ny = 1; } }
+    if (dy < -EPS) { t = (-SR - y) / dy; hx = x + dx * t; if (t > EPS && hx >= -SA && hx <= SA && t < best) { best = t; nx = 0; ny = -1; } }
+    /* 左右の半円 */
+    for (var side = -1; side <= 1; side += 2) {
+      var cx = side * SA;
+      var X = x - cx, B2 = X * dx + y * dy, C2 = X * X + y * y - SR * SR, D2 = B2 * B2 - C2;
+      if (D2 < 0) continue;
+      var s2 = Math.sqrt(D2);
+      var cands = [-B2 + s2, -B2 - s2];
+      for (var k = 0; k < 2; k++) {
+        t = cands[k];
+        if (t <= EPS || t >= best) continue;
+        hx = x + dx * t;
+        if (side > 0 ? hx < SA - 1e-9 : hx > -SA + 1e-9) continue;
+        best = t; nx = (hx - cx) / SR; ny = (y + dy * t) / SR;
+      }
+    }
+    HIT[0] = best; HIT[1] = nx; HIT[2] = ny;
+    return HIT;
+  }
   function inside(x, y) {
-    const lx = x - cx, ly = y - cy;
-    if (mode === 0) {
-      const r = sr(), s = ssw();
-      if (lx < -s) return (lx + s) * (lx + s) + ly * ly < r * r;
-      if (lx >  s) return (lx - s) * (lx - s) + ly * ly < r * r;
-      return Math.abs(ly) < r;
-    }
-    if (mode === 1) return lx * lx + ly * ly < tR * tR;
-    if (mode === 2) { const a = tW / 2, b = tH / 2; return (lx/a)*(lx/a) + (ly/b)*(ly/b) < 1; }
-    return Math.abs(lx) < tW / 2 && Math.abs(ly) < tH / 2;
+    if (shape === 'ellipse') return x * x / (EA * EA) + y * y / (EB * EB) < 1;
+    if (shape === 'circle') return x * x + y * y < CR * CR;
+    if (Math.abs(x) <= SA) return Math.abs(y) < SR;
+    var cx = x > 0 ? SA : -SA;
+    return (x - cx) * (x - cx) + y * y < SR * SR;
   }
 
-  function norm(lx, ly) {
-    if (mode === 0) {
-      const s = ssw();
-      if (lx <= -s) { const d = Math.hypot(lx+s, ly) || 1; return [(lx+s)/d, ly/d]; }
-      if (lx >=  s) { const d = Math.hypot(lx-s, ly) || 1; return [(lx-s)/d, ly/d]; }
-      return [0, Math.sign(ly) || 1];
-    }
-    if (mode === 1) { const d = Math.hypot(lx, ly) || 1; return [lx/d, ly/d]; }
-    if (mode === 2) {
-      const a = tW/2, b = tH/2, gx = lx/(a*a), gy = ly/(b*b);
-      const d = Math.hypot(gx, gy) || 1; return [gx/d, gy/d];
-    }
-    const ex = Math.abs(lx) - tW/2, ey = Math.abs(ly) - tH/2;
-    return ex > ey ? [Math.sign(lx) || 1, 0] : [0, Math.sign(ly) || 1];
+  /* ---------------------------------------------------------- 玉 */
+  var MAXB = 240;
+  var balls = [];
+  function Ball(x, y, ang, mine) {
+    this.bx = new Float32Array(MAXB); this.by = new Float32Array(MAXB);
+    this.n = 0; this.head = 0;
+    this.x = x; this.y = y; this.dx = Math.cos(ang); this.dy = Math.sin(ang);
+    this.left = 0; this.hot = mine ? 1 : 0; this.mine = mine;
+    this.push(x, y);
+    this.aim();
   }
-
-  function proj(lx, ly) {
-    const e = 1.5;
-    if (mode === 0) {
-      const r = sr() - e, s = ssw();
-      if (lx <= -s) { const d = Math.hypot(lx+s, ly)||1; return [-s+(lx+s)/d*r, ly/d*r]; }
-      if (lx >=  s) { const d = Math.hypot(lx-s, ly)||1; return [ s+(lx-s)/d*r, ly/d*r]; }
-      return [lx, Math.sign(ly || 1) * r];
-    }
-    if (mode === 1) { const d = Math.hypot(lx, ly)||1, r = tR - e; return [lx/d*r, ly/d*r]; }
-    if (mode === 2) {
-      const a = tW/2 - e, b = tH/2 - e;
-      const t = Math.hypot(lx/a, ly/b) || 1; return [lx/t, ly/t];
-    }
-    const hw = tW/2 - e, hh = tH/2 - e;
-    return [Math.max(-hw, Math.min(hw, lx)), Math.max(-hh, Math.min(hh, ly))];
-  }
-
-  function refl(vx, vy, nx, ny) {
-    const d = vx*nx + vy*ny;
-    return [vx - 2*d*nx, vy - 2*d*ny];
-  }
-
-  function stepBall(b) {
-    const px = b.x, py = b.y;
-    let lx = px - cx + b.vx;
-    let ly = py - cy + b.vy;
-    if (!inside(cx + lx, cy + ly)) {
-      const [nx, ny] = norm(lx, ly);
-      [b.vx, b.vy] = refl(b.vx, b.vy, nx, ny);
-      [lx, ly] = proj(lx, ly);
-      if (!inside(cx + lx, cy + ly)) { lx *= 0.88; ly *= 0.88; }
-      SFX.play('collide', 80);
-    }
-    b.x = cx + lx; b.y = cy + ly;
-    return {x1: px, y1: py, x2: b.x, y2: b.y};
-  }
-
-  function makeBall(x, y) {
-    const a = Math.random() * Math.PI * 2;
-    // Avoid very shallow angles to prevent edge sticking
-    const vx = Math.cos(a) * SPEED;
-    const vy = Math.sin(a) * SPEED;
-    return {x, y, vx, vy, hue: 165 + Math.random() * 115, segs: []};
-  }
-
-  function rndIn() {
-    for (let i = 0; i < 400; i++) {
-      const x = cx + (Math.random() - 0.5) * tW * 0.7;
-      const y = cy + (Math.random() - 0.5) * tH * 0.7;
-      if (inside(x, y)) return [x, y];
-    }
-    return [cx, cy];
-  }
-
-  window.resetBalls = function(sfx = true) {
-    balls = Array.from({length: INIT_N}, () => { const [x, y] = rndIn(); return makeBall(x, y); });
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, W, H);
-    if (sfx) SFX.play('click');
-    document.getElementById('ball-count').textContent = INIT_N + ' BALLS';
+  Ball.prototype.push = function (x, y) {
+    this.bx[this.head] = x; this.by[this.head] = y;
+    this.head = (this.head + 1) % MAXB; if (this.n < MAXB) this.n++;
   };
-
-  window.setMode = function(idx) {
-    mode = idx;
-    document.getElementById('mode-label').textContent = MODES[idx];
-    document.querySelectorAll('#controls button.mode-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, W, H);
-    balls = Array.from({length: INIT_N}, () => { const [x, y] = rndIn(); return makeBall(x, y); });
-    document.getElementById('ball-count').textContent = INIT_N + ' BALLS';
-    SFX.play('toggle');
+  Ball.prototype.aim = function () {
+    var h = hit(this.x, this.y, this.dx, this.dy);
+    this.left = h[0]; this.nx = h[1]; this.ny = h[2];
+    /* 数値誤差で台の外へ抜けたら、中心寄りに戻す */
+    if (!(this.left > 0 && this.left < 10)) {
+      this.x *= 0.5; this.y *= 0.5;
+      h = hit(this.x, this.y, this.dx, this.dy);
+      this.left = h[0]; this.nx = h[1]; this.ny = h[2];
+    }
   };
+  /* 距離 s だけ進める。壁に当たったら跳ね返る */
+  Ball.prototype.go = function (s) {
+    var bounced = false, guard = 0;
+    while (s > 0 && guard++ < 50) {
+      if (s < this.left) {
+        this.x += this.dx * s; this.y += this.dy * s; this.left -= s; s = 0;
+      } else {
+        this.x += this.dx * this.left; this.y += this.dy * this.left; s -= this.left;
+        var d = this.dx * this.nx + this.dy * this.ny;
+        this.dx -= 2 * d * this.nx; this.dy -= 2 * d * this.ny;
+        var l = Math.hypot(this.dx, this.dy); this.dx /= l; this.dy /= l;
+        this.push(this.x, this.y);
+        this.aim();
+        bounced = true;
+      }
+    }
+    return bounced;
+  };
+  function randomBall(mine) {
+    var x, y;
+    do { x = (Math.random() * 2 - 1) * 2; y = (Math.random() * 2 - 1); } while (!inside(x * 0.9, y * 0.9));
+    var b = new Ball(x * 0.9, y * 0.9, Math.random() * Math.PI * 2, mine);
+    /* すでに長く走ったところから見せる */
+    b.go(MAXB * 2.2);
+    return b;
+  }
+  var count = 3;
+  /* 古い玉は消さずに、網ごとゆっくり薄れさせる */
+  var dying = [];
+  function retire() {
+    while (balls.length > count) { var o = balls.shift(); o.fade = 1; dying.push(o); }
+  }
+  function refill() {
+    while (balls.length < count) balls.push(randomBall(false));
+    retire();
+  }
 
-  function drawBorder() {
-    ctx.save();
-    ctx.strokeStyle = 'rgba(0,245,212,.2)';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([3, 6]);
+  /* ---------------------------------------------------------- 描く */
+  function X(x) { return W / 2 + x * S; }
+  function Y(y) { return H / 2 + y * S; }
+  function drawTable(alpha) {
+    ctx.strokeStyle = P.rgba(P.line, 0.55 * alpha);
+    ctx.lineWidth = 1.3;
     ctx.beginPath();
-    if (mode === 0) {
-      const r = sr(), s = ssw();
-      ctx.moveTo(cx - s, cy - r); ctx.lineTo(cx + s, cy - r);
-      ctx.arc(cx + s, cy, r, -Math.PI/2, Math.PI/2);
-      ctx.lineTo(cx - s, cy + r);
-      ctx.arc(cx - s, cy, r, Math.PI/2, -Math.PI/2);
-      ctx.closePath();
-    } else if (mode === 1) {
-      ctx.arc(cx, cy, tR, 0, Math.PI * 2);
-    } else if (mode === 2) {
-      ctx.ellipse(cx, cy, tW/2, tH/2, 0, 0, Math.PI * 2);
-    } else {
-      ctx.rect(cx - tW/2, cy - tH/2, tW, tH);
+    if (shape === 'ellipse') ctx.ellipse(X(0), Y(0), EA * S, EB * S, 0, 0, Math.PI * 2);
+    else if (shape === 'circle') ctx.arc(X(0), Y(0), CR * S, 0, Math.PI * 2);
+    else {
+      ctx.moveTo(X(-SA), Y(-SR)); ctx.lineTo(X(SA), Y(-SR));
+      ctx.arc(X(SA), Y(0), SR * S, -Math.PI / 2, Math.PI / 2);
+      ctx.lineTo(X(-SA), Y(SR));
+      ctx.arc(X(-SA), Y(0), SR * S, Math.PI / 2, Math.PI * 1.5);
     }
     ctx.stroke();
-    ctx.restore();
+    /* 外側にもう 1 本、ごく薄く */
+    ctx.strokeStyle = P.rgba(P.steel, 0.18 * alpha);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    var g = 10 / S;
+    if (shape === 'ellipse') ctx.ellipse(X(0), Y(0), (EA + g) * S, (EB + g) * S, 0, 0, Math.PI * 2);
+    else if (shape === 'circle') ctx.arc(X(0), Y(0), (CR + g) * S, 0, Math.PI * 2);
+    else {
+      ctx.moveTo(X(-SA), Y(-SR - g)); ctx.lineTo(X(SA), Y(-SR - g));
+      ctx.arc(X(SA), Y(0), (SR + g) * S, -Math.PI / 2, Math.PI / 2);
+      ctx.lineTo(X(-SA), Y(SR + g));
+      ctx.arc(X(-SA), Y(0), (SR + g) * S, Math.PI / 2, Math.PI * 1.5);
+    }
+    ctx.stroke();
   }
-
-  function draw() {
-    ctx.fillStyle = 'rgba(10,10,15,.055)';
-    ctx.fillRect(0, 0, W, H);
-    drawBorder();
-    for (const b of balls) {
-      if (!b.segs || !b.segs.length) continue;
-      ctx.strokeStyle = `hsl(${b.hue},75%,55%)`;
-      ctx.lineWidth = 0.85;
+  var GROUPS = 8;
+  function drawBall(b, alpha) {
+    var col = P.mix(P.line, P.accent, b.hot);
+    var n = b.n, per = Math.ceil(n / GROUPS);
+    ctx.lineWidth = 0.9;
+    for (var g = 0; g < GROUPS; g++) {
+      var s0 = g * per, s1 = Math.min(n - 1, s0 + per);
+      if (s0 >= n - 1) break;
+      var age = (g + 1) / GROUPS;
+      ctx.strokeStyle = P.rgba(col, (0.02 + age * age * 0.3) * alpha);
       ctx.beginPath();
-      for (const s of b.segs) { ctx.moveTo(s.x1, s.y1); ctx.lineTo(s.x2, s.y2); }
+      for (var s = s0; s <= s1; s++) {
+        var i = (b.head - n + s + MAXB) % MAXB;
+        if (s === s0) ctx.moveTo(X(b.bx[i]), Y(b.by[i])); else ctx.lineTo(X(b.bx[i]), Y(b.by[i]));
+      }
+      if (s1 === n - 1) ctx.lineTo(X(b.x), Y(b.y));
       ctx.stroke();
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, 1.7, 0, Math.PI * 2);
-      ctx.fillStyle = `hsl(${b.hue},90%,80%)`;
-      ctx.fill();
     }
+    /* 最後の跳ね返りから今の位置まで */
+    var li = (b.head - 1 + MAXB) % MAXB;
+    ctx.strokeStyle = P.rgba(col, 0.7 * alpha);
+    ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(X(b.bx[li]), Y(b.by[li])); ctx.lineTo(X(b.x), Y(b.y)); ctx.stroke();
+    ctx.fillStyle = P.rgba(col, alpha);
+    ctx.beginPath(); ctx.arc(X(b.x), Y(b.y), 3.2, 0, Math.PI * 2); ctx.fill();
   }
 
-  function loop() {
-    for (const b of balls) {
-      b.segs = [];
-      for (let s = 0; s < SUB; s++) b.segs.push(stepBall(b));
-    }
-    draw();
-    requestAnimationFrame(loop);
+  /* ---------------------------------------------------------- 操作 */
+  var aimFrom = null, aimTo = null;
+  function world(e) { return [(e.clientX - W / 2) / S, (e.clientY - H / 2) / S]; }
+  function pull(p) {
+    var k = 1, g = 0;
+    while (!inside(p[0] * k, p[1] * k) && g++ < 60) k *= 0.96;
+    return [p[0] * k * 0.995, p[1] * k * 0.995];
   }
-
-  cv.addEventListener('click', e => {
-    if (balls.length >= MAX_N) return;
-    balls.push(makeBall(e.clientX, e.clientY));
-    document.getElementById('ball-count').textContent = balls.length + ' BALLS';
-    SFX.play('spawn');
+  canvas.addEventListener('pointerdown', function (e) {
+    aimFrom = pull(world(e)); aimTo = aimFrom;
+    SFX.play('tick');
+    canvas.setPointerCapture(e.pointerId);
   });
-
-  cv.addEventListener('contextmenu', e => {
-    e.preventDefault();
-    balls = [];
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, W, H);
-    document.getElementById('ball-count').textContent = '0 BALLS';
-    SFX.play('click');
+  canvas.addEventListener('pointermove', function (e) {
+    if (!aimFrom) return;
+    aimTo = world(e);
+    SFX.play('move', 260);
   });
-
-  cv.addEventListener('touchstart', e => {
-    e.preventDefault();
-    if (balls.length >= MAX_N) return;
-    const t = e.changedTouches[0];
-    balls.push(makeBall(t.clientX, t.clientY));
-    document.getElementById('ball-count').textContent = balls.length + ' BALLS';
+  function up() {
+    if (!aimFrom) return;
+    var dx = aimTo[0] - aimFrom[0], dy = aimTo[1] - aimFrom[1];
+    var ang = Math.hypot(dx, dy) * S > 12 ? Math.atan2(dy, dx) : Math.random() * Math.PI * 2;
+    balls.push(new Ball(aimFrom[0], aimFrom[1], ang, true));
+    retire();
+    aimFrom = null;
     SFX.play('spawn');
-  }, {passive: false});
+  }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', function () { aimFrom = null; });
 
-  window.addEventListener('resize', resize);
-  resize();
-  loop();
+  var speed = 1;
+  var kSpeed = document.getElementById('k-speed'), kBalls = document.getElementById('k-balls');
+  function readSpeed() { speed = 0.35 + kSpeed.value / 100 * 2.6; }
+  kSpeed.addEventListener('input', readSpeed);
+  kBalls.addEventListener('input', function () { count = +this.value; refill(); });
+  readSpeed(); count = +kBalls.value;
+  var shapeBtns = document.querySelectorAll('[data-shape]');
+  var fadeIn = 1;
+  function setShape(sh) {
+    shape = sh;
+    shapeBtns.forEach(function (o) { o.classList.toggle('active', o.dataset.shape === sh); });
+    balls.length = 0; dying.length = 0; refill(); fadeIn = 0;
+  }
+  shapeBtns.forEach(function (b) { b.addEventListener('click', function () { setShape(b.dataset.shape); SFX.play('toggle'); }); });
+  refill();
+  setTimeout(function () {
+    var a = document.querySelector('[data-shape].active');
+    if (a && a.dataset.shape !== shape) setShape(a.dataset.shape);
+  }, 400);
+
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now(), swapT = 30;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    /* しばらくごとに、いちばん古い玉が新しい玉に入れ替わる */
+    swapT -= dt;
+    if (swapT <= 0) {
+      var nb = randomBall(false);
+      nb.n = 1; nb.bx[0] = nb.x; nb.by[0] = nb.y; nb.head = 1;
+      balls.push(nb); retire();
+      swapT = 28 + Math.random() * 10;
+    }
+    fadeIn = Math.min(1, fadeIn + dt * 1.2);
+    P.fill(ctx, W, H);
+    drawTable(1);
+    for (var i = 0; i < balls.length; i++) {
+      var b = balls[i];
+      if (b.go(speed * dt) && b.mine && b.hot > 0.2) SFX.play('collide', 380);
+      b.hot = Math.max(0, b.hot - dt * 0.05);
+      drawBall(b, fadeIn);
+    }
+    for (var d = dying.length - 1; d >= 0; d--) {
+      var o = dying[d];
+      o.fade -= dt * 0.08;
+      if (o.fade <= 0) { dying.splice(d, 1); continue; }
+      o.go(speed * dt);
+      drawBall(o, fadeIn * o.fade);
+    }
+    if (aimFrom) {
+      var ax = X(aimFrom[0]), ay = Y(aimFrom[1]), bx = X(aimTo[0]), by = Y(aimTo[1]);
+      ctx.strokeStyle = P.rgba(P.accent, 0.7);
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([4, 5]);
+      ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = P.rgba(P.accent, 0.9);
+      ctx.beginPath(); ctx.arc(ax, ay, 3.5, 0, Math.PI * 2); ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

@@ -5,474 +5,353 @@ recordPageView('erosion');
 
 $pageName = 'erosion';
 $pageTitle = 'EROSION - PULSE';
-$pageDesc = '水力浸食シミュレーション。水滴が地形を削り、河川の形が自然に生まれる。';
+$pageDesc = '島の地形を等高線で描いている。川が少しずつ谷を削り、上流へ枝分かれしながら伸びていく。なぞるとそこに雨が降り、水の粒が谷を下って海へ流れ、その川が太くなる。';
 $pageCanonical = 'https://pulse.subara3.com/erosion.php';
-
-$extraStyle = '
-body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
-#canvas { position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; }
-.ui { position: fixed; z-index: 100; font-family: "Space Grotesk", "Segoe UI", sans-serif; pointer-events: none; }
-.hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.34); font-size: 0.64rem; text-align: right; letter-spacing: 0.05em; line-height: 1.8; }
-.hud .v { color: #00f5d4; font-weight: 700; }
-@media (max-width: 768px) {
-  .hud { top: 0.6rem; right: 0.6rem; font-size: 0.54rem; }
-}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
-
 <canvas id="canvas"></canvas>
 
-<div class="ui hud">
-  DROPS: <span id="hudDrops" class="v">0</span><br>
-  TOTAL: <span id="hudTotal" class="v">0</span>
-</div>
-
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'rain burst'],
-  ['type' => 'drag', 'label' => 'rain'],
-  ['type' => 'right', 'label' => 'raise'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
-
 <div id="controls" class="drawer-controls">
-  <div class="slider-wrap">
-    <div class="slider-row">
-      <label class="slider-label">RAIN</label>
-      <span class="slider-value" id="valRain">50</span>
-    </div>
-    <input type="range" id="rngRain" min="10" max="200" step="10" value="50">
-  </div>
-  <div class="slider-wrap">
-    <div class="slider-row">
-      <label class="slider-label">EROSION</label>
-      <span class="slider-value" id="valEro">0.30</span>
-    </div>
-    <input type="range" id="rngEro" min="5" max="100" step="5" value="30">
-  </div>
-  <div class="btn-row">
-    <button class="control-btn active" id="btnAuto">AUTO</button>
-    <button class="control-btn" id="btnReset">RESET</button>
-  </div>
+  <div class="ctl-row"><label for="k-rain">RAIN</label><input type="range" id="k-rain" min="0" max="100" value="50"></div>
+  <div class="ctl-row"><label for="k-lift">LIFT</label><input type="range" id="k-lift" min="0" max="100" value="50"></div>
+  <div class="ctl-btns"><button type="button" id="k-new">NEW</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function() {
+(function () {
   'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0;
 
-  var C = document.getElementById('canvas');
-  var ctx = C.getContext('2d', {alpha: false});
+  /* 粗い格子の地形。各マスの水はいちばん低い隣へ流れ、集まった水の量が多いほど川底を削る */
+  var NX, NY, N, CS, h, up, jit, A, wgt, boost, rec, order, seen, heapH, heapI, img, buf, bctx, BW, BH;
+  var rain = 0.5, lift = 0.5, lo = 0, hi = 1, T = 0, upT = 0, drops = [];
+  var NB8 = [], DIST8 = [];
 
-  var hudDrops = document.getElementById('hudDrops');
-  var hudTotal = document.getElementById('hudTotal');
-  var rngRain = document.getElementById('rngRain');
-  var valRain = document.getElementById('valRain');
-  var rngEro = document.getElementById('rngEro');
-  var valEro = document.getElementById('valEro');
-  var btnAuto = document.getElementById('btnAuto');
-  var btnReset = document.getElementById('btnReset');
-
-  var W, H, CELL = 3, cols, rows;
-  var map, moisture;
-  var offC, offCtx, offImg;
-  var autoRain = true;
-  var rainRate = 50;
-  var erosionStr = 0.3;
-  var totalDrops = 0;
-  var drops = [];
-  var mDown = false, mRight = false, mX = 0, mY = 0;
-
-  var INERTIA = 0.05;
-  var CAPACITY = 4;
-  var DEP_SPEED = 0.3;
-  var EVAP = 0.02;
-  var GRAV = 4;
-  var MAX_LIFE = 80;
-  var MIN_SLOPE = 0.01;
-  var MAX_DROPS = 6000;
-
-  /* ---- Noise ---- */
-  var P = new Uint8Array(512);
-
-  function seedNoise(s) {
-    var p = new Uint8Array(256);
-    for (var i = 0; i < 256; i++) p[i] = i;
-    for (var i = 255; i > 0; i--) {
-      s = (s * 48271) % 2147483647;
-      var j = s % (i + 1);
-      var t = p[i]; p[i] = p[j]; p[j] = t;
-    }
-    for (var i = 0; i < 512; i++) P[i] = p[i & 255];
+  /* ---------------------------------------------------------- 雑音 */
+  var seed = 1;
+  function hash(i, j) {
+    var n = (i * 374761393 + j * 668265263 + seed * 2147483647) | 0;
+    n = (n ^ (n >>> 13)) * 1274126177 | 0;
+    return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
   }
-
-  function noise2(x, y) {
-    var ix = Math.floor(x), iy = Math.floor(y);
-    var fx = x - ix, fy = y - iy;
-    var ux = fx * fx * (3 - 2 * fx);
-    var uy = fy * fy * (3 - 2 * fy);
-    var n00 = P[(P[ix & 255] + (iy & 255)) & 255] / 255;
-    var n10 = P[(P[(ix + 1) & 255] + (iy & 255)) & 255] / 255;
-    var n01 = P[(P[ix & 255] + ((iy + 1) & 255)) & 255] / 255;
-    var n11 = P[(P[(ix + 1) & 255] + ((iy + 1) & 255)) & 255] / 255;
-    return (n00 * (1 - ux) + n10 * ux) * (1 - uy) +
-           (n01 * (1 - ux) + n11 * ux) * uy;
+  function vnoise(x, y) {
+    var i = Math.floor(x), j = Math.floor(y), fx = x - i, fy = y - j;
+    var u = fx * fx * (3 - 2 * fx), v = fy * fy * (3 - 2 * fy);
+    var a = hash(i, j), b = hash(i + 1, j), c = hash(i, j + 1), d = hash(i + 1, j + 1);
+    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
   }
-
   function fbm(x, y, oct) {
-    var v = 0, a = 1, t = 0;
-    for (var i = 0; i < oct; i++) {
-      v += noise2(x, y) * a;
-      t += a;
-      x *= 2; y *= 2;
-      a *= 0.5;
-    }
-    return v / t;
+    var s = 0, amp = 0.5, f = 1;
+    for (var o = 0; o < oct; o++) { s += vnoise(x * f, y * f) * amp; f *= 2.03; amp *= 0.5; }
+    return s;
   }
 
-  /* ---- Heightmap ---- */
-  function initMap() {
-    seedNoise(Math.random() * 1e6 | 0);
-    map = new Float32Array(cols * rows);
-    moisture = new Float32Array(cols * rows);
-    for (var y = 0; y < rows; y++) {
-      for (var x = 0; x < cols; x++) {
-        var h = fbm(x * 0.008, y * 0.008, 6);
-        var slope = (1 - y / rows) * 0.12;
-        map[y * cols + x] = h * 0.85 + slope + 0.05;
+  function alloc() {
+    CS = Math.max(5, Math.min(W, H) / 108);
+    NX = Math.ceil(W / CS) + 1; NY = Math.ceil(H / CS) + 1; N = NX * NY;
+    h = new Float32Array(N); up = new Float32Array(N); jit = new Float32Array(N).fill(1); A = new Float32Array(N); wgt = new Float32Array(N);
+    boost = new Float32Array(N); rec = new Int32Array(N); order = new Int32Array(N); seen = new Uint8Array(N);
+    heapH = new Float32Array(N); heapI = new Int32Array(N);
+    NB8 = [-1, 1, -NX, NX, -NX - 1, -NX + 1, NX - 1, NX + 1];
+    DIST8 = [1, 1, 1, 1, 1.414, 1.414, 1.414, 1.414];
+    BW = NX * 2; BH = NY * 2;
+    img = new ImageData(BW, BH);
+    buf = document.createElement('canvas');
+    buf.width = BW; buf.height = BH;
+    bctx = buf.getContext('2d');
+    terrain();
+  }
+
+  var ox = 0, oy = 0;
+  function upliftField() {
+    /* 持ち上がり方の地図。ゆっくり流れていくので、尾根と谷も少しずつ形を変える */
+    var asp = NX / NY, dxT = T * 0.004, dyT = T * 0.0027;
+    for (var j = 0; j < NY; j++) {
+      for (var i = 0; i < NX; i++) {
+        var x = i / NX * 2.4 * asp / 1.78, y = j / NY * 2.4;
+        var dx = (i / NX - 0.5) * 2, dy = (j / NY - 0.5) * 2;
+        var r = Math.sqrt(dx * dx * 0.62 + dy * dy * 0.95);
+        /* 島の形: 岸の線は雑音でゆがめる。岸より外は持ち上がらず、海になる */
+        var coast = 0.86 + (fbm(x * 0.9 + 21 + ox, y * 0.9 + 4 + oy, 3) - 0.5) * 0.55;
+        var ed = (coast - r) / 0.3;
+        ed = ed < 0 ? 0 : ed > 1 ? 1 : ed * ed * (3 - 2 * ed);
+        var ee = Math.min(i, j, NX - 1 - i, NY - 1 - j) / 6;
+        if (ee < 1) ed *= ee;
+        up[j * NX + i] = ed * (0.25 + fbm(x + ox + dxT, y + oy + dyT, 3) * 1.25) * jit[j * NX + i];
       }
     }
-    drops = [];
-    totalDrops = 0;
   }
 
-  /* ---- Bilinear interpolation ---- */
-  function getH(x, y) {
-    var xi = x | 0, yi = y | 0;
-    if (xi < 0 || xi >= cols - 1 || yi < 0 || yi >= rows - 1) return 0;
-    var u = x - xi, v = y - yi;
-    var i = yi * cols + xi;
-    return map[i] * (1 - u) * (1 - v) + map[i + 1] * u * (1 - v) +
-           map[i + cols] * (1 - u) * v + map[i + cols + 1] * u * v;
+  function terrain() {
+    seed = (Math.random() * 100000) | 0;
+    ox = Math.random() * 40; oy = Math.random() * 40;
+    var asp = NX / NY;
+    for (var j = 0; j < NY; j++) {
+      for (var i = 0; i < NX; i++) {
+        var x = i / NX * 4 * asp / 1.78, y = j / NY * 4;
+        h[j * NX + i] = fbm(x + 9, y + 3, 5) * 0.3 + Math.random() * 0.02;
+        jit[j * NX + i] = 0.8 + Math.random() * 0.4;
+      }
+    }
+    upliftField();
+    for (var q = 0; q < N; q++) h[q] *= up[q] > 0 ? Math.min(1, up[q] * 3) : 0;
+    /* 開いた瞬間から谷が刻まれているように、先に時間を進めておく */
+    var t0 = performance.now();
+    for (var n = 0; n < 300 && performance.now() - t0 < 450; n++) evolve(3.5);
+    measure(true);
+    shadeBuf();
   }
 
-  function getGrad(x, y) {
-    var xi = x | 0, yi = y | 0;
-    if (xi < 1 || xi >= cols - 2 || yi < 1 || yi >= rows - 2) return [0, 0];
-    var u = x - xi, v = y - yi;
-    var i = yi * cols + xi;
-    var h00 = map[i], h10 = map[i + 1];
-    var h01 = map[i + cols], h11 = map[i + cols + 1];
-    return [
-      (h10 - h00) * (1 - v) + (h11 - h01) * v,
-      (h01 - h00) * (1 - u) + (h11 - h10) * u
-    ];
+  /* 低い順に水をたどる（端は海）。窪地は埋めて湖にする */
+  function flood() {
+    var hn = 0, i, j, k, c, m = 0;
+    seen.fill(0);
+    function push(kk, hv) {
+      var p = hn++;
+      while (p > 0) { var q = (p - 1) >> 1; if (heapH[q] <= hv) break; heapH[p] = heapH[q]; heapI[p] = heapI[q]; p = q; }
+      heapH[p] = hv; heapI[p] = kk;
+    }
+    function pop() {
+      var top = heapI[0], lastH = heapH[--hn], lastI = heapI[hn], p = 0;
+      while (true) {
+        var l = p * 2 + 1; if (l >= hn) break;
+        var r = l + 1, s = (r < hn && heapH[r] < heapH[l]) ? r : l;
+        if (heapH[s] >= lastH) break;
+        heapH[p] = heapH[s]; heapI[p] = heapI[s]; p = s;
+      }
+      heapH[p] = lastH; heapI[p] = lastI;
+      return top;
+    }
+    for (i = 0; i < NX; i++) { k = i; h[k] = 0; seen[k] = 1; rec[k] = -1; push(k, 0); k = (NY - 1) * NX + i; h[k] = 0; seen[k] = 1; rec[k] = -1; push(k, 0); }
+    for (j = 1; j < NY - 1; j++) { k = j * NX; h[k] = 0; seen[k] = 1; rec[k] = -1; push(k, 0); k = j * NX + NX - 1; h[k] = 0; seen[k] = 1; rec[k] = -1; push(k, 0); }
+    while (hn > 0) {
+      c = pop();
+      order[m++] = c;
+      var ci = c % NX, cj = (c / NX) | 0, hc = h[c];
+      for (var d = 0; d < 8; d++) {
+        var nk = c + NB8[d];
+        var ni = ci + (d === 0 || d === 4 || d === 6 ? -1 : d === 1 || d === 5 || d === 7 ? 1 : 0);
+        if (ni < 0 || ni >= NX || nk < 0 || nk >= N || seen[nk]) continue;
+        seen[nk] = 1;
+        if (h[nk] <= hc) h[nk] = hc + 2e-5 + Math.random() * 2e-5;
+        rec[nk] = c;
+        push(nk, h[nk]);
+      }
+    }
+    return m;
   }
 
-  function modTerrain(px, py, amt) {
-    var xi = px | 0, yi = py | 0;
-    if (xi < 0 || xi >= cols - 1 || yi < 0 || yi >= rows - 1) return;
-    var u = px - xi, v = py - yi;
-    var i = yi * cols + xi;
-    map[i] += amt * (1 - u) * (1 - v);
-    map[i + 1] += amt * u * (1 - v);
-    map[i + cols] += amt * (1 - u) * v;
-    map[i + cols + 1] += amt * u * v;
+  function evolve(dt) {
+    var m = flood(), i, k;
+    /* 埋めたあとの地形で、いちばん急に下る隣を流れ先にする */
+    for (i = 0; i < m; i++) {
+      k = order[i];
+      if (rec[k] < 0) continue;
+      var ki = k % NX, best = rec[k], bs = 0, hk = h[k];
+      if (ki === 0 || ki === NX - 1) continue;
+      for (var dI = 0; dI < 8; dI++) {
+        var nk = k + NB8[dI];
+        if (nk < 0 || nk >= N) continue;
+        var sl = (hk - h[nk]) / DIST8[dI];
+        if (sl > bs) { bs = sl; best = nk; }
+      }
+      rec[k] = best;
+    }
+    for (k = 0; k < N; k++) A[k] = 1 + boost[k] * 40;
+    for (i = m - 1; i >= 0; i--) { k = order[i]; if (rec[k] >= 0) A[rec[k]] += A[k]; }
+    var K = (0.014 + rain * 0.045) * dt, U = (0.006 + lift * 0.02) * dt;
+    for (i = 0; i < m; i++) {
+      k = order[i];
+      var r = rec[k];
+      if (r < 0) continue;
+      var dd = (r - k === 1 || k - r === 1 || r - k === NX || k - r === NX) ? 1 : 1.414;
+      var F = K * Math.sqrt(A[k]) / dd;
+      h[k] = (h[k] + up[k] * U + F * h[r]) / (1 + F);
+    }
+    /* 斜面をわずかにならす */
+    var D = 0.06 * dt;
+    for (var j = 1; j < NY - 1; j++) {
+      for (i = 1; i < NX - 1; i++) {
+        k = j * NX + i;
+        wgt[k] = (h[k - 1] + h[k + 1] + h[k - NX] + h[k + NX] - 4 * h[k]) * D;
+      }
+    }
+    for (j = 1; j < NY - 1; j++) for (i = 1; i < NX - 1; i++) { k = j * NX + i; h[k] += wgt[k]; }
   }
 
-  /* ---- Color palette ---- */
-  var pal = new Uint8Array(256 * 3);
+  function measure(now) {
+    var mx = 0;
+    for (var k = 0; k < N; k += 3) if (h[k] > mx) mx = h[k];
+    if (now) hi = mx; else hi += (mx - hi) * 0.03;
+  }
 
-  function buildPalette() {
-    var stops = [
-      [0.00, 8,   12,  22],
-      [0.15, 5,   38,  48],
-      [0.30, 0,   82,  72],
-      [0.48, 0,   155, 132],
-      [0.62, 25,  100, 155],
-      [0.78, 75,  52,  168],
-      [1.00, 123, 44,  191]
-    ];
-    for (var i = 0; i < 256; i++) {
-      var t = i / 255;
-      var s0 = stops[0], s1 = stops[stops.length - 1];
-      for (var j = 0; j < stops.length - 1; j++) {
-        if (t <= stops[j + 1][0]) {
-          s0 = stops[j]; s1 = stops[j + 1]; break;
+  /* ---------------------------------------------------------- 塗る */
+  var BG = P.bg, DEEP = P.deep, LN = P.line, ST = P.steel;
+  var LOWC = P.mix(DEEP, BG, 0.6), HIC = P.mix(BG, ST, 0.3);
+  function shadeBuf() {
+    var d = img.data, span = Math.max(1e-5, hi), NC = 13, sc = NC / span;
+    for (var by = 0; by < BH; by++) {
+      var fy = by * 0.5 + 0.25;
+      var j = fy | 0; if (j > NY - 2) j = NY - 2;
+      var v = fy - j;
+      for (var bx = 0; bx < BW; bx++) {
+        var fx = bx * 0.5 + 0.25;
+        var i = fx | 0; if (i > NX - 2) i = NX - 2;
+        var u = fx - i, k = j * NX + i;
+        var a = h[k], b = h[k + 1], c = h[k + NX], e = h[k + NX + 1];
+        var hv = a + (b - a) * u + (c - a) * v + (a - b - c + e) * u * v;
+        var gx = (b - a) * (1 - v) + (e - c) * v, gy = (c - a) * (1 - u) + (e - b) * u;
+        var t = hv / span; if (t > 1) t = 1;
+        var r = LOWC[0] + (HIC[0] - LOWC[0]) * t, g = LOWC[1] + (HIC[1] - LOWC[1]) * t, bl = LOWC[2] + (HIC[2] - LOWC[2]) * t;
+        /* 北西から光を当てた陰影 */
+        var lit = (-gx * 0.7 - gy * 0.7) * sc * 1.1;
+        if (lit > 0) { lit = Math.min(1, lit) * 0.42; r += (ST[0] - r) * lit; g += (ST[1] - g) * lit; bl += (ST[2] - bl) * lit; }
+        else { lit = Math.min(1, -lit) * 0.6; r += (DEEP[0] - r) * lit; g += (DEEP[1] - g) * lit; bl += (DEEP[2] - bl) * lit; }
+        /* 等高線。線までの距離を画素で測って太さをそろえ、5 本ごとに少し濃く */
+        var hn = hv * sc, f = hn - Math.floor(hn), dist = f < 0.5 ? f : 1 - f;
+        var gm = Math.sqrt(gx * gx + gy * gy) * sc * 0.5 + 1e-5;
+        var px = dist / gm, idx = Math.round(hn) % 4 === 0;
+        var la = 1 - px / (idx ? 1.1 : 0.75);
+        if (hv < span * 0.03) {
+          /* 海: 等高線は引かず、地の藍に戻す。岸だけ白い線で縁取る */
+          var sea = hv / (span * 0.03);
+          r = BG[0] + (r - BG[0]) * sea * sea; g = BG[1] + (g - BG[1]) * sea * sea; bl = BG[2] + (bl - BG[2]) * sea * sea;
+          var cd = (1 - sea) / (Math.sqrt(gx * gx + gy * gy) / (span * 0.03) * 0.5 + 1e-5);
+          var ca = Math.max(0, 1 - cd / 1.4) * 0.42;
+          r += (LN[0] - r) * ca; g += (LN[1] - g) * ca; bl += (LN[2] - bl) * ca;
+        } else if (la > 0) {
+          la *= idx ? 0.3 : 0.14;
+          r += (LN[0] - r) * la; g += (LN[1] - g) * la; bl += (LN[2] - bl) * la;
         }
+        var o = (by * BW + bx) * 4;
+        d[o] = r; d[o + 1] = g; d[o + 2] = bl; d[o + 3] = 255;
       }
-      var f = (t - s0[0]) / (s1[0] - s0[0]);
-      f = f * f * (3 - 2 * f);
-      pal[i * 3]     = s0[1] + (s1[1] - s0[1]) * f | 0;
-      pal[i * 3 + 1] = s0[2] + (s1[2] - s0[2]) * f | 0;
-      pal[i * 3 + 2] = s0[3] + (s1[3] - s0[3]) * f | 0;
+    }
+    bctx.putImageData(img, 0, 0);
+  }
+
+  /* 川筋: 集まった水が多いマスだけ、流れ先まで白い線で結ぶ */
+  var RCLS = 5;
+  function rivers() {
+    var thr = 18, paths = [], sea = hi * 0.06;
+    for (var c = 0; c < RCLS; c++) paths.push(new Path2D());
+    for (var k = 0; k < N; k++) {
+      var a = A[k];
+      if (a < thr) continue;
+      var r = rec[k];
+      if (r < 0 || h[k] < sea) continue;
+      var r2 = rec[r] >= 0 ? rec[r] : r;
+      var x0 = (k % NX) * CS, y0 = ((k / NX) | 0) * CS;
+      var x1 = (r % NX) * CS, y1 = ((r / NX) | 0) * CS;
+      var x2 = (r2 % NX) * CS, y2 = ((r2 / NX) | 0) * CS;
+      var cl = Math.min(RCLS - 1, Math.floor(Math.log(a / thr) * 0.8));
+      /* 2 つ先までの中点を結んで、ジグザグを丸める */
+      paths[cl].moveTo((x0 + x1) * 0.5, (y0 + y1) * 0.5);
+      paths[cl].quadraticCurveTo(x1, y1, (x1 + x2) * 0.5, (y1 + y2) * 0.5);
+    }
+    ctx.lineCap = 'round';
+    for (c = 0; c < RCLS; c++) {
+      ctx.strokeStyle = P.rgba(LN, 0.45 + c * 0.12);
+      ctx.lineWidth = 0.7 + c * 0.45;
+      ctx.stroke(paths[c]);
     }
   }
 
-  /* ---- Water drops ---- */
-  function spawnDrop(sx, sy) {
-    if (drops.length >= MAX_DROPS) return;
-    drops.push({x: sx, y: sy, dx: 0, dy: 0, spd: 1, w: 1, sed: 0, life: 0});
-  }
+  var ctx = P.fit(canvas, function (w, hh) { W = w; H = hh; alloc(); });
 
-  function stepDrops() {
-    var i = 0;
-    while (i < drops.length) {
-      var d = drops[i];
-      var dead = false;
-
-      if (d.x < 2 || d.x >= cols - 2 || d.y < 2 || d.y >= rows - 2 || d.life >= MAX_LIFE) {
-        dead = true;
-      }
-
-      if (!dead) {
-        var g = getGrad(d.x, d.y);
-        d.dx = d.dx * INERTIA - g[0] * (1 - INERTIA);
-        d.dy = d.dy * INERTIA - g[1] * (1 - INERTIA);
-
-        var len = Math.sqrt(d.dx * d.dx + d.dy * d.dy);
-        if (len < 1e-6) {
-          var a = Math.random() * Math.PI * 2;
-          d.dx = Math.cos(a); d.dy = Math.sin(a);
-        } else {
-          d.dx /= len; d.dy /= len;
-        }
-
-        var nx = d.x + d.dx;
-        var ny = d.y + d.dy;
-
-        if (nx < 2 || nx >= cols - 2 || ny < 2 || ny >= rows - 2) {
-          dead = true;
-        } else {
-          var oldH = getH(d.x, d.y);
-          var newH = getH(nx, ny);
-          var dH = newH - oldH;
-
-          var cap = Math.max(-dH, MIN_SLOPE) * d.spd * d.w * CAPACITY;
-
-          if (d.sed > cap || dH > 0) {
-            var dep = dH > 0 ? Math.min(d.sed, dH) : (d.sed - cap) * DEP_SPEED;
-            if (dep > 0) {
-              d.sed -= dep;
-              modTerrain(d.x, d.y, dep);
-            }
-          } else {
-            var ero = Math.min((cap - d.sed) * erosionStr, -dH);
-            if (ero > 0) {
-              d.sed += ero;
-              modTerrain(d.x, d.y, -ero);
-            }
-          }
-
-          var mi = (d.y | 0) * cols + (d.x | 0);
-          if (mi >= 0 && mi < cols * rows) {
-            moisture[mi] = Math.min(moisture[mi] + 0.15, 1);
-          }
-
-          d.spd = Math.sqrt(Math.max(0.01, d.spd * d.spd + dH * GRAV));
-          d.w *= (1 - EVAP);
-          d.x = nx;
-          d.y = ny;
-          d.life++;
-        }
-      }
-
-      if (dead) {
-        drops[i] = drops[drops.length - 1];
-        drops.pop();
-      } else {
-        i++;
+  /* ---------------------------------------------------------- 操作 */
+  function wet(x, y, amt) {
+    var ci = Math.round(x / CS), cj = Math.round(y / CS), R = 5;
+    for (var j = Math.max(1, cj - R); j <= Math.min(NY - 2, cj + R); j++) {
+      for (var i = Math.max(1, ci - R); i <= Math.min(NX - 2, ci + R); i++) {
+        var q = ((i - ci) * (i - ci) + (j - cj) * (j - cj)) / (R * R);
+        if (q < 1) boost[j * NX + i] = Math.min(1.5, boost[j * NX + i] + (1 - q) * amt);
       }
     }
   }
-
-  function spawnRain(count, cx, cy, rad) {
-    var spawned = 0;
-    for (var k = 0; k < count; k++) {
-      var x, y;
-      if (cx !== undefined) {
-        var a = Math.random() * Math.PI * 2;
-        var r = Math.random() * rad;
-        x = cx + Math.cos(a) * r;
-        y = cy + Math.sin(a) * r;
-      } else {
-        x = 2 + Math.random() * (cols - 4);
-        y = 2 + Math.random() * (rows - 4);
-      }
-      if (x >= 2 && x < cols - 2 && y >= 2 && y < rows - 2) {
-        spawnDrop(x, y);
-        spawned++;
-      }
+  function pour(x, y, n, spread) {
+    for (var i = 0; i < n; i++) {
+      if (drops.length > 500) drops.shift();
+      var a = Math.random() * 6.2832, r = Math.random() * spread;
+      drops.push({ x: x + Math.cos(a) * r, y: y + Math.sin(a) * r, t: 0 });
     }
-    totalDrops += spawned;
   }
+  var down = false, last = null;
+  canvas.addEventListener('pointerdown', function (e) {
+    down = true; last = { x: e.clientX, y: e.clientY };
+    wet(last.x, last.y, 0.8);
+    pour(last.x, last.y, 30, 28);
+    SFX.play('ripple');
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    var p = { x: e.clientX, y: e.clientY };
+    if (Math.hypot(p.x - last.x, p.y - last.y) < 8) return;
+    wet(p.x, p.y, 0.3);
+    pour(p.x, p.y, 5, 14);
+    last = p;
+    SFX.play('ripple', 220);
+  });
+  function upP() { down = false; }
+  canvas.addEventListener('pointerup', upP);
+  canvas.addEventListener('pointercancel', upP);
 
-  /* ---- Render ---- */
-  function renderMap() {
-    var d = offImg.data;
-    for (var y = 0; y < rows; y++) {
-      for (var x = 0; x < cols; x++) {
-        var idx = y * cols + x;
-        var h = map[idx];
-        if (h < 0) h = 0;
-        if (h > 1) h = 1;
-        var ci = (h * 255 | 0) * 3;
-        var m = moisture[idx];
-        var pi = idx * 4;
+  var kRain = document.getElementById('k-rain'), kLift = document.getElementById('k-lift');
+  kRain.addEventListener('input', function () { rain = this.value / 100; });
+  kLift.addEventListener('input', function () { lift = this.value / 100; });
+  document.getElementById('k-new').addEventListener('click', function () { drops.length = 0; boost.fill(0); terrain(); SFX.play('click'); });
+  rain = kRain.value / 100;
+  lift = kLift.value / 100;
 
-        var r = pal[ci], g = pal[ci + 1], b = pal[ci + 2];
-        if (m > 0.01) {
-          var f = m > 1 ? 0.8 : m * 0.8;
-          r = r + (0 - r) * f | 0;
-          g = g + (245 - g) * f | 0;
-          b = b + (212 - b) * f | 0;
-        }
-        d[pi] = r;
-        d[pi + 1] = g;
-        d[pi + 2] = b;
-        d[pi + 3] = 255;
-
-        moisture[idx] *= 0.993;
-      }
-    }
-    offCtx.putImageData(offImg, 0, 0);
-  }
-
-  function draw() {
-    renderMap();
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now(), tick = 0;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    T += dt;
+    upT += dt;
+    if (upT > 1.5) { upT = 0; upliftField(); }
+    tick++;
+    if (tick % 3 !== 0) evolve(0.3);
+    var bk = Math.pow(0.6, dt);
+    for (var k = 0; k < N; k++) if (boost[k] > 0) boost[k] = boost[k] > 0.01 ? boost[k] * bk : 0;
+    /* 地形はゆっくりしか変わらないので、陰影と等高線は 3 回に 1 回だけ塗り直す */
+    if (tick % 3 === 0) { measure(false); shadeBuf(); }
     ctx.imageSmoothingEnabled = true;
-    ctx.drawImage(offC, 0, 0, W, H);
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(buf, 0, 0, NX * CS, NY * CS);
+    rivers();
 
-    if (drops.length > 0) {
-      ctx.globalCompositeOperation = 'lighter';
-      ctx.fillStyle = 'rgba(0,245,212,0.35)';
-      for (var i = 0; i < drops.length; i++) {
-        var d = drops[i];
-        ctx.fillRect(d.x * CELL - 1, d.y * CELL - 1, 2, 2);
-      }
-      ctx.globalCompositeOperation = 'source-over';
+    /* 降らせた雨粒は、流れ先をたどって谷を下る */
+    ctx.fillStyle = P.rgba(P.accent, 0.9);
+    ctx.beginPath();
+    for (var i = drops.length - 1; i >= 0; i--) {
+      var d = drops[i];
+      d.t += dt;
+      var ci = Math.round(d.x / CS), cj = Math.round(d.y / CS);
+      if (ci < 0 || cj < 0 || ci >= NX || cj >= NY || d.t > 9) { drops.splice(i, 1); continue; }
+      var r = rec[cj * NX + ci];
+      /* 海に出た粒は消える */
+      if (r < 0 || (h[cj * NX + ci] < hi * 0.03 && d.t > 0.4)) { drops.splice(i, 1); continue; }
+      var tx = (r % NX) * CS, ty = ((r / NX) | 0) * CS, dx = tx - d.x, dy = ty - d.y, dl = Math.sqrt(dx * dx + dy * dy) + 1e-6;
+      var sp = 70 * dt;
+      d.x += dx / dl * Math.min(sp, dl) + (Math.random() - 0.5) * 0.6;
+      d.y += dy / dl * Math.min(sp, dl) + (Math.random() - 0.5) * 0.6;
+      var rr = 1.6 * Math.min(1, (9 - d.t) / 2);
+      ctx.moveTo(d.x + rr, d.y);
+      ctx.arc(d.x, d.y, rr, 0, 6.2832);
     }
-
-    hudDrops.textContent = drops.length;
-    hudTotal.textContent = fmtNum(totalDrops);
+    ctx.fill();
+    if (Math.random() < dt * 0.3) SFX.play('tick', 4000);
+    requestAnimationFrame(frame);
   }
-
-  function fmtNum(n) {
-    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
-    if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
-    return '' + n;
-  }
-
-  /* ---- Update ---- */
-  function update() {
-    if (autoRain) spawnRain(rainRate);
-    if (mDown && !mRight) spawnRain(25, mX / CELL, mY / CELL, 12);
-    if (mDown && mRight) {
-      var cx = mX / CELL | 0, cy = mY / CELL | 0;
-      var r = 10;
-      for (var dy = -r; dy <= r; dy++) {
-        for (var dx = -r; dx <= r; dx++) {
-          var ix = cx + dx, iy = cy + dy;
-          if (ix < 0 || ix >= cols || iy < 0 || iy >= rows) continue;
-          var dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < r) {
-            map[iy * cols + ix] += 0.005 * (1 - dist / r);
-          }
-        }
-      }
-    }
-    stepDrops();
-  }
-
-  /* ---- Loop ---- */
-  function loop() {
-    update();
-    draw();
-    requestAnimationFrame(loop);
-  }
-
-  /* ---- Events ---- */
-  C.addEventListener('mousedown', function(e) {
-    if (e.button === 2) { mRight = true; }
-    mDown = true;
-    mX = e.clientX; mY = e.clientY;
-    if (!mRight) {
-      spawnRain(100, mX / CELL, mY / CELL, 18);
-      if (typeof SFX !== 'undefined') SFX.play('ripple');
-    }
-  });
-
-  C.addEventListener('mousemove', function(e) {
-    mX = e.clientX; mY = e.clientY;
-  });
-
-  window.addEventListener('mouseup', function() {
-    mDown = false; mRight = false;
-  });
-
-  C.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-
-  C.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    mDown = true;
-    var t = e.touches[0];
-    mX = t.clientX; mY = t.clientY;
-    spawnRain(100, mX / CELL, mY / CELL, 18);
-    if (typeof SFX !== 'undefined') SFX.play('ripple');
-  }, {passive: false});
-
-  C.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    var t = e.touches[0];
-    mX = t.clientX; mY = t.clientY;
-  }, {passive: false});
-
-  C.addEventListener('touchend', function() { mDown = false; });
-
-  /* ---- Controls ---- */
-  rngRain.addEventListener('input', function() {
-    rainRate = +this.value;
-    valRain.textContent = rainRate;
-  });
-
-  rngEro.addEventListener('input', function() {
-    erosionStr = +this.value / 100;
-    valEro.textContent = erosionStr.toFixed(2);
-  });
-
-  btnAuto.addEventListener('click', function() {
-    autoRain = !autoRain;
-    this.classList.toggle('active', autoRain);
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
-  });
-
-  btnReset.addEventListener('click', function() {
-    initMap();
-    if (typeof SFX !== 'undefined') SFX.play('click');
-  });
-
-  /* ---- Init ---- */
-  function resize() {
-    W = C.width = innerWidth;
-    H = C.height = innerHeight;
-    cols = Math.ceil(W / CELL);
-    rows = Math.ceil(H / CELL);
-    offC = document.createElement('canvas');
-    offC.width = cols;
-    offC.height = rows;
-    offCtx = offC.getContext('2d');
-    offImg = offCtx.createImageData(cols, rows);
-    initMap();
-  }
-
-  window.addEventListener('resize', resize);
-  buildPalette();
-  resize();
-  requestAnimationFrame(loop);
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

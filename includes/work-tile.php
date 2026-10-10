@@ -2,7 +2,7 @@
 /**
  * 作品タイル。トップの各コレクションとアーカイブで同じものを使う。
  *
- * お気に入り・達成の表示とプレビュー動画の再生は js/pulse-kit.js（PULSE.tiles）が受け持つ。
+ * お気に入りの表示とプレビュー動画の再生は js/pulse-kit.js（PULSE.tiles）が受け持つ。
  * お気に入りボタンはリンクの外に置く（<a> の中に <button> は入れられない）。
  *
  * $opts:
@@ -21,11 +21,10 @@ if (!function_exists('pulseWorkTile')) {
         $mp4  = pulsePreview($p, 'mp4');
         $big  = !empty($opts['big']);
         $col  = $PULSE_COLLECTIONS[$c['group']]['name'] ?? '';
-        $cls  = 'work' . ($big ? ' work--big' : '') . (!empty($c['challenge']) ? ' has-challenge' : '');
+        $cls  = 'work' . ($big ? ' work--big' : '');
 
         $attrs = ' data-page="' . $h($p) . '" data-group="' . $h($c['group'] ?? '') . '"';
         if (isset($opts['search'])) $attrs .= ' data-search="' . $h($opts['search']) . '"';
-        if (!empty($c['challenge'])) $attrs .= ' data-challenge="1"';
 
         $media = $jpg
             ? '<video muted loop playsinline preload="none" poster="' . $h($jpg) . '"'
@@ -36,8 +35,6 @@ if (!function_exists('pulseWorkTile')) {
 
         $marks = '';
         if (!empty($c['isNew']))     $marks .= '<span class="wk-mark wk-mark--new">NEW</span>';
-        if (!empty($c['challenge'])) $marks .= '<span class="wk-mark wk-mark--challenge" title="' . $h($c['challenge']) . '">挑戦</span>'
-                                              . '<span class="wk-mark wk-mark--cleared">達成</span>';
 
         $out  = '<article class="' . $cls . '"' . $attrs . '>';
         $out .= '<a class="work-media" href="' . $h($p) . '.php" tabindex="-1" aria-hidden="true">' . $media . '</a>';
@@ -49,7 +46,6 @@ if (!function_exists('pulseWorkTile')) {
         $out .= '</a>';
         if ($big) {
             $out .= '<p class="work-desc">' . $h($c['desc'] ?? '') . '</p>';
-            if (!empty($c['challenge'])) $out .= '<p class="work-goal">' . $h($c['challenge']) . '</p>';
         } elseif ($opts['sub'] ?? true) {
             $out .= '<p class="work-sub">' . $h($col) . '</p>';
         }

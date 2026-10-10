@@ -49,14 +49,14 @@ $_shareCanonicalEsc = htmlspecialchars($pageCanonical, ENT_QUOTES, 'UTF-8');
   line-height: 1;
 }
 .share-btn:hover {
-  background: rgba(0,245,212,0.15);
-  border-color: #00f5d4;
-  color: #00f5d4;
+  background: rgba(95, 208, 255,0.15);
+  border-color: #5fd0ff;
+  color: #5fd0ff;
 }
 .share-btn.copied {
-  background: rgba(0,245,212,0.25);
-  border-color: #00f5d4;
-  color: #00f5d4;
+  background: rgba(95, 208, 255,0.25);
+  border-color: #5fd0ff;
+  color: #5fd0ff;
 }
 @media (max-width: 768px) {
   .share-buttons {

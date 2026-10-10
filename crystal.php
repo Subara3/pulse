@@ -5,356 +5,281 @@ recordPageView('crystal');
 
 $pageName = 'crystal';
 $pageTitle = 'CRYSTAL - PULSE';
-$pageDesc = '六角格子上の結晶成長シミュレーション。拡散と凝結で六対称の結晶が育つ。';
+$pageDesc = '画面の中央で雪の結晶が六つの方向へ育ち、育ちきると消えて次の結晶が育ちはじめる。指でなぞるとそちら側の枝がよく伸び、押して離すとそこに新しい結晶ができる。';
 $pageCanonical = 'https://pulse.subara3.com/crystal.php';
-
-$extraStyle = '
-body{background:#0a0a0f;min-height:100vh;overflow:hidden}
-#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
-.hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Space Grotesk","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,0.34);font-size:0.64rem;text-align:right;letter-spacing:0.05em;line-height:1.8}
-.hud .v{color:#00f5d4;font-weight:700}
-#info{position:fixed;bottom:1.5rem;left:1.5rem;color:rgba(255,255,255,0.22);font-family:"JetBrains Mono",monospace;font-size:0.6rem;line-height:1.7;letter-spacing:0.03em;pointer-events:none;z-index:50}
-#info .v{color:rgba(0,245,212,0.5)}
-@media(max-width:768px){.hud{top:3rem;right:0.6rem;font-size:0.54rem}#info{bottom:1rem;left:1rem;font-size:0.5rem}}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
-
 <canvas id="canvas"></canvas>
 
-<div class="hud">
-  CELLS: <span id="hudCells" class="v">1</span><br>
-  STEP: <span id="hudStep" class="v">0</span><br>
-  MORPH: <span id="hudMorph" class="v">DENDRITE</span>
-</div>
-
-<div id="info">
-  hex crystal growth &middot; Reiter model<br>
-  &alpha; = <span class="v" id="infoA">0.50</span> &middot;
-  &beta; = <span class="v" id="infoB">1.20</span> &middot;
-  &gamma; = <span class="v" id="infoG">0.40</span>
-</div>
-
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'seed'],
-  ['type' => 'right', 'label' => 'reset'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
-
 <div id="controls" class="drawer-controls">
-  <div class="slider-wrap">
-    <label class="slider-label">PRESET</label>
-    <div class="preset-group" id="presets">
-      <button class="preset-btn active" data-p="0">DENDRITE</button>
-      <button class="preset-btn" data-p="1">PLATE</button>
-      <button class="preset-btn" data-p="2">FERN</button>
-      <button class="preset-btn" data-p="3">NEEDLE</button>
-      <button class="preset-btn" data-p="4">STAR</button>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <label class="slider-label">DIFFUSION (&alpha;)</label>
-    <div class="slider-row">
-      <input type="range" id="sldA" min="5" max="95" value="50">
-      <span class="slider-value" id="valA">0.50</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <label class="slider-label">THRESHOLD (&beta;)</label>
-    <div class="slider-row">
-      <input type="range" id="sldB" min="20" max="300" value="120">
-      <span class="slider-value" id="valB">1.20</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <label class="slider-label">VAPOR (&gamma;)</label>
-    <div class="slider-row">
-      <input type="range" id="sldG" min="10" max="90" value="40">
-      <span class="slider-value" id="valG">0.40</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <label class="slider-label">SPEED</label>
-    <div class="slider-row">
-      <input type="range" id="sldSpd" min="1" max="50" value="10">
-      <span class="slider-value" id="valSpd">10</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <div class="btn-row">
-      <button class="control-btn" id="btnReset">RESET</button>
-    </div>
-  </div>
+  <div class="ctl-row"><label for="k-pace">PACE</label><input type="range" id="k-pace" min="0" max="100" value="45"></div>
+  <div class="ctl-btns"><button type="button" class="active" data-form="cycle">CYCLE</button><button type="button" data-form="fern">FERN</button><button type="button" data-form="plate">PLATE</button></div>
+  <div class="ctl-btns"><button type="button" id="k-new">NEW</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function() {
+(function () {
   'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0;
 
-  var C = document.getElementById('canvas');
-  var ctx = C.getContext('2d');
-  var W, H, cellSz, cenX, cenY;
-  var SQ3 = Math.sqrt(3);
+  /* 雪の結晶の模型（六角格子のマスに水蒸気がたまり、1 を超えると凍る） */
+  var PRESETS = {
+    fern:  [{ a: 1, b: 0.40, g: 0.001 }, { a: 1, b: 0.35, g: 0.0015 }],
+    plate: [{ a: 1, b: 0.50, g: 0.02 }, { a: 1, b: 0.62, g: 0.012 }]
+  };
+  var CYCLE = [PRESETS.fern[0], PRESETS.plate[0], PRESETS.fern[1], PRESETS.plate[1]];
+  var form = 'cycle', cycleN = 0, prm = CYCLE[0];
 
-  var N = Math.min(80, Math.max(25,
-    Math.floor(Math.min(
-      window.innerWidth * 0.82 / (SQ3 * 2 * 3.5),
-      window.innerHeight * 0.82 / (3 * 3.5)
-    ))
-  ));
-  var S = 2 * N + 1, TOT = S * S;
-  var DIRS = [[1,0],[-1,0],[0,1],[0,-1],[1,-1],[-1,1]];
+  var NX, NY, cw, rh, N, s, s2, u, fr, fa, rec, wet, img, buf, bctx;
+  var bx0, bx1, by0, by1;           /* 凍ったマスの外接枠 */
+  var cx, cy, maxr = 0, rmax = 1, tGrow = 0, hold = 0, fade = 0, pace = 0.45;
+  var nSteps = 0;
 
-  var frz, d0, d1, bm;
-  var step, fcnt, done;
+  function alloc() {
+    cw = Math.max(3, Math.min(W, H) / 190);
+    rh = cw * Math.sqrt(3) / 2;
+    NX = Math.ceil(W / cw) + 2;
+    NY = Math.ceil(H / rh) + 2;
+    N = NX * NY;
+    s = new Float32Array(N); s2 = new Float32Array(N); u = new Float32Array(N);
+    fr = new Uint8Array(N); fa = new Float32Array(N); rec = new Uint8Array(N); wet = new Float32Array(N);
+    img = new ImageData(NX * 2, NY);
+    buf = document.createElement('canvas');
+    buf.width = NX * 2; buf.height = NY;
+    bctx = buf.getContext('2d');
+    start(true);
+  }
 
-  var al = 0.50, bt = 1.20, gm = 0.40, spd = 10;
-  var presets = [
-    {a:0.50, b:1.20, g:0.40, n:'DENDRITE'},
-    {a:0.85, b:0.45, g:0.65, n:'PLATE'},
-    {a:0.35, b:1.80, g:0.38, n:'FERN'},
-    {a:0.20, b:2.40, g:0.32, n:'NEEDLE'},
-    {a:0.60, b:0.80, g:0.50, n:'STAR'}
-  ];
+  function pickPreset() {
+    if (form === 'cycle') { prm = CYCLE[cycleN % CYCLE.length]; cycleN++; }
+    else { var l = PRESETS[form]; prm = l[(Math.random() * l.length) | 0]; }
+  }
 
-  var glowC = [], coreC = [];
-  function buildLUT() {
-    glowC.length = 0; coreC.length = 0;
-    for (var i = 0; i <= N; i++) {
-      var t = Math.min(i / (N * 0.85), 1);
-      var r = Math.round(123 * t);
-      var g = Math.round(245 - 201 * t);
-      var b = Math.round(212 - 21 * t);
-      glowC.push('rgba(' + r + ',' + g + ',' + b + ',0.12)');
-      coreC.push('rgb(' + r + ',' + g + ',' + b + ')');
+  function start(pre) {
+    pickPreset();
+    s.fill(prm.b); s2.fill(prm.b); u.fill(prm.b);
+    fr.fill(0); fa.fill(0); rec.fill(0); wet.fill(0);
+    cx = (NX / 2) | 0; cy = (NY / 2) | 0;
+    bx0 = bx1 = cx; by0 = by1 = cy;
+    maxr = 0; tGrow = 0; hold = 0; fade = 0; nSteps = 0;
+    rmax = Math.min(NX * 0.5, NY * rh / cw * 0.5) * 0.86;
+    seed(cx, cy);
+    if (pre) {
+      /* 開いた瞬間から形が見えるように、少し育てておく */
+      tGrow = 7;
+      var t0 = performance.now();
+      while (maxr < target() && performance.now() - t0 < 220) step();
     }
   }
 
-  function ix(q, r) { return (q + N) + (r + N) * S; }
-  function ok(q, r) { return Math.abs(q) <= N && Math.abs(r) <= N && Math.abs(q + r) <= N; }
-
-  function init() {
-    frz = new Uint8Array(TOT);
-    d0 = new Float32Array(TOT);
-    d1 = new Float32Array(TOT);
-    bm = new Float32Array(TOT);
-    step = 0; fcnt = 0; done = false;
-
-    for (var r = -N; r <= N; r++)
-      for (var q = -N; q <= N; q++)
-        if (ok(q, r)) d0[ix(q, r)] = gm;
-
-    doFreeze(0, 0);
-    for (var i = 0; i < 600 && fcnt < 80; i++) simStep();
+  function seed(i, j) {
+    if (i < 2 || j < 2 || i >= NX - 2 || j >= NY - 2) return;
+    var k = j * NX + i;
+    if (fr[k]) return;
+    s[k] = 1; fr[k] = 1; fa[k] = maxr;
+    if (i < bx0) bx0 = i; if (i > bx1) bx1 = i;
+    if (j < by0) by0 = j; if (j > by1) by1 = j;
   }
 
-  function doFreeze(q, r) {
-    if (!ok(q, r)) return;
-    var i = ix(q, r);
-    if (frz[i]) return;
-    frz[i] = 1; d0[i] = 0; d1[i] = 0; bm[i] = 0; fcnt++;
-  }
+  function target() { return rmax * Math.pow(Math.min(1, tGrow / (70 - pace * 45)), 0.85); }
 
-  function addSeed(q, r) {
-    var pts = [[q,r],[-r,q+r],[-(q+r),q],[-q,-r],[r,-(q+r)],[q+r,-q]];
-    for (var i = 0; i < 6; i++) doFreeze(pts[i][0], pts[i][1]);
-  }
-
-  function simStep() {
-    if (done) return;
-
-    for (var r = -N; r <= N; r++) {
-      for (var q = -N; q <= N; q++) {
-        if (!ok(q, r)) continue;
-        var i = ix(q, r);
-        if (frz[i]) { d1[i] = 0; continue; }
-        var sum = 0;
-        for (var k = 0; k < 6; k++) {
-          var nq = q + DIRS[k][0], nr = r + DIRS[k][1];
-          if (ok(nq, nr) && !frz[ix(nq, nr)]) sum += d0[ix(nq, nr)];
-        }
-        d1[i] = d0[i] + al * (sum / 6 - d0[i]);
+  function step() {
+    var M = 34, a12 = prm.a / 12, gam = prm.g;
+    nSteps++;
+    var I0 = Math.max(1, bx0 - M), I1 = Math.min(NX - 2, bx1 + M);
+    var J0 = Math.max(1, by0 - M), J1 = Math.min(NY - 2, by1 + M);
+    var i, j, k, o;
+    for (j = J0; j <= J1; j++) {
+      o = j & 1;
+      for (i = I0; i <= I1; i++) {
+        k = j * NX + i;
+        var r = fr[k] | fr[k - 1] | fr[k + 1] | fr[k - NX + o - 1] | fr[k - NX + o] | fr[k + NX + o - 1] | fr[k + NX + o];
+        rec[k] = r; u[k] = r ? 0 : s[k];
       }
     }
-
-    var triggered = false;
-    for (var r = -N; r <= N; r++) {
-      for (var q = -N; q <= N; q++) {
-        if (!ok(q, r)) continue;
-        var i = ix(q, r);
-        if (frz[i]) continue;
-        var adj = false;
-        for (var k = 0; k < 6; k++) {
-          var nq = q + DIRS[k][0], nr = r + DIRS[k][1];
-          if (ok(nq, nr) && frz[ix(nq, nr)]) { adj = true; break; }
+    for (j = J0; j <= J1; j++) {
+      o = j & 1;
+      for (i = I0; i <= I1; i++) {
+        k = j * NX + i;
+        var sum = u[k - 1] + u[k + 1] + u[k - NX + o - 1] + u[k - NX + o] + u[k + NX + o - 1] + u[k + NX + o];
+        var v = u[k] + a12 * (sum - 6 * u[k]);
+        if (rec[k]) v += s[k] + gam;
+        s2[k] = v;
+      }
+    }
+    for (j = J0; j <= J1; j++) {
+      for (i = I0; i <= I1; i++) {
+        k = j * NX + i;
+        s[k] = s2[k];
+        if (!fr[k] && s[k] >= 1) {
+          fr[k] = 1; fa[k] = maxr;
+          if (i < bx0) bx0 = i; if (i > bx1) bx1 = i;
+          if (j < by0) by0 = j; if (j > by1) by1 = j;
+          var dx = i - cx + ((j & 1) - (cy & 1)) * 0.5, dy = (j - cy) * 0.866;
+          var rr = Math.sqrt(dx * dx + dy * dy);
+          if (rr > maxr && rr < rmax * 1.2) maxr = rr;
         }
-        if (adj) {
-          bm[i] += d1[i];
-          d1[i] = 0;
-          if (bm[i] >= bt) {
-            doFreeze(q, r);
-            var dist = Math.max(Math.abs(q), Math.abs(r), Math.abs(q + r));
-            if (dist >= N - 2 && !triggered) {
-              triggered = true;
-              done = true;
-              if (typeof SFX !== 'undefined') SFX.play('complete');
-            }
+      }
+    }
+  }
+
+  /* 塗り: 凍ったマスは薄い鋼色、育った跡（凍った時刻の等高線）は白い細線、縁はいちばん明るく */
+  var BG = P.bg, DEEP = P.deep, LN = P.line, ST = P.steel, AC = P.accent;
+  var FAR = P.mix(BG, ST, 0.07), ICE = P.mix(BG, ST, 0.3), RING = P.mix(ST, LN, 0.55);
+  function shade() {
+    var d = img.data, b = prm.b, vis = 1 - fade;
+    var i, j, k, o, r, g, bl;
+    for (j = 0; j < NY; j++) {
+      o = j & 1;
+      var edgeRow = j === 0 || j === NY - 1;
+      for (i = 0; i < NX; i++) {
+        k = j * NX + i;
+        if (fr[k] && !edgeRow && i > 0 && i < NX - 1) {
+          var n1 = k - 1, n2 = k + 1, n3 = k - NX + o - 1, n4 = k - NX + o, n5 = k + NX + o - 1, n6 = k + NX + o;
+          var edge = !(fr[n1] & fr[n2] & fr[n3] & fr[n4] & fr[n5] & fr[n6]);
+          var c;
+          if (edge) c = LN;
+          else {
+            /* 早く凍ったところほど氷が厚く、明るい */
+            var age = (s[k] - 1) / prm.g / (nSteps + 1);
+            if (age > 1) age = 1; else if (age < 0) age = 0;
+            age = Math.sqrt(age) * 0.85;
+            c = [ICE[0] + (RING[0] - ICE[0]) * age, ICE[1] + (RING[1] - ICE[1]) * age, ICE[2] + (RING[2] - ICE[2]) * age];
+          }
+          r = BG[0] + (c[0] - BG[0]) * vis; g = BG[1] + (c[1] - BG[1]) * vis; bl = BG[2] + (c[2] - BG[2]) * vis;
+        } else {
+          /* 水蒸気: 結晶のまわりは吸い取られて暗くなる。凍りかけのマスはほのかに光る */
+          var sv = s[k], dep = 1 - sv / b;
+          if (dep < 0) dep = 0; else if (dep > 1) dep = 1;
+          dep *= vis;
+          r = FAR[0] + (DEEP[0] - FAR[0]) * dep; g = FAR[1] + (DEEP[1] - FAR[1]) * dep; bl = FAR[2] + (DEEP[2] - FAR[2]) * dep;
+          if (rec[k] && sv > 0.5) {
+            var f = (sv - 0.5) * 2; f = f * f * 0.6 * vis;
+            r += (LN[0] - r) * f; g += (LN[1] - g) * f; bl += (LN[2] - bl) * f;
+          }
+          var w = wet[k];
+          if (w > 0.004) {
+            var wa = Math.min(1, w) * 0.5;
+            r += (AC[0] - r) * wa; g += (AC[1] - g) * wa; bl += (AC[2] - bl) * wa;
           }
         }
+        var p = (j * NX * 2 + i * 2 + o) * 4;
+        d[p] = r; d[p + 1] = g; d[p + 2] = bl; d[p + 3] = 255;
+        if (i < NX - 1 || !o) { d[p + 4] = r; d[p + 5] = g; d[p + 6] = bl; d[p + 7] = 255; }
+      }
+      if (o) { var p0 = j * NX * 2 * 4; d[p0] = d[p0 + 4]; d[p0 + 1] = d[p0 + 5]; d[p0 + 2] = d[p0 + 6]; d[p0 + 3] = 255; }
+    }
+    bctx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(buf, -cw * 0.5, -rh * 0.5, NX * cw, NY * rh);
+    P.grid(ctx, W, H, { step: 40, major: 4, alpha: 0.45 });
+  }
+
+  var ctx = P.fit(canvas, function (w, h) { W = w; H = h; alloc(); });
+
+  /* ---------------------------------------------------------- 操作 */
+  function cellAt(x, y) {
+    var j = Math.round(y / rh), i = Math.round(x / cw - 0.5 * (j & 1));
+    return [i, j];
+  }
+  /* なぞったところに水蒸気を足す。そちら側の枝が太り、伸びが早くなる */
+  function moisten(x, y, amt) {
+    var c = cellAt(x, y), R = 7;
+    for (var j = Math.max(1, c[1] - R); j <= Math.min(NY - 2, c[1] + R); j++) {
+      for (var i = Math.max(1, c[0] - R); i <= Math.min(NX - 2, c[0] + R); i++) {
+        var dx = i - c[0] + ((j & 1) - (c[1] & 1)) * 0.5, dy = (j - c[1]) * 0.866;
+        var q = (dx * dx + dy * dy) / (R * R);
+        if (q >= 1) continue;
+        var k = j * NX + i, f = (1 - q) * (1 - q);
+        wet[k] = Math.min(1.4, wet[k] + f * amt * 2.2);
+        if (!fr[k]) s[k] = Math.min(0.97, s[k] + f * amt * prm.b * 0.9);
       }
     }
-
-    for (var r = -N; r <= N; r++) {
-      for (var q = -N; q <= N; q++) {
-        if (!ok(q, r)) continue;
-        var dist = Math.max(Math.abs(q), Math.abs(r), Math.abs(q + r));
-        if (dist >= N - 1 && !frz[ix(q, r)]) d1[ix(q, r)] = gm;
-      }
+    if (c[0] - R < bx0 - 20 || c[0] + R > bx1 + 20 || c[1] - R < by0 - 20 || c[1] + R > by1 + 20) {
+      /* 外接枠の外でも水蒸気が動けるように、計算範囲を少し広げる */
+      bx0 = Math.max(2, Math.min(bx0, c[0] - R + 14)); bx1 = Math.min(NX - 3, Math.max(bx1, c[0] + R - 14));
+      by0 = Math.max(2, Math.min(by0, c[1] - R + 14)); by1 = Math.min(NY - 3, Math.max(by1, c[1] + R - 14));
     }
-
-    var tmp = d0; d0 = d1; d1 = tmp;
-    step++;
   }
-
-  function resize() {
-    W = C.width = window.innerWidth;
-    H = C.height = window.innerHeight;
-    var gw = SQ3 * N * 2, gh = 1.5 * N * 2;
-    cellSz = Math.min((W * 0.82) / gw, (H * 0.82) / gh);
-    cenX = W / 2; cenY = H / 2;
-  }
-
-  function render() {
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, W, H);
-    var cs = cellSz, s = cs * 0.55;
-
-    for (var r = -N; r <= N; r++) {
-      for (var q = -N; q <= N; q++) {
-        if (!ok(q, r)) continue;
-        var i = ix(q, r);
-        var px = cenX + cs * (SQ3 * q + SQ3 * 0.5 * r);
-        var py = cenY + cs * 1.5 * r;
-
-        if (frz[i]) {
-          var dist = Math.max(Math.abs(q), Math.abs(r), Math.abs(q + r));
-          var di = Math.min(dist, N);
-          ctx.fillStyle = glowC[di];
-          ctx.fillRect(px - s * 1.5, py - s * 1.5, s * 3, s * 3);
-          ctx.fillStyle = coreC[di];
-          ctx.fillRect(px - s, py - s, s * 2, s * 2);
-        } else if (bm[i] > 0.02) {
-          var a = Math.min(bm[i] / bt * 0.3, 0.25);
-          ctx.fillStyle = 'rgba(0,245,212,' + a.toFixed(3) + ')';
-          ctx.fillRect(px - s * 0.8, py - s * 0.8, s * 1.6, s * 1.6);
-        }
-      }
+  var down = false, last = null, moved = 0;
+  canvas.addEventListener('pointerdown', function (e) {
+    down = true; moved = 0;
+    last = { x: e.clientX, y: e.clientY };
+    moisten(last.x, last.y, 0.5);
+    SFX.play('ripple');
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    var p = { x: e.clientX, y: e.clientY }, dist = Math.hypot(p.x - last.x, p.y - last.y);
+    if (dist < 6) return;
+    moved += dist;
+    var n = Math.ceil(dist / 8);
+    for (var i = 1; i <= n; i++) moisten(last.x + (p.x - last.x) * i / n, last.y + (p.y - last.y) * i / n, 0.22);
+    last = p;
+    SFX.play('move', 160);
+  });
+  function up() {
+    /* ほとんど動かさずに離したら、そこに新しい種を置く */
+    if (down && moved < 8 && last) {
+      var c = cellAt(last.x, last.y);
+      seed(c[0], c[1]);
+      SFX.play('spawn');
     }
-
-    document.getElementById('hudCells').textContent = fcnt;
-    document.getElementById('hudStep').textContent = step;
-    document.getElementById('infoA').textContent = al.toFixed(2);
-    document.getElementById('infoB').textContent = bt.toFixed(2);
-    document.getElementById('infoG').textContent = gm.toFixed(2);
+    down = false;
   }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', function () { down = false; });
 
-  function loop() {
-    for (var i = 0; i < spd; i++) simStep();
-    render();
-    requestAnimationFrame(loop);
-  }
-
-  function pxToHex(mx, my) {
-    var x = (mx - cenX) / cellSz;
-    var y = (my - cenY) / cellSz;
-    var q = SQ3 / 3 * x - y / 3;
-    var r = 2 / 3 * y;
-    var s = -q - r;
-    var rq = Math.round(q), rr = Math.round(r), rs = Math.round(s);
-    var dq = Math.abs(rq - q), dr = Math.abs(rr - r), ds = Math.abs(rs - s);
-    if (dq > dr && dq > ds) rq = -rr - rs;
-    else if (dr > ds) rr = -rq - rs;
-    return [rq, rr];
-  }
-
-  C.addEventListener('mousedown', function(e) {
-    if (e.button === 2) return;
-    var h = pxToHex(e.clientX, e.clientY);
-    if (ok(h[0], h[1])) {
-      addSeed(h[0], h[1]);
-      done = false;
-      if (typeof SFX !== 'undefined') SFX.play('spawn');
-    }
-  });
-  C.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    init();
-    if (typeof SFX !== 'undefined') SFX.play('click');
-  });
-  C.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    var tc = e.touches[0];
-    var h = pxToHex(tc.clientX, tc.clientY);
-    if (ok(h[0], h[1])) {
-      addSeed(h[0], h[1]);
-      done = false;
-      if (typeof SFX !== 'undefined') SFX.play('spawn');
-    }
-  }, {passive: false});
-
-  document.getElementById('sldA').addEventListener('input', function() {
-    al = parseInt(this.value) / 100;
-    document.getElementById('valA').textContent = al.toFixed(2);
-  });
-  document.getElementById('sldB').addEventListener('input', function() {
-    bt = parseInt(this.value) / 100;
-    document.getElementById('valB').textContent = bt.toFixed(2);
-  });
-  document.getElementById('sldG').addEventListener('input', function() {
-    gm = parseInt(this.value) / 100;
-    document.getElementById('valG').textContent = gm.toFixed(2);
-  });
-  document.getElementById('sldSpd').addEventListener('input', function() {
-    spd = parseInt(this.value);
-    document.getElementById('valSpd').textContent = spd;
-  });
-  document.getElementById('btnReset').addEventListener('click', function() {
-    init();
-    if (typeof SFX !== 'undefined') SFX.play('click');
-  });
-
-  var pBtns = document.querySelectorAll('#presets .preset-btn');
-  for (var j = 0; j < pBtns.length; j++) {
-    pBtns[j].addEventListener('click', function() {
-      for (var k = 0; k < pBtns.length; k++) pBtns[k].classList.remove('active');
-      this.classList.add('active');
-      var p = presets[parseInt(this.dataset.p)];
-      al = p.a; bt = p.b; gm = p.g;
-      document.getElementById('sldA').value = Math.round(al * 100);
-      document.getElementById('sldB').value = Math.round(bt * 100);
-      document.getElementById('sldG').value = Math.round(gm * 100);
-      document.getElementById('valA').textContent = al.toFixed(2);
-      document.getElementById('valB').textContent = bt.toFixed(2);
-      document.getElementById('valG').textContent = gm.toFixed(2);
-      document.getElementById('hudMorph').textContent = p.n;
-      init();
-      if (typeof SFX !== 'undefined') SFX.play('click');
+  var kPace = document.getElementById('k-pace');
+  kPace.addEventListener('input', function () { pace = this.value / 100; });
+  document.querySelectorAll('[data-form]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-form]').forEach(function (o) { o.classList.toggle('active', o === b); });
+      form = b.dataset.form;
+      fade = 0.0001; hold = 99;
+      SFX.play('toggle');
     });
-  }
+  });
+  document.getElementById('k-new').addEventListener('click', function () {
+    fade = 0.0001; hold = 99;
+    SFX.play('click');
+  });
+  pace = kPace.value / 100;
 
-  buildLUT();
-  window.addEventListener('resize', resize);
-  resize();
-  init();
-  loop();
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now();
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    if (fade > 0) {
+      fade += dt / 4.5;
+      if (fade >= 1) start(false);
+    } else {
+      tGrow += dt;
+      var t0 = performance.now(), want = target();
+      while (maxr < want && performance.now() - t0 < 6) step();
+      /* 枠の外へ伸びきるか、育ちきって少し眺めたら、溶かして次の結晶へ */
+      var full = maxr >= rmax * 0.985 || bx0 < 4 || bx1 > NX - 5 || by0 < 4 || by1 > NY - 5;
+      if (full || tGrow > 140) {
+        hold += dt;
+        if (hold > 9) { fade = 0.0001; SFX.play('pop', 3000); }
+      }
+      if (Math.random() < dt * 0.25) SFX.play('tick', 4000);
+    }
+    for (var k = 0; k < N; k++) if (wet[k] > 0) wet[k] = wet[k] > 0.004 ? wet[k] * (1 - dt * 0.45) : 0;
+    shade();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
-
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

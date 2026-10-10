@@ -5,351 +5,308 @@ recordPageView('fluidveil');
 
 $pageName = 'fluidveil';
 $pageTitle = 'FLUID VEIL - PULSE';
-$pageDesc = json_decode('"流体シミュレーション。指先で流れを作り、光るインクの渦を眺める。"');
+$pageDesc = '流れに乗った白い細い線が画面を動き、あちこちで渦を巻いてはほどけていく。指でなぞるとその向きに流れが起き、触れた線はしばらく水色に光りながら運ばれる。';
 $pageCanonical = 'https://pulse.subara3.com/fluidveil.php';
-$extraStyle = '
-#canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; touch-action: none; }
-.hud, .controls, .info { position: fixed; z-index: 10; background: rgba(10,10,15,0.55); border: 1px solid rgba(0,245,212,0.25); backdrop-filter: blur(8px); border-radius: 12px; color: #d9fff9; }
-.hud { top: 16px; right: 16px; padding: 10px 12px; min-width: 150px; }
-.controls { right: 16px; bottom: 16px; padding: 12px; width: min(280px, calc(100vw - 32px)); }
-.info { left: 16px; bottom: 16px; padding: 10px 12px; max-width: min(360px, calc(100vw - 32px)); }
-.hud .v { color: #00f5d4; font-weight: 700; }
-.controls label { display: block; font-size: 12px; margin: 8px 0 2px; color: #bde7ff; }
-.controls input[type=range] { width: 100%; }
-.controls button { margin-top: 10px; width: 100%; background: rgba(0,245,212,0.12); color: #d8fff6; border: 1px solid rgba(0,245,212,0.35); border-radius: 10px; padding: 8px 10px; }
-.controls button:active { background: rgba(0,245,212,0.24); }
-.info p { margin: 0; font-size: 12px; line-height: 1.5; color: #c8d7f7; }
-@media (max-width: 768px) {
-  .hud { top: 12px; right: 12px; }
-  .controls { right: 12px; bottom: 12px; }
-  .info { left: 12px; bottom: 148px; }
-}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
-<div class="hud" id="hud">
-  <div>speed <span class="v" id="speedVal">0.00</span></div>
-  <div>energy <span class="v" id="energyVal">0.00</span></div>
-  <div>swirls <span class="v" id="swirlVal">0</span></div>
-</div>
-<?php
-$interactionHints = [
-  ['type' => 'drag', 'label' => 'vortex'],
-  ['type' => 'click', 'label' => 'inject'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
-<div id="controls" class="controls drawer-controls">
-  <label for="force">drag force</label>
-  <input id="force" type="range" min="0.3" max="3.0" value="1.4" step="0.1">
-  <label for="diff">ink diffusion</label>
-  <input id="diff" type="range" min="0.00005" max="0.0012" value="0.00035" step="0.00005">
-  <label for="visc">viscosity</label>
-  <input id="visc" type="range" min="0.00001" max="0.0008" value="0.00015" step="0.00001">
-  <button id="resetBtn" type="button">reset flow</button>
-</div>
-<div class="info">
-  <p>
-    Particles follow streamlines and leave fading tails.<br>
-    Drag to inject vortices. Leave it still and viscosity slowly calms the flow.
-  </p>
+
+<div id="controls" class="drawer-controls">
+  <div class="ctl-row"><label for="k-flow">FLOW</label><input type="range" id="k-flow" min="0" max="100" value="45"></div>
+  <div class="ctl-row"><label for="k-curl">CURL</label><input type="range" id="k-curl" min="0" max="100" value="50"></div>
+  <div class="ctl-btns"><button type="button" id="k-still">STILL</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function() {
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d', { alpha: false });
-  const speedVal = document.getElementById('speedVal');
-  const energyVal = document.getElementById('energyVal');
-  const swirlVal = document.getElementById('swirlVal');
+(function () {
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0;
 
-  const forceInput = document.getElementById('force');
-  const diffInput = document.getElementById('diff');
-  const viscInput = document.getElementById('visc');
-  const resetBtn = document.getElementById('resetBtn');
+  /* 流れ（速度・圧力）は粗い格子で解く。見せるのは、その流れに乗って運ばれる細い糸 */
+  var NX, NY, u, v, u2, v2, pr, dv, wabs;
+  var NP, px, py, hx, hy, age, life, glow, K = 18, hh = 0;
+  var flowAmt = 0.45, curlAmt = 0.5;
+  /* かき混ぜ役: 見えない櫂が 3 本、ゆっくり画面を歩き回って流れを押す */
+  var paddles = [
+    { ph: 0.0, fx: 0.031, fy: 0.047, dir: 1 },
+    { ph: 2.4, fx: 0.043, fy: 0.029, dir: -1 },
+    { ph: 4.1, fx: 0.023, fy: 0.037, dir: 1 }
+  ];
+  var ctx = P.fit(canvas, function (w, h) { W = w; H = h; alloc(); });
 
-  const simW = 120;
-  const simH = 72;
-  const size = simW * simH;
-
-  let dpr = Math.min(2, window.devicePixelRatio || 1);
-
-  const vx = new Float32Array(size);
-  const vy = new Float32Array(size);
-  const vx0 = new Float32Array(size);
-  const vy0 = new Float32Array(size);
-  const dye = new Float32Array(size);
-  const dye0 = new Float32Array(size);
-
-  const particleCount = 2600;
-  const particles = new Array(particleCount).fill(0).map(() => ({
-    x: Math.random() * simW,
-    y: Math.random() * simH,
-    life: Math.random()
-  }));
-
-  const pointers = new Map();
-
-  function idx(x, y) {
-    x = Math.max(0, Math.min(simW - 1, x));
-    y = Math.max(0, Math.min(simH - 1, y));
-    return x + y * simW;
+  function alloc() {
+    NX = Math.max(64, Math.min(120, Math.round(W / 11)));
+    NY = Math.max(40, Math.round(NX * H / W));
+    var n = NX * NY;
+    u = new Float32Array(n); v = new Float32Array(n);
+    u2 = new Float32Array(n); v2 = new Float32Array(n);
+    pr = new Float32Array(n); dv = new Float32Array(n);
+    wabs = new Float32Array(n);
+    NP = Math.max(3000, Math.min(11000, Math.round(W * H / 95)));
+    px = new Float32Array(NP); py = new Float32Array(NP);
+    hx = new Float32Array(NP * K); hy = new Float32Array(NP * K);
+    age = new Float32Array(NP); life = new Float32Array(NP);
+    glow = new Float32Array(NP);
+    for (var i = 0; i < NP; i++) { respawn(i); age[i] = Math.random() * life[i]; }
+    /* 開いた瞬間から流れているように、少し先まで回しておく */
+    for (var s = 0; s < 150; s++) simulate(1 / 60, s / 60);
   }
 
-  function setBounds(arr, b) {
-    for (let x = 1; x < simW - 1; x++) {
-      arr[idx(x, 0)] = b === 2 ? -arr[idx(x, 1)] : arr[idx(x, 1)];
-      arr[idx(x, simH - 1)] = b === 2 ? -arr[idx(x, simH - 2)] : arr[idx(x, simH - 2)];
-    }
-    for (let y = 1; y < simH - 1; y++) {
-      arr[idx(0, y)] = b === 1 ? -arr[idx(1, y)] : arr[idx(1, y)];
-      arr[idx(simW - 1, y)] = b === 1 ? -arr[idx(simW - 2, y)] : arr[idx(simW - 2, y)];
-    }
-    arr[idx(0, 0)] = 0.5 * (arr[idx(1, 0)] + arr[idx(0, 1)]);
-    arr[idx(0, simH - 1)] = 0.5 * (arr[idx(1, simH - 1)] + arr[idx(0, simH - 2)]);
-    arr[idx(simW - 1, 0)] = 0.5 * (arr[idx(simW - 2, 0)] + arr[idx(simW - 1, 1)]);
-    arr[idx(simW - 1, simH - 1)] = 0.5 * (arr[idx(simW - 2, simH - 1)] + arr[idx(simW - 1, simH - 2)]);
+  function respawn(i) {
+    px[i] = Math.random() * W;
+    py[i] = Math.random() * H;
+    for (var s = 0; s < K; s++) { hx[i * K + s] = px[i]; hy[i * K + s] = py[i]; }
+    age[i] = 0;
+    life[i] = 4 + Math.random() * 7;
+    glow[i] = 0;
   }
 
-  function linSolve(b, x, x0, a, c) {
-    for (let k = 0; k < 10; k++) {
-      for (let y = 1; y < simH - 1; y++) {
-        for (let xPos = 1; xPos < simW - 1; xPos++) {
-          const i = idx(xPos, y);
-          x[i] = (x0[i] + a * (x[idx(xPos - 1, y)] + x[idx(xPos + 1, y)] + x[idx(xPos, y - 1)] + x[idx(xPos, y + 1)])) / c;
-        }
-      }
-      setBounds(x, b);
-    }
-  }
-
-  function diffuse(b, x, x0, diff, dt) {
-    const a = dt * diff * (simW - 2) * (simH - 2);
-    linSolve(b, x, x0, a, 1 + 4 * a);
-  }
-
-  function advect(b, d, d0, u, v, dt) {
-    const dt0x = dt * (simW - 2);
-    const dt0y = dt * (simH - 2);
-    for (let y = 1; y < simH - 1; y++) {
-      for (let xPos = 1; xPos < simW - 1; xPos++) {
-        const i = idx(xPos, y);
-        let x = xPos - dt0x * u[i];
-        let yv = y - dt0y * v[i];
-
-        if (x < 0.5) x = 0.5;
-        if (x > simW - 1.5) x = simW - 1.5;
-        if (yv < 0.5) yv = 0.5;
-        if (yv > simH - 1.5) yv = simH - 1.5;
-
-        const i0 = Math.floor(x), i1 = i0 + 1;
-        const j0 = Math.floor(yv), j1 = j0 + 1;
-        const s1 = x - i0, s0 = 1 - s1;
-        const t1 = yv - j0, t0 = 1 - t1;
-
-        d[i] = s0 * (t0 * d0[idx(i0, j0)] + t1 * d0[idx(i0, j1)]) +
-               s1 * (t0 * d0[idx(i1, j0)] + t1 * d0[idx(i1, j1)]);
+  /* 格子の (cx, cy) に、なめらかな丸い押しを足す */
+  function push(cx, cy, r, ax, ay) {
+    var r2 = r * r;
+    for (var j = Math.max(1, Math.floor(cy - r)); j < Math.min(NY - 1, Math.ceil(cy + r)); j++) {
+      for (var i = Math.max(1, Math.floor(cx - r)); i < Math.min(NX - 1, Math.ceil(cx + r)); i++) {
+        var dx = i - cx, dy = j - cy, q = (dx * dx + dy * dy) / r2;
+        if (q < 1) { var w = (1 - q) * (1 - q), k = j * NX + i; u[k] += ax * w; v[k] += ay * w; }
       }
     }
-    setBounds(d, b);
   }
-
-  function project(u, v, p, div) {
-    for (let y = 1; y < simH - 1; y++) {
-      for (let xPos = 1; xPos < simW - 1; xPos++) {
-        const i = idx(xPos, y);
-        div[i] = -0.5 * (u[idx(xPos + 1, y)] - u[idx(xPos - 1, y)] + v[idx(xPos, y + 1)] - v[idx(xPos, y - 1)]) / simW;
-        p[i] = 0;
-      }
-    }
-    setBounds(div, 0);
-    setBounds(p, 0);
-    linSolve(0, p, div, 1, 4);
-
-    for (let y = 1; y < simH - 1; y++) {
-      for (let xPos = 1; xPos < simW - 1; xPos++) {
-        const i = idx(xPos, y);
-        u[i] -= 0.5 * (p[idx(xPos + 1, y)] - p[idx(xPos - 1, y)]) * simW;
-        v[i] -= 0.5 * (p[idx(xPos, y + 1)] - p[idx(xPos, y - 1)]) * simH;
-      }
-    }
-    setBounds(u, 1);
-    setBounds(v, 2);
-  }
-
-  function addForce(x, y, dx, dy, power = 1) {
-    const r = 3;
-    for (let oy = -r; oy <= r; oy++) {
-      for (let ox = -r; ox <= r; ox++) {
-        const gx = Math.round(x + ox);
-        const gy = Math.round(y + oy);
-        if (gx < 1 || gx >= simW - 1 || gy < 1 || gy >= simH - 1) continue;
-        const falloff = Math.max(0, 1 - Math.hypot(ox, oy) / (r + 0.5));
-        const i = idx(gx, gy);
-        vx[i] += dx * falloff * power;
-        vy[i] += dy * falloff * power;
-        dye[i] = Math.min(1, dye[i] + 0.08 * falloff * power);
+  /* 渦の形に押す（中心のまわりを回す） */
+  function twist(cx, cy, r, amt) {
+    var r2 = r * r;
+    for (var j = Math.max(1, Math.floor(cy - r)); j < Math.min(NY - 1, Math.ceil(cy + r)); j++) {
+      for (var i = Math.max(1, Math.floor(cx - r)); i < Math.min(NX - 1, Math.ceil(cx + r)); i++) {
+        var dx = i - cx, dy = j - cy, q = (dx * dx + dy * dy) / r2;
+        if (q < 1) { var w = (1 - q) * amt / r, k = j * NX + i; u[k] -= dy * w; v[k] += dx * w; }
       }
     }
   }
 
-  function step(dt) {
-    const diff = parseFloat(diffInput.value);
-    const visc = parseFloat(viscInput.value);
-
-    diffuse(1, vx0, vx, visc, dt);
-    diffuse(2, vy0, vy, visc, dt);
-    project(vx0, vy0, vx, vy);
-
-    advect(1, vx, vx0, vx0, vy0, dt);
-    advect(2, vy, vy0, vx0, vy0, dt);
-    project(vx, vy, vx0, vy0);
-
-    diffuse(0, dye0, dye, diff, dt);
-    advect(0, dye, dye0, vx, vy, dt);
-
-    for (let i = 0; i < size; i++) {
-      dye[i] *= 0.9992;
-    }
+  /* 粗い格子の速度を、好きな位置で拾う */
+  var sU = 0, sV = 0;
+  function vel(x, y) {
+    if (x < 0) x = 0; else if (x > NX - 1.001) x = NX - 1.001;
+    if (y < 0) y = 0; else if (y > NY - 1.001) y = NY - 1.001;
+    var i0 = x | 0, j0 = y | 0, fx = x - i0, fy = y - j0, b = j0 * NX + i0;
+    var w00 = (1 - fx) * (1 - fy), w10 = fx * (1 - fy), w01 = (1 - fx) * fy, w11 = fx * fy;
+    sU = u[b] * w00 + u[b + 1] * w10 + u[b + NX] * w01 + u[b + NX + 1] * w11;
+    sV = v[b] * w00 + v[b + 1] * w10 + v[b + NX] * w01 + v[b + NX + 1] * w11;
   }
 
-  function toSim(x, y) {
-    const rect = canvas.getBoundingClientRect();
-    return {
-      x: ((x - rect.left) / rect.width) * simW,
-      y: ((y - rect.top) / rect.height) * simH
-    };
-  }
-
-  function seed() {
-    for (let i = 0; i < 18; i++) {
-      const a = (Math.PI * 2 * i) / 18;
-      const cx = simW * 0.5 + Math.cos(a) * simW * 0.19;
-      const cy = simH * 0.5 + Math.sin(a) * simH * 0.19;
-      addForce(cx, cy, -Math.sin(a) * 0.22, Math.cos(a) * 0.22, 1.4);
-    }
-    for (let i = 0; i < 120; i++) {
-      const x = Math.random() * simW;
-      const y = Math.random() * simH;
-      dye[idx(Math.floor(x), Math.floor(y))] = Math.random() * 0.35;
-    }
-  }
-
-  function render() {
-    ctx.fillStyle = 'rgba(10,10,15,0.12)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    const sx = canvas.width / simW;
-    const sy = canvas.height / simH;
-
-    let energy = 0;
-    let speedAcc = 0;
-    for (let i = 0; i < particleCount; i++) {
-      const p = particles[i];
-      const xi = Math.max(1, Math.min(simW - 2, p.x | 0));
-      const yi = Math.max(1, Math.min(simH - 2, p.y | 0));
-      const ii = idx(xi, yi);
-      const ux = vx[ii];
-      const uy = vy[ii];
-
-      p.x += ux * 0.7;
-      p.y += uy * 0.7;
-      p.life += 0.003 + dye[ii] * 0.006;
-
-      if (p.x < 1 || p.x > simW - 2 || p.y < 1 || p.y > simH - 2 || p.life > 1) {
-        p.x = Math.random() * simW;
-        p.y = Math.random() * simH;
-        p.life = 0;
+  /* 半ラグランジュ移流: 1 歩前にいた場所の速度を拾ってくる */
+  function advect(dt) {
+    var maxX = NX - 1.501, maxY = NY - 1.501;
+    for (var j = 1; j < NY - 1; j++) {
+      for (var i = 1; i < NX - 1; i++) {
+        var k = j * NX + i;
+        var x = i - dt * u[k], y = j - dt * v[k];
+        if (x < 0.5) x = 0.5; else if (x > maxX) x = maxX;
+        if (y < 0.5) y = 0.5; else if (y > maxY) y = maxY;
+        var i0 = x | 0, j0 = y | 0, fx = x - i0, fy = y - j0, b = j0 * NX + i0;
+        u2[k] = (u[b] * (1 - fx) + u[b + 1] * fx) * (1 - fy) + (u[b + NX] * (1 - fx) + u[b + NX + 1] * fx) * fy;
+        v2[k] = (v[b] * (1 - fx) + v[b + 1] * fx) * (1 - fy) + (v[b + NX] * (1 - fx) + v[b + NX + 1] * fx) * fy;
       }
-
-      const d = dye[ii];
-      const hue = 178 + d * 48;
-      const alpha = 0.22 + d * 0.42;
-      ctx.fillStyle = `hsla(${hue}, 82%, ${58 - d * 18}%, ${alpha})`;
-      ctx.fillRect(p.x * sx, p.y * sy, Math.max(1, sx * 0.55), Math.max(1, sy * 0.55));
-
-      const sp = Math.hypot(ux, uy);
-      speedAcc += sp;
-      energy += sp * sp;
     }
-
-    speedVal.textContent = (speedAcc / particleCount).toFixed(3);
-    energyVal.textContent = (energy / particleCount).toFixed(3);
-    swirlVal.textContent = `${pointers.size}`;
+    var t = u; u = u2; u2 = t; t = v; v = v2; v2 = t;
   }
 
-  function resize() {
-    dpr = Math.min(2, window.devicePixelRatio || 1);
-    canvas.width = Math.floor(window.innerWidth * dpr);
-    canvas.height = Math.floor(window.innerHeight * dpr);
-    canvas.style.width = '100vw';
-    canvas.style.height = '100vh';
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  function edges() {
+    for (var i = 0; i < NX; i++) { u[i] = v[i] = u[(NY - 1) * NX + i] = v[(NY - 1) * NX + i] = 0; }
+    for (var j = 0; j < NY; j++) { u[j * NX] = v[j * NX] = u[j * NX + NX - 1] = v[j * NX + NX - 1] = 0; }
   }
 
-  window.addEventListener('resize', resize, { passive: true });
-
-  function pointerDown(e) {
-    const p = toSim(e.clientX, e.clientY);
-    pointers.set(e.pointerId, { x: p.x, y: p.y });
-    SFX.play('spawn', 80);
+  /* 圧力を解いて、湧き出しと吸い込みを取り除く（前の圧力から解き始める） */
+  function project() {
+    var j, i, k;
+    for (j = 1; j < NY - 1; j++) for (i = 1; i < NX - 1; i++) {
+      k = j * NX + i;
+      dv[k] = -0.5 * (u[k + 1] - u[k - 1] + v[k + NX] - v[k - NX]);
+    }
+    for (var it = 0; it < 24; it++) {
+      for (j = 1; j < NY - 1; j++) for (i = 1; i < NX - 1; i++) {
+        k = j * NX + i;
+        pr[k] = (dv[k] + pr[k - 1] + pr[k + 1] + pr[k - NX] + pr[k + NX]) * 0.25;
+      }
+    }
+    for (j = 1; j < NY - 1; j++) for (i = 1; i < NX - 1; i++) {
+      k = j * NX + i;
+      u[k] -= 0.5 * (pr[k + 1] - pr[k - 1]);
+      v[k] -= 0.5 * (pr[k + NX] - pr[k - NX]);
+    }
+    edges();
   }
 
-  function pointerMove(e) {
-    if (!pointers.has(e.pointerId)) return;
-    const prev = pointers.get(e.pointerId);
-    const p = toSim(e.clientX, e.clientY);
-    const mul = parseFloat(forceInput.value);
-    addForce(p.x, p.y, (p.x - prev.x) * 0.085 * mul, (p.y - prev.y) * 0.085 * mul, 1.25);
-    pointers.set(e.pointerId, { x: p.x, y: p.y });
-    SFX.play('move', 40);
-  }
-
-  function pointerUp(e) {
-    if (pointers.has(e.pointerId)) {
-      pointers.delete(e.pointerId);
-      SFX.play('ripple', 100);
+  /* 渦を少しだけ強める。巻き込みが細かく残る */
+  function confine(dt) {
+    var eps = 1 + curlAmt * 22, j, i, k;
+    for (j = 1; j < NY - 1; j++) for (i = 1; i < NX - 1; i++) {
+      k = j * NX + i;
+      dv[k] = 0.5 * (v[k + 1] - v[k - 1] - u[k + NX] + u[k - NX]);
+      wabs[k] = Math.abs(dv[k]);
+    }
+    for (j = 2; j < NY - 2; j++) for (i = 2; i < NX - 2; i++) {
+      k = j * NX + i;
+      var gx = 0.5 * (wabs[k + 1] - wabs[k - 1]), gy = 0.5 * (wabs[k + NX] - wabs[k - NX]);
+      var len = Math.sqrt(gx * gx + gy * gy) + 1e-5;
+      u[k] += dt * eps * (gy / len) * dv[k];
+      v[k] -= dt * eps * (gx / len) * dv[k];
     }
   }
 
-  canvas.addEventListener('pointerdown', pointerDown);
-  canvas.addEventListener('pointermove', pointerMove);
-  canvas.addEventListener('pointerup', pointerUp);
-  canvas.addEventListener('pointercancel', pointerUp);
-  canvas.addEventListener('pointerleave', pointerUp);
+  function stir(dt, t) {
+    var s = 0.25 + flowAmt * 1.5;
+    for (var n = 0; n < paddles.length; n++) {
+      var pd = paddles[n];
+      var x = NX * (0.5 + 0.36 * Math.sin(t * pd.fx * 2 + pd.ph));
+      var y = NY * (0.5 + 0.34 * Math.sin(t * pd.fy * 2 + pd.ph * 1.7));
+      var ang = t * 0.11 * pd.dir + pd.ph;
+      push(x, y, NY * 0.13, dt * 34 * s * Math.cos(ang), dt * 34 * s * Math.sin(ang));
+      twist(x, y, NY * 0.2, dt * 7 * s * pd.dir * Math.sin(t * 0.07 + pd.ph));
+    }
+  }
 
-  ['force', 'diff', 'visc'].forEach(id => {
-    document.getElementById(id).addEventListener('input', () => SFX.play('tick', 60));
+  function simulate(dt, t) {
+    stir(dt, t);
+    confine(dt);
+    project();
+    advect(dt);
+    var fr = 1 - dt * 0.28;
+    for (var k = 0; k < u.length; k++) { u[k] *= fr; v[k] *= fr; }
+    project();
+    moveThreads(dt);
+  }
+
+  function moveThreads(dt) {
+    var sx = NX / W, sy = NY / H;
+    hh = (hh + 1) % K;
+    for (var i = 0; i < NP; i++) {
+      age[i] += dt;
+      if (age[i] > life[i] || px[i] < 0 || px[i] > W || py[i] < 0 || py[i] > H) { respawn(i); continue; }
+      /* 中点法で 1 歩進める（渦の中で外へ飛ばされにくい） */
+      vel(px[i] * sx, py[i] * sy);
+      var mx = px[i] + sU / sx * dt * 0.5, my = py[i] + sV / sy * dt * 0.5;
+      vel(mx * sx, my * sy);
+      px[i] += sU / sx * dt; py[i] += sV / sy * dt;
+      hx[i * K + hh] = px[i]; hy[i * K + hh] = py[i];
+      if (glow[i] > 0) glow[i] = Math.max(0, glow[i] - dt * 0.4);
+    }
+  }
+
+  /* 糸を描く。1 本ずつ、通ってきた跡を折れ線にする。速いところほど明るく、古い跡ほど薄く */
+  var BUCKETS = 5, TIERS = 3, paths = [], cyanPath = [];
+  function trail(k, from, to) {
+    var base = k * K, idx = (hh - from + K) % K;
+    ctx.moveTo(hx[base + idx], hy[base + idx]);
+    for (var s = from + 1; s <= to; s++) {
+      idx = (hh - s + K) % K;
+      ctx.lineTo(hx[base + idx], hy[base + idx]);
+    }
+  }
+  function draw() {
+    P.fill(ctx, W, H);
+    var b, t, n, k, per = (K - 1) / TIERS;
+    for (b = 0; b < BUCKETS; b++) paths[b] = [];
+    cyanPath.length = 0;
+    var oldest = (hh + 1) % K;
+    for (var i = 0; i < NP; i++) {
+      var dx = hx[i * K + hh] - hx[i * K + oldest], dy = hy[i * K + hh] - hy[i * K + oldest];
+      var sp = Math.sqrt(dx * dx + dy * dy) / (K - 1) * 60;
+      var fade = Math.min(1, age[i] / 0.8, (life[i] - age[i]) / 1.2);
+      var a = Math.min(1, sp / 150) * fade;
+      if (glow[i] > 0.1 && fade > 0.2) { cyanPath.push(i); continue; }
+      /* 淀んだところは描かない。暗い地が残って、流れの帯だけが浮かぶ */
+      if (a < 0.12) continue;
+      paths[Math.min(BUCKETS - 1, ((a - 0.12) / 0.88 * BUCKETS) | 0)].push(i);
+    }
+    ctx.lineWidth = 1;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    for (b = 0; b < BUCKETS; b++) {
+      var list = paths[b];
+      if (!list.length) continue;
+      for (t = 0; t < TIERS; t++) {
+        ctx.strokeStyle = P.rgba(P.line, (0.08 + 0.4 * (b + 0.5) / BUCKETS) * (1 - t / TIERS));
+        ctx.beginPath();
+        for (n = 0; n < list.length; n++) trail(list[n], Math.round(t * per), Math.round((t + 1) * per));
+        ctx.stroke();
+      }
+    }
+    if (cyanPath.length) {
+      for (t = 0; t < TIERS; t++) {
+        ctx.strokeStyle = P.rgba(P.accent, 0.5 * (1 - t / TIERS));
+        ctx.beginPath();
+        for (n = 0; n < cyanPath.length; n++) trail(cyanPath[n], Math.round(t * per), Math.round((t + 1) * per));
+        ctx.stroke();
+      }
+    }
+  }
+
+  /* 触れた糸に印を付ける（しばらくシアンで光って、白に戻る） */
+  function mark(x, y, r) {
+    var r2 = r * r;
+    for (var i = 0; i < NP; i++) {
+      var dx = px[i] - x, dy = py[i] - y;
+      if (dx * dx + dy * dy < r2) glow[i] = 1;
+    }
+  }
+
+  /* ---------------------------------------------------------- 操作 */
+  var down = false, last = null, lastTime = 0;
+  canvas.addEventListener('pointerdown', function (e) {
+    down = true; last = { x: e.clientX, y: e.clientY }; lastTime = performance.now();
+    var cx = last.x / W * NX, cy = last.y / H * NY;
+    twist(cx, cy, NY * 0.12, 40 * (Math.random() < 0.5 ? -1 : 1));
+    mark(last.x, last.y, 46);
+    SFX.play('spawn', 200);
+    canvas.setPointerCapture(e.pointerId);
   });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    var p = { x: e.clientX, y: e.clientY }, now = performance.now();
+    var dx = p.x - last.x, dy = p.y - last.y, dist = Math.hypot(dx, dy);
+    if (dist < 3) return;
+    var dts = Math.max(0.008, (now - lastTime) / 1000);
+    var vx = dx / W * NX / dts, vy = dy / H * NY / dts;
+    var sp = Math.hypot(vx, vy), lim = 40;
+    if (sp > lim) { vx *= lim / sp; vy *= lim / sp; }
+    var n = Math.ceil(dist / 10);
+    for (var i = 1; i <= n; i++) {
+      var x = last.x + dx * i / n, y = last.y + dy * i / n;
+      push(x / W * NX, y / H * NY, 3.2, vx * 0.3 / n, vy * 0.3 / n);
+    }
+    mark(p.x, p.y, 38);
+    last = p; lastTime = now;
+    SFX.play('move', 160);
+  });
+  function up() { down = false; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
 
-  resetBtn.addEventListener('click', () => {
-    vx.fill(0); vy.fill(0); vx0.fill(0); vy0.fill(0); dye.fill(0); dye0.fill(0);
-    seed();
+  document.getElementById('k-flow').addEventListener('input', function () { flowAmt = this.value / 100; });
+  document.getElementById('k-curl').addEventListener('input', function () { curlAmt = this.value / 100; });
+  document.getElementById('k-still').addEventListener('click', function () {
+    u.fill(0); v.fill(0); pr.fill(0);
     SFX.play('click');
   });
+  flowAmt = document.getElementById('k-flow').value / 100;
+  curlAmt = document.getElementById('k-curl').value / 100;
 
-  let last = performance.now();
-  function loop(now) {
-    const dt = Math.min(0.022, (now - last) / 1000);
-    last = now;
-
-    // gentle autonomous circulation
-    const t = now * 0.00016;
-    addForce(simW * (0.5 + Math.cos(t) * 0.2), simH * (0.5 + Math.sin(t * 0.8) * 0.2), Math.sin(t * 2.1) * 0.04, Math.cos(t * 1.7) * 0.04, 0.5);
-
-    step(dt);
-    render();
-    requestAnimationFrame(loop);
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now(), clock = 2.5;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    clock += dt;
+    simulate(Math.min(dt, 1 / 30), clock);
+    draw();
+    requestAnimationFrame(frame);
   }
-
-  resize();
-  seed();
-  requestAnimationFrame(loop);
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

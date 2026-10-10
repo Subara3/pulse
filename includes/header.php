@@ -37,7 +37,7 @@ if (!isset($ogImage)) $ogImage = 'https://pulse.subara3.com/img/ogp.png';
 <meta name="twitter:image" content="<?php echo htmlspecialchars($ogImage); ?>">
 
 <!-- Theme Color -->
-<meta name="theme-color" content="#0a0a0f">
+<meta name="theme-color" content="#0d2238">
 
 <!-- 効果音のスタブ。includes/sfx.php はページ本体スクリプトより後に読まれるため、
      初期化中に SFX.play() が呼ばれると ReferenceError でページごと死ぬ。
@@ -140,7 +140,7 @@ if (isset($pageName) && !in_array($pageName, ['index', 'about', 'contents'])) {
 <style>
 /* Embedded live-preview mode */
 .floating-nav, nav, header, footer, .info, .hud, .interaction-hints, .pulse-toast, .controls, .content-controls, .drawer-controls,
-#controls, .ui, .ad-section, .ad-container, .share-buttons, .feedback-section {
+#controls, .drawer-toggle, .drawer-overlay, .ui, .ad-section, .ad-container, .share-buttons, .feedback-section {
   display: none !important;
 }
 body { overflow: hidden !important; }

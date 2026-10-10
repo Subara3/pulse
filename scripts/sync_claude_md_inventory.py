@@ -19,7 +19,7 @@ END = "<!-- INVENTORY:END -->"
 
 
 def build_section(items):
-    skip = {"about", "contents", "log", "log.php"}
+    skip = {"about", "contents"}
 
     # 12コレクションの並び順（includes/collections.php と揃えること）
     order = [
@@ -83,10 +83,10 @@ def build_section(items):
         out.append("")
 
     out.append(
-        "**カバー判定の使い方**: 新案を「訪問者は〇〇をして、△△が起きるのを見る」の 1 行に書き下し、"
+        "**カバー判定の使い方**: 新案を「画面では〇〇が起きていて、触ると△△になる」の 1 行に書き下し、"
         "該当コレクションの `desc` を全部読んで、同じ 1 行になるものが 1 つでもあれば新ページにしない"
-        "（既存ページのモードとして足す＝改修 Day）。式やアルゴリズムの名前が違っても体験が同じなら被り。"
-        "飽和テーマと改修 Day の手順は「題材の決め方」を参照。"
+        "（既存ページを磨く＝改修 Day）。式やアルゴリズムの名前が違っても見た目と手ざわりが同じなら被り。"
+        "見栄えの選び方と改修 Day の手順は「題材の決め方」を参照。"
     )
     out.append("")
     out.append(END)

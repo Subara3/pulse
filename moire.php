@@ -5,270 +5,234 @@ recordPageView('moire');
 
 $pageName = 'moire';
 $pageTitle = 'MOIRÉ - PULSE';
-$pageDesc = 'モアレ縞。2つの周期パターンの微小な差が巨大な干渉縞を生む。触れて動かして、干渉の数学を体感する。';
+$pageDesc = '細い同心円を2組重ねると、太い縞が浮かんで見える。片方の中心がゆっくり動くにつれて、縞の向きと本数が変わる。ドラッグすると、動く方の中心が指についてくる。';
 $pageCanonical = 'https://pulse.subara3.com/moire.php';
-$extraStyle = '
-body{overflow:hidden}
-#canvas{position:fixed;top:0;left:0;width:100%;height:100%;image-rendering:auto}
-#hud{position:fixed;top:1rem;left:1rem;font-size:.7rem;color:rgba(0,245,212,.65);font-family:monospace;pointer-events:none;line-height:2;z-index:10}
-#hud .v{color:#fff}
-#controls{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.4rem;align-items:flex-end;z-index:10}
-.btn{background:rgba(0,245,212,.07);border:1px solid rgba(0,245,212,.28);color:#00f5d4;font-size:.66rem;padding:.28rem .62rem;cursor:pointer;font-family:monospace;letter-spacing:.07em;transition:background .15s}
-.btn:hover{background:rgba(0,245,212,.18)}
-.btn:active{background:rgba(0,245,212,.28)}
-.ctrl-row{display:flex;align-items:center;gap:.5rem;justify-content:flex-end}
-.ctrl-label{color:rgba(0,245,212,.55);font-family:monospace;font-size:.65rem;letter-spacing:.05em;min-width:3.2rem;text-align:right}
-.ctrl-val{color:rgba(255,255,255,.7);font-family:monospace;font-size:.62rem;min-width:2.2rem;text-align:right}
-input[type=range]{width:88px;accent-color:#00f5d4;cursor:pointer}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
-<div id="hud">
-  <div>MODE &nbsp;&nbsp;<span class="v" id="hud-mode">CIRCLES</span></div>
-  <div id="hud-param-row">OFFSET <span class="v" id="hud-param">36</span>px</div>
-  <div>FREQ &nbsp;&nbsp;<span class="v" id="hud-freq">12</span></div>
-</div>
+
 <div id="controls" class="drawer-controls">
-  <button class="btn" id="btn-mode">MODE</button>
-  <div class="ctrl-row">
-    <span class="ctrl-label">FREQ</span>
-    <input type="range" id="sl-freq" min="6" max="30" value="12">
-    <span class="ctrl-val" id="val-freq">12</span>
-  </div>
-  <button class="btn" id="btn-auto">AUTO OFF</button>
-  <button class="btn" id="btn-reset">RESET</button>
+  <div class="ctl-row"><label for="k-pitch">PITCH</label><input type="range" id="k-pitch" min="0" max="100" value="40"></div>
+  <div class="ctl-btns"><button type="button" class="active" data-look="rings">RINGS</button><button type="button" data-look="lines">LINES</button></div>
 </div>
-<?php
-$interactionHints = [
-  ['type' => 'drag',  'label' => 'rotate / offset'],
-  ['type' => 'wheel', 'label' => 'frequency'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
 (function () {
+  'use strict';
   var canvas = document.getElementById('canvas');
-  var ctx    = canvas.getContext('2d', { willReadFrequently: true });
+  var W = 0, H = 0;
 
-  /* ── Resolution (render at half res for performance) ──────────────── */
-  var SC = 0.5;
-  var W, H, rW, rH;
+  /*
+   * 同心円 2 組を重ねたとき、目に見える太い縞は「2 つの中心からの距離の差」が間隔の整数倍になる所に出る。
+   * その線（双曲線の束）を等高線として引き、元の細い円は薄く敷く。
+   * LINES では片方を平行線に替える。縞は放物線の束になる。
+   */
+  var CS = 6, GX, GY, fd, fs, img, buf, bctx;
+  var look = 'rings', pitch = 14;
+  var mv = { x: 0, y: 0, tx: 0, ty: 0, held: false, lit: 0 };
+  var fx0 = 0, fy0 = 0, gAng = 0, clock = 0;
+  var ctx = P.fit(canvas, function (w, h) {
+    W = w; H = h;
+    GX = Math.ceil(W / CS) + 2; GY = Math.ceil(H / CS) + 2;
+    fd = new Float32Array(GX * GY); fs = new Float32Array(GX * GY);
+    img = new ImageData(GX, GY);
+    buf = document.createElement('canvas');
+    buf.width = GX; buf.height = GY;
+    bctx = buf.getContext('2d');
+  });
 
-  function resize() {
-    W  = window.innerWidth;
-    H  = window.innerHeight;
-    rW = Math.round(W * SC);
-    rH = Math.round(H * SC);
-    canvas.width  = rW;
-    canvas.height = rH;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  /* ── Modes ────────────────────────────────────────────────────────── */
-  var MODES = ['CIRCLES', 'LINES', 'RADIAL', 'GRID'];
-  var mode = 0;
-
-  /* ── State ────────────────────────────────────────────────────────── */
-  var freq    = 12;
-  var angle   = 0;
-  var offsetX = 30;
-  var offsetY = 20;
-  var autoOn  = false;
-  var time    = 0;
-
-  /* ── Color LUT: intensity 0..255 → packed ABGR ────────────────────── */
-  var LUT = new Uint32Array(256);
-  for (var i = 0; i < 256; i++) {
-    var t = i / 255;
-    var r, g, b;
-    if (t < 0.45) {
-      var s = t / 0.45;
-      r = Math.round(8 + s * 2);
-      g = Math.round(8 + s * 160);
-      b = Math.round(12 + s * 140);
-    } else if (t < 0.75) {
-      var s = (t - 0.45) / 0.30;
-      r = Math.round(10 + s * 30);
-      g = Math.round(168 + s * 77);
-      b = Math.round(152 + s * 60);
-    } else {
-      var s = (t - 0.75) / 0.25;
-      r = Math.round(40 + s * 200);
-      g = Math.round(245 + s * 10);
-      b = Math.round(212 + s * 43);
-    }
-    LUT[i] = (255 << 24) | (b << 16) | (g << 8) | r;
-  }
-
-  /* ── Pattern functions ────────────────────────────────────────────── */
-  function circleVal(x, y, cx, cy, f) {
-    var dx = x - cx, dy = y - cy;
-    return (Math.cos(Math.sqrt(dx * dx + dy * dy) * f * 0.15) + 1) * 0.5;
-  }
-
-  function lineVal(x, y, theta, f) {
-    return (Math.cos((x * Math.cos(theta) + y * Math.sin(theta)) * f * 0.15) + 1) * 0.5;
-  }
-
-  function radialVal(x, y, cx, cy, theta, f) {
-    return (Math.cos((Math.atan2(y - cy, x - cx) + theta) * f * 2) + 1) * 0.5;
-  }
-
-  function gridVal(x, y, theta, f) {
-    var c = Math.cos(theta), s = Math.sin(theta);
-    var k = f * 0.15;
-    var u = (Math.cos((x * c + y * s) * k) + 1) * 0.5;
-    var v2 = (Math.cos((-x * s + y * c) * k) + 1) * 0.5;
-    return (u + v2) * 0.5;
-  }
-
-  /* ── Render ───────────────────────────────────────────────────────── */
-  function render() {
-    var imgData = ctx.createImageData(rW, rH);
-    var buf32   = new Uint32Array(imgData.data.buffer);
-    var hx = rW * 0.5, hy = rH * 0.5;
-    var ox = offsetX * SC, oy = offsetY * SC;
-
-    for (var y = 0; y < rH; y++) {
-      var off = y * rW;
-      for (var x = 0; x < rW; x++) {
-        var v1, v2;
-        switch (mode) {
-          case 0:
-            v1 = circleVal(x, y, hx, hy, freq);
-            v2 = circleVal(x, y, hx + ox, hy + oy, freq);
-            break;
-          case 1:
-            v1 = lineVal(x, y, 0, freq);
-            v2 = lineVal(x, y, angle, freq);
-            break;
-          case 2:
-            v1 = radialVal(x, y, hx, hy, 0, freq);
-            v2 = radialVal(x, y, hx, hy, angle, freq);
-            break;
-          case 3:
-            v1 = gridVal(x, y, 0, freq);
-            v2 = gridVal(x, y, angle, freq);
-            break;
-        }
-        buf32[off + x] = LUT[Math.round(v1 * v2 * 255)];
+  /* 2 つの場（差と和）を粗い格子で計算する */
+  function fields() {
+    var nx = Math.cos(gAng), ny = Math.sin(gAng), inv = 1 / pitch, i, j, k;
+    for (j = 0; j < GY; j++) {
+      var y = j * CS;
+      for (i = 0; i < GX; i++) {
+        var x = i * CS; k = j * GX + i;
+        var r2 = Math.hypot(x - mv.x, y - mv.y), b;
+        if (look === 'rings') b = Math.hypot(x - fx0, y - fy0);
+        else b = (x - W / 2) * nx + (y - H / 2) * ny + Math.hypot(W, H);
+        fd[k] = (r2 - b) * inv;
       }
     }
-    ctx.putImageData(imgData, 0, 0);
-  }
-
-  /* ── Auto animation ───────────────────────────────────────────────── */
-  function autoStep() {
-    time += 0.008;
-    if (mode === 0) {
-      offsetX = 55 * Math.sin(time * 1.1);
-      offsetY = 55 * Math.cos(time * 0.7);
-    } else {
-      angle = 0.18 * Math.sin(time * 0.6);
+    /* 縞の間隔が狭すぎる所（格子より細かい所）は薄くする。ぎらつきを出さない */
+    for (j = 0; j < GY; j++) {
+      for (i = 0; i < GX; i++) {
+        k = j * GX + i;
+        var gx = fd[i < GX - 1 ? k + 1 : k] - fd[i > 0 ? k - 1 : k];
+        var gy = fd[j < GY - 1 ? k + GX : k] - fd[j > 0 ? k - GX : k];
+        var spacing = 2 * CS / (Math.sqrt(gx * gx + gy * gy) + 1e-6);
+        var f = (spacing - 16) / 30;
+        fs[k] = f < 0 ? 0 : f > 1 ? 1 : f * f * (3 - 2 * f);
+      }
     }
   }
 
-  /* ── HUD ──────────────────────────────────────────────────────────── */
-  var hudMode  = document.getElementById('hud-mode');
-  var hudParam = document.getElementById('hud-param');
-  var hudPRow  = document.getElementById('hud-param-row');
-  var hudFreq  = document.getElementById('hud-freq');
-  var lastHud  = 0;
-
-  function updateHUD() {
-    var now = Date.now();
-    if (now - lastHud < 100) return;
-    lastHud = now;
-    hudMode.textContent = MODES[mode];
-    if (mode === 0) {
-      var d = Math.round(Math.sqrt(offsetX * offsetX + offsetY * offsetY));
-      hudPRow.innerHTML = 'OFFSET <span class="v" id="hud-param">' + d + '</span>px';
-    } else {
-      hudPRow.innerHTML = 'ANGLE &nbsp;<span class="v" id="hud-param">' + (angle * 180 / Math.PI).toFixed(1) + '</span>\u00B0';
+  /* マーチングスクエア。1 マスごとに、そのマスを横切る「整数 + 0.5」の高さだけを引く */
+  function contourAll(F, fmin, fmax) {
+    for (var j = 0; j < GY - 1; j++) {
+      var y0 = j * CS, y1 = y0 + CS;
+      for (var i = 0; i < GX - 1; i++) {
+        var k = j * GX + i;
+        var A = F[k], B = F[k + 1], C = F[k + GX + 1], D = F[k + GX];
+        var lo = Math.min(A, B, C, D), hi = Math.max(A, B, C, D);
+        var m0 = Math.ceil(lo - 0.5), m1 = Math.floor(hi - 0.5);
+        if (m1 < m0) continue;
+        var fa = fs[k];
+        if (fa < fmin || fa >= fmax) continue;
+        var x0 = i * CS, x1 = x0 + CS;
+        for (var m = m0; m <= m1; m++) {
+          var L = m + 0.5, a = A - L, b = B - L, c = C - L, d = D - L;
+          var idx = (a > 0 ? 1 : 0) | (b > 0 ? 2 : 0) | (c > 0 ? 4 : 0) | (d > 0 ? 8 : 0);
+          if (idx === 0 || idx === 15) continue;
+          var tx = x0 + CS * a / (a - b), bx = x0 + CS * d / (d - c);
+          var ly = y0 + CS * a / (a - d), ry = y0 + CS * b / (b - c);
+          switch (idx) {
+            case 1: case 14: ctx.moveTo(x0, ly); ctx.lineTo(tx, y0); break;
+            case 2: case 13: ctx.moveTo(tx, y0); ctx.lineTo(x1, ry); break;
+            case 3: case 12: ctx.moveTo(x0, ly); ctx.lineTo(x1, ry); break;
+            case 4: case 11: ctx.moveTo(x1, ry); ctx.lineTo(bx, y1); break;
+            case 6: case 9: ctx.moveTo(tx, y0); ctx.lineTo(bx, y1); break;
+            case 7: case 8: ctx.moveTo(x0, ly); ctx.lineTo(bx, y1); break;
+            case 5: ctx.moveTo(x0, ly); ctx.lineTo(tx, y0); ctx.moveTo(x1, ry); ctx.lineTo(bx, y1); break;
+            case 10: ctx.moveTo(tx, y0); ctx.lineTo(x1, ry); ctx.moveTo(x0, ly); ctx.lineTo(bx, y1); break;
+          }
+        }
+      }
     }
-    hudFreq.textContent = freq;
   }
 
-  /* ── Loop ──────────────────────────────────────────────────────────── */
-  function loop() {
-    if (autoOn) autoStep();
-    render();
-    updateHUD();
-    requestAnimationFrame(loop);
+  /* 縞の明暗: 距離の差が間隔の整数倍の所が明るく、半端な所が暗い（重なった 2 枚の透け方） */
+  var BG = P.bg, ST = P.steel;
+  function bands() {
+    var d = img.data;
+    for (var k = 0; k < GX * GY; k++) {
+      var t = 0.5 + 0.5 * Math.cos(fd[k] * Math.PI * 2);
+      t = t * t * 0.42 * fs[k];
+      var o = k * 4;
+      d[o] = BG[0] + (ST[0] - BG[0]) * t; d[o + 1] = BG[1] + (ST[1] - BG[1]) * t; d[o + 2] = BG[2] + (ST[2] - BG[2]) * t; d[o + 3] = 255;
+    }
+    bctx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(buf, 0, 0, GX, GY, 0, 0, GX * CS, GY * CS);
   }
 
-  /* ── Interaction ──────────────────────────────────────────────────── */
-  var dragging = false, dragX = 0, dragY = 0;
-
-  function startDrag(x, y) { dragging = true; dragX = x; dragY = y; }
-
-  function moveDrag(x, y) {
-    if (!dragging) return;
-    var dx = x - dragX, dy = y - dragY;
-    dragX = x; dragY = y;
-    if (mode === 0) { offsetX += dx; offsetY += dy; }
-    else { angle += dx * 0.003; }
-    if (typeof SFX !== 'undefined') SFX.play('move', 60);
+  /* 元の細い模様（同心円・平行線）を薄く引く */
+  function ringsAt(cx, cy, alpha) {
+    var far = Math.hypot(Math.max(cx, W - cx), Math.max(cy, H - cy));
+    ctx.strokeStyle = P.rgba(P.line, alpha);
+    ctx.beginPath();
+    for (var r = pitch; r < far; r += pitch) { ctx.moveTo(cx + r, cy); ctx.arc(cx, cy, r, 0, Math.PI * 2); }
+    ctx.stroke();
+  }
+  function linesAt(alpha) {
+    var far = Math.hypot(W, H), c = Math.cos(gAng), s = Math.sin(gAng);
+    ctx.strokeStyle = P.rgba(P.line, alpha);
+    ctx.beginPath();
+    var off = (far % pitch);
+    for (var d = -far + off; d < far; d += pitch) {
+      var px = W / 2 + c * d, py = H / 2 + s * d;
+      ctx.moveTo(px - s * far, py + c * far); ctx.lineTo(px + s * far, py - c * far);
+    }
+    ctx.stroke();
   }
 
-  function endDrag() { dragging = false; }
+  function cross(x, y, col, a) {
+    ctx.strokeStyle = P.rgba(col, a);
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(x - 10, y); ctx.lineTo(x + 10, y);
+    ctx.moveTo(x, y - 10); ctx.lineTo(x, y + 10);
+    ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y, 4.5, 0, Math.PI * 2); ctx.stroke();
+  }
 
-  canvas.addEventListener('mousedown',  function(e) { startDrag(e.clientX, e.clientY); });
-  canvas.addEventListener('mousemove',  function(e) { moveDrag(e.clientX, e.clientY); });
-  canvas.addEventListener('mouseup',    endDrag);
-  canvas.addEventListener('mouseleave', endDrag);
+  function draw() {
+    fields();
+    bands();
+    ctx.lineWidth = 1;
+    ringsAt(mv.x, mv.y, 0.09);
+    if (look === 'rings') ringsAt(fx0, fy0, 0.09); else linesAt(0.09);
+    /* 暗い縞の芯（双曲線・放物線の束）を細い白線で引く */
+    ctx.lineWidth = 1;
+    var cuts = [0.08, 0.4, 0.75, 1.01];
+    for (var q = 0; q < 3; q++) {
+      ctx.strokeStyle = P.rgba(P.line, 0.45 * (cuts[q] + cuts[q + 1]) / 2);
+      ctx.beginPath();
+      contourAll(fd, cuts[q], cuts[q + 1]);
+      ctx.stroke();
+    }
+    if (look === 'rings') cross(fx0, fy0, P.steel, 0.6);
+    cross(mv.x, mv.y, P.mix(P.line, P.accent, mv.lit), 0.6 + 0.35 * mv.lit);
+  }
 
-  canvas.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    startDrag(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: false });
-  canvas.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    moveDrag(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: false });
-  canvas.addEventListener('touchend', function(e) { e.preventDefault(); endDrag(); }, { passive: false });
+  /* 触っていないとき、動く中心は画面の中をゆっくり 8 の字に歩く */
+  function wander(t) {
+    var x = W / 2 + W * 0.22 * Math.sin(t * 0.09 + 0.6), y = H / 2 + H * 0.22 * Math.sin(t * 0.14 + 1.8);
+    /* LINES では、縞の開く側が画面に入るよう、中心を線の向きの反対側へ寄せる */
+    if (look === 'lines') { x -= Math.cos(gAng) * W * 0.3; y -= Math.sin(gAng) * H * 0.3; }
+    return { x: x, y: y };
+  }
 
-  canvas.addEventListener('wheel', function(e) {
-    e.preventDefault();
-    freq = Math.max(6, Math.min(30, freq - Math.sign(e.deltaY)));
-    document.getElementById('sl-freq').value = freq;
-    document.getElementById('val-freq').textContent = freq;
-  }, { passive: false });
-
-  /* ── Controls ─────────────────────────────────────────────────────── */
-  document.getElementById('btn-mode').addEventListener('click', function() {
-    mode = (mode + 1) % MODES.length;
-    angle = 0; offsetX = 30; offsetY = 20; time = 0;
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
+  /* ---------------------------------------------------------- 操作 */
+  var down = false, resume = 0;
+  canvas.addEventListener('pointerdown', function (e) {
+    down = true; mv.held = true;
+    mv.tx = e.clientX; mv.ty = e.clientY;
+    SFX.play('tick', 200);
+    canvas.setPointerCapture(e.pointerId);
   });
-
-  document.getElementById('sl-freq').addEventListener('input', function() {
-    freq = parseInt(this.value);
-    document.getElementById('val-freq').textContent = freq;
+  canvas.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    mv.tx = e.clientX; mv.ty = e.clientY;
+    SFX.play('move', 220);
   });
+  function up() { down = false; mv.held = false; resume = 4; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
 
-  document.getElementById('btn-auto').addEventListener('click', function() {
-    autoOn = !autoOn;
-    this.textContent = autoOn ? 'AUTO ON' : 'AUTO OFF';
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
+  function setPitch(v) { pitch = 12 + v * 20; }
+  document.getElementById('k-pitch').addEventListener('input', function () { setPitch(this.value / 100); });
+  document.querySelectorAll('[data-look]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-look]').forEach(function (o) { o.classList.toggle('active', o === b); });
+      look = b.dataset.look;
+      SFX.play('toggle');
+    });
   });
+  setPitch(document.getElementById('k-pitch').value / 100);
+  var act = document.querySelector('[data-look].active');
+  if (act) look = act.dataset.look;
 
-  document.getElementById('btn-reset').addEventListener('click', function() {
-    mode = 0; freq = 12; angle = 0; offsetX = 30; offsetY = 20; time = 0;
-    autoOn = false;
-    document.getElementById('btn-auto').textContent = 'AUTO OFF';
-    document.getElementById('sl-freq').value = 12;
-    document.getElementById('val-freq').textContent = '12';
-    if (typeof SFX !== 'undefined') SFX.play('click');
-  });
-
-  /* ── Start ────────────────────────────────────────────────────────── */
-  requestAnimationFrame(loop);
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now(), walk = 0;
+  var st = wander(0);
+  mv.x = mv.tx = st.x; mv.y = mv.ty = st.y;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    clock += dt;
+    /* 止まっている方の中心もわずかに漂う */
+    fx0 = W / 2 - W * 0.06 * Math.sin(clock * 0.05); fy0 = H / 2 - H * 0.05 * Math.cos(clock * 0.04);
+    gAng = 0.3 + 0.5 * Math.sin(clock * 0.03);
+    if (!mv.held) {
+      walk += dt;
+      var w = wander(walk);
+      if (resume > 0) resume = Math.max(0, resume - dt);
+      var blend = Math.min(1, dt * 0.5 * (1 - resume / 4));
+      mv.tx += (w.x - mv.tx) * blend; mv.ty += (w.y - mv.ty) * blend;
+    }
+    var k = Math.min(1, dt * (mv.held ? 8 : 2.5));
+    mv.x += (mv.tx - mv.x) * k; mv.y += (mv.ty - mv.y) * k;
+    mv.lit = mv.held ? Math.min(1, mv.lit + dt * 5) : Math.max(0, mv.lit - dt * 1.2);
+    draw();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

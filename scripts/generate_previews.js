@@ -36,79 +36,15 @@ const X264_ARGS = [
 
 // 時間が経つほど画面が塗りつぶされるページは、早い時点を切り出す。
 // 放置すると一覧に「単色のタイル」が並ぶ。
-const WARMUP_OVERRIDES = {
-  langton: 1.4, caustics: 1.6, erosion: 2.0, marbling: 2.0,
-  quasicrystal: 2.2, newton: 2.0, quantum: 2.0, reaction: 3.0,
-  cyclic: 2.0,
-};
+// 2026-10 の作り直しで全ページが新しくなったので、旧ページ向けの個別調整は捨てた。
+// 画面が埋まって単色になるページが出たら、ここに頭出し秒数を足す。
+const WARMUP_OVERRIDES = {};
 
 // Per-page tone fixes to reduce highlight clipping (白飛び) on specific renders.
-const TONE_FILTERS = {
-  newton: 'eq=brightness=-0.03:contrast=0.92:saturation=0.92:gamma=1.06',
-  clifford: 'eq=brightness=-0.05:contrast=0.90:saturation=0.88:gamma=1.10',
-  flock: 'eq=brightness=0.06:contrast=1.15:saturation=1.2:gamma=0.85',
-};
+const TONE_FILTERS = {};
 
-const INTERACTION_PRESETS = {
-  voronoi: [
-    { kind: 'click', x: 480, y: 270 },
-    { kind: 'click', x: 320, y: 220 },
-    { kind: 'click', x: 640, y: 320 },
-  ],
-  fluidveil: [
-    { kind: 'drag', from: [320, 200], to: [640, 320], steps: 24 },
-  ],
-  cloth: [
-    { kind: 'drag', from: [480, 180], to: [580, 300], steps: 20 },
-  ],
-  sort: [
-    { kind: 'click', x: 520, y: 500 },
-  ],
-  string: [
-    { kind: 'click', x: 520, y: 500 },
-    { kind: 'drag', from: [400, 250], to: [620, 260], steps: 18 },
-  ],
-  sandpile: [
-    { kind: 'click', x: 480, y: 270 },
-    { kind: 'click', x: 480, y: 270 },
-    { kind: 'drag', from: [420, 220], to: [540, 320], steps: 16 },
-  ],
-  network: [
-    { kind: 'click', x: 480, y: 270 },
-    { kind: 'click', x: 520, y: 240 },
-    { kind: 'click', x: 440, y: 300 },
-  ],
-  dla: [
-    { kind: 'click', x: 480, y: 270 },
-    { kind: 'drag', from: [350, 220], to: [620, 320], steps: 20 },
-  ],
-  percolation: [
-    { kind: 'click', x: 520, y: 500 },
-    { kind: 'click', x: 420, y: 500 },
-    { kind: 'click', x: 480, y: 270 },
-  ],
-  spirograph: [
-    { kind: 'click', x: 520, y: 500 },
-    { kind: 'drag', from: [360, 260], to: [620, 260], steps: 18 },
-  ],
-  flock: [
-    { kind: 'click', x: 480, y: 270 },
-    { kind: 'drag', from: [480, 270], to: [300, 180], steps: 20 },
-    { kind: 'drag', from: [300, 180], to: [660, 320], steps: 24 },
-    { kind: 'drag', from: [660, 320], to: [480, 200], steps: 20 },
-  ],
-  predprey: [
-    { kind: 'click', x: 480, y: 270 },
-    { kind: 'click', x: 300, y: 200 },
-    { kind: 'click', x: 600, y: 350 },
-    { kind: 'drag', from: [200, 150], to: [700, 400], steps: 30 },
-  ],
-  quantum: [
-    { kind: 'click', x: 300, y: 270 },
-    { kind: 'click', x: 600, y: 200 },
-    { kind: 'click', x: 450, y: 350 },
-  ],
-};
+// 作品はどこを触っても応える作りなので、既定（中央クリック + 横ドラッグ）で撮る。
+const INTERACTION_PRESETS = {};
 
 function run(cmd, args, opts = {}) {
   const r = spawnSync(cmd, args, { stdio: 'pipe', encoding: 'utf8', ...opts });
@@ -152,7 +88,7 @@ function pagesFromContents() {
   const all = JSON.parse(fs.readFileSync(CONTENTS_PATH, 'utf8'));
   const base = all
     .map((c) => c.page)
-    .filter((p) => !['about', 'contents', 'log'].includes(p));
+    .filter((p) => !['about', 'contents'].includes(p));
 
   // Explicit targets win (CLI args > env PULSE_PREVIEW_PAGES)
   const cliPages = process.argv.slice(2).map((s) => s.trim()).filter(Boolean);
@@ -238,8 +174,8 @@ function pagesFromContents() {
       const vfParts = [
         'fps=20,scale=640:360:force_original_aspect_ratio=increase,crop=640:360',
         TONE_FILTERS[pageName] || '',
-        // Fade in/out for smooth loop (black → content → black)
-        'fade=t=in:st=0:d=0.3,fade=t=out:st=4.8:d=0.4',
+        // ループのつなぎ目は地の藍へ溶かす（黒にすると一覧で縁が浮く）
+        'fade=t=in:st=0:d=0.3:c=0x0d2238,fade=t=out:st=4.8:d=0.4:c=0x0d2238',
       ];
       const vf = vfParts.filter(Boolean).join(',');
 

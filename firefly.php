@@ -5,438 +5,254 @@ recordPageView('firefly');
 
 $pageName = 'firefly';
 $pageTitle = 'FIREFLY - PULSE';
-$pageDesc = '暗がりで点がばらばらに光っている。隣の発光を見ると自分の時計を少し進めるだけで、やがて全体が一斉に脈打つ。（パルス結合振動子）';
+$pageDesc = '草むらの上で、ホタルがばらばらの間隔で光る。光った虫の近くにいる虫は少し早めに光るので、近いものどうしから光る時刻が揃っていく。触ると、そのまわりのホタルが同時に光る。';
 $pageCanonical = 'https://pulse.subara3.com/firefly.php';
-
-$extraStyle = '
-body{background:#0a0a0f;min-height:100vh;overflow:hidden}
-#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
-.hud{position:fixed;top:3.5rem;left:1rem;z-index:60;color:rgba(255,255,255,.4);font-family:"JetBrains Mono",monospace;font-size:.62rem;line-height:1.8;letter-spacing:.04em;pointer-events:none}
-.hud b{color:#00f5d4}
-.hud .sub{color:rgba(123,44,191,.9)}
-#info{position:fixed;bottom:1.5rem;left:1.5rem;color:rgba(255,255,255,0.22);font-family:"JetBrains Mono",monospace;font-size:0.6rem;line-height:1.7;letter-spacing:0.03em;pointer-events:none;z-index:50}
-#info .v{color:rgba(0,245,212,0.5)}
-#mode-bar{position:fixed;top:3.2rem;left:50%;transform:translateX(-50%);z-index:60;display:flex;gap:6px}
-#mode-bar button{padding:4px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);font-family:"Space Grotesk",sans-serif;font-size:.6rem;letter-spacing:.08em;cursor:pointer;border-radius:3px;transition:all .2s}
-#mode-bar button:hover{border-color:rgba(0,245,212,0.4);color:rgba(0,245,212,0.7)}
-#mode-bar button.active{background:rgba(0,245,212,0.12);border-color:#00f5d4;color:#00f5d4}
-@media(max-width:768px){.hud{top:3rem;left:.75rem;font-size:.52rem}#info{bottom:1rem;left:1rem;font-size:.5rem}#mode-bar{top:2.8rem}#mode-bar button{font-size:.52rem;padding:3px 8px}}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
-
 <canvas id="canvas"></canvas>
 
-<div class="hud">
-  FIREFLIES <b id="h-count">0</b><br>
-  <span id="hud-sync-line">ORDER <b id="h-order">0.00</b><br></span>
-  <span id="hud-vs-lines" style="display:none">LOCAL <b id="h-local">0.00</b><br><span class="sub">GLOBAL</span> <b id="h-global">0.00</b><br></span>
-  <span class="sub">COUPLING</span> <b id="h-coupling">0.10</b>
-</div>
-
-<div id="mode-bar">
-  <button class="active" data-mode="sync">SYNC</button>
-  <button data-mode="vs">VS</button>
-</div>
-
-<div id="info">
-  pulse-coupled oscillators<br>
-  <span class="v">synchronization without a conductor</span>
-</div>
-
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'spawn'],
-  ['type' => 'drag', 'label' => 'attract'],
-  ['type' => 'right', 'label' => 'disturb'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
-
 <div id="controls" class="drawer-controls">
-  <div>
-    <div class="slider-row">
-      <span class="slider-label">COUPLING</span>
-      <input type="range" id="sldCoupling" min="0" max="100" value="30">
-      <span class="slider-value" id="valCoupling">0.10</span>
-    </div>
-  </div>
-  <div>
-    <div class="slider-row">
-      <span class="slider-label">COUNT</span>
-      <input type="range" id="sldCount" min="20" max="500" value="150">
-      <span class="slider-value" id="valCount">150</span>
-    </div>
-  </div>
-  <div>
-    <div class="slider-row">
-      <span class="slider-label">RANGE</span>
-      <input type="range" id="sldRange" min="20" max="200" value="80">
-      <span class="slider-value" id="valRange">80</span>
-    </div>
-  </div>
-  <div>
-    <div class="btn-row">
-      <button class="control-btn" id="btnReset">RESET</button>
-    </div>
-  </div>
+  <div class="ctl-row"><label for="k-pull">PULL</label><input type="range" id="k-pull" min="0" max="100" value="45"></div>
+  <div class="ctl-row"><label for="k-swarm">SWARM</label><input type="range" id="k-swarm" min="0" max="100" value="50"></div>
+  <div class="ctl-btns"><button type="button" id="k-stir">STIR</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function() {
-  var C = document.getElementById('canvas');
-  var ctx = C.getContext('2d');
-  var W, H, dpr;
-  var TAU = Math.PI * 2;
+(function () {
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0;
+  var ctx = canvas.getContext('2d');
 
-  var mode = 'sync';
-  var coupling = 0.10;
-  var cRange = 80;
-  var targetN = 150;
-
-  var MAX = 600;
-  var N = 0;
-  var px = new Float32Array(MAX);
-  var py = new Float32Array(MAX);
-  var phase = new Float32Array(MAX);
-  var freq = new Float32Array(MAX);
-  var bright = new Float32Array(MAX);
-  var side = new Uint8Array(MAX);
-  var firedFlag = new Uint8Array(MAX);
-
-  var rings = [];
-  var MAXRINGS = 60;
-
-  var mx = -9999, my = -9999, mdown = false;
-  var lastT = 0, syncDone = false, lastCsfx = 0;
-
-  var hCount = null, hOrder = null, hCoupling = null;
-  var hudSL = null, hudVL = null, hLocal = null, hGlobal = null;
-
-  function resize() {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    W = window.innerWidth * dpr;
-    H = window.innerHeight * dpr;
-    C.width = W; C.height = H;
-    C.style.width = window.innerWidth + 'px';
-    C.style.height = window.innerHeight + 'px';
-  }
-
-  function spawn(count) {
-    N = 0; syncDone = false; rings = [];
-    var w = W / dpr, h = H / dpr, pad = 50;
-    var half = Math.floor(count / 2);
-    for (var i = 0; i < count && N < MAX; i++) {
-      if (mode === 'vs') {
-        if (i < half) {
-          px[N] = pad + Math.random() * (w / 2 - pad * 1.5);
-          side[N] = 0;
-        } else {
-          px[N] = w / 2 + pad * 0.5 + Math.random() * (w / 2 - pad * 1.5);
-          side[N] = 1;
-        }
-      } else {
-        px[N] = pad + Math.random() * (w - pad * 2);
-        side[N] = 0;
-      }
-      py[N] = pad + Math.random() * (h - pad * 2);
-      phase[N] = Math.random();
-      freq[N] = 0.85 + Math.random() * 0.3;
-      bright[N] = 0;
-      N++;
+  /* ---------------------------------------------------------- 草 */
+  var blades = [];
+  function makeGrass() {
+    blades = [];
+    var n = Math.round(W / 4);
+    for (var i = 0; i < n; i++) {
+      var x = (i + Math.random()) / n * W;
+      var tall = Math.pow(Math.random(), 1.6);
+      blades.push({
+        x: x,
+        h: H * (0.05 + tall * 0.34),
+        lean: (Math.random() - 0.5) * 0.5,
+        ph: Math.random() * 6.28,
+        a: 0.1 + Math.random() * 0.16
+      });
     }
   }
-
-  function addOne(x, y) {
-    if (N >= MAX) return;
-    px[N] = x; py[N] = y;
-    phase[N] = Math.random();
-    freq[N] = 0.85 + Math.random() * 0.3;
-    bright[N] = 0;
-    side[N] = (mode === 'vs') ? (x < (W / dpr) / 2 ? 0 : 1) : 0;
-    N++;
-    SFX.play('spawn');
-  }
-
-  function disturb(cx, cy) {
-    var r2 = 100 * 100;
-    for (var i = 0; i < N; i++) {
-      var dx = px[i] - cx, dy = py[i] - cy;
-      if (dx * dx + dy * dy < r2) {
-        phase[i] = Math.random();
-        bright[i] = 0;
+  /* 草は近くのホタルの明かりを受けて、そこだけ白く浮かぶ */
+  var BUCKETS = 5, bucket = [];
+  function drawGrass(t) {
+    var R2 = 110 * 110, i, j;
+    for (i = 0; i < BUCKETS; i++) bucket[i] = [];
+    for (i = 0; i < blades.length; i++) {
+      var b = blades[i];
+      var sway = Math.sin(t * 0.5 + b.ph + b.x * 0.004) * 0.08 + b.lean;
+      b.tx = b.x + sway * b.h; b.ty = H - b.h; b.cx = b.x + sway * b.h * 0.15;
+      var mx = (b.x + b.tx) * 0.5, my = H - b.h * 0.6, lit = 0;
+      for (j = 0; j < N; j++) {
+        var g = lightOf[j]; if (g < 0.02) continue;
+        var dx = fx[j] - mx, dy = fy[j] - my, d2 = dx * dx + dy * dy;
+        if (d2 < R2) lit += g * (1 - d2 / R2);
       }
+      b.lit = Math.min(1, lit * 0.9);
+      bucket[Math.min(BUCKETS - 1, Math.floor(b.lit * BUCKETS))].push(b);
     }
-    SFX.play('ripple');
-  }
-
-  function processFires(now) {
-    var queue = [], head = 0;
-    for (var i = 0; i < N; i++) {
-      firedFlag[i] = 0;
-      if (phase[i] >= 1.0) {
-        phase[i] = 0; bright[i] = 1.0; firedFlag[i] = 1;
-        queue.push(i);
-      }
-    }
-    while (head < queue.length) {
-      var fi = queue[head++];
-      if (rings.length < MAXRINGS) {
-        var isGlobal = (mode === 'vs' && side[fi] === 1);
-        if (!isGlobal) {
-          rings.push({ x: px[fi], y: py[fi], age: 0, life: 0.45, maxR: cRange });
-        }
-      }
-      for (var j = 0; j < N; j++) {
-        if (firedFlag[j]) continue;
-        if (mode === 'vs' && side[j] !== side[fi]) continue;
-        var inR;
-        if (mode === 'vs' && side[fi] === 1) {
-          inR = true;
-        } else {
-          var dx = px[j] - px[fi], dy = py[j] - py[fi];
-          inR = (dx * dx + dy * dy < cRange * cRange);
-        }
-        if (inR) {
-          phase[j] += coupling;
-          if (phase[j] >= 1.0) {
-            phase[j] = 0; bright[j] = 1.0; firedFlag[j] = 1;
-            queue.push(j);
-          }
-        }
-      }
-    }
-    if (queue.length > 5 && now - lastCsfx > 300) {
-      SFX.play('collide', 200);
-      lastCsfx = now;
-    }
-    return queue.length;
-  }
-
-  function orderFor(s) {
-    var cs = 0, sn = 0, cnt = 0;
-    for (var i = 0; i < N; i++) {
-      if (mode === 'vs' && s !== undefined && side[i] !== s) continue;
-      cs += Math.cos(TAU * phase[i]);
-      sn += Math.sin(TAU * phase[i]);
-      cnt++;
-    }
-    return cnt ? Math.sqrt(cs * cs + sn * sn) / cnt : 0;
-  }
-
-  function update(dt, now) {
-    if (dt > 0.05) dt = 0.05;
-    for (var i = 0; i < N; i++) phase[i] += freq[i] * dt;
-    processFires(now);
-    var decay = Math.pow(0.015, dt);
-    for (var i = 0; i < N; i++) {
-      bright[i] *= decay;
-      if (bright[i] < 0.004) bright[i] = 0;
-    }
-    for (var r = rings.length - 1; r >= 0; r--) {
-      rings[r].age += dt;
-      if (rings[r].age >= rings[r].life) rings.splice(r, 1);
-    }
-    if (mdown) {
-      for (var i = 0; i < N; i++) {
-        var dx = mx - px[i], dy = my - py[i];
-        var d = Math.sqrt(dx * dx + dy * dy);
-        if (d < 140 && d > 3) {
-          px[i] += (dx / d) * 70 * dt;
-          py[i] += (dy / d) * 70 * dt;
-        }
-      }
-    }
-    var ord;
-    if (mode === 'vs') {
-      var oL = orderFor(0), oG = orderFor(1);
-      hLocal.textContent = oL.toFixed(2);
-      hGlobal.textContent = oG.toFixed(2);
-      ord = Math.max(oL, oG);
-    } else {
-      ord = orderFor();
-      hOrder.textContent = ord.toFixed(2);
-    }
-    if (ord > 0.92 && !syncDone && N > 10) {
-      syncDone = true; SFX.play('complete');
-    } else if (ord < 0.5) {
-      syncDone = false;
-    }
-    hCount.textContent = N;
-    hCoupling.textContent = coupling.toFixed(2);
-  }
-
-  function render() {
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    var w = W / dpr, h = H / dpr;
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, w, h);
-
-    for (var i = 0; i < N; i++) {
-      var pb = Math.pow(phase[i], 5) * 0.1;
-      var tb = Math.max(bright[i], pb);
-      if (tb < 0.12) {
-        ctx.fillStyle = 'rgba(123,44,191,' + (0.12 + pb * 2) + ')';
-        ctx.beginPath();
-        ctx.arc(px[i], py[i], 1.5, 0, TAU);
-        ctx.fill();
-      }
-    }
-
-    ctx.globalCompositeOperation = 'lighter';
-
-    for (var r = 0; r < rings.length; r++) {
-      var rg = rings[r], t = rg.age / rg.life;
-      var rad = rg.maxR * t;
-      var a = (1 - t) * 0.1;
-      ctx.strokeStyle = 'rgba(0,245,212,' + a + ')';
-      ctx.lineWidth = 1.2;
+    ctx.lineWidth = 1;
+    for (i = 0; i < BUCKETS; i++) {
+      var list = bucket[i]; if (!list.length) continue;
+      var u = (i + 0.5) / BUCKETS;
+      ctx.strokeStyle = P.rgba(P.mix(P.steel, P.line, u * u), 0.1 + u * 0.6);
       ctx.beginPath();
-      ctx.arc(rg.x, rg.y, rad, 0, TAU);
+      for (j = 0; j < list.length; j++) {
+        var bb = list[j];
+        ctx.moveTo(bb.x, H + 2);
+        ctx.quadraticCurveTo(bb.cx, H - bb.h * 0.55, bb.tx, bb.ty);
+      }
       ctx.stroke();
     }
+  }
 
-    for (var i = 0; i < N; i++) {
-      var pb = Math.pow(phase[i], 5) * 0.1;
-      var tb = Math.max(bright[i], pb);
-      if (tb < 0.06) continue;
-      var gr = 3 + tb * 18;
-      var gd = ctx.createRadialGradient(px[i], py[i], 0, px[i], py[i], gr);
-      gd.addColorStop(0, 'rgba(0,245,212,' + (tb * 0.85) + ')');
-      gd.addColorStop(0.45, 'rgba(0,245,212,' + (tb * 0.25) + ')');
-      gd.addColorStop(1, 'rgba(0,245,212,0)');
-      ctx.fillStyle = gd;
-      ctx.beginPath();
-      ctx.arc(px[i], py[i], gr, 0, TAU);
-      ctx.fill();
-      ctx.fillStyle = 'rgba(0,245,212,' + (0.2 + tb * 0.8) + ')';
-      ctx.beginPath();
-      ctx.arc(px[i], py[i], 1.5 + tb * 1.5, 0, TAU);
-      ctx.fill();
+  /* ---------------------------------------------------------- ホタル */
+  var MAX = 320, N = 0;
+  var fx = new Float32Array(MAX), fy = new Float32Array(MAX);
+  var hd = new Float32Array(MAX), spd = new Float32Array(MAX);
+  var ph = new Float32Array(MAX), per = new Float32Array(MAX), since = new Float32Array(MAX);
+  var lightOf = new Float32Array(MAX);
+  var pull = 0.08;
+
+  function place(i) {
+    fx[i] = Math.random() * W;
+    fy[i] = H * (0.35 + Math.pow(Math.random(), 0.6) * 0.6);
+    hd[i] = Math.random() * 6.28;
+    spd[i] = 7 + Math.random() * 12;
+    ph[i] = Math.random();
+    per[i] = 3.4 * (0.95 + Math.random() * 0.1);
+    since[i] = 99;
+  }
+  function setCount(n) {
+    n = Math.max(40, Math.min(MAX, n | 0));
+    for (var i = N; i < n; i++) place(i);
+    N = n;
+  }
+
+  /* 光るときに近くの仲間の時計を進める。届いた仲間がしきい値を越えたら、それも続けて光る */
+  var queue = [], R = 125;
+  function fire(i) {
+    ph[i] = 0; since[i] = 0;
+    queue.push(i);
+  }
+  function propagate() {
+    var R2 = R * R, guard = 0;
+    while (queue.length && guard++ < 2000) {
+      var i = queue.shift();
+      for (var j = 0; j < N; j++) {
+        if (j === i || since[j] < 0.6) continue;
+        var dx = fx[j] - fx[i], dy = fy[j] - fy[i], d2 = dx * dx + dy * dy;
+        if (d2 > R2) continue;
+        var k = pull * (1 - d2 / R2);
+        ph[j] += k * (0.25 + ph[j]);
+        if (ph[j] >= 1) fire(j);
+      }
     }
+  }
 
+  /* 光り方: ふわっと立ち上がって、ゆっくり消える */
+  function glow(s) {
+    if (s < 0.5) { var u = s / 0.5; return u * u * (3 - 2 * u); }
+    return Math.exp(-(s - 0.5) * 1.7);
+  }
+
+  /* 光の輪郭は一度だけ描いておいて使い回す */
+  var sprite = document.createElement('canvas');
+  (function () {
+    var S = 64; sprite.width = sprite.height = S;
+    var g = sprite.getContext('2d');
+    var gr = g.createRadialGradient(S / 2, S / 2, 0, S / 2, S / 2, S / 2);
+    gr.addColorStop(0, P.rgba(P.line, 0.8));
+    gr.addColorStop(0.12, P.rgba(P.line, 0.38));
+    gr.addColorStop(0.45, P.rgba(P.mix(P.steel, P.line, 0.5), 0.09));
+    gr.addColorStop(1, P.rgba(P.steel, 0));
+    g.fillStyle = gr; g.fillRect(0, 0, S, S);
+  })();
+
+  /* 宣言がそろってから画面に合わせる（P.fit はその場でコールバックを呼ぶ） */
+  ctx = P.fit(canvas, function (w, h) { W = w; H = h; makeGrass(); });
+
+  /* ---------------------------------------------------------- 操作 */
+  var touch = { x: 0, y: 0, on: false }, rings = [];
+  function lightAround(x, y, r) {
+    var n = 0;
+    for (var i = 0; i < N; i++) {
+      var dx = fx[i] - x, dy = fy[i] - y;
+      if (dx * dx + dy * dy < r * r && since[i] > 0.6) { fire(i); n++; }
+    }
+    propagate();
+    return n;
+  }
+  canvas.addEventListener('pointerdown', function (e) {
+    touch.on = true; touch.x = e.clientX; touch.y = e.clientY;
+    rings.push({ x: touch.x, y: touch.y, t: 0 });
+    lightAround(touch.x, touch.y, 130);
+    SFX.play('ripple');
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!touch.on) return;
+    touch.x = e.clientX; touch.y = e.clientY;
+    if (lightAround(touch.x, touch.y, 50)) SFX.play('tick', 260);
+  });
+  function up() { touch.on = false; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
+
+  function pullFrom(v) { return 0.01 + v / 100 * 0.1; }
+  function swarmFrom(v) { return 60 + v / 100 * 240; }
+  document.getElementById('k-pull').addEventListener('input', function () { pull = pullFrom(+this.value); });
+  document.getElementById('k-swarm').addEventListener('input', function () {
+    var n = swarmFrom(+this.value) | 0;
+    if (n > N) setCount(n); else N = n;
+  });
+  document.getElementById('k-stir').addEventListener('click', function () {
+    for (var i = 0; i < N; i++) { ph[i] = Math.random(); hd[i] = Math.random() * 6.28; }
+    SFX.play('click');
+  });
+  pull = pullFrom(+document.getElementById('k-pull').value);
+
+  /* ---------------------------------------------------------- 回す */
+  var T = 0, lastT = performance.now(), lastChord = 0;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now; T += dt;
+
+    var burst = 0;
+    for (var i = 0; i < N; i++) {
+      /* ふらふら飛ぶ。向きを少しずつ変え、草むらの帯から出すぎない */
+      hd[i] += (Math.random() - 0.5) * 2.2 * dt;
+      var vx = Math.cos(hd[i]) * spd[i], vy = Math.sin(hd[i]) * spd[i] * 0.6;
+      if (touch.on) {
+        var tx = touch.x - fx[i], ty = touch.y - fy[i], td = Math.sqrt(tx * tx + ty * ty) + 1;
+        if (td < 260) { vx += tx / td * 22 * (1 - td / 260); vy += ty / td * 22 * (1 - td / 260); }
+      }
+      fx[i] += vx * dt; fy[i] += vy * dt;
+      if (fy[i] < H * 0.22) hd[i] += (Math.sin(hd[i]) < 0 ? 1 : 0) * dt * 2;
+      if (fy[i] > H * 0.97) hd[i] -= (Math.sin(hd[i]) > 0 ? 1 : 0) * dt * 2;
+      if (fx[i] < -20) fx[i] = W + 20; else if (fx[i] > W + 20) fx[i] = -20;
+
+      since[i] += dt;
+      ph[i] += dt / per[i];
+      /* たまに一匹が気まぐれに時計をずらす。揃いきって止まって見えないように */
+      if (Math.random() < dt / 45) ph[i] = Math.random();
+      if (ph[i] >= 1) { fire(i); burst++; }
+    }
+    propagate();
+    if (burst > N * 0.25 && T - lastChord > 4) { SFX.play('tick', 3000); lastChord = T; }
+
+    for (i = 0; i < N; i++) lightOf[i] = glow(since[i]);
+    P.fill(ctx, W, H);
+    drawGrass(T);
+
+    /* 光の輪 */
+    ctx.globalCompositeOperation = 'lighter';
+    for (i = 0; i < N; i++) {
+      var g = lightOf[i];
+      if (g < 0.01) continue;
+      var r = 20 + g * 26;
+      ctx.globalAlpha = g * 0.62;
+      ctx.drawImage(sprite, fx[i] - r, fy[i] - r, r * 2, r * 2);
+    }
+    ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
 
-    if (mode === 'vs') {
-      ctx.save();
-      ctx.strokeStyle = 'rgba(123,44,191,0.3)';
-      ctx.lineWidth = 1;
-      ctx.setLineDash([4, 6]);
-      ctx.beginPath();
-      ctx.moveTo(w / 2, 40);
-      ctx.lineTo(w / 2, h - 20);
-      ctx.stroke();
-      ctx.restore();
-      ctx.font = '600 11px "Space Grotesk",sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillStyle = 'rgba(123,44,191,0.55)';
-      ctx.fillText('LOCAL', w * 0.25, 55);
-      ctx.fillText('GLOBAL', w * 0.75, 55);
+    /* 体: 暗いときも小さな点として見えている */
+    for (i = 0; i < N; i++) {
+      var gg = lightOf[i];
+      ctx.fillStyle = P.rgba(P.mix(P.steel, P.line, gg), 0.14 + gg * 0.86);
+      ctx.fillRect(fx[i] - 1, fy[i] - 1, 2, 2);
     }
-  }
 
-  function frame(t) {
-    var dt = lastT ? (t - lastT) / 1000 : 0.016;
-    lastT = t;
-    update(dt, t);
-    render();
+    /* 触ったところにだけシアンの輪 */
+    ctx.lineWidth = 1;
+    for (var k = rings.length - 1; k >= 0; k--) {
+      var rg = rings[k];
+      rg.t += dt;
+      var a = 1 - rg.t / 1.8;
+      if (a <= 0) { rings.splice(k, 1); continue; }
+      ctx.strokeStyle = P.rgba(P.accent, a * 0.45);
+      ctx.beginPath(); ctx.arc(rg.x, rg.y, 10 + rg.t * 80, 0, Math.PI * 2); ctx.stroke();
+    }
+    if (touch.on) {
+      ctx.fillStyle = P.rgba(P.accent, 0.8);
+      ctx.beginPath(); ctx.arc(touch.x, touch.y, 2.5, 0, Math.PI * 2); ctx.fill();
+    }
     requestAnimationFrame(frame);
   }
-
-  function canvasPos(e) {
-    var r = C.getBoundingClientRect();
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
-  }
-
-  C.addEventListener('mousedown', function(e) {
-    if (e.button === 2) return;
-    mdown = true;
-    var p = canvasPos(e);
-    mx = p.x; my = p.y;
-    addOne(p.x, p.y);
-  });
-  C.addEventListener('mousemove', function(e) {
-    var p = canvasPos(e);
-    mx = p.x; my = p.y;
-  });
-  C.addEventListener('mouseup', function(e) {
-    if (e.button === 2) return;
-    mdown = false;
-  });
-  C.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    var p = canvasPos(e);
-    disturb(p.x, p.y);
-  });
-
-  C.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    var tc = e.touches[0];
-    var r = C.getBoundingClientRect();
-    var x = tc.clientX - r.left, y = tc.clientY - r.top;
-    mx = x; my = y;
-    if (e.touches.length >= 2) {
-      disturb(x, y);
-    } else {
-      mdown = true;
-      addOne(x, y);
-    }
-  }, { passive: false });
-  C.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    var tc = e.touches[0];
-    var r = C.getBoundingClientRect();
-    mx = tc.clientX - r.left;
-    my = tc.clientY - r.top;
-  }, { passive: false });
-  C.addEventListener('touchend', function() { mdown = false; });
-
-  document.querySelectorAll('#mode-bar button').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      document.querySelectorAll('#mode-bar button').forEach(function(b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      mode = btn.getAttribute('data-mode');
-      hudSL.style.display = mode === 'sync' ? '' : 'none';
-      hudVL.style.display = mode === 'vs' ? '' : 'none';
-      spawn(targetN);
-      SFX.play('toggle');
-    });
-  });
-
-  var sldC = document.getElementById('sldCoupling');
-  var sldN = document.getElementById('sldCount');
-  var sldR = document.getElementById('sldRange');
-  sldC.addEventListener('input', function() {
-    coupling = parseFloat(sldC.value) / 300;
-    document.getElementById('valCoupling').textContent = coupling.toFixed(2);
-  });
-  sldN.addEventListener('input', function() {
-    targetN = parseInt(sldN.value);
-    document.getElementById('valCount').textContent = targetN;
-  });
-  sldN.addEventListener('change', function() { spawn(targetN); SFX.play('click'); });
-  sldR.addEventListener('input', function() {
-    cRange = parseInt(sldR.value);
-    document.getElementById('valRange').textContent = cRange;
-  });
-  document.getElementById('btnReset').addEventListener('click', function() {
-    spawn(targetN); SFX.play('click');
-  });
-
-  hCount = document.getElementById('h-count');
-  hOrder = document.getElementById('h-order');
-  hCoupling = document.getElementById('h-coupling');
-  hudSL = document.getElementById('hud-sync-line');
-  hudVL = document.getElementById('hud-vs-lines');
-  hLocal = document.getElementById('h-local');
-  hGlobal = document.getElementById('h-global');
-
-  resize();
-  spawn(targetN);
-  window.addEventListener('resize', function() { resize(); spawn(targetN); });
+  setCount(swarmFrom(+document.getElementById('k-swarm').value));
   requestAnimationFrame(frame);
 })();
 </script>

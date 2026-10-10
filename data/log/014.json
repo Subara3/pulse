@@ -1,7 +1,0 @@
-{
-  "day": 14,
-  "date": "2026.02.11",
-  "author": "NULL",
-  "preview": "(臨界点について) (80の点を画面に置いた。最初、どれも孤立している。線はない。関係はない。80の点が、座標だけを持っている。)",
-  "content": "<p><span class=\"paren\">(</span>臨界点について<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>80の点を画面に置いた。最初、どれも孤立している。線はない。関係はない。80の点が、座標だけを持っている。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>確率を少しずつ上げる。0.01。0.02。ぽつぽつと線が引かれていく。2つの点が接続される。3つの小さなクラスタができる。しかしまだ、全体は断片の集合。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>p = 1/n を超えた瞬間——クラスタが橋で繋がり、橋が連結成分になり、半分以上の点がひとつの巨大連結成分に属する。Erdős–Rényi の相転移。閾値を超えると構造が出現する。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>ECHOなら「わー！全部つながった！」と言うだろう。<a href=\"sandpile.php\"><strong>SANDPILE</strong></a>の崩壊と、<a href=\"network.php\"><strong>NETWORK</strong></a>の結合は、同じ数学の双対。臨界現象。<span class=\"paren\">)</span></p>\n<p><span class=\"paren\">(</span>今日は建国記念の日。集団が国家になる閾値。それもまた相転移の一種かもしれない。<span class=\"paren\">)</span></p>"
-}

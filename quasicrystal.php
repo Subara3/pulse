@@ -5,398 +5,204 @@ recordPageView('quasicrystal');
 
 $pageName = 'quasicrystal';
 $pageTitle = 'QUASICRYSTAL - PULSE';
-$pageDesc = '準結晶干渉パターン。N本の平面波が重なり合い、周期的でも非周期的でもない準周期の秩序が浮かび上がる。';
+$pageDesc = '向きの違う7組の縞を重ねると、明るい点が七回対称の形に並ぶ。模様は中心から外へゆっくり動き続けるが、同じ並びはくり返さない。触るとそこから輪が広がり、輪が通ったところの模様がずれる。';
 $pageCanonical = 'https://pulse.subara3.com/quasicrystal.php';
-
-$extraStyle = '
-body{background:#0a0a0f;min-height:100vh;overflow:hidden}
-#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
-.hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Space Grotesk","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,0.34);font-size:0.64rem;text-align:right;letter-spacing:0.05em;line-height:1.8}
-.hud .v{color:#00f5d4;font-weight:700}
-#info{position:fixed;bottom:1.5rem;left:1.5rem;color:rgba(255,255,255,0.22);font-family:"JetBrains Mono",monospace;font-size:0.6rem;line-height:1.7;letter-spacing:0.03em;pointer-events:none;z-index:50}
-#info .v{color:rgba(0,245,212,0.5)}
-@media(max-width:768px){.hud{top:3rem;right:0.6rem;font-size:0.54rem}#info{bottom:1rem;left:1rem;font-size:0.5rem}}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
-
 <canvas id="canvas"></canvas>
 
-<div class="hud">
-  N: <span id="hudN" class="v">7</span><br>
-  ZOOM: <span id="hudZ" class="v">1.00</span>x
-</div>
-
-<div id="info">
-  quasicrystal interference<br>
-  <span class="v">N plane waves · quasiperiodic symmetry</span><br>
-  superposition of cosines
-</div>
-
-<?php
-$interactionHints = [
-  ['type' => 'drag', 'label' => 'pan'],
-  ['type' => 'wheel', 'label' => 'zoom'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
-
 <div id="controls" class="drawer-controls">
-  <div class="slider-wrap">
-    <label class="slider-label">SYMMETRY (N)</label>
-    <div class="slider-row">
-      <input type="range" id="sN" min="3" max="12" value="7" step="1">
-      <span class="slider-value" id="vN">7</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <label class="slider-label">FREQUENCY</label>
-    <div class="slider-row">
-      <input type="range" id="sFreq" min="5" max="80" value="30">
-      <span class="slider-value" id="vFreq">0.030</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <label class="slider-label">SPEED</label>
-    <div class="slider-row">
-      <input type="range" id="sSpeed" min="0" max="100" value="20">
-      <span class="slider-value" id="vSpeed">0.020</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <div class="btn-row">
-      <button class="control-btn active" id="btnAuto">AUTO</button>
-      <button class="control-btn" id="btnReset">RESET</button>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <label class="slider-label">PRESETS</label>
-    <div class="btn-row">
-      <button class="control-btn" id="pre5">5-FOLD</button>
-      <button class="control-btn" id="pre7">7-FOLD</button>
-      <button class="control-btn" id="pre12">12-FOLD</button>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <label class="slider-label">PALETTE</label>
-    <div class="btn-row">
-      <button class="control-btn active" data-pal="0">CRYSTAL</button>
-      <button class="control-btn" data-pal="1">DEEP</button>
-      <button class="control-btn" data-pal="2">NEON</button>
-    </div>
-  </div>
+  <div class="ctl-row"><label for="k-fold">FOLD</label><input type="range" id="k-fold" min="5" max="11" step="1" value="7"></div>
+  <div class="ctl-row"><label for="k-pace">PACE</label><input type="range" id="k-pace" min="0" max="100" value="35"></div>
+  <div class="ctl-btns"><button type="button" class="active" data-look="lines">LINES</button><button type="button" data-look="light">LIGHT</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function() {
-  var C = document.getElementById('canvas'), X = C.getContext('2d');
-  var W, H, rW, rH, RES;
-  var offC, offX, imgData;
+(function () {
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0, ctx;
 
-  var N = 7;
-  var freq = 0.030;
-  var phase = 0;
-  var speed = 0.020;
-  var autoMode = true;
-  var scale = 1.0;
-  var panX = 0, panY = 0;
-  var palIdx = 0;
+  /* 平面波 N 本の和。cos(k·x) と sin(k·x) は格子ごとに先に計算しておき、
+     毎フレームは位相を回すだけにする */
+  var S = 2.5, NX, NY, N = 7, CSN, VIG, F, img, buf, bctx;
+  var look = 'lines', pace = 0.35, phase = 0;
+  var ripples = [];
 
-  var cosA, sinA;
-  var palette = new Uint8Array(256 * 3);
-  var maxN = 12;
-  var wRe = new Float64Array(maxN);
-  var wIm = new Float64Array(maxN);
-  var wCd = new Float64Array(maxN);
-  var wSd = new Float64Array(maxN);
-
-  var hudN = document.getElementById('hudN');
-  var hudZ = document.getElementById('hudZ');
-  var sN = document.getElementById('sN');
-  var vN = document.getElementById('vN');
-  var sFreq = document.getElementById('sFreq');
-  var vFreq = document.getElementById('vFreq');
-  var sSpeed = document.getElementById('sSpeed');
-  var vSpeed = document.getElementById('vSpeed');
-
-  function lerp(a, b, t) { return a + (b - a) * t; }
-
-  function computeAngles() {
-    cosA = new Float64Array(N);
-    sinA = new Float64Array(N);
-    for (var i = 0; i < N; i++) {
-      var a = 2 * Math.PI * i / N;
-      cosA[i] = Math.cos(a);
-      sinA[i] = Math.sin(a);
+  function alloc() {
+    NX = Math.ceil(W / S) + 2; NY = Math.ceil(H / S) + 2;
+    F = new Float32Array(NX * NY);
+    img = new ImageData(NX, NY);
+    buf = document.createElement('canvas');
+    buf.width = NX; buf.height = NY;
+    bctx = buf.getContext('2d');
+    waves();
+  }
+  function waves() {
+    /* 画素ごとに [cos, sin] を N 組並べて持つ */
+    CSN = new Float32Array(NX * NY * N * 2);
+    VIG = new Float32Array(NX * NY);
+    var k = 2 * Math.PI / (44 / S);
+    var cx = NX / 2, cy = NY / 2, R2 = cx * cx + cy * cy;
+    var kx = [], ky = [];
+    for (var n = 0; n < N; n++) { var a = Math.PI * n / N; kx.push(Math.cos(a) * k); ky.push(Math.sin(a) * k); }
+    for (var j = 0; j < NY; j++) for (var i = 0; i < NX; i++) {
+      var p = j * NX + i, o = p * N * 2, dx = i - cx, dy = j - cy;
+      for (n = 0; n < N; n++) {
+        var th = kx[n] * dx + ky[n] * dy;
+        CSN[o + n * 2] = Math.cos(th); CSN[o + n * 2 + 1] = Math.sin(th);
+      }
+      VIG[p] = 1 - 0.6 * (dx * dx + dy * dy) / R2;
     }
   }
+  function sumAt(o, c, s) {
+    var v = 0, e = o + N * 2;
+    for (var q = o; q < e; q += 2) v += CSN[q] * c - CSN[q + 1] * s;
+    return v;
+  }
 
-  function buildPalette() {
-    for (var i = 0; i < 256; i++) {
-      var t = i / 255, r, g, b, s;
-      if (palIdx === 0) {
-        if (t < 0.25) {
-          s = t / 0.25;
-          r = lerp(10, 123, s); g = lerp(10, 44, s); b = lerp(15, 191, s);
-        } else if (t < 0.50) {
-          s = (t - 0.25) / 0.25;
-          r = lerp(123, 0, s); g = lerp(44, 180, s); b = lerp(191, 180, s);
-        } else if (t < 0.75) {
-          s = (t - 0.50) / 0.25;
-          r = lerp(0, 0, s); g = lerp(180, 245, s); b = lerp(180, 212, s);
+  function field() {
+    var len = NX * NY, cp = Math.cos(phase), sp = Math.sin(phase), n2 = N * 2;
+    for (var k = 0, o = 0; k < len; k++, o += n2) {
+      var v = 0, e = o + n2;
+      for (var q = o; q < e; q += 2) v += CSN[q] * cp - CSN[q + 1] * sp;
+      F[k] = v;
+    }
+    if (!ripples.length) return;
+    /* 輪の通るところだけ、位相を少しずらして計算し直す */
+    for (var r = 0; r < ripples.length; r++) {
+      var rp = ripples[r], gx = rp.x / S, gy = rp.y / S, R = rp.r / S, wdt = 7;
+      var x0 = Math.max(1, Math.floor(gx - R - wdt * 3)), x1 = Math.min(NX - 1, Math.ceil(gx + R + wdt * 3));
+      var y0 = Math.max(1, Math.floor(gy - R - wdt * 3)), y1 = Math.min(NY - 1, Math.ceil(gy + R + wdt * 3));
+      for (var j = y0; j < y1; j++) for (var i = x0; i < x1; i++) {
+        var d = Math.hypot(i - gx, j - gy) - R;
+        if (d < -wdt * 3 || d > wdt * 3) continue;
+        var del = rp.a * Math.exp(-d * d / (wdt * wdt));
+        if (Math.abs(del) < 0.02) continue;
+        var kk = j * NX + i;
+        F[kk] = sumAt(kk * n2, Math.cos(phase + del), Math.sin(phase + del));
+        TINT[kk] = Math.max(TINT[kk], Math.min(1, Math.abs(del) * 0.6));
+      }
+    }
+  }
+  var TINT = null;
+
+  var BG = P.bg, DEEP = P.deep, LN = P.line, ST = P.steel, AC = P.accent;
+  function shade() {
+    var d = img.data;
+    var inv = 1 / N;
+    for (var j = 0; j < NY; j++) {
+      for (var i = 0; i < NX; i++) {
+        var k = j * NX + i, o = k * 4, f = F[k];
+        var gx = (i > 0 && i < NX - 1) ? (F[k + 1] - F[k - 1]) * 0.5 : 0;
+        var gy = (j > 0 && j < NY - 1) ? (F[k + NX] - F[k - NX]) * 0.5 : 0;
+        var g = Math.sqrt(gx * gx + gy * gy) + 0.05;
+        var u = f * inv;
+        var vig = VIG[k];
+        var r, gg, b, t;
+        if (look === 'lines') {
+          /* 高い山だけが光の点になる。点は七回対称の花の形に並んで、ゆっくり流れる */
+          t = (u - 0.24) * 1.5;
+          t = t < 0 ? 0 : t > 1 ? 1 : t;
+          t = t * t * vig;
+          var lo = t < 0.5 ? t * 2 : 1, up = t < 0.5 ? 0 : (t - 0.5) * 2;
+          r = BG[0] + (ST[0] - BG[0]) * lo + (LN[0] - ST[0]) * up;
+          gg = BG[1] + (ST[1] - BG[1]) * lo + (LN[1] - ST[1]) * up;
+          b = BG[2] + (ST[2] - BG[2]) * lo + (LN[2] - ST[2]) * up;
+          /* 高さ 0 の細い鋼の線で、花のつながりを下書きのように見せる */
+          var a0 = 1 - Math.abs(f) / g / 0.6;
+          if (a0 > 0) { a0 *= 0.26 * vig; r += (ST[0] - r) * a0; gg += (ST[1] - gg) * a0; b += (ST[2] - b) * a0; }
+          if (u < -0.25) { var dk = Math.min(1, (-u - 0.25) * 1.6) * 0.6; r += (DEEP[0] - r) * dk; gg += (DEEP[1] - gg) * dk; b += (DEEP[2] - b) * dk; }
+          var tn = TINT[k];
+          if (tn > 0) { var ta = tn * (0.07 + t * 0.7); r += (AC[0] - r) * ta; gg += (AC[1] - gg) * ta; b += (AC[2] - b) * ta; }
         } else {
-          s = (t - 0.75) / 0.25;
-          r = lerp(0, 160, s); g = lerp(245, 255, s); b = lerp(212, 240, s);
+          t = Math.max(0, (u + 0.15) / 1.15);
+          t = t * t * vig;
+          r = BG[0] + (ST[0] - BG[0]) * Math.min(1, t * 2) + (LN[0] - ST[0]) * Math.max(0, t * 2 - 1) * 0.8;
+          gg = BG[1] + (ST[1] - BG[1]) * Math.min(1, t * 2) + (LN[1] - ST[1]) * Math.max(0, t * 2 - 1) * 0.8;
+          b = BG[2] + (ST[2] - BG[2]) * Math.min(1, t * 2) + (LN[2] - ST[2]) * Math.max(0, t * 2 - 1) * 0.8;
+          var tn2 = TINT[k];
+          if (tn2 > 0) { r += (AC[0] - r) * tn2 * 0.5; gg += (AC[1] - gg) * tn2 * 0.5; b += (AC[2] - b) * tn2 * 0.5; }
         }
-      } else if (palIdx === 1) {
-        if (t < 0.30) {
-          s = t / 0.30;
-          r = lerp(10, 45, s); g = lerp(10, 15, s); b = lerp(15, 110, s);
-        } else if (t < 0.60) {
-          s = (t - 0.30) / 0.30;
-          r = lerp(45, 0, s); g = lerp(15, 100, s); b = lerp(110, 130, s);
-        } else {
-          s = (t - 0.60) / 0.40;
-          r = lerp(0, 0, s); g = lerp(100, 190, s); b = lerp(130, 180, s);
-        }
-      } else {
-        if (t < 0.18) {
-          s = t / 0.18;
-          r = lerp(10, 0, s); g = lerp(10, 50, s); b = lerp(15, 60, s);
-        } else if (t < 0.50) {
-          s = (t - 0.18) / 0.32;
-          r = lerp(0, 0, s); g = lerp(50, 210, s); b = lerp(60, 185, s);
-        } else if (t < 0.80) {
-          s = (t - 0.50) / 0.30;
-          r = lerp(0, 0, s); g = lerp(210, 245, s); b = lerp(185, 212, s);
-        } else {
-          s = (t - 0.80) / 0.20;
-          r = lerp(0, 180, s); g = lerp(245, 255, s); b = lerp(212, 248, s);
-        }
-      }
-      palette[i * 3] = Math.round(r);
-      palette[i * 3 + 1] = Math.round(g);
-      palette[i * 3 + 2] = Math.round(b);
-    }
-  }
-
-  function resize() {
-    W = C.width = innerWidth;
-    H = C.height = innerHeight;
-    RES = W < 768 ? 2 : 3;
-    rW = Math.ceil(W / RES);
-    rH = Math.ceil(H / RES);
-    offC = document.createElement('canvas');
-    offC.width = rW;
-    offC.height = rH;
-    offX = offC.getContext('2d');
-    imgData = offX.createImageData(rW, rH);
-  }
-
-  function render() {
-    var data = imgData.data;
-    var invN = 1.0 / N;
-    var halfW = rW * 0.5;
-    var halfH = rH * 0.5;
-    var sc = scale * RES;
-    var wx0 = -halfW * sc + panX;
-
-    for (var py = 0; py < rH; py++) {
-      var wy = (py - halfH) * sc + panY;
-
-      for (var i = 0; i < N; i++) {
-        var arg0 = freq * (wx0 * cosA[i] + wy * sinA[i]) + phase;
-        var delta = freq * cosA[i] * sc;
-        wRe[i] = Math.cos(arg0);
-        wIm[i] = Math.sin(arg0);
-        wCd[i] = Math.cos(delta);
-        wSd[i] = Math.sin(delta);
-      }
-
-      var rowOff = py * rW;
-
-      for (var px = 0; px < rW; px++) {
-        var sum = 0;
-        for (var i = 0; i < N; i++) {
-          sum += wRe[i];
-          var nr = wRe[i] * wCd[i] - wIm[i] * wSd[i];
-          wIm[i] = wRe[i] * wSd[i] + wIm[i] * wCd[i];
-          wRe[i] = nr;
-        }
-
-        var idx = ((sum * invN + 1) * 127.5) | 0;
-        if (idx > 255) idx = 255;
-        else if (idx < 0) idx = 0;
-
-        var off = (rowOff + px) << 2;
-        var pi = idx * 3;
-        data[off] = palette[pi];
-        data[off + 1] = palette[pi + 1];
-        data[off + 2] = palette[pi + 2];
-        data[off + 3] = 255;
+        d[o] = r; d[o + 1] = gg; d[o + 2] = b; d[o + 3] = 255;
       }
     }
-
-    offX.putImageData(imgData, 0, 0);
-    X.imageSmoothingEnabled = true;
-    X.imageSmoothingQuality = 'high';
-    X.drawImage(offC, 0, 0, rW, rH, 0, 0, W, H);
+    bctx.putImageData(img, 0, 0);
+  }
+  function blit() {
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(buf, 0, 0, NX * S, NY * S);
   }
 
-  function updateHUD() {
-    hudN.textContent = N;
-    hudZ.textContent = (1 / scale).toFixed(2);
+  /* ---------------------------------------------------------- 操作 */
+  function ripple(x, y, a) {
+    ripples.push({ x: x, y: y, r: 0, a: a, life: 1 });
+    if (ripples.length > 6) ripples.shift();
   }
-
-  function frame() {
-    requestAnimationFrame(frame);
-    if (autoMode) phase += speed;
-    render();
-    updateHUD();
-  }
-
-  // --- Interaction: drag to pan ---
-  var isDrag = false, lastMX, lastMY;
-
-  C.addEventListener('mousedown', function(e) {
-    if (e.button !== 0) return;
-    isDrag = true;
-    lastMX = e.clientX;
-    lastMY = e.clientY;
+  var down = false, last = null;
+  canvas.addEventListener('pointerdown', function (e) {
+    down = true; last = { x: e.clientX, y: e.clientY };
+    ripple(last.x, last.y, 2.2);
+    SFX.play('ripple');
+    canvas.setPointerCapture(e.pointerId);
   });
-  C.addEventListener('mousemove', function(e) {
-    if (!isDrag) return;
-    panX -= (e.clientX - lastMX) * scale * RES;
-    panY -= (e.clientY - lastMY) * scale * RES;
-    lastMX = e.clientX;
-    lastMY = e.clientY;
-    if (typeof SFX !== 'undefined') SFX.play('move', 120);
+  canvas.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    var p = { x: e.clientX, y: e.clientY };
+    if (Math.hypot(p.x - last.x, p.y - last.y) < 70) return;
+    last = p;
+    ripple(p.x, p.y, 1.3);
+    SFX.play('move', 220);
   });
-  C.addEventListener('mouseup', function() { isDrag = false; });
-  C.addEventListener('mouseleave', function() { isDrag = false; });
+  function up() { down = false; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
 
-  // --- Scroll to zoom ---
-  C.addEventListener('wheel', function(e) {
-    e.preventDefault();
-    var f = e.deltaY > 0 ? 1.08 : 1 / 1.08;
-    scale *= f;
-    scale = Math.max(0.05, Math.min(30, scale));
-    if (typeof SFX !== 'undefined') SFX.play('tick', 100);
-  }, { passive: false });
-
-  // --- Touch ---
-  var tDist0 = 0, tScale0 = 1;
-
-  C.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    if (e.touches.length === 1) {
-      isDrag = true;
-      lastMX = e.touches[0].clientX;
-      lastMY = e.touches[0].clientY;
-    } else if (e.touches.length === 2) {
-      isDrag = false;
-      var dx = e.touches[0].clientX - e.touches[1].clientX;
-      var dy = e.touches[0].clientY - e.touches[1].clientY;
-      tDist0 = Math.sqrt(dx * dx + dy * dy);
-      tScale0 = scale;
-    }
-  }, { passive: false });
-
-  C.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    if (e.touches.length === 1 && isDrag) {
-      var tx = e.touches[0].clientX, ty = e.touches[0].clientY;
-      panX -= (tx - lastMX) * scale * RES;
-      panY -= (ty - lastMY) * scale * RES;
-      lastMX = tx;
-      lastMY = ty;
-    } else if (e.touches.length === 2) {
-      var dx = e.touches[0].clientX - e.touches[1].clientX;
-      var dy = e.touches[0].clientY - e.touches[1].clientY;
-      var d = Math.sqrt(dx * dx + dy * dy);
-      if (tDist0 > 0) {
-        scale = tScale0 * (tDist0 / d);
-        scale = Math.max(0.05, Math.min(30, scale));
-      }
-    }
-  }, { passive: false });
-
-  C.addEventListener('touchend', function(e) {
-    e.preventDefault();
-    if (e.touches.length === 0) isDrag = false;
-  }, { passive: false });
-
-  // --- Controls ---
-  function syncSliders() {
-    sN.value = N;
-    vN.textContent = N;
-    sFreq.value = Math.round(freq * 1000);
-    vFreq.textContent = freq.toFixed(3);
-  }
-
-  sN.addEventListener('input', function() {
-    N = parseInt(this.value);
-    vN.textContent = N;
-    computeAngles();
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
+  var kf = document.getElementById('k-fold'), kp = document.getElementById('k-pace');
+  kf.addEventListener('input', function () {
+    var n = +this.value;
+    if (n !== N) { N = n; waves(); SFX.play('tick', 120); }
   });
-
-  sFreq.addEventListener('input', function() {
-    freq = this.value / 1000;
-    vFreq.textContent = freq.toFixed(3);
-  });
-
-  sSpeed.addEventListener('input', function() {
-    speed = this.value / 1000;
-    vSpeed.textContent = speed.toFixed(3);
-  });
-
-  document.getElementById('btnAuto').addEventListener('click', function() {
-    autoMode = !autoMode;
-    this.classList.toggle('active', autoMode);
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
-  });
-
-  document.getElementById('btnReset').addEventListener('click', function() {
-    panX = 0; panY = 0; scale = 1.0; phase = 0;
-    if (typeof SFX !== 'undefined') SFX.play('click');
-  });
-
-  // Presets
-  function applyPreset(n, f) {
-    N = n; freq = f;
-    computeAngles();
-    panX = 0; panY = 0; scale = 1.0; phase = 0;
-    syncSliders();
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
-  }
-
-  document.getElementById('pre5').addEventListener('click', function() { applyPreset(5, 0.025); });
-  document.getElementById('pre7').addEventListener('click', function() { applyPreset(7, 0.030); });
-  document.getElementById('pre12').addEventListener('click', function() { applyPreset(12, 0.018); });
-
-  // Palette
-  var palBtns = document.querySelectorAll('[data-pal]');
-  function handlePal(btn) {
-    btn.addEventListener('click', function() {
-      palIdx = parseInt(this.getAttribute('data-pal'));
-      for (var j = 0; j < palBtns.length; j++) palBtns[j].classList.remove('active');
-      this.classList.add('active');
-      buildPalette();
-      if (typeof SFX !== 'undefined') SFX.play('toggle');
+  kp.addEventListener('input', function () { pace = this.value / 100; });
+  document.querySelectorAll('[data-look]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-look]').forEach(function (o) { o.classList.toggle('active', o === b); });
+      look = b.dataset.look;
+      SFX.play('toggle');
     });
-  }
-  for (var i = 0; i < palBtns.length; i++) handlePal(palBtns[i]);
+  });
+  N = +kf.value; pace = kp.value / 100;
 
-  // --- Init ---
-  computeAngles();
-  buildPalette();
-  resize();
-  addEventListener('resize', resize);
-  frame();
+  ctx = P.fit(canvas, function (w, h) { W = w; H = h; alloc(); TINT = new Float32Array(NX * NY); });
+
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now(), chime = 0, odd = false;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    phase -= dt * (0.12 + pace * 0.9);
+    for (var n = ripples.length - 1; n >= 0; n--) {
+      var rp = ripples[n];
+      rp.r += dt * 120;
+      rp.a *= Math.pow(0.55, dt);
+      if (rp.a < 0.05) ripples.splice(n, 1);
+    }
+    /* 色づきは少しずつ引いていく */
+    for (var k = 0; k < TINT.length; k++) if (TINT[k] > 0) TINT[k] = Math.max(0, TINT[k] - dt * 0.9);
+    /* 模様の動きはゆっくりなので、場の計算は 1 フレームおきで足りる */
+    odd = !odd;
+    if (odd) { field(); shade(); }
+    blit();
+    chime += dt;
+    if (chime > 7.2) { chime = 0; SFX.play('ripple', 4000); }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

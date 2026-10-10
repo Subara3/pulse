@@ -5,520 +5,345 @@ recordPageView('hyperbolic');
 
 $pageName = 'hyperbolic';
 $pageTitle = 'HYPERBOLIC - PULSE';
-$pageDesc = 'ポアンカレ円盤モデル。双曲幾何学のタイリングが無限に広がる非ユークリッドの世界。';
+$pageDesc = '円の中に同じ形の七角形のタイルが敷かれ、縁に近いタイルほど小さく描かれる。並びは止まらずに流れ、縁へ消えたタイルと入れ替わりに反対側から新しいタイルが出てくる。ドラッグすると並び全体を引っぱって動かせる。';
 $pageCanonical = 'https://pulse.subara3.com/hyperbolic.php';
-
-$extraStyle = '
-body{background:#0a0a0f;min-height:100vh;overflow:hidden}
-#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
-#canvas:active{cursor:grabbing}
-.ui{position:fixed;z-index:100;font-family:"Space Grotesk","Segoe UI",sans-serif;pointer-events:none}
-.hud{top:1rem;right:1rem;color:rgba(255,255,255,0.34);font-size:0.64rem;text-align:right;letter-spacing:0.05em;line-height:1.8}
-.hud .v{color:#00f5d4;font-weight:700}
-#info{position:fixed;bottom:1.5rem;left:1.5rem;color:rgba(255,255,255,0.22);font-family:"JetBrains Mono",monospace;font-size:0.6rem;line-height:1.7;letter-spacing:0.03em;pointer-events:none;z-index:50}
-#info .v{color:rgba(0,245,212,0.5)}
-@media(max-width:768px){.hud{top:0.6rem;right:0.6rem;font-size:0.54rem}#info{bottom:1rem;left:1rem;font-size:0.5rem}}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
-
 <canvas id="canvas"></canvas>
 
-<div class="ui hud">
-  {<span id="hudP" class="v">5</span>,<span id="hudQ" class="v">4</span>}<br>
-  TILES: <span id="hudN" class="v">0</span>
-</div>
-
-<div id="info">
-  Schl&auml;fli {<span class="v" id="infoP">5</span>,<span class="v" id="infoQ">4</span>}<br>
-  <span class="v" id="infoDesc">pentagons &middot; 4 at vertex</span>
-</div>
-
-<?php
-$interactionHints = [
-  ['type' => 'drag', 'label' => 'navigate'],
-  ['type' => 'wheel', 'label' => 'rotate'],
-  ['type' => 'click', 'label' => 'highlight'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
-
 <div id="controls" class="drawer-controls">
-  <div class="slider-wrap">
-    <label class="slider-label">TILING</label>
-    <div class="btn-row" id="tBtns">
-      <button class="control-btn active" data-p="5" data-q="4">{5,4}</button>
-      <button class="control-btn" data-p="4" data-q="5">{4,5}</button>
-      <button class="control-btn" data-p="7" data-q="3">{7,3}</button>
-      <button class="control-btn" data-p="3" data-q="7">{3,7}</button>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <label class="slider-label">COLOR</label>
-    <div class="btn-row" id="cBtns">
-      <button class="control-btn active" data-m="0">DUAL</button>
-      <button class="control-btn" data-m="1">DEPTH</button>
-      <button class="control-btn" data-m="2">WIRE</button>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <div class="slider-row">
-      <label class="slider-label">SPEED</label>
-      <span class="slider-value" id="spdVal">1.0</span>
-    </div>
-    <input type="range" id="spdSlider" min="0" max="40" step="1" value="10">
-  </div>
-  <div class="btn-row">
-    <button class="control-btn active" id="animBtn">ROTATE: ON</button>
-    <button class="control-btn" id="resetBtn">RESET</button>
-  </div>
+  <div class="ctl-row"><label for="k-drift">DRIFT</label><input type="range" id="k-drift" min="0" max="100" value="40"></div>
+  <div class="ctl-btns"><button type="button" class="active" data-pq="7,3">SEVEN</button><button type="button" data-pq="5,4">FIVE</button><button type="button" data-pq="4,5">FOUR</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function() {
+(function () {
   'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0, DX = 0, DY = 0, DR = 0, ctx;
 
-  var C = document.getElementById('canvas');
-  var ctx = C.getContext('2d', { alpha: false });
-  var W, H, dR, dCx, dCy;
+  /* ------------------------------------------------ 円盤の中の床（元の座標で一度だけ作る） */
+  var PQ = [7, 3];
+  var vx, vy, nV;            /* 頂点（多角形の中心も頂点として持つ） */
+  var edges, nE;             /* 辺: 頂点番号の組 */
+  var polys = [];            /* { c: 中心の頂点番号, v: [頂点番号...] } */
+  var keyOf = {};            /* 中心の位置 → 多角形番号 */
+  var edgeC = [];            /* 中央の多角形の辺の円 { x, y, r } */
 
-  var P = 5, Q = 4;
-  var tiles = [];
-  var colorMode = 0;
-  var ang = 0, autoRot = true, rotSpd = 0.001;
-  var wx = 0, wy = 0;
-  var dragging = false, lmx = 0, lmy = 0, dragDist = 0;
-  var flash = -1, flashT = 0;
-  var isMob = window.innerWidth < 768 || ('ontouchstart' in window);
-  var maxT = isMob ? 800 : 1500;
-
-  var descs = {
-    '5,4': 'pentagons \u00b7 4 at vertex',
-    '4,5': 'squares \u00b7 5 at vertex',
-    '7,3': 'heptagons \u00b7 3 at vertex',
-    '3,7': 'triangles \u00b7 7 at vertex'
-  };
-
-  var _acosh = Math.acosh || function(x) { return Math.log(x + Math.sqrt(x * x - 1)); };
-  var _tanh = Math.tanh || function(x) { var e = Math.exp(2 * x); return (e - 1) / (e + 1); };
-
-  function resize() {
-    W = C.width = window.innerWidth;
-    H = C.height = window.innerHeight;
-    dR = Math.min(W, H) * 0.44;
-    dCx = W / 2;
-    dCy = H / 2;
+  function orthoCircle(ux, uy, wx, wy) {
+    /* u, w を通り、単位円に直交する円 */
+    var det = 2 * (ux * wy - uy * wx);
+    if (Math.abs(det) < 1e-12) return null;
+    var a = ux * ux + uy * uy + 1, b = wx * wx + wy * wy + 1;
+    var cx = (a * wy - b * uy) / det, cy = (b * ux - a * wx) / det;
+    return { x: cx, y: cy, r: Math.sqrt(cx * cx + cy * cy - 1) };
   }
-
-  function geoC(x1, y1, x2, y2) {
-    var a1 = 2 * x1, b1 = 2 * y1, c1 = 1 + x1 * x1 + y1 * y1;
-    var a2 = 2 * x2, b2 = 2 * y2, c2 = 1 + x2 * x2 + y2 * y2;
-    var det = a1 * b2 - a2 * b1;
-    if (det * det < 1e-18) return null;
-    var cx = (c1 * b2 - c2 * b1) / det;
-    var cy = (a1 * c2 - a2 * c1) / det;
-    var dx = cx - x1, dy = cy - y1;
-    return [cx, cy, Math.sqrt(dx * dx + dy * dy)];
+  function reflect(c, x, y) {
+    var dx = x - c.x, dy = y - c.y, d2 = dx * dx + dy * dy, k = c.r * c.r / d2;
+    return [c.x + dx * k, c.y + dy * k];
   }
+  function key(x, y) { return Math.round(x * 2e5) + ':' + Math.round(y * 2e5); }
 
-  function reflP(px, py, gcx, gcy, gr2) {
-    var dx = px - gcx, dy = py - gcy;
-    var d2 = dx * dx + dy * dy;
-    if (d2 < 1e-20) return [px, py];
-    var s = gr2 / d2;
-    return [gcx + s * dx, gcy + s * dy];
-  }
-
-  function mobT(zx, zy, ax, ay) {
-    var nx = zx - ax, ny = zy - ay;
-    var cr = ax * zx + ay * zy;
-    var ci = ax * zy - ay * zx;
-    var dr = 1 - cr, di = -ci;
-    var dd = dr * dr + di * di;
-    return [(nx * dr + ny * di) / dd, (ny * dr - nx * di) / dd];
-  }
-
-  function xform(px, py) {
-    var zx = px, zy = py;
-    if (wx !== 0 || wy !== 0) {
-      var m = mobT(px, py, wx, wy);
-      zx = m[0]; zy = m[1];
+  function build() {
+    var p = PQ[0], q = PQ[1];
+    var R = Math.acosh(1 / (Math.tan(Math.PI / p) * Math.tan(Math.PI / q)));
+    var r0 = Math.tanh(R / 2);
+    var cap = 60000;
+    vx = new Float64Array(cap); vy = new Float64Array(cap); nV = 0;
+    var vkey = {};
+    function vert(x, y) {
+      var k = key(x, y);
+      if (vkey[k] != null) return vkey[k];
+      vx[nV] = x; vy[nV] = y; vkey[k] = nV;
+      return nV++;
     }
-    if (ang !== 0) {
-      var c = Math.cos(ang), s = Math.sin(ang);
-      var rx = zx * c - zy * s;
-      zy = zx * s + zy * c;
-      zx = rx;
+    var ekey = {}, elist = [];
+    polys = []; keyOf = {};
+    function addPoly(cx, cy, pts) {
+      var ci = vert(cx, cy), ids = [];
+      for (var i = 0; i < pts.length; i++) ids.push(vert(pts[i][0], pts[i][1]));
+      for (i = 0; i < ids.length; i++) {
+        var a = ids[i], b = ids[(i + 1) % ids.length], k = a < b ? a + ',' + b : b + ',' + a;
+        if (!ekey[k]) { ekey[k] = 1; elist.push(a, b); }
+      }
+      keyOf[key(cx, cy)] = polys.length;
+      polys.push({ c: ci, v: ids, pts: pts, x: cx, y: cy });
     }
-    return [zx, zy];
-  }
-
-  function genTiling() {
-    var cosP = Math.cos(Math.PI / P);
-    var sinQ = Math.sin(Math.PI / Q);
-    var R = _acosh(cosP / sinQ);
-    var r = _tanh(R / 2);
-
-    var cvx = new Float64Array(P), cvy = new Float64Array(P);
-    for (var k = 0; k < P; k++) {
-      var a = 2 * Math.PI * k / P - Math.PI / 2;
-      cvx[k] = r * Math.cos(a);
-      cvy[k] = r * Math.sin(a);
+    var base = [];
+    for (var i = 0; i < p; i++) {
+      var t = (2 * i + 1) * Math.PI / p - Math.PI / 2;
+      base.push([r0 * Math.cos(t), r0 * Math.sin(t)]);
     }
-
-    tiles = [];
-    var vis = {};
-    var q = [];
-    var qi = 0;
-
-    function hsh(vx, vy) {
-      var cx = 0, cy = 0;
-      for (var i = 0; i < P; i++) { cx += vx[i]; cy += vy[i]; }
-      return (Math.round(cx / P * 1000) | 0) + ',' + (Math.round(cy / P * 1000) | 0);
-    }
-
-    function add(vx, vy, depth, orient) {
-      var key = hsh(vx, vy);
-      if (vis[key]) return;
-      vis[key] = true;
-      var cx = 0, cy = 0;
-      for (var i = 0; i < P; i++) { cx += vx[i]; cy += vy[i]; }
-      cx /= P; cy /= P;
-      if (cx * cx + cy * cy > 0.97) return;
-      tiles.push({ vx: new Float64Array(vx), vy: new Float64Array(vy), d: depth, o: orient });
-      q.push(tiles.length - 1);
-    }
-
-    add(cvx, cvy, 0, 0);
-
-    while (qi < q.length && tiles.length < maxT) {
-      var t = tiles[q[qi++]];
-      for (var i = 0; i < P; i++) {
-        var j = (i + 1) % P;
-        var geo = geoC(t.vx[i], t.vy[i], t.vx[j], t.vy[j]);
-        if (!geo) continue;
-        var gr2 = geo[2] * geo[2];
-        var nvx = new Float64Array(P), nvy = new Float64Array(P);
-        for (var k = 0; k < P; k++) {
-          var ref = reflP(t.vx[k], t.vy[k], geo[0], geo[1], gr2);
-          nvx[P - 1 - k] = ref[0];
-          nvy[P - 1 - k] = ref[1];
-        }
-        add(nvx, nvy, t.d + 1, 1 - t.o);
+    edgeC = [];
+    for (i = 0; i < p; i++) edgeC.push(orthoCircle(base[i][0], base[i][1], base[(i + 1) % p][0], base[(i + 1) % p][1]));
+    addPoly(0, 0, base);
+    var head = 0, minSize = 0.007;
+    while (head < polys.length && polys.length < 9000 && nV < cap - 40) {
+      var P0 = polys[head++], pts = P0.pts;
+      for (i = 0; i < p; i++) {
+        var a = pts[i], b = pts[(i + 1) % p];
+        var c = orthoCircle(a[0], a[1], b[0], b[1]);
+        if (!c) continue;
+        var nc = reflect(c, P0.x, P0.y);
+        if (keyOf[key(nc[0], nc[1])] != null) continue;
+        var np = [];
+        for (var j = 0; j < p; j++) np.push(reflect(c, pts[j][0], pts[j][1]));
+        var size = Math.hypot(np[0][0] - np[1][0], np[0][1] - np[1][1]);
+        if (size < minSize) continue;
+        addPoly(nc[0], nc[1], np);
       }
     }
-
-    document.getElementById('hudP').textContent = P;
-    document.getElementById('hudQ').textContent = Q;
-    document.getElementById('hudN').textContent = tiles.length;
-    document.getElementById('infoP').textContent = P;
-    document.getElementById('infoQ').textContent = Q;
-    document.getElementById('infoDesc').textContent = descs[P + ',' + Q] || '';
-    flash = -1;
+    edges = new Int32Array(elist); nE = elist.length / 2;
+    sx = new Float32Array(nV); sy = new Float32Array(nV);
+    lit = [];
   }
 
-  function addTPath(idx, txA, tyA) {
-    var tx = txA[idx], ty = tyA[idx];
-    var mnx = tx[0], mxx = tx[0], mny = ty[0], mxy = ty[0];
-    for (var j = 1; j < P; j++) {
-      if (tx[j] < mnx) mnx = tx[j]; if (tx[j] > mxx) mxx = tx[j];
-      if (ty[j] < mny) mny = ty[j]; if (ty[j] > mxy) mxy = ty[j];
+  /* ------------------------------------------------ 見る向き: z → M(z) か M(z̄) */
+  var M = [1, 0, 0, 0, 0, 0, 1, 0], flip = 0;
+  function mul(A, B) {
+    function cm(ar, ai, br, bi) { return [ar * br - ai * bi, ar * bi + ai * br]; }
+    var r = new Array(8);
+    for (var i = 0; i < 2; i++) for (var j = 0; j < 2; j++) {
+      var s1 = cm(A[i * 4], A[i * 4 + 1], B[j * 2], B[j * 2 + 1]);
+      var s2 = cm(A[i * 4 + 2], A[i * 4 + 3], B[4 + j * 2], B[4 + j * 2 + 1]);
+      r[i * 4 + j * 2] = s1[0] + s2[0]; r[i * 4 + j * 2 + 1] = s1[1] + s2[1];
     }
-    var sz = Math.max(mxx - mnx, mxy - mny) * dR;
-    if (sz < 0.5) return false;
-
-    var segs = sz < 4 ? 1 : sz < 12 ? 3 : sz < 40 ? 5 : 8;
-    ctx.moveTo(dCx + tx[0] * dR, dCy - ty[0] * dR);
-
-    for (var e = 0; e < P; e++) {
-      var e1 = (e + 1) % P;
-      var x1 = tx[e], y1 = ty[e], x2 = tx[e1], y2 = ty[e1];
-
-      if (segs <= 1) {
-        ctx.lineTo(dCx + x2 * dR, dCy - y2 * dR);
-        continue;
+    var dr = r[0] * r[6] - r[1] * r[7] - (r[2] * r[4] - r[3] * r[5]);
+    var di = r[0] * r[7] + r[1] * r[6] - (r[2] * r[5] + r[3] * r[4]);
+    var s = 1 / Math.sqrt(Math.sqrt(dr * dr + di * di));
+    for (i = 0; i < 8; i++) r[i] *= s;
+    return r;
+  }
+  function apply(x, y, out) {
+    if (flip) y = -y;
+    var nr = M[0] * x - M[1] * y + M[2], ni = M[0] * y + M[1] * x + M[3];
+    var dr = M[4] * x - M[5] * y + M[6], di = M[4] * y + M[5] * x + M[7];
+    var d2 = dr * dr + di * di;
+    out[0] = (nr * dr + ni * di) / d2; out[1] = (ni * dr - nr * di) / d2;
+  }
+  function invert(x, y) {
+    /* (d w - b) / (-c w + a) */
+    var nr = M[6] * x - M[7] * y - M[2], ni = M[6] * y + M[7] * x - M[3];
+    var dr = -(M[4] * x - M[5] * y) + M[0], di = -(M[4] * y + M[5] * x) + M[1];
+    var d2 = dr * dr + di * di;
+    var zx = (nr * dr + ni * di) / d2, zy = (ni * dr - nr * di) / d2;
+    return flip ? [zx, -zy] : [zx, zy];
+  }
+  /* 円盤の平行移動 T_a(z) = (z + a) / (ā z + 1) を左から掛ける */
+  function translate(ax, ay) {
+    M = mul([1, 0, ax, ay, ax, -ay, 1, 0], M);
+  }
+  function rotate(t) {
+    var c = Math.cos(t / 2), s = Math.sin(t / 2);
+    M = mul([c, s, 0, 0, 0, 0, c, -s], M);
+  }
+  function tAB(ax, ay, bx, by) { /* a を b へ運ぶ: T_b ∘ T_{-a} */
+    translate(-ax, -ay); translate(bx, by);
+  }
+  /* 画面の中心が中央の多角形から出たら、床の対称性で付け替える（見た目は変わらない） */
+  function rebase() {
+    for (var guard = 0; guard < 6; guard++) {
+      var a = invert(0, 0), hit = -1;
+      for (var k = 0; k < edgeC.length; k++) {
+        var c = edgeC[k];
+        if (Math.hypot(a[0] - c.x, a[1] - c.y) < c.r) { hit = k; break; }
       }
-
-      var geo = geoC(x1, y1, x2, y2);
-      if (!geo) {
-        ctx.lineTo(dCx + x2 * dR, dCy - y2 * dR);
-        continue;
-      }
-
-      var a1 = Math.atan2(y1 - geo[1], x1 - geo[0]);
-      var a2 = Math.atan2(y2 - geo[1], x2 - geo[0]);
-      var diff = a2 - a1;
-      if (diff > Math.PI) diff -= 2 * Math.PI;
-      if (diff < -Math.PI) diff += 2 * Math.PI;
-
-      var midA = a1 + diff / 2;
-      var mx = geo[0] + geo[2] * Math.cos(midA);
-      var my = geo[1] + geo[2] * Math.sin(midA);
-      if (mx * mx + my * my > 1.001) {
-        diff = diff > 0 ? diff - 2 * Math.PI : diff + 2 * Math.PI;
-      }
-
-      for (var s = 1; s <= segs; s++) {
-        var aa = a1 + (s / segs) * diff;
-        var px = geo[0] + geo[2] * Math.cos(aa);
-        var py = geo[1] + geo[2] * Math.sin(aa);
-        ctx.lineTo(dCx + px * dR, dCy - py * dR);
+      if (hit < 0) return;
+      var e = edgeC[hit];
+      var MR = [e.x, e.y, -1, 0, 1, 0, -e.x, e.y];
+      if (flip) { MR = [e.x, -e.y, -1, 0, 1, 0, -e.x, -e.y]; M = mul(M, MR); flip = 0; }
+      else { M = mul(M, MR); flip = 1; }
+      /* 灯っているタイルも、同じ場所に見える多角形へ付け替える */
+      for (var n = lit.length - 1; n >= 0; n--) {
+        var pl = polys[lit[n].i], rc = reflect(e, pl.x, pl.y), j = keyOf[key(rc[0], rc[1])];
+        if (j == null) lit.splice(n, 1); else lit[n].i = j;
       }
     }
+  }
+
+  /* ------------------------------------------------ 描く */
+  var sx, sy, lit = [], tmp = [0, 0];
+  var NB = 8, buckets = [];
+  function smooth(a, b, x) { var t = (x - a) / (b - a); t = t < 0 ? 0 : t > 1 ? 1 : t; return t * t * (3 - 2 * t); }
+  function arcTo(i, j) {
+    var ux = sx[i], uy = sy[i], wx = sx[j], wy = sy[j];
+    /* 円盤座標に戻して直交円を求め、画面座標の弧にする */
+    var c = orthoCircle((ux - DX) / DR, (uy - DY) / DR, (wx - DX) / DR, (wy - DY) / DR);
+    if (!c || c.r > 60) { ctx.lineTo(wx, wy); return; }
+    var cx = DX + c.x * DR, cy = DY + c.y * DR, r = c.r * DR;
+    var a1 = Math.atan2(uy - cy, ux - cx), a2 = Math.atan2(wy - cy, wx - cx);
+    var d = a2 - a1;
+    while (d > Math.PI) d -= 2 * Math.PI;
+    while (d < -Math.PI) d += 2 * Math.PI;
+    ctx.arc(cx, cy, r, a1, a2, d < 0);
+  }
+  function polyPath(pl) {
+    var v = pl.v;
+    ctx.moveTo(sx[v[0]], sy[v[0]]);
+    for (var i = 0; i < v.length; i++) arcTo(v[i], v[(i + 1) % v.length]);
     ctx.closePath();
-    return true;
   }
+  function draw(dt) {
+    P.fill(ctx, W, H);
+    P.grid(ctx, W, H, { step: 32, major: 4, alpha: 0.8 });
+    ctx.fillStyle = P.rgba(P.bg, 1);
+    ctx.beginPath(); ctx.arc(DX, DY, DR + 14, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = P.rgba(P.deep, 0.5);
+    ctx.beginPath(); ctx.arc(DX, DY, DR, 0, Math.PI * 2); ctx.fill();
 
-  function render() {
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, W, H);
+    for (var i = 0; i < nV; i++) {
+      apply(vx[i], vy[i], tmp);
+      sx[i] = DX + tmp[0] * DR; sy[i] = DY + tmp[1] * DR;
+    }
+    ctx.save();
+    ctx.beginPath(); ctx.arc(DX, DY, DR, 0, Math.PI * 2); ctx.clip();
 
-    var g = ctx.createRadialGradient(dCx, dCy, dR * 0.88, dCx, dCy, dR * 1.06);
-    g.addColorStop(0, 'rgba(0,245,212,0)');
-    g.addColorStop(0.5, 'rgba(0,245,212,0.04)');
-    g.addColorStop(1, 'rgba(0,245,212,0)');
-    ctx.fillStyle = g;
+    /* 触れたタイル: シアンで灯り、床と一緒に流れながら消えていく */
+    for (var n = lit.length - 1; n >= 0; n--) {
+      var L = lit[n];
+      L.a -= dt * 0.16;
+      if (L.a <= 0) { lit.splice(n, 1); continue; }
+      ctx.fillStyle = P.rgba(P.accent, L.a * 0.3);
+      ctx.beginPath(); polyPath(polys[L.i]); ctx.fill();
+    }
+
+    /* 補助線: 大きく見えるタイルだけ、中心から角へ細い線 */
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = P.rgba(P.steel, 0.22);
     ctx.beginPath();
-    ctx.arc(dCx, dCy, dR * 1.06, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(dCx, dCy, dR, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(0,245,212,0.15)';
-    ctx.lineWidth = 1.5;
+    for (n = 0; n < polys.length; n++) {
+      var pl = polys[n], c0 = pl.c, v0 = pl.v[0];
+      var sz = Math.hypot(sx[c0] - sx[v0], sy[c0] - sy[v0]);
+      if (sz < 26) continue;
+      for (var k = 0; k < pl.v.length; k++) {
+        ctx.moveTo(sx[c0], sy[c0]); arcTo(c0, pl.v[k]);
+      }
+    }
     ctx.stroke();
 
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(dCx, dCy, dR - 0.5, 0, Math.PI * 2);
-    ctx.clip();
-
-    var txA = [], tyA = [];
-    var maxD = 0;
-    for (var i = 0; i < tiles.length; i++) {
-      var t = tiles[i];
-      if (t.d > maxD) maxD = t.d;
-      var tx = new Float64Array(P), ty = new Float64Array(P);
-      for (var j = 0; j < P; j++) {
-        var p = xform(t.vx[j], t.vy[j]);
-        tx[j] = p[0]; ty[j] = p[1];
+    for (var b = 0; b < NB; b++) buckets[b] = [];
+    for (var e = 0; e < nE; e++) {
+      var a = edges[e * 2], bb = edges[e * 2 + 1];
+      var len = Math.hypot(sx[a] - sx[bb], sy[a] - sy[bb]);
+      if (len < 1.2) continue;
+      var al = smooth(1.2, 26, len);
+      buckets[Math.min(NB - 1, (al * NB) | 0)].push(e);
+    }
+    for (b = 0; b < NB; b++) {
+      var list = buckets[b];
+      if (!list.length) continue;
+      ctx.lineWidth = b > 5 ? 1.25 : 1;
+      ctx.strokeStyle = P.rgba(P.line, 0.08 + (b + 0.5) / NB * 0.62);
+      ctx.beginPath();
+      for (var m = 0; m < list.length; m++) {
+        var ea = edges[list[m] * 2], eb = edges[list[m] * 2 + 1];
+        ctx.moveTo(sx[ea], sy[ea]);
+        arcTo(ea, eb);
       }
-      txA.push(tx); tyA.push(ty);
-    }
-
-    if (colorMode === 0) {
-      ctx.beginPath();
-      for (var i = 0; i < tiles.length; i++) { if (tiles[i].o === 0) addTPath(i, txA, tyA); }
-      ctx.fillStyle = 'rgba(0,200,180,0.1)';
-      ctx.fill();
-
-      ctx.beginPath();
-      for (var i = 0; i < tiles.length; i++) { if (tiles[i].o === 1) addTPath(i, txA, tyA); }
-      ctx.fillStyle = 'rgba(110,40,180,0.1)';
-      ctx.fill();
-
-      ctx.beginPath();
-      for (var i = 0; i < tiles.length; i++) addTPath(i, txA, tyA);
-      ctx.strokeStyle = 'rgba(0,245,212,0.35)';
-      ctx.lineWidth = 0.6;
-      ctx.stroke();
-
-    } else if (colorMode === 1) {
-      for (var d = maxD; d >= 0; d--) {
-        var tt = maxD > 0 ? d / maxD : 0;
-        var hue = Math.round(172 + tt * 106);
-        var lit = Math.round(48 - tt * 14);
-        ctx.beginPath();
-        for (var i = 0; i < tiles.length; i++) { if (tiles[i].d === d) addTPath(i, txA, tyA); }
-        ctx.fillStyle = 'hsla(' + hue + ',75%,' + lit + '%,0.25)';
-        ctx.fill();
-      }
-      ctx.beginPath();
-      for (var i = 0; i < tiles.length; i++) addTPath(i, txA, tyA);
-      ctx.strokeStyle = 'rgba(0,245,212,0.2)';
-      ctx.lineWidth = 0.4;
-      ctx.stroke();
-
-    } else {
-      ctx.beginPath();
-      for (var i = 0; i < tiles.length; i++) addTPath(i, txA, tyA);
-      ctx.strokeStyle = 'rgba(0,245,212,0.5)';
-      ctx.lineWidth = 0.7;
       ctx.stroke();
     }
-
-    if (flash >= 0 && flash < tiles.length && flashT > 0) {
-      ctx.beginPath();
-      addTPath(flash, txA, tyA);
-      ctx.fillStyle = 'rgba(0,245,212,' + (flashT * 0.4).toFixed(3) + ')';
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(0,245,212,' + (flashT * 0.8).toFixed(3) + ')';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-      flashT -= 0.02;
-      if (flashT <= 0) flash = -1;
-    }
-
-    var dg = ctx.createRadialGradient(dCx, dCy, dR * 0.85, dCx, dCy, dR);
-    dg.addColorStop(0, 'rgba(0,0,0,0)');
-    dg.addColorStop(1, 'rgba(10,10,15,0.5)');
-    ctx.fillStyle = dg;
-    ctx.beginPath();
-    ctx.arc(dCx, dCy, dR, 0, Math.PI * 2);
-    ctx.fill();
-
     ctx.restore();
+
+    /* 縁: 無限の遠くは、この細い円 */
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = P.rgba(P.line, 0.55);
+    ctx.beginPath(); ctx.arc(DX, DY, DR, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = P.rgba(P.steel, 0.35);
+    ctx.beginPath(); ctx.arc(DX, DY, DR + 14, 0, Math.PI * 2); ctx.stroke();
   }
 
-  function loop() {
-    if (autoRot) ang += rotSpd;
-    render();
-    requestAnimationFrame(loop);
+  /* ------------------------------------------------ 操作 */
+  var drift = 0.4, down = false, last = null, vel = [0, 0], held = 0, lastMove = 0;
+  function toDisk(e) {
+    var x = (e.clientX - DX) / DR, y = (e.clientY - DY) / DR, r = Math.hypot(x, y);
+    if (r > 0.985) { x *= 0.985 / r; y *= 0.985 / r; }
+    return [x, y];
   }
-
-  var animBtn = document.getElementById('animBtn');
-
-  function dStart(x, y) {
-    dragging = true; lmx = x; lmy = y; dragDist = 0;
-  }
-
-  function dMove(x, y) {
-    if (!dragging) return;
-    var ddx = x - lmx, ddy = y - lmy;
-    dragDist += Math.abs(ddx) + Math.abs(ddy);
-
-    if (dragDist > 5 && autoRot) {
-      autoRot = false;
-      animBtn.textContent = 'ROTATE: OFF';
-      animBtn.classList.remove('active');
+  function light(w) {
+    var z = invert(w[0], w[1]), best = -1, bd = 1e9;
+    for (var i = 0; i < polys.length; i++) {
+      var d = Math.hypot(polys[i].x - z[0], polys[i].y - z[1]);
+      if (d < bd) { bd = d; best = i; }
     }
-
-    var dx = ddx / dR, dy = -ddy / dR;
-    var c = Math.cos(-ang), s = Math.sin(-ang);
-    var rx = dx * c - dy * s, ry = dx * s + dy * c;
-    var hx = -rx * 0.7, hy = -ry * 0.7;
-
-    var cr = hx * wx + hy * wy, ci = hx * wy - hy * wx;
-    var dr = 1 + cr, di = ci, dd = dr * dr + di * di;
-    var nr = wx + hx, ni = wy + hy;
-    wx = (nr * dr + ni * di) / dd;
-    wy = (ni * dr - nr * di) / dd;
-
-    var ww = wx * wx + wy * wy;
-    if (ww > 0.88) { var sc = Math.sqrt(0.88 / ww); wx *= sc; wy *= sc; }
-
-    lmx = x; lmy = y;
-    if (typeof SFX !== 'undefined') SFX.play('move', 150);
+    if (best < 0) return false;
+    for (var n = 0; n < lit.length; n++) if (lit[n].i === best) { lit[n].a = 1; return false; }
+    lit.push({ i: best, a: 1 });
+    if (lit.length > 40) lit.shift();
+    return true;
   }
+  canvas.addEventListener('pointerdown', function (e) {
+    down = true; last = toDisk(e); vel = [0, 0]; lastMove = performance.now();
+    light(last);
+    SFX.play('spawn');
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    var p = toDisk(e);
+    if (Math.hypot(p[0] - last[0], p[1] - last[1]) < 0.002) return;
+    tAB(last[0], last[1], p[0], p[1]);
+    var nowT = performance.now(), de = Math.max(0.008, (nowT - lastMove) / 1000);
+    lastMove = nowT;
+    var ux = (p[0] - last[0]) / de, uy = (p[1] - last[1]) / de, um = Math.hypot(ux, uy);
+    if (um > 0.6) { ux *= 0.6 / um; uy *= 0.6 / um; }
+    vel = [ux * 0.4 + vel[0] * 0.6, uy * 0.4 + vel[1] * 0.6];
+    last = p;
+    rebase();
+    if (light(p)) SFX.play('move', 180);
+  });
+  function up() { down = false; held = 1; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
 
-  function dEnd() { dragging = false; }
+  var kd = document.getElementById('k-drift');
+  kd.addEventListener('input', function () { drift = this.value / 100; });
+  drift = kd.value / 100;
+  document.querySelectorAll('[data-pq]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-pq]').forEach(function (o) { o.classList.toggle('active', o === b); });
+      PQ = b.dataset.pq.split(',').map(Number);
+      M = [1, 0, 0, 0, 0, 0, 1, 0]; flip = 0;
+      build();
+      SFX.play('toggle');
+    });
+  });
 
-  function handleTap(sx, sy) {
-    if (dragDist > 10) return;
-    var px = (sx - dCx) / dR, py = -(sy - dCy) / dR;
-    if (px * px + py * py > 1) return;
+  build();
+  ctx = P.fit(canvas, function (w, h) {
+    W = w; H = h; DX = w / 2; DY = h / 2;
+    DR = Math.min(w, h) * 0.45;
+  });
 
-    var best = -1, bd = 1;
-    for (var i = 0; i < tiles.length; i++) {
-      var cx = 0, cy = 0;
-      for (var j = 0; j < P; j++) {
-        var p = xform(tiles[i].vx[j], tiles[i].vy[j]);
-        cx += p[0]; cy += p[1];
+  /* ------------------------------------------------ 回す */
+  var lastT = performance.now(), T = 0, chime = 0;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now; T += dt;
+    if (!down) {
+      /* 放っておくと、向きをゆっくり変えながら流れ続ける */
+      var th = T * 0.045 + Math.sin(T * 0.11) * 1.3;
+      var sp = (0.02 + drift * 0.11) * dt;
+      var ax = Math.cos(th) * sp, ay = Math.sin(th) * sp;
+      if (held > 0) {
+        ax = ax * (1 - held) + vel[0] * dt * held; ay = ay * (1 - held) + vel[1] * dt * held;
+        held = Math.max(0, held - dt * 0.7);
       }
-      cx /= P; cy /= P;
-      var dd = (px - cx) * (px - cx) + (py - cy) * (py - cy);
-      if (dd < bd) { bd = dd; best = i; }
+      translate(ax, ay);
+      rotate(dt * 0.012);
+      rebase();
     }
-    if (best >= 0) {
-      flash = best; flashT = 1;
-      if (typeof SFX !== 'undefined') SFX.play('spawn');
-    }
+    draw(dt);
+    chime += dt;
+    if (chime > 8) { chime = 0; SFX.play('tick', 4000); }
+    requestAnimationFrame(frame);
   }
-
-  C.addEventListener('mousedown', function(e) { if (e.button === 0) dStart(e.clientX, e.clientY); });
-  C.addEventListener('mousemove', function(e) { dMove(e.clientX, e.clientY); });
-  C.addEventListener('mouseup', function(e) { handleTap(e.clientX, e.clientY); dEnd(); });
-  C.addEventListener('mouseleave', dEnd);
-
-  var touchActive = false;
-  C.addEventListener('touchstart', function(e) {
-    e.preventDefault(); touchActive = true;
-    dStart(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: false });
-  C.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    dMove(e.touches[0].clientX, e.touches[0].clientY);
-  }, { passive: false });
-  C.addEventListener('touchend', function(e) {
-    handleTap(lmx, lmy); dEnd();
-    setTimeout(function() { touchActive = false; }, 300);
-  });
-  C.addEventListener('click', function(e) { if (touchActive) e.preventDefault(); });
-
-  C.addEventListener('wheel', function(e) {
-    e.preventDefault();
-    ang += e.deltaY * 0.002;
-    if (typeof SFX !== 'undefined') SFX.play('tick', 100);
-  }, { passive: false });
-
-  var tBtns = document.querySelectorAll('#tBtns .control-btn');
-  var cBtns = document.querySelectorAll('#cBtns .control-btn');
-  var resetBtn = document.getElementById('resetBtn');
-  var spdSlider = document.getElementById('spdSlider');
-  var spdVal = document.getElementById('spdVal');
-
-  for (var i = 0; i < tBtns.length; i++) {
-    tBtns[i].addEventListener('click', function() {
-      var np = parseInt(this.dataset.p), nq = parseInt(this.dataset.q);
-      if (np === P && nq === Q) return;
-      P = np; Q = nq; wx = 0; wy = 0; ang = 0;
-      for (var j = 0; j < tBtns.length; j++) tBtns[j].classList.remove('active');
-      this.classList.add('active');
-      genTiling();
-      if (typeof SFX !== 'undefined') SFX.play('toggle');
-    });
-  }
-
-  for (var i = 0; i < cBtns.length; i++) {
-    cBtns[i].addEventListener('click', function() {
-      colorMode = parseInt(this.dataset.m);
-      for (var j = 0; j < cBtns.length; j++) cBtns[j].classList.remove('active');
-      this.classList.add('active');
-      if (typeof SFX !== 'undefined') SFX.play('toggle');
-    });
-  }
-
-  animBtn.addEventListener('click', function() {
-    autoRot = !autoRot;
-    this.textContent = 'ROTATE: ' + (autoRot ? 'ON' : 'OFF');
-    if (autoRot) this.classList.add('active'); else this.classList.remove('active');
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
-  });
-
-  resetBtn.addEventListener('click', function() {
-    wx = 0; wy = 0; ang = 0; autoRot = true; rotSpd = 0.001;
-    spdSlider.value = 10; spdVal.textContent = '1.0';
-    animBtn.textContent = 'ROTATE: ON'; animBtn.classList.add('active');
-    flash = -1;
-    if (typeof SFX !== 'undefined') SFX.play('click');
-  });
-
-  spdSlider.addEventListener('input', function() {
-    rotSpd = parseFloat(this.value) / 10000;
-    spdVal.textContent = (this.value / 10).toFixed(1);
-    if (typeof SFX !== 'undefined') SFX.play('tick', 100);
-  });
-
-  window.addEventListener('resize', resize);
-  resize();
-  genTiling();
-  loop();
+  requestAnimationFrame(frame);
 })();
 </script>
-
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

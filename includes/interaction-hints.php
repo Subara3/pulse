@@ -54,7 +54,7 @@ $iconMap = [
   padding: 0.33rem 0.58rem;
   border-radius: 999px;
   border: 1px solid rgba(255,255,255,0.16);
-  background: rgba(10,10,15,0.72);
+  background: rgba(13, 34, 56,0.72);
   backdrop-filter: blur(8px);
   color: rgba(255,255,255,0.78);
   font-family: 'Space Grotesk', sans-serif;
@@ -64,7 +64,7 @@ $iconMap = [
 }
 
 .hint-chip i {
-  color: var(--accent, #00f5d4);
+  color: var(--accent, #5fd0ff);
   font-size: 0.72rem;
 }
 

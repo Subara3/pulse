@@ -5,325 +5,160 @@ recordPageView('rose');
 
 $pageName = 'rose';
 $pageTitle = 'ROSE - PULSE';
-$pageDesc = 'モーラーローズ。バラ曲線上の点を等角間隔で結ぶと、幾何学的な星形パターンが無数に生まれる。';
+$pageDesc = '花びらの形の曲線の上を一定の角度ずつ進んだ点を、細い線で順に結んで図形を描く。しばらくすると次の図形に入れ替わる。押すとすぐ次の図形に移り、横になぞると角度が少しずれて線の並びが変わる。';
 $pageCanonical = 'https://pulse.subara3.com/rose.php';
-
-$extraStyle = '
-body{background:#0a0a0f;min-height:100vh;overflow:hidden}
-#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
-.hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Space Grotesk","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,0.34);font-size:0.64rem;text-align:right;letter-spacing:0.05em;line-height:1.8}
-.hud .v{color:#00f5d4;font-weight:700}
-#info{position:fixed;bottom:1.5rem;left:1.5rem;color:rgba(255,255,255,0.22);font-family:"JetBrains Mono",monospace;font-size:0.6rem;line-height:1.7;letter-spacing:0.03em;pointer-events:none;z-index:50}
-#info .v{color:rgba(0,245,212,0.5)}
-@media(max-width:768px){.hud{top:3rem;right:0.6rem;font-size:0.54rem}#info{bottom:1rem;left:1rem;font-size:0.5rem}}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
-
 <canvas id="canvas"></canvas>
 
-<div class="hud" id="hud">
-  n = <span class="v" id="hud-n">2</span><br>
-  d = <span class="v" id="hud-d">39</span>
-</div>
-
-<div id="info">
-  <span class="v">Maurer Rose</span><br>
-  r = sin(n&middot;&theta;) &middot; d&deg; angular step
-</div>
-
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'randomize'],
-  ['type' => 'drag', 'label' => 'adjust d'],
-  ['type' => 'right', 'label' => 'reset'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
-
 <div id="controls" class="drawer-controls">
-  <div class="slider-wrap">
-    <div class="slider-row">
-      <span class="slider-label">PETALS n</span>
-      <input type="range" id="sl-n" min="2" max="20" value="2">
-      <span class="slider-value" id="sv-n">2</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <div class="slider-row">
-      <span class="slider-label">STEP d</span>
-      <input type="range" id="sl-d" min="1" max="360" value="39">
-      <span class="slider-value" id="sv-d">39</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <div class="slider-row">
-      <span class="slider-label">SPEED</span>
-      <input type="range" id="sl-spd" min="1" max="20" value="5">
-      <span class="slider-value" id="sv-spd">5</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <div class="slider-row">
-      <span class="slider-label">GLOW</span>
-      <input type="range" id="sl-glow" min="0" max="20" value="10">
-      <span class="slider-value" id="sv-glow">10</span>
-    </div>
-  </div>
-  <div>
-    <div class="btn-row">
-      <button class="control-btn active" id="btn-auto">AUTO</button>
-      <button class="control-btn" id="btn-curve">CURVE</button>
-      <button class="control-btn" id="btn-rnd">RANDOM</button>
-    </div>
-  </div>
-  <div>
-    <span class="slider-label">PRESETS</span>
-    <div class="btn-row preset-group" id="preset-btns">
-      <button class="preset-btn" data-n="2" data-d="39">n2 d39</button>
-      <button class="preset-btn" data-n="3" data-d="47">n3 d47</button>
-      <button class="preset-btn" data-n="4" data-d="31">n4 d31</button>
-      <button class="preset-btn" data-n="6" data-d="71">n6 d71</button>
-      <button class="preset-btn" data-n="7" data-d="19">n7 d19</button>
-      <button class="preset-btn" data-n="5" data-d="97">n5 d97</button>
-    </div>
-  </div>
+  <div class="ctl-row"><label for="k-pace">PACE</label><input type="range" id="k-pace" min="0" max="100" value="40"></div>
+  <div class="ctl-row"><label for="k-trail">TRAIL</label><input type="range" id="k-trail" min="0" max="100" value="55"></div>
+  <div class="ctl-btns"><button type="button" id="k-next">NEXT</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function(){
-  var C=document.getElementById('canvas'),X=C.getContext('2d');
-  var W,H,cx,cy,sc;
-  var n=2,d=39,gw=10,spd=5;
-  var autoOn=true,showCurve=false;
-  var curD=39,userDrag=false;
-  var isDrag=false,dStartX=0,dStartD=0;
+(function () {
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0, cx = 0, cy = 0, R = 1;
 
-  var hudN=document.getElementById('hud-n');
-  var hudD=document.getElementById('hud-d');
-  var slN=document.getElementById('sl-n');
-  var slD=document.getElementById('sl-d');
-  var slSpd=document.getElementById('sl-spd');
-  var slGlow=document.getElementById('sl-glow');
-  var svN=document.getElementById('sv-n');
-  var svD=document.getElementById('sv-d');
-  var svSpd=document.getElementById('sv-spd');
-  var svGlow=document.getElementById('sv-glow');
+  /* r = sin(nθ) の上で、角度 d 度ずつ跳んだ 361 個の点を順に結ぶ */
+  var PAIRS = [[2, 39], [6, 71], [3, 47], [7, 19], [4, 31], [5, 97], [2, 29], [6, 59], [8, 13], [5, 121], [3, 83], [4, 67]];
+  var pi = 0, n0 = 2, d0 = 39, n1 = 2, d1 = 39, tr = 1, hold = 0;
+  var pace = 0.4, trail = 0.55, nudge = 0, rot = 0, pen = 0, T = 0;
+  var XS = new Float32Array(361), YS = new Float32Array(361), XP = new Float32Array(361), YP = new Float32Array(361);
 
-  function resize(){
-    var dpr=window.devicePixelRatio||1;
-    W=window.innerWidth;H=window.innerHeight;
-    C.width=W*dpr;C.height=H*dpr;
-    C.style.width=W+'px';C.style.height=H+'px';
-    X.setTransform(dpr,0,0,dpr,0,0);
-    cx=W/2;cy=H/2;
-    sc=Math.min(W,H)*0.38;
+  function resize(w, h) {
+    W = w; H = h; cx = W / 2; cy = H / 2; R = Math.min(W, H) * 0.43;
+    P.fill(ctx0(), W, H);
+  }
+  var _ctx = null;
+  function ctx0() { return _ctx || canvas.getContext('2d'); }
+
+  function next() {
+    pi = (pi + 1) % PAIRS.length;
+    n0 = n1; d0 = d1; n1 = PAIRS[pi][0]; d1 = PAIRS[pi][1]; tr = 0; hold = 0;
   }
 
-  function maurerPts(n,dv){
-    var p=new Float64Array(722);
-    for(var k=0;k<=360;k++){
-      var th=k*dv*Math.PI/180;
-      var r=Math.sin(n*th);
-      p[k*2]=cx+r*Math.cos(th)*sc;
-      p[k*2+1]=cy+r*Math.sin(th)*sc;
+  function points(nn, dg, xs, ys) {
+    var rad = Math.PI / 180, dd = dg * rad;
+    for (var k = 0; k <= 360; k++) {
+      var th = k * dd, r = Math.sin(nn * th) * R;
+      xs[k] = cx + Math.cos(th + rot) * r;
+      ys[k] = cy + Math.sin(th + rot) * r;
     }
-    return p;
+  }
+  function lace(xs, ys, a) {
+    if (a <= 0.01) return;
+    ctx.strokeStyle = P.rgba(P.line, 0.36 * a);
+    ctx.lineWidth = 0.8;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(xs[0], ys[0]);
+    for (var k = 1; k <= 360; k++) ctx.lineTo(xs[k], ys[k]);
+    ctx.stroke();
+  }
+  function petals(nn, a) {
+    if (a <= 0.01) return;
+    ctx.strokeStyle = P.rgba(P.steel, 0.24 * a);
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    var M = 720;
+    for (var k = 0; k <= M; k++) {
+      var th = k / M * Math.PI * 2, r = Math.sin(nn * th) * R;
+      var x = cx + Math.cos(th + rot) * r, y = cy + Math.sin(th + rot) * r;
+      if (k === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
   }
 
-  function drawMaurer(n,dv){
-    var p=maurerPts(n,dv);
+  var ctx = P.fit(canvas, function (w, h) { _ctx = canvas.getContext('2d'); resize(w, h); });
 
-    var grad=X.createRadialGradient(cx,cy,sc*0.05,cx,cy,sc);
-    grad.addColorStop(0,'rgba(0,245,212,0.6)');
-    grad.addColorStop(0.5,'rgba(0,200,200,0.45)');
-    grad.addColorStop(1,'rgba(123,44,191,0.35)');
-
-    if(gw>0){
-      X.save();
-      X.shadowBlur=gw;
-      X.shadowColor='rgba(0,245,212,0.3)';
-      X.strokeStyle='rgba(0,245,212,0.12)';
-      X.lineWidth=3;
-      X.beginPath();
-      X.moveTo(p[0],p[1]);
-      for(var i=2;i<722;i+=2)X.lineTo(p[i],p[i+1]);
-      X.stroke();
-      X.restore();
-    }
-
-    X.strokeStyle=grad;
-    X.lineWidth=1;
-    X.beginPath();
-    X.moveTo(p[0],p[1]);
-    for(var i=2;i<722;i+=2)X.lineTo(p[i],p[i+1]);
-    X.stroke();
+  /* ---------------------------------------------------------- 操作 */
+  var down = false, last = null, moved = 0, glow = 0;
+  canvas.addEventListener('pointerdown', function (e) {
+    down = true; moved = 0; last = { x: e.clientX, y: e.clientY };
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    var dx = e.clientX - last.x, dy = e.clientY - last.y;
+    moved += Math.abs(dx) + Math.abs(dy);
+    last = { x: e.clientX, y: e.clientY };
+    /* 横になぞると跳ぶ角度がずれる。離すとゆっくり戻る */
+    nudge = Math.max(-0.9, Math.min(0.9, nudge + dx * 0.003));
+    glow = 1;
+    if (Math.abs(dx) > 1) SFX.play('move', 160);
+  });
+  function up() {
+    if (down && moved < 6) { next(); glow = 1; SFX.play('spawn'); }
+    down = false;
   }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', function () { down = false; });
 
-  function drawRose(n){
-    X.save();
-    X.shadowBlur=6;
-    X.shadowColor='rgba(0,245,212,0.4)';
-    X.strokeStyle='rgba(0,245,212,0.45)';
-    X.lineWidth=1.5;
-    X.beginPath();
-    var steps=720;
-    for(var k=0;k<=steps;k++){
-      var th=k*Math.PI*2/steps;
-      var r=Math.sin(n*th);
-      var x=cx+r*Math.cos(th)*sc;
-      var y=cy+r*Math.sin(th)*sc;
-      if(k===0)X.moveTo(x,y);
-      else X.lineTo(x,y);
+  var kPace = document.getElementById('k-pace'), kTrail = document.getElementById('k-trail');
+  kPace.addEventListener('input', function () { pace = this.value / 100; });
+  kTrail.addEventListener('input', function () { trail = this.value / 100; });
+  document.getElementById('k-next').addEventListener('click', function () { next(); SFX.play('click'); });
+  pace = kPace.value / 100;
+  trail = kTrail.value / 100;
+
+  /* ---------------------------------------------------------- 回す */
+  function ease(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+  var lastT = performance.now();
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    T += dt;
+    /* 形と形のあいだは、前の形を薄めながら次の形を濃くして入れ替える */
+    if (tr < 1) tr = Math.min(1, tr + dt / (9 - pace * 6));
+    else {
+      hold += dt;
+      if (hold > 24 - pace * 16) next();
     }
-    X.stroke();
-    X.restore();
+    var e = ease(tr);
+    /* 止まって見えないよう、角度はごくわずかに揺れ続ける */
+    var wob = Math.sin(T * 0.09) * 0.05;
+    if (!down) nudge *= Math.pow(0.4, dt);
+    rot += dt * 0.012;
+    glow = Math.max(0, glow - dt * 0.6);
+    points(n1, d1 + wob + nudge, XS, YS);
+    points(n0, d0 + wob + nudge, XP, YP);
+
+    /* 残像: 前の線を薄く残す */
+    P.fill(ctx, W, H, 0.12 + (1 - trail) * 0.5);
+    petals(n0, 1 - e); petals(n1, e);
+    lace(XP, YP, 1 - e); lace(XS, YS, e);
+
+    /* 線をたどる 1 点だけを、シアンで灯す */
+    pen = (pen + dt * (14 + pace * 18)) % 360;
+    var pk = Math.floor(pen), seg = 14;
+    ctx.lineWidth = 1.4;
+    for (var s = 0; s < seg; s++) {
+      var a = pk - s, b = a + 1;
+      if (a < 0) break;
+      ctx.strokeStyle = P.rgba(P.accent, (1 - s / seg) * (0.55 + glow * 0.4));
+      ctx.beginPath();
+      ctx.moveTo(XS[a], YS[a]);
+      var f = s === 0 ? pen - pk : 1;
+      ctx.lineTo(XS[a] + (XS[b] - XS[a]) * f, YS[a] + (YS[b] - YS[a]) * f);
+      ctx.stroke();
+    }
+    var fp = pen - pk, hx = XS[pk] + (XS[pk + 1] - XS[pk]) * fp, hy = YS[pk] + (YS[pk + 1] - YS[pk]) * fp;
+    ctx.fillStyle = P.rgba(P.accent, 0.95);
+    ctx.beginPath();
+    ctx.arc(hx, hy, 2.2, 0, Math.PI * 2);
+    ctx.fill();
+    if (pk === 0 && fp < dt * 30) SFX.play('tick', 4000);
+    requestAnimationFrame(frame);
   }
-
-  function draw(){
-    if(autoOn){
-      X.fillStyle='rgba(10,10,15,0.06)';
-    }else{
-      X.fillStyle='#0a0a0f';
-    }
-    X.fillRect(0,0,W,H);
-
-    var useD=autoOn?curD:d;
-    if(showCurve)drawRose(n);
-    drawMaurer(n,useD);
-
-    hudN.textContent=n;
-    hudD.textContent=Math.round(useD);
-  }
-
-  function loop(){
-    if(autoOn&&!userDrag){
-      curD+=spd*0.01;
-      if(curD>=360)curD-=360;
-      d=Math.round(curD);
-      slD.value=d;svD.textContent=d;
-    }
-    draw();
-    requestAnimationFrame(loop);
-  }
-
-  function randomize(){
-    n=2+Math.floor(Math.random()*19);
-    d=1+Math.floor(Math.random()*359);
-    curD=d;
-    slN.value=n;svN.textContent=n;
-    slD.value=d;svD.textContent=d;
-    if(typeof SFX!=='undefined')SFX.play('spawn');
-  }
-
-  function setParams(nn,dd){
-    n=nn;d=dd;curD=dd;
-    slN.value=nn;svN.textContent=nn;
-    slD.value=dd;svD.textContent=dd;
-  }
-
-  window.addEventListener('resize',resize);
-
-  slN.addEventListener('input',function(){
-    n=+this.value;svN.textContent=n;
-    if(typeof SFX!=='undefined')SFX.play('tick');
-  });
-  slD.addEventListener('input',function(){
-    d=+this.value;svD.textContent=d;curD=d;
-  });
-  slSpd.addEventListener('input',function(){
-    spd=+this.value;svSpd.textContent=spd;
-  });
-  slGlow.addEventListener('input',function(){
-    gw=+this.value;svGlow.textContent=gw;
-  });
-
-  document.getElementById('btn-auto').addEventListener('click',function(){
-    autoOn=!autoOn;
-    this.classList.toggle('active');
-    if(autoOn)curD=d;
-    if(typeof SFX!=='undefined')SFX.play('toggle');
-  });
-  document.getElementById('btn-curve').addEventListener('click',function(){
-    showCurve=!showCurve;
-    this.classList.toggle('active');
-    if(typeof SFX!=='undefined')SFX.play('toggle');
-  });
-  document.getElementById('btn-rnd').addEventListener('click',function(){
-    randomize();
-  });
-
-  var pBtns=document.querySelectorAll('#preset-btns .preset-btn');
-  for(var i=0;i<pBtns.length;i++)(function(btn){
-    btn.addEventListener('click',function(){
-      setParams(+btn.dataset.n,+btn.dataset.d);
-      if(typeof SFX!=='undefined')SFX.play('tick');
-    });
-  })(pBtns[i]);
-
-  C.addEventListener('mousedown',function(e){
-    if(e.button===2)return;
-    isDrag=false;userDrag=true;
-    dStartX=e.clientX;dStartD=curD;
-
-    function onMove(e){
-      var dx=e.clientX-dStartX;
-      if(Math.abs(dx)>5)isDrag=true;
-      if(isDrag){
-        var nd=dStartD+dx*0.5;
-        nd=((nd%360)+360)%360;
-        if(nd<1)nd+=360;
-        d=Math.round(nd);curD=nd;
-        slD.value=d;svD.textContent=d;
-      }
-    }
-    function onUp(){
-      document.removeEventListener('mousemove',onMove);
-      document.removeEventListener('mouseup',onUp);
-      userDrag=false;
-      if(!isDrag)randomize();
-      else if(typeof SFX!=='undefined')SFX.play('move');
-      setTimeout(function(){isDrag=false;},0);
-    }
-    document.addEventListener('mousemove',onMove);
-    document.addEventListener('mouseup',onUp);
-  });
-
-  var tStartX=0,tDrag=false,tStartD=0;
-  C.addEventListener('touchstart',function(e){
-    if(e.touches.length!==1)return;
-    tStartX=e.touches[0].clientX;
-    tStartD=curD;tDrag=false;userDrag=true;
-  },{passive:true});
-  C.addEventListener('touchmove',function(e){
-    if(e.touches.length!==1)return;
-    var dx=e.touches[0].clientX-tStartX;
-    if(Math.abs(dx)>10)tDrag=true;
-    if(tDrag){
-      var nd=tStartD+dx*0.5;
-      nd=((nd%360)+360)%360;
-      if(nd<1)nd+=360;
-      d=Math.round(nd);curD=nd;
-      slD.value=d;svD.textContent=d;
-    }
-  },{passive:true});
-  C.addEventListener('touchend',function(){
-    userDrag=false;
-    if(!tDrag)randomize();
-    else if(typeof SFX!=='undefined')SFX.play('move');
-    tDrag=false;
-  });
-
-  C.addEventListener('contextmenu',function(e){
-    e.preventDefault();
-    setParams(2,39);
-    if(typeof SFX!=='undefined')SFX.play('click');
-  });
-
-  resize();loop();
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

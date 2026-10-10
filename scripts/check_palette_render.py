@@ -10,7 +10,7 @@
 
 判定:
   彩度 > 0.30 かつ 明度 > 0.18 のピクセルを「色のあるピクセル」とみなし、
-  その色相が 160-300 度の外にある割合を out率 とする。
+  その色相が 185-228 度の外にある割合を out率 とする。
   out率 > 0.15 なら配色ルール違反。
 """
 from __future__ import annotations
@@ -34,7 +34,7 @@ REPORT = os.path.join(ROOT, 'reports', 'palette-render.json')
 
 # H.264/JPEG のクロマ間引きで teal(172deg) が数度ぶれるため、
 # 判定窓はソース側ルール(165-295)より少し広く取る。
-HUE_MIN, HUE_MAX = 150, 305          # 度
+HUE_MIN, HUE_MAX = 185, 228          # 度（2026-10 青焼き: 藍とシアン）
 SAT_FLOOR, VAL_FLOOR = 0.30, 0.18
 FAIL_RATIO = 0.15
 
@@ -64,7 +64,7 @@ def measure(png: str):
         hist[int(deg // 10) % 36] += 1
         if not (HUE_MIN <= deg <= HUE_MAX):
             out += 1
-        elif 205 <= deg <= 255:
+        elif 195 <= deg <= 205:
             blue += 1
     return total, out, hist, blue
 
@@ -102,10 +102,8 @@ def main() -> int:
     json.dump(rows, open(REPORT, 'w', encoding='utf-8'), ensure_ascii=False, indent=1)
 
     # out率 = 許容色相の外。これは明確な違反。
-    # blue率 = 遷移領域(205-255)の占有率。teal と purple を加算合成すると
-    #          その中間色が必然的にここへ落ちるため、高いだけでは違反にしない。
-    #          ただし「色相を一様に振っている」ページはここが 8 割を超えるので、
-    #          目視で確認する価値がある指標として残す。
+    # blue率 = シアン(195-205)の占有率。シアンは触ったところと焦点だけに使う決まりなので、
+    #          色のある画素の 55% を超えていたら「シアンで塗っている」疑いとして目視に回す。
     for r in rows:
         r['violation'] = r['ratio'] > args.fail_ratio
         r['review'] = not r['violation'] and r['blue_ratio'] > 0.55

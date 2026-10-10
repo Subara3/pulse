@@ -9,11 +9,10 @@ CLAUDE.md に書いてあるだけの決めごとは守られない。ここで�
 
 検査項目
   1. contents.json のスキーマ / group の妥当性 / 実ファイルとプレビューの存在
-  2. 全画面Canvasページの必須 include と禁止 include
-  3. 配色（色相 165-300 の外にある彩度の高い色を検出）
+  2. 全画面Canvasページの必須 include と禁止 include、画面に文字を出す部品の再侵入
+  3. 配色（青焼き: 色相 190-222 の外にある彩度のある色、hsl() による色相回しを検出）
   4. 削除済みページへのリンクが残っていないか
   5. 廃止フォント（Orbitron / Noto Sans JP）の残骸
-  6. data/log の整合性（Day重複・関連リンク切れ）
 """
 from __future__ import annotations
 
@@ -32,21 +31,32 @@ GROUPS = {
     'chaos', 'grow', 'flow', 'swarm', 'lattice', 'number',
     'curve', 'fractal', 'light', 'force', 'tile', 'mind',
 }
-SPECIAL_GROUPS = {'log', 'guide'}
+SPECIAL_GROUPS = {'guide'}
 
 REQUIRED_KEYS = {'page', 'title', 'desc', 'icon', 'category', 'added', 'group'}
 
 # 全画面Canvasページに必須 / 禁止の include
 MUST_INCLUDE = ['includes/config.php', 'includes/header.php', 'includes/floating-nav.php',
-                'includes/page-end.php']
-MUST_NOT_INCLUDE = ['includes/footer.php', 'includes/related.php', 'includes/share-buttons.php']
+                'includes/colors.php', 'includes/page-end.php']
+MUST_NOT_INCLUDE = ['includes/footer.php', 'includes/related.php', 'includes/share-buttons.php',
+                    'includes/interaction-hints.php']   # 2026-10: 画面に操作説明を出さない
 
-DOC_PAGES = {'index', 'contents', 'about', 'log', 'sitemap', 'random'}
+# 画面に文字や点数を出す部品・挑戦の仕組み（2026-10 に廃止）
+BANNED_MARKUP = [
+    (re.compile(r'class="[^"]*\bhud\b'), 'HUD（画面の数値表示）'),
+    (re.compile(r'PULSE\.clear\('), '挑戦の達成（PULSE.clear）'),
+    (re.compile(r"SFX\.play\(\s*'(success|fail|correct|complete)'"), '勝ち負けの音（success / fail / correct / complete）'),
+]
 
-# 許容色相（度）。teal 165-205 / 遷移 205-255 / purple 255-295 に少し余裕を持たせる
-HUE_MIN, HUE_MAX = 160.0, 300.0
-SAT_FLOOR = 0.28      # これ未満はグレー寄りなので無視
-LIGHT_LO, LIGHT_HI = 0.10, 0.94   # ほぼ黒/ほぼ白は無視
+DOC_PAGES = {'index', 'contents', 'about', 'sitemap', 'random'}
+
+# 許容色相（度）。青焼き: 藍 #0d2238 (210) と シアン #5fd0ff (199) と 鋼色 #6f8aa3 (209)
+HUE_MIN, HUE_MAX = 190.0, 222.0
+SAT_FLOOR = 0.16      # これ未満はグレー寄りなので無視
+LIGHT_LO, LIGHT_HI = 0.06, 0.96   # ほぼ黒/ほぼ白は無視
+
+# 色相を変数で回す hsl() は値を読めないので、それ自体を違反にする（色は colors.php の P から作る）
+HSL_DYNAMIC_RE = re.compile(r"[\"'`]hsla?\(\s*[\"'`]?\s*\+")
 
 HEX_RE = re.compile(r'(?<![&\w])#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})(?![0-9a-fA-F])')
 RGB_RE = re.compile(r'rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})')
@@ -55,9 +65,9 @@ HSL_RE = re.compile(r'hsla?\(\s*(\d{1,3}(?:\.\d+)?)\s*[, ]')
 ALLOW_COLOR_FILE = os.path.join(ROOT, 'scripts', 'palette_allowlist.json')
 
 
-# CLAUDE.md「題材の決め方」を機械的に守らせる。この日以降に added したエントリが対象
-RULES_SINCE = '2026-09-24'
-BANNED_DESC = ('創発', '可視化', '体験する', '深淵', '紡ぐ', '織りなす', '——')
+# CLAUDE.md「題材の決め方」を機械的に守らせる。直近 7 件の重なりは、この日以降に added したエントリが対象
+RULES_SINCE = '2026-10-11'
+BANNED_DESC = ('創発', '可視化', '体験', '深淵', '紡ぐ', '織りなす', '——', '神秘', '魔法', 'の世界')
 MAX_PER_GROUP = 10
 
 
@@ -107,6 +117,8 @@ def scan_colors(text: str):
         hue = float(m.group(1)) % 360
         if not (HUE_MIN <= hue <= HUE_MAX):
             out.append((m.group(0).rstrip(', '), round(hue)))
+    for m in HSL_DYNAMIC_RE.finditer(text):
+        out.append((m.group(0), -1))
     return out
 
 
@@ -149,12 +161,12 @@ def main() -> int:
     dated = sorted((c for c in items if c.get('group') in GROUPS and c.get('added')),
                    key=lambda c: c['added'])
     for i, c in enumerate(dated):
-        if c['added'] < RULES_SINCE:
-            continue
         p = c['page']
         for w in BANNED_DESC:
             if w in c.get('desc', ''):
                 errors.append(f'contents.json: {p} の desc に定型句「{w}」がある（CLAUDE.md「説明文の書き方」）')
+        if c['added'] < RULES_SINCE:
+            continue
         recent = [d['group'] for d in dated[max(0, i - 7):i]]
         if c['group'] in recent:
             errors.append(f'contents.json: {p} の group {c["group"]} は直近7件と被っている（CLAUDE.md「題材の決め方」2）')
@@ -168,18 +180,6 @@ def main() -> int:
         if len(ps) > MAX_PER_GROUP:
             errors.append(f'contents.json: {g} が {len(ps)} 本ある（上限 {MAX_PER_GROUP}）。'
                           'いちばん弱い 1 本を廃止してから足す（CLAUDE.md「題材の決め方」5）')
-
-    # 挑戦の記録（CLAUDE.md「題材の決め方」3）: challenge と PULSE.clear() は対で入れる
-    for c in items:
-        p = c.get('page')
-        path = os.path.join(ROOT, f'{p}.php')
-        if p in DOC_PAGES or not os.path.exists(path):
-            continue
-        calls = 'PULSE.clear(' in open(path, encoding='utf-8').read()
-        if c.get('challenge') and not calls:
-            errors.append(f'{p}.php: contents.json に challenge があるのに PULSE.clear() を呼んでいない')
-        if calls and not c.get('challenge'):
-            errors.append(f'contents.json: {p} は PULSE.clear() を呼ぶのに challenge が無い')
 
     # contents.json に無いのに残っている .php
     on_disk = {os.path.basename(f)[:-4] for f in glob.glob(os.path.join(ROOT, '*.php'))}
@@ -205,9 +205,9 @@ def main() -> int:
                 errors.append(f'{p}.php: {inc} は全画面Canvasページに入れない')
         if 'includes/sfx.php' not in src:
             warns.append(f'{p}.php: 効果音(sfx.php)が無い')
-        if 'interaction-hints.php' not in src and 'drawer-controls.php' not in src \
-                and 'content-controls.php' not in src:
-            warns.append(f'{p}.php: 操作の手がかり(hints/controls)が無い')
+        for rx, what in BANNED_MARKUP:
+            if rx.search(src):
+                errors.append(f'{p}.php: {what} は 2026-10 に廃止した（CLAUDE.md「作品の決めごと」）')
 
         if 'Orbitron' in src:
             errors.append(f'{p}.php: 廃止フォント Orbitron が残っている')
@@ -249,22 +249,6 @@ def main() -> int:
             t = m.group(1)
             if t not in seen and t not in DOC_PAGES:
                 errors.append(f'{os.path.basename(f)}: 存在しないページへのリンク {t}.php')
-
-    # ---------------------------------------------------------------- 6
-    days = {}
-    for f in sorted(glob.glob(os.path.join(ROOT, 'data', 'log', '*.json'))):
-        try:
-            e = json.load(open(f, encoding='utf-8'))
-        except Exception as ex:
-            errors.append(f'{os.path.basename(f)}: JSONとして壊れている ({ex})')
-            continue
-        d = e.get('day')
-        if d in days:
-            errors.append(f'log: Day {d} が {days[d]} と {os.path.basename(f)} で重複')
-        days[d] = os.path.basename(f)
-        for it in (e.get('contentSpotlight') or {}).get('items') or []:
-            if it.get('page') and it['page'] not in seen:
-                errors.append(f"{os.path.basename(f)}: 関連リンク先 {it['page']} が存在しない")
 
     # ---------------------------------------------------------------- 出力
     if warns and args.warn:

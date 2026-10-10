@@ -8,7 +8,6 @@
  */
 $navItems = [
     ['page' => 'contents', 'href' => 'contents.php', 'label' => 'さがす'],
-    ['page' => 'log',      'href' => 'log.php',      'label' => '日記'],
     ['page' => 'about',    'href' => 'about.php',    'label' => 'PULSE について'],
 ];
 ?>

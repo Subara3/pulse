@@ -5,473 +5,286 @@ recordPageView('antcolony');
 
 $pageName = 'antcolony';
 $pageTitle = 'ANTCOLONY - PULSE';
-$pageDesc = 'Ant colony pheromone simulation. Add food and draw walls to redirect trail formation around the nest.';
+$pageDesc = '巣を出たアリが餌を見つけると、帰り道に匂いを残す。匂いの濃い道を通るアリが増えるので、巣と餌を結ぶ白い道が太くなっていく。タップすると餌が置かれ、ドラッグすると匂いの道を引ける。';
 $pageCanonical = 'https://pulse.subara3.com/antcolony.php';
-$extraStyle = '
-body { background: #0a0a0f; overflow: hidden; }
-#canvas { position: fixed; inset: 0; width: 100%; height: 100%; cursor: crosshair; }
-.hud { position: fixed; top: 1rem; left: 1.5rem; font-family: "JetBrains Mono", monospace; font-size: 0.7rem; color: rgba(255,255,255,0.4); text-align: left; line-height: 1.8; z-index: 10; pointer-events: none; }
-.hud .v { color: #00f5d4; }
-.ctrl { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 10; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; }
-.ctrl button { background: rgba(0,245,212,0.08); border: 1px solid rgba(0,245,212,0.3); color: #00f5d4; font-family: "JetBrains Mono", monospace; font-size: 0.65rem; padding: 0.35rem 0.8rem; cursor: pointer; letter-spacing: 0.1em; transition: background 0.2s; }
-.ctrl button:hover { background: rgba(0,245,212,0.18); }
-.ctrl label { font-family: "JetBrains Mono", monospace; font-size: 0.65rem; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 0.6rem; }
-.ctrl input[type=range] { width: 100px; accent-color: #00f5d4; }
-.title { position: fixed; bottom: 1.5rem; left: 1.5rem; font-family: "Space Grotesk", sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.12); letter-spacing: 0.2em; z-index: 10; pointer-events: none; }
-@media (max-width: 768px) {
-  .hud { font-size: 0.6rem; }
-  .ctrl input[type=range] { width: 80px; }
-  .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
-}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
-<div class="hud">
-  <div>ANTS: <span class="v" id="hAnts">200</span></div>
-  <div>CARRYING: <span class="v" id="hCarrying">0</span></div>
-  <div>FOOD: <span class="v" id="hFood">3</span></div>
-</div>
-<div id="controls" class="ctrl drawer-controls">
-  <label>SPEED <input type="range" id="speedSlider" min="1" max="8" step="1" value="2"></label>
-  <button id="btnAddFood">+FOOD</button>
-  <button id="btnReset">RESET</button>
+
+<div id="controls" class="drawer-controls">
+  <div class="ctl-row"><label for="k-ants">ANTS</label><input type="range" id="k-ants" min="0" max="100" value="55"></div>
+  <div class="ctl-row"><label for="k-fade">FADE</label><input type="range" id="k-fade" min="0" max="100" value="45"></div>
+  <div class="ctl-btns"><button type="button" id="k-clear">CLEAR</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-<div class="title">ANTCOLONY</div>
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'food'],
-  ['type' => 'drag',  'label' => 'wall'],
-  ['type' => 'right', 'label' => 'erase'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function() {
-  const canvas = document.getElementById('canvas');
-  const ctx = canvas.getContext('2d');
+(function () {
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var ctx = canvas.getContext('2d');
+  var W = 0, H = 0;
 
-  // Simulation constants
-  const CELL      = 4;     // pheromone grid resolution (px)
-  const NUM_ANTS  = 200;
-  const EVAP      = 0.997; // per-frame pheromone decay
-  const SPEED     = 2.0;   // pixels per step
-  const SENSE_D   = 28;    // pheromone sense distance (px)
-  const SENSE_A   = 0.5;   // sense cone half-angle (rad)
-  const TURN      = 0.35;  // turn strength
-  const RAND      = 0.42;  // random wobble
-  const FOOD_R2   = 196;   // food pickup radius^2 (14px)
-  const NEST_R2   = 324;   // nest return radius^2 (18px)
-  const MAX_AGE   = 2800;  // search age before reset
-  const DEP_FOOD  = 6.0;   // returning ant deposit per step
-  const DEP_HOME  = 1.5;   // searching ant deposit per step
+  /* 匂いは粗い格子に置き、拡大して描く。帰り道の匂い（餌へ）と、行き道の匂い（巣へ）の 2 枚 */
+  var C = 3, GX = 1, GY = 1, toFood, toHome, img, buf, bctx;
+  var MAXA = 1400, N = 0;
+  var ax = new Float32Array(MAXA), ay = new Float32Array(MAXA), ang = new Float32Array(MAXA);
+  var carry = new Uint8Array(MAXA), age = new Float32Array(MAXA);
+  var nest = { x: 0, y: 0, r: 16 };
+  var foods = [];
+  var fade = 10;
 
-  let W, H, cols, rows;
-  let foodPhero, homePhero, wallGrid;
-  let nest = {x: 0, y: 0};
-  let foods = [];
-  let ants = [];
-  let simSpeed = 2;
-  let imgData, pxData, px32;
-  let hudTick = 0;
-
-  // Interaction state
-  let mouseDown = false, rightDown = false;
-  let dragStartX = 0, dragStartY = 0, dragged = false;
-  let touchStartPos = null, touchMoved = false;
-
-  // -------------------------
-  // Init
-  // -------------------------
-  function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-    cols = Math.ceil(W / CELL);
-    rows = Math.ceil(H / CELL);
-    imgData = ctx.createImageData(W, H);
-    pxData  = imgData.data;
-    px32    = new Uint32Array(pxData.buffer);
-    // Pre-fill alpha channel
-    for (let i = 3; i < pxData.length; i += 4) pxData[i] = 255;
-  }
-
-  function initGrids() {
-    foodPhero = new Float32Array(cols * rows);
-    homePhero = new Float32Array(cols * rows);
-    wallGrid  = new Uint8Array(cols * rows);
-  }
-
-  function initSim() {
-    nest = {x: W / 2, y: H / 2};
+  function alloc() {
+    GX = Math.ceil(W / C); GY = Math.ceil(H / C);
+    toFood = new Float32Array(GX * GY); toHome = new Float32Array(GX * GY);
+    img = new ImageData(GX, GY);
+    buf = document.createElement('canvas'); buf.width = GX; buf.height = GY;
+    bctx = buf.getContext('2d');
+    nest.x = W * 0.5; nest.y = H * 0.54;
     foods = [];
-    const r = Math.min(W, H) * 0.28;
-    for (let i = 0; i < 3; i++) {
-      const a = (i / 3) * Math.PI * 2 + 0.4;
-      foods.push({x: nest.x + Math.cos(a) * r, y: nest.y + Math.sin(a) * r});
+    for (var i = 0; i < 3; i++) addFood(null, null, 260);
+  }
+
+  function addFood(x, y, amount) {
+    if (x == null) {
+      /* 巣から程よく離れた所に、ほかの餌と重ならないように置く */
+      for (var tries = 0; tries < 30; tries++) {
+        var a = Math.random() * Math.PI * 2, r = Math.min(W, H) * (0.26 + Math.random() * 0.2);
+        x = nest.x + Math.cos(a) * r * (W / H > 1.2 ? 1.5 : 1); y = nest.y + Math.sin(a) * r;
+        if (x < 40 || x > W - 40 || y < 40 || y > H - 40) continue;
+        var ok = true;
+        for (var k = 0; k < foods.length; k++) if (Math.hypot(foods[k].x - x, foods[k].y - y) < 160) ok = false;
+        if (ok) break;
+      }
     }
-    ants = [];
-    for (let i = 0; i < NUM_ANTS; i++) ants.push(newAnt());
-    initGrids();
-    document.getElementById('hAnts').textContent = NUM_ANTS;
-    document.getElementById('hFood').textContent = foods.length;
+    var bits = [];
+    for (var b = 0; b < 26; b++) { var aa = Math.random() * 6.283, rr = Math.sqrt(Math.random()) * 11; bits.push([Math.cos(aa) * rr, Math.sin(aa) * rr]); }
+    foods.push({ x: x, y: y, n: amount, n0: amount, bits: bits, t: 0 });
   }
 
-  function newAnt() {
-    return {
-      x: nest.x + (Math.random() - 0.5) * 12,
-      y: nest.y + (Math.random() - 0.5) * 12,
-      angle: Math.random() * Math.PI * 2,
-      state: 'search', // 'search' | 'return'
-      age: 0
-    };
-  }
-
-  // -------------------------
-  // Grid helpers
-  // -------------------------
-  function gIdx(x, y) {
-    const cx = (x / CELL) | 0;
-    const cy = (y / CELL) | 0;
-    if (cx < 0 || cx >= cols || cy < 0 || cy >= rows) return -1;
-    return cy * cols + cx;
-  }
-
-  function deposit(grid, x, y, amount) {
-    const i = gIdx(x, y);
-    if (i >= 0 && !wallGrid[i]) grid[i] = Math.min(255, grid[i] + amount);
-  }
-
-  function sense(grid, x, y, angle, offset) {
-    const sx = x + Math.cos(angle + offset) * SENSE_D;
-    const sy = y + Math.sin(angle + offset) * SENSE_D;
-    const i = gIdx(sx, sy);
-    if (i < 0 || wallGrid[i]) return 0;
-    return grid[i];
-  }
-
-  // -------------------------
-  // Ant update
-  // -------------------------
-  function updateAnt(ant) {
-    const grid = (ant.state === 'search') ? foodPhero : homePhero;
-
-    // 3-sensor steering
-    const fwd = sense(grid, ant.x, ant.y, ant.angle, 0);
-    const lft = sense(grid, ant.x, ant.y, ant.angle, -SENSE_A);
-    const rgt = sense(grid, ant.x, ant.y, ant.angle,  SENSE_A);
-
-    if (fwd >= lft && fwd >= rgt) {
-      ant.angle += (Math.random() - 0.5) * RAND;
-    } else if (lft > rgt) {
-      ant.angle -= TURN + (Math.random() - 0.5) * 0.1;
-    } else if (rgt > lft) {
-      ant.angle += TURN + (Math.random() - 0.5) * 0.1;
-    } else {
-      ant.angle += (Math.random() - 0.5) * Math.PI;
+  function setCount(n) {
+    n = Math.max(80, Math.min(MAXA, n | 0));
+    for (var i = N; i < n; i++) {
+      ax[i] = nest.x; ay[i] = nest.y; ang[i] = Math.random() * 6.283; carry[i] = 0; age[i] = Math.random() * 3;
     }
+    N = n;
+  }
 
-    let nx = ant.x + Math.cos(ant.angle) * SPEED;
-    let ny = ant.y + Math.sin(ant.angle) * SPEED;
+  function sense(f, x, y) {
+    var i = (x / C) | 0, j = (y / C) | 0;
+    if (i < 0 || j < 0 || i >= GX || j >= GY) return -1;
+    return f[j * GX + i];
+  }
 
-    // Boundary bounce
-    if (nx < 2)     { nx = 2;     ant.angle = Math.PI - ant.angle; }
-    else if (nx > W - 2) { nx = W - 2; ant.angle = Math.PI - ant.angle; }
-    if (ny < 2)     { ny = 2;     ant.angle = -ant.angle; }
-    else if (ny > H - 2) { ny = H - 2; ant.angle = -ant.angle; }
-
-    // Wall collision
-    const wi = gIdx(nx, ny);
-    if (wi >= 0 && wallGrid[wi]) {
-      ant.angle += Math.PI + (Math.random() - 0.5) * 1.8;
-      return;
-    }
-
-    ant.x = nx;
-    ant.y = ny;
-    ant.age++;
-
-    if (ant.state === 'search') {
-      deposit(homePhero, ant.x, ant.y, DEP_HOME);
-      // Check food proximity
-      for (const f of foods) {
-        const dx = ant.x - f.x, dy = ant.y - f.y;
-        if (dx * dx + dy * dy < FOOD_R2) {
-          ant.state = 'return';
-          ant.age = 0;
-          ant.angle += Math.PI;
-          SFX.play('tick', 120);
-          return;
+  function step(dt) {
+    var SPEED = 46, SD = 15, SA = 0.55, TURN = 5;
+    for (var i = 0; i < N; i++) {
+      var x = ax[i], y = ay[i], a = ang[i];
+      var f = carry[i] ? toHome : toFood;
+      var l = sense(f, x + Math.cos(a - SA) * SD, y + Math.sin(a - SA) * SD);
+      var c = sense(f, x + Math.cos(a) * SD, y + Math.sin(a) * SD);
+      var r = sense(f, x + Math.cos(a + SA) * SD, y + Math.sin(a + SA) * SD);
+      if (c < l || c < r) a += (l > r ? -1 : 1) * TURN * dt;
+      a += (Math.random() - 0.5) * 3.2 * dt;
+      /* 近くまで来たら、巣や餌そのものへ向かう */
+      if (carry[i]) {
+        var nd = Math.hypot(nest.x - x, nest.y - y);
+        if (nd < 60) a = steerTo(a, Math.atan2(nest.y - y, nest.x - x), dt * 6);
+        if (nd < nest.r) { carry[i] = 0; age[i] = 0; a += Math.PI; }
+      } else {
+        for (var k = 0; k < foods.length; k++) {
+          var fd = foods[k];
+          if (fd.n <= 0) continue;
+          var d = Math.hypot(fd.x - x, fd.y - y);
+          if (d < 45) a = steerTo(a, Math.atan2(fd.y - y, fd.x - x), dt * 6);
+          if (d < 10) { fd.n--; carry[i] = 1; age[i] = 0; a += Math.PI; break; }
         }
       }
-      // Lost ant: warp back to nest
-      if (ant.age > MAX_AGE) {
-        ant.x = nest.x + (Math.random() - 0.5) * 12;
-        ant.y = nest.y + (Math.random() - 0.5) * 12;
-        ant.angle = Math.random() * Math.PI * 2;
-        ant.age = 0;
+      /* 画面の縁に沿って歩き続けないよう、縁が近いと内へ向きを変える */
+      var m = 36;
+      if (x < m || x > W - m || y < m || y > H - m) a = steerTo(a, Math.atan2(H / 2 - y, W / 2 - x), dt * 2.5);
+      x += Math.cos(a) * SPEED * dt; y += Math.sin(a) * SPEED * dt;
+      if (x < 2 || x > W - 2) { a = Math.PI - a; x = Math.max(2, Math.min(W - 2, x)); }
+      if (y < 2 || y > H - 2) { a = -a; y = Math.max(2, Math.min(H - 2, y)); }
+      ax[i] = x; ay[i] = y; ang[i] = a;
+      /* 出てきた場所から離れるほど、置く匂いは薄くなる */
+      age[i] += dt;
+      var gi = (x / C) | 0, gj = (y / C) | 0;
+      if (gi >= 0 && gj >= 0 && gi < GX && gj < GY) {
+        var amt = Math.exp(-age[i] / 9) * dt * 6;
+        var g = gj * GX + gi;
+        if (carry[i]) toFood[g] = Math.min(4, toFood[g] + amt);
+        else toHome[g] = Math.min(4, toHome[g] + amt);
       }
-    } else {
-      deposit(foodPhero, ant.x, ant.y, DEP_FOOD);
-      const dx = ant.x - nest.x, dy = ant.y - nest.y;
-      if (dx * dx + dy * dy < NEST_R2) {
-        ant.state = 'search';
-        ant.age = 0;
-        ant.angle = Math.random() * Math.PI * 2;
-        SFX.play('ripple', 180);
-      }
+    }
+    /* 匂いは少しずつ薄れ、にじむ */
+    blurAcc += dt;
+    if (++blurTick % 2 === 0) {
+      var ev = Math.exp(-blurAcc / fade);
+      blur(toFood, ev); blur(toHome, ev);
+      blurAcc = 0;
     }
   }
-
-  function evaporate() {
-    for (let i = 0; i < foodPhero.length; i++) {
-      foodPhero[i] *= EVAP;
-      homePhero[i] *= EVAP;
-    }
+  var blurTick = 0, blurAcc = 0;
+  function steerTo(a, b, k) {
+    var d = Math.atan2(Math.sin(b - a), Math.cos(b - a));
+    return a + d * Math.min(1, k);
   }
-
-  // -------------------------
-  // Render
-  // -------------------------
-  const BG32 = (0xFF << 24 | 15 << 16 | 10 << 8 | 10) >>> 0; // #0A0A0F ABGR LE
-
-  function render() {
-    // Fill background (fast typed array fill)
-    px32.fill(BG32);
-
-    // Pheromone pass (write teal food trails, dim purple home trails)
-    for (let cy = 0; cy < rows; cy++) {
-      const py = cy * CELL;
-      if (py >= H) break;
-      for (let cx = 0; cx < cols; cx++) {
-        const px = cx * CELL;
-        if (px >= W) break;
-        const gi = cy * cols + cx;
-
-        if (wallGrid[gi]) {
-          // Wall: dark grey
-          const wallC = (0xFF << 24 | 50 << 16 | 42 << 8 | 38) >>> 0;
-          for (let dy = 0; dy < CELL && py + dy < H; dy++) {
-            for (let dx = 0; dx < CELL && px + dx < W; dx++) {
-              px32[(py + dy) * W + (px + dx)] = wallC;
-            }
-          }
-          continue;
-        }
-
-        const fp = foodPhero[gi];
-        const hp = homePhero[gi];
-        if (fp < 0.8 && hp < 0.8) continue;
-
-        // Teal for food trail, hint of purple for home trail
-        const fS = Math.min(1, fp / 70);
-        const hS = Math.min(1, hp / 45);
-        const R = (hS * 90) | 0;
-        const G = (fS * 220 + hS * 30) | 0;
-        const B = (fS * 190 + hS * 170) | 0;
-        const color = (0xFF000000 | ((B & 0xFF) << 16) | ((G & 0xFF) << 8) | (R & 0xFF)) >>> 0;
-
-        for (let dy = 0; dy < CELL && py + dy < H; dy++) {
-          for (let dx = 0; dx < CELL && px + dx < W; dx++) {
-            px32[(py + dy) * W + (px + dx)] = color;
-          }
-        }
+  var tmp = null;
+  function blur(f, ev) {
+    if (!tmp || tmp.length !== f.length) tmp = new Float32Array(f.length);
+    for (var j = 1; j < GY - 1; j++) {
+      var row = j * GX;
+      for (var i = 1; i < GX - 1; i++) {
+        var k = row + i;
+        tmp[k] = (f[k] * 0.952 + (f[k - 1] + f[k + 1] + f[k - GX] + f[k + GX]) * 0.012) * ev;
       }
     }
+    f.set(tmp);
+  }
 
-    ctx.putImageData(imgData, 0, 0);
+  var BG = P.bg, ST = P.steel, LN = P.line, DEEP = P.deep;
+  function shade() {
+    var d = img.data;
+    for (var k = 0, n = GX * GY; k < n; k++) {
+      var f0 = toFood[k], h0 = toHome[k];
+      var fv = f0 / (f0 + 1.6), hv = h0 / (h0 + 1.4);
+      /* 巣への匂いは鋼色の薄い霞、餌への匂いは白い道 */
+      var r = BG[0] + (ST[0] - BG[0]) * hv * 0.38, g = BG[1] + (ST[1] - BG[1]) * hv * 0.38, b = BG[2] + (ST[2] - BG[2]) * hv * 0.38;
+      var t = fv * fv * 0.75;
+      r += (LN[0] - r) * t; g += (LN[1] - g) * t; b += (LN[2] - b) * t;
+      var o = k * 4;
+      d[o] = r; d[o + 1] = g; d[o + 2] = b; d[o + 3] = 255;
+    }
+    bctx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(buf, 0, 0, W, H);
+  }
 
-    // Nest glow (purple)
-    const ng = ctx.createRadialGradient(nest.x, nest.y, 3, nest.x, nest.y, 24);
-    ng.addColorStop(0, 'rgba(160,80,255,0.95)');
-    ng.addColorStop(0.4, 'rgba(123,44,191,0.6)');
-    ng.addColorStop(1, 'rgba(123,44,191,0)');
-    ctx.fillStyle = ng;
-    ctx.beginPath();
-    ctx.arc(nest.x, nest.y, 24, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(nest.x, nest.y, 5, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(200,130,255,0.95)';
-    ctx.fill();
-
-    // Food sources (teal)
-    for (const f of foods) {
-      const fg = ctx.createRadialGradient(f.x, f.y, 2, f.x, f.y, 16);
-      fg.addColorStop(0, 'rgba(0,245,212,0.9)');
-      fg.addColorStop(1, 'rgba(0,245,212,0)');
-      ctx.fillStyle = fg;
+  var marks = [];
+  function draw(dt) {
+    shade();
+    P.grid(ctx, W, H, { step: 48, major: 4, alpha: 0.45 });
+    /* 巣 */
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = P.rgba(LN, 0.7);
+    ctx.beginPath(); ctx.arc(nest.x, nest.y, nest.r, 0, Math.PI * 2); ctx.stroke();
+    ctx.strokeStyle = P.rgba(LN, 0.25);
+    ctx.beginPath(); ctx.arc(nest.x, nest.y, nest.r + 6, 0, Math.PI * 2); ctx.stroke();
+    /* 餌: 残りの量だけ粒が見える */
+    for (var k = foods.length - 1; k >= 0; k--) {
+      var fd = foods[k];
+      fd.t += dt;
+      var show = Math.ceil(fd.bits.length * Math.max(0, fd.n) / fd.n0);
+      if (fd.n <= 0) { foods.splice(k, 1); continue; }
+      ctx.fillStyle = P.rgba(LN, 0.9);
       ctx.beginPath();
-      ctx.arc(f.x, f.y, 16, 0, Math.PI * 2);
+      for (var b = 0; b < show; b++) { var bx = fd.x + fd.bits[b][0], by = fd.y + fd.bits[b][1]; ctx.moveTo(bx + 1.5, by); ctx.arc(bx, by, 1.5, 0, 6.283); }
       ctx.fill();
+      if (fd.mine && fd.t < 2.5) {
+        ctx.strokeStyle = P.rgba(P.accent, 0.6 * (1 - fd.t / 2.5));
+        ctx.beginPath(); ctx.arc(fd.x, fd.y, 16 + fd.t * 10, 0, Math.PI * 2); ctx.stroke();
+      }
+    }
+    /* アリ: 探しているものは鋼色、餌を運ぶものは白 */
+    for (var pass = 0; pass < 2; pass++) {
+      ctx.fillStyle = pass ? P.rgba(LN, 0.95) : P.rgba(P.mix(ST, LN, 0.35), 0.75);
       ctx.beginPath();
-      ctx.arc(f.x, f.y, 5, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffffff';
+      for (var i = 0; i < N; i++) {
+        if (carry[i] !== pass) continue;
+        var cx = Math.cos(ang[i]), sy = Math.sin(ang[i]);
+        ctx.moveTo(ax[i] + cx * 2.2, ay[i] + sy * 2.2);
+        ctx.lineTo(ax[i] - cx * 2.2 - sy * 1.1, ay[i] - sy * 2.2 + cx * 1.1);
+        ctx.lineTo(ax[i] - cx * 2.2 + sy * 1.1, ay[i] - sy * 2.2 - cx * 1.1);
+      }
       ctx.fill();
     }
-
-    // Ants
-    for (const ant of ants) {
-      ctx.beginPath();
-      ctx.arc(ant.x, ant.y, 1.5, 0, Math.PI * 2);
-      ctx.fillStyle = (ant.state === 'return') ? '#00f5d4' : 'rgba(210,210,240,0.5)';
-      ctx.fill();
-    }
-
-    // HUD update (throttled)
-    if (++hudTick % 20 === 0) {
-      let carrying = 0;
-      for (const a of ants) if (a.state === 'return') carrying++;
-      document.getElementById('hCarrying').textContent = carrying;
+    /* 指でなぞった跡 */
+    ctx.lineWidth = 1;
+    for (var m = marks.length - 1; m >= 0; m--) {
+      var mk = marks[m];
+      mk.t += dt;
+      var al = 1 - mk.t / 1.2;
+      if (al <= 0) { marks.splice(m, 1); continue; }
+      ctx.fillStyle = P.rgba(P.accent, al * 0.6);
+      ctx.beginPath(); ctx.arc(mk.x, mk.y, 2, 0, Math.PI * 2); ctx.fill();
     }
   }
 
-  // -------------------------
-  // Main loop
-  // -------------------------
-  function loop() {
-    for (let s = 0; s < simSpeed; s++) {
-      evaporate();
-      for (const ant of ants) updateAnt(ant);
-    }
-    render();
-    requestAnimationFrame(loop);
-  }
-
-  // -------------------------
-  // Interaction: wall drawing
-  // -------------------------
-  function drawWall(x, y, erase) {
-    const br = 3;
-    const cx0 = (x / CELL) | 0;
-    const cy0 = (y / CELL) | 0;
-    for (let dy = -br; dy <= br; dy++) {
-      for (let dx = -br; dx <= br; dx++) {
-        if (dx * dx + dy * dy > br * br) continue;
-        const cx = cx0 + dx, cy = cy0 + dy;
-        if (cx < 0 || cx >= cols || cy < 0 || cy >= rows) continue;
-        const i = cy * cols + cx;
-        wallGrid[i] = erase ? 0 : 1;
-        if (!erase) { foodPhero[i] = 0; homePhero[i] = 0; }
-      }
-    }
-    if (!erase) SFX.play('tick', 60);
-  }
-
-  function placeFood(x, y) {
-    foods.push({x, y});
-    document.getElementById('hFood').textContent = foods.length;
-    SFX.play('spawn');
-  }
-
-  function eraseAt(x, y) {
-    // Erase walls
-    drawWall(x, y, true);
-    // Erase food sources near cursor
-    const prev = foods.length;
-    foods = foods.filter(f => {
-      const dx = f.x - x, dy = f.y - y;
-      return dx * dx + dy * dy > 600;
-    });
-    if (foods.length !== prev) {
-      document.getElementById('hFood').textContent = foods.length;
-      SFX.play('pop');
+  /* ---------------------------------------------------------- 操作 */
+  var down = false, last = null, moved = 0;
+  function lay(x, y) {
+    var gi = (x / C) | 0, gj = (y / C) | 0;
+    for (var j = gj - 2; j <= gj + 2; j++) for (var i = gi - 2; i <= gi + 2; i++) {
+      if (i < 0 || j < 0 || i >= GX || j >= GY) continue;
+      var k = j * GX + i; toFood[k] = Math.min(4, toFood[k] + 0.9); toHome[k] = Math.min(4, toHome[k] + 0.5);
     }
   }
-
-  function canvasPos(e) {
-    const r = canvas.getBoundingClientRect();
-    const scaleX = W / r.width;
-    const scaleY = H / r.height;
-    return {x: (e.clientX - r.left) * scaleX, y: (e.clientY - r.top) * scaleY};
-  }
-
-  // Mouse events
-  canvas.addEventListener('mousedown', e => {
-    e.preventDefault();
-    const {x, y} = canvasPos(e);
-    if (e.button === 2) {
-      rightDown = true;
-      eraseAt(x, y);
-    } else {
-      mouseDown = true;
-      dragged = false;
-      dragStartX = x;
-      dragStartY = y;
-    }
+  canvas.addEventListener('pointerdown', function (e) {
+    down = true; last = { x: e.clientX, y: e.clientY }; moved = 0;
+    canvas.setPointerCapture(e.pointerId);
   });
-
-  canvas.addEventListener('mousemove', e => {
-    const {x, y} = canvasPos(e);
-    if (mouseDown) {
-      const dx = x - dragStartX, dy = y - dragStartY;
-      if (!dragged && dx * dx + dy * dy > 16) dragged = true;
-      if (dragged) drawWall(x, y, false);
-    }
-    if (rightDown) eraseAt(x, y);
+  canvas.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    var p = { x: e.clientX, y: e.clientY }, d = Math.hypot(p.x - last.x, p.y - last.y);
+    if (d < 4) return;
+    moved += d;
+    var n = Math.ceil(d / 4);
+    for (var s = 1; s <= n; s++) lay(last.x + (p.x - last.x) * s / n, last.y + (p.y - last.y) * s / n);
+    marks.push({ x: p.x, y: p.y, t: 0 });
+    last = p;
+    SFX.play('move', 160);
   });
-
-  canvas.addEventListener('mouseup', e => {
-    if (e.button === 0 && mouseDown && !dragged) {
-      const {x, y} = canvasPos(e);
-      placeFood(x, y);
+  function up(e) {
+    if (!down) return;
+    down = false;
+    /* なぞらずに離したら、そこに餌を置く */
+    if (moved < 12 && e.type === 'pointerup') {
+      if (foods.length > 7) foods.shift();
+      addFood(last.x, last.y, 220);
+      foods[foods.length - 1].mine = true;
+      SFX.play('spawn');
     }
-    mouseDown = false;
-    rightDown = false;
-    dragged = false;
+  }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
+
+  function antsFrom(v) { return 200 + v / 100 * 1000; }
+  function fadeFrom(v) { return 22 - v / 100 * 18; }
+  document.getElementById('k-ants').addEventListener('input', function () {
+    var n = antsFrom(+this.value) | 0;
+    if (n > N) setCount(n); else N = n;
   });
-
-  canvas.addEventListener('contextmenu', e => e.preventDefault());
-
-  // Touch events
-  canvas.addEventListener('touchstart', e => {
-    e.preventDefault();
-    const t = e.touches[0];
-    const {x, y} = canvasPos(t);
-    touchStartPos = {x, y};
-    touchMoved = false;
-  }, {passive: false});
-
-  canvas.addEventListener('touchmove', e => {
-    e.preventDefault();
-    touchMoved = true;
-    const t = e.touches[0];
-    const {x, y} = canvasPos(t);
-    drawWall(x, y, false);
-  }, {passive: false});
-
-  canvas.addEventListener('touchend', e => {
-    e.preventDefault();
-    if (!touchMoved && touchStartPos) {
-      placeFood(touchStartPos.x, touchStartPos.y);
-    }
-    touchStartPos = null;
-    touchMoved = false;
-  }, {passive: false});
-
-  // Controls
-  document.getElementById('speedSlider').addEventListener('input', e => {
-    simSpeed = +e.target.value;
-  });
-
-  document.getElementById('btnReset').addEventListener('click', () => {
-    initSim();
+  document.getElementById('k-fade').addEventListener('input', function () { fade = fadeFrom(+this.value); });
+  document.getElementById('k-clear').addEventListener('click', function () {
+    toFood.fill(0); toHome.fill(0);
     SFX.play('click');
   });
+  fade = fadeFrom(+document.getElementById('k-fade').value);
 
-  document.getElementById('btnAddFood').addEventListener('click', () => {
-    const a = Math.random() * Math.PI * 2;
-    const r = Math.min(W, H) * (0.18 + Math.random() * 0.22);
-    placeFood(nest.x + Math.cos(a) * r, nest.y + Math.sin(a) * r);
-  });
+  ctx = P.fit(canvas, function (w, h) { W = w; H = h; alloc(); N = 0; setCount(antsFrom(+document.getElementById('k-ants').value)); });
+  /* 開いたときにはもう道ができ始めているよう、少し先まで進めておく */
+  for (var w0 = 0; w0 < 420; w0++) step(1 / 30);
 
-  // Startup
-  resize();
-  initSim();
-  window.addEventListener('resize', () => { resize(); initSim(); });
-  loop();
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now(), foodWait = 0;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    /* 餌がなくなったら、しばらくして別の場所に新しい餌が出る */
+    if (foods.length < 3) {
+      foodWait += dt;
+      if (foodWait > 4) { addFood(null, null, 260); foodWait = 0; SFX.play('tick', 4000); }
+    }
+    step(dt);
+    draw(dt);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

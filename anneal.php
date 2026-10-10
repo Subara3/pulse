@@ -5,392 +5,251 @@ recordPageView('anneal');
 
 $pageName = 'anneal';
 $pageTitle = 'ANNEAL - PULSE';
-$pageDesc = 'Simulated annealing solves the Travelling Salesman Problem. Watch a hot chaotic path cool into the shortest route.';
+$pageDesc = '散らばった点が1本の線で順に結ばれている。線は最初は大きく乱れているが、時間とともに交差がほどけて短い輪にまとまる。触ると点が増え、線が少し乱れてから結び直される。';
 $pageCanonical = 'https://pulse.subara3.com/anneal.php';
-$extraStyle = '
-body{overflow:hidden}
-#canvas{position:fixed;top:0;left:0;width:100%;height:100%}
-#hud{position:fixed;top:1rem;left:1rem;font-size:.7rem;color:rgba(0,245,212,.65);font-family:monospace;pointer-events:none;line-height:2;z-index:10}
-#hud span.v{color:#fff}
-#controls{position:fixed;bottom:1rem;right:1rem;display:flex;flex-direction:column;gap:.4rem;align-items:flex-end;z-index:10}
-.btn{background:rgba(0,245,212,.07);border:1px solid rgba(0,245,212,.28);color:#00f5d4;font-size:.66rem;padding:.28rem .62rem;cursor:pointer;font-family:monospace;letter-spacing:.07em;transition:background .15s}
-.btn:hover{background:rgba(0,245,212,.18)}
-.btn:active{background:rgba(0,245,212,.28)}
-.ctrl-row{display:flex;align-items:center;gap:.5rem;justify-content:flex-end}
-.ctrl-label{color:rgba(0,245,212,.55);font-family:monospace;font-size:.65rem;letter-spacing:.05em;min-width:3.8rem;text-align:right}
-.ctrl-val{color:rgba(255,255,255,.7);font-family:monospace;font-size:.62rem;min-width:2.2rem;text-align:right}
-input[type=range]{width:88px;accent-color:#00f5d4;cursor:pointer}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
-<div id="hud">
-  <div>TEMP &nbsp;&nbsp;<span class="v" id="hud-temp">100.0%</span></div>
-  <div>DIST &nbsp;&nbsp;<span class="v" id="hud-dist">—</span></div>
-  <div>BEST &nbsp;&nbsp;<span class="v" id="hud-best">—</span></div>
-  <div>CITIES &nbsp;<span class="v" id="hud-cities">60</span></div>
-  <div>STATUS &nbsp;<span class="v" id="hud-status">ANNEALING</span></div>
-</div>
+
 <div id="controls" class="drawer-controls">
-  <div class="ctrl-row">
-    <span class="ctrl-label">CITIES</span>
-    <input type="range" id="sl-cities" min="10" max="150" value="60" step="5">
-    <span class="ctrl-val" id="val-cities">60</span>
-  </div>
-  <div class="ctrl-row">
-    <span class="ctrl-label">SPEED</span>
-    <input type="range" id="sl-speed" min="1" max="5" value="3" step="1">
-    <span class="ctrl-val" id="val-speed">3</span>
-  </div>
-  <button class="btn" id="btn-reset">RESET</button>
+  <div class="ctl-row"><label for="k-cities">CITIES</label><input type="range" id="k-cities" min="0" max="100" value="40"></div>
+  <div class="ctl-row"><label for="k-pace">PACE</label><input type="range" id="k-pace" min="0" max="100" value="45"></div>
+  <div class="ctl-btns"><button type="button" id="k-next">NEXT</button></div>
 </div>
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'add city'],
-  ['type' => 'right', 'label' => 'remove'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
 (function () {
-  const canvas = document.getElementById('canvas');
-  const ctx    = canvas.getContext('2d');
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0, sized = false;
+  var trail = document.createElement('canvas'), tctx = trail.getContext('2d');
+  var ctx = P.fit(canvas, function (w, h, dpr) {
+    W = w; H = h;
+    /* 順路の残像は別のキャンバスに溜めて薄めていく（方眼まで濃くならないように） */
+    trail.width = Math.round(w * dpr); trail.height = Math.round(h * dpr);
+    tctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if (sized) newLayout(true);
+    sized = true;
+  });
 
-  let W, H;
-  function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-  }
-  window.addEventListener('resize', resize);
-  resize();
+  /*
+   * 焼きなまし: 一筆書きの順路の一部を逆向きにつなぎ替える（2-opt）。
+   * 短くなるなら必ず、長くなるなら温度に応じた確率で受け入れる。
+   * 熱いうちは線がもつれ、冷めるにつれて交差がほどけて、短い輪に落ち着く。
+   * 冷え切ってしばらく眺めたら、点が新しい配置へ移り、また熱するところから始まる。
+   */
+  var MAXN = 260;
+  var X = new Float32Array(MAXN), Y = new Float32Array(MAXN), TX = new Float32Array(MAXN), TY = new Float32Array(MAXN);
+  var FX = new Float32Array(MAXN), FY = new Float32Array(MAXN), born = new Float32Array(MAXN);
+  var tour = new Int32Array(MAXN), N = 0, want = 90;
 
-  /* ── State ──────────────────────────────────────────────────────────── */
-  const PAD = 60;
-  let cities     = [];
-  let tour       = [];      // current working tour
-  let bestTour   = [];
-  let bestDist   = Infinity;
-  let curDist    = Infinity;
-  let T          = 1;       // current temperature (will be auto-calibrated)
-  let T_INIT     = 1;       // stored for percentage display
-  let T_MIN      = 0.001;
-  let ALPHA      = 0.999985;
-  let frozen     = false;
-  let speed      = 3;
-  let completedOnce = false;
-
-  /* ── Distance helpers ───────────────────────────────────────────────── */
-  function dist(a, b) {
-    const dx = a.x - b.x, dy = a.y - b.y;
-    return Math.sqrt(dx * dx + dy * dy);
-  }
-
-  function tourDist(t) {
-    let s = 0;
-    for (let i = 0, n = t.length; i < n; i++)
-      s += dist(cities[t[i]], cities[t[(i + 1) % n]]);
-    return s;
-  }
-
-  /* ── Random initial tour (Fisher-Yates shuffle) ─────────────────────── */
-  function randomTour() {
-    const t = Array.from({ length: cities.length }, (_, i) => i);
-    for (let i = t.length - 1; i > 0; i--) {
-      const j = (Math.random() * (i + 1)) | 0;
-      const tmp = t[i]; t[i] = t[j]; t[j] = tmp;
-    }
-    return t;
-  }
-
-  function randomCity() {
-    return {
-      x: PAD + Math.random() * (W - 2 * PAD),
-      y: PAD + Math.random() * (H - 2 * PAD)
-    };
-  }
-
-  /* ── Auto-calibrate initial temperature ─────────────────────────────── */
-  function calibrateTemp() {
-    // Sample random 2-opt deltas to find a good starting T
-    // so that ~80% of uphill moves are accepted initially
-    const n = cities.length;
-    if (n < 4) return 100;
-    const deltas = [];
-    for (let s = 0; s < 200; s++) {
-      let i = (Math.random() * n) | 0;
-      let k = (Math.random() * n) | 0;
-      if (i === k) continue;
-      if (i > k) { const tmp = i; i = k; k = tmp; }
-      if (k - i < 2 || k - i >= n - 1) continue;
-      const a = cities[tour[i]],     b = cities[tour[i + 1]];
-      const c = cities[tour[k]],     dd = cities[tour[(k + 1) % n]];
-      const delta = dist(a, c) + dist(b, dd) - dist(a, b) - dist(c, dd);
-      if (delta > 0) deltas.push(delta);
-    }
-    if (deltas.length === 0) return 100;
-    deltas.sort((a, b) => a - b);
-    // Set T so that the median uphill delta has ~80% acceptance
-    const median = deltas[Math.floor(deltas.length * 0.5)];
-    return -median / Math.log(0.8);
-  }
-
-  /* ── Init ───────────────────────────────────────────────────────────── */
-  function init(n) {
-    cities  = Array.from({ length: n }, randomCity);
-    tour    = randomTour();
-    curDist = tourDist(tour);
-    bestTour = [...tour];
-    bestDist = curDist;
-
-    // Calibrate temperature to match problem scale
-    T_INIT = calibrateTemp();
-    T      = T_INIT;
-    T_MIN  = T_INIT * 0.000001;
-    ALPHA  = 0.999985;
-    frozen = false;
-    completedOnce = false;
-  }
-
-  /* ── 2-opt SA step ──────────────────────────────────────────────────── */
-  function step() {
-    const n = cities.length;
-    if (n < 4 || frozen) return;
-
-    // Pick two random positions for 2-opt
-    let i = (Math.random() * n) | 0;
-    let k = (Math.random() * n) | 0;
-    if (i === k) return;
-    if (i > k) { const tmp = i; i = k; k = tmp; }
-    if (k - i < 2 || k - i >= n - 1) return;
-
-    // Delta evaluation (O(1))
-    const a  = cities[tour[i]];
-    const b  = cities[tour[i + 1]];
-    const c  = cities[tour[k]];
-    const dd = cities[tour[(k + 1) % n]];
-    const delta = dist(a, c) + dist(b, dd) - dist(a, b) - dist(c, dd);
-
-    // Metropolis criterion
-    if (delta < 0 || Math.random() < Math.exp(-delta / T)) {
-      // Reverse segment tour[i+1 .. k]
-      let l = i + 1, r = k;
-      while (l < r) { const tmp = tour[l]; tour[l] = tour[r]; tour[r] = tmp; l++; r--; }
-      curDist += delta;
-
-      if (curDist < bestDist - 0.01) {
-        bestDist = curDist;
-        bestTour = [...tour];
-        if (typeof SFX !== 'undefined') SFX.play('success', 300);
-      }
-    }
-
-    T *= ALPHA;
-    if (T < T_MIN) { T = T_MIN; frozen = true; }
-  }
-
-  /* ── Deterministic 2-opt local search (post-freeze cleanup) ────────── */
-  function localOpt() {
-    const n = tour.length;
-    if (n < 4) return;
-    let improved = true;
-    while (improved) {
-      improved = false;
-      for (let i = 0; i < n - 2; i++) {
-        for (let k = i + 2; k < n; k++) {
-          if (i === 0 && k === n - 1) continue;
-          const a = cities[tour[i]], b = cities[tour[i + 1]];
-          const c = cities[tour[k]], dd = cities[tour[(k + 1) % n]];
-          const delta = dist(a, c) + dist(b, dd) - dist(a, b) - dist(c, dd);
-          if (delta < -0.01) {
-            let l = i + 1, r = k;
-            while (l < r) { const tmp = tour[l]; tour[l] = tour[r]; tour[r] = tmp; l++; r--; }
-            curDist += delta;
-            improved = true;
-          }
+  function layout(kind, n, outX, outY) {
+    var mx = W * 0.1, my = H * 0.12, w = W - mx * 2, h = H - my * 2, cx = W / 2, cy = H / 2;
+    var minD = Math.sqrt(w * h / n) * 0.55;
+    for (var i = 0; i < n; i++) {
+      var x, y, ok = false;
+      for (var tries = 0; tries < 40 && !ok; tries++) {
+        if (kind === 0) { x = mx + Math.random() * w; y = my + Math.random() * h; }
+        else if (kind === 1) {
+          /* いくつかの島 */
+          var c = i % 4, ang = c * 1.9 + 0.7;
+          var ccx = cx + Math.cos(ang) * w * 0.28, ccy = cy + Math.sin(ang) * h * 0.28;
+          var r = Math.sqrt(-2 * Math.log(Math.random() + 1e-9)) * Math.min(w, h) * 0.1, a = Math.random() * 6.283;
+          x = ccx + Math.cos(a) * r; y = ccy + Math.sin(a) * r;
+        } else {
+          /* 二重の輪 */
+          var ring = Math.random() < 0.55 ? 0.42 : 0.24, a2 = Math.random() * 6.283;
+          var rr = ring * Math.min(w, h) * (1 + (Math.random() - 0.5) * 0.16);
+          x = cx + Math.cos(a2) * rr * 1.25; y = cy + Math.sin(a2) * rr;
         }
+        if (x < mx * 0.6 || x > W - mx * 0.6 || y < my * 0.6 || y > H - my * 0.6) continue;
+        ok = true;
+        for (var j = 0; j < i; j++) { var dx = outX[j] - x, dy = outY[j] - y; if (dx * dx + dy * dy < minD * minD) { ok = false; break; } }
+      }
+      outX[i] = x; outY[i] = y;
+    }
+  }
+
+  var kind = Math.floor(Math.random() * 3), glide = 1;
+  var T = 1, T0 = 1, Tmin = 0.001, phase = 'hot', clock = 0, pace = 0.45, cooledSound = false;
+  function scaleT() {
+    var d = Math.sqrt(W * H / Math.max(10, N));
+    T0 = d * 0.9; Tmin = d * 0.0015;
+  }
+  function newLayout(first) {
+    var n = want;
+    kind = (kind + 1 + Math.floor(Math.random() * 2)) % 3;
+    if (first || N === 0) {
+      N = n;
+      layout(kind, N, X, Y);
+      for (var i = 0; i < N; i++) { tour[i] = i; born[i] = 99; }
+      for (var s = N - 1; s > 0; s--) { var r = Math.floor(Math.random() * (s + 1)), tmp = tour[s]; tour[s] = tour[r]; tour[r] = tmp; }
+      glide = 1;
+    } else {
+      /* 点の数を合わせてから、今の位置から新しい配置へ滑らせる */
+      while (N < n) { X[N] = W / 2 + (Math.random() - 0.5) * 40; Y[N] = H / 2 + (Math.random() - 0.5) * 40; born[N] = 99; tour[N] = N; N++; }
+      if (N > n) {
+        var keep = []; for (var k = 0; k < N; k++) if (tour[k] < n) keep.push(tour[k]);
+        for (var k2 = 0; k2 < keep.length; k2++) tour[k2] = keep[k2];
+        N = n;
+      }
+      layout(kind, N, TX, TY);
+      for (var m = 0; m < N; m++) { FX[m] = X[m]; FY[m] = Y[m]; }
+      glide = 0;
+    }
+    scaleT();
+    T = T0; phase = 'hot'; clock = 0; cooledSound = false;
+  }
+
+  function d(a, b) { var dx = X[a] - X[b], dy = Y[a] - Y[b]; return Math.sqrt(dx * dx + dy * dy); }
+  function anneal(iters) {
+    for (var n = 0; n < iters; n++) {
+      var i = Math.floor(Math.random() * N), j = Math.floor(Math.random() * N);
+      if (i === j) continue;
+      if (i > j) { var t = i; i = j; j = t; }
+      if (j - i < 2 || (i === 0 && j === N - 1)) continue;
+      var a = tour[i], b = tour[i + 1], c = tour[j], e = tour[(j + 1) % N];
+      var delta = d(a, c) + d(b, e) - d(a, b) - d(c, e);
+      if (delta < 0 || Math.random() < Math.exp(-delta / T)) {
+        for (var p = i + 1, q = j; p < q; p++, q--) { var s = tour[p]; tour[p] = tour[q]; tour[q] = s; }
       }
     }
-    bestTour = [...tour];
-    bestDist = curDist;
   }
 
-  /* ── Drawing ────────────────────────────────────────────────────────── */
-  // Temperature as 0..1 (1 = hottest)
-  function tempPct() {
-    if (T_INIT <= T_MIN) return 0;
-    return Math.max(0, Math.min(1, Math.log(T / T_MIN) / Math.log(T_INIT / T_MIN)));
-  }
-
-  function drawPath(t, r, g, b, alpha, lineW, glow) {
-    if (t.length < 2) return;
-    ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
-    ctx.lineWidth   = lineW;
-    if (glow) { ctx.shadowColor = `rgb(${r},${g},${b})`; ctx.shadowBlur = 8; }
-    ctx.beginPath();
-    ctx.moveTo(cities[t[0]].x, cities[t[0]].y);
-    for (let j = 1; j < t.length; j++) ctx.lineTo(cities[t[j]].x, cities[t[j]].y);
-    ctx.closePath();
-    ctx.stroke();
-    ctx.shadowBlur = 0;
-  }
-
-  let lastHud = 0;
-
-  function draw() {
-    ctx.fillStyle = '#0a0a0f';
-    ctx.fillRect(0, 0, W, H);
-    if (cities.length < 2) return;
-
-    const tp = tempPct();
-
-    // Purple heat overlay
-    if (!frozen && tp > 0.01) {
-      ctx.fillStyle = `rgba(123,44,191,${tp * 0.08})`;
-      ctx.fillRect(0, 0, W, H);
-    }
-
-    // Current tour (hot = purple, cool = teal)
-    const cr = Math.round(123 * tp + 0 * (1 - tp));
-    const cg = Math.round(44 * tp + 245 * (1 - tp));
-    const cb = Math.round(191 * tp + 212 * (1 - tp));
-
-    if (!frozen) {
-      // Show current exploratory tour
-      drawPath(tour, cr, cg, cb, 0.15 + tp * 0.25, 0.8, false);
-    }
-
-    // Best tour (always teal, brighter when frozen)
-    drawPath(bestTour, 0, 245, 212, frozen ? 0.9 : 0.5, frozen ? 1.6 : 1.1, frozen);
-
-    // Cities
-    ctx.shadowColor = '#00f5d4';
-    ctx.shadowBlur  = 3;
-    for (let i = 0; i < cities.length; i++) {
-      const { x, y } = cities[i];
-      ctx.fillStyle = 'rgba(255,255,255,0.85)';
-      ctx.beginPath();
-      ctx.arc(x, y, 3, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.shadowBlur = 0;
-
-    // HUD throttle
-    const now = Date.now();
-    if (now - lastHud > 80) {
-      lastHud = now;
-      document.getElementById('hud-temp').textContent   = (tp * 100).toFixed(1) + '%';
-      document.getElementById('hud-dist').textContent   = curDist < Infinity ? curDist.toFixed(0) : '—';
-      document.getElementById('hud-best').textContent    = bestDist < Infinity ? bestDist.toFixed(0) : '—';
-      document.getElementById('hud-cities').textContent  = cities.length;
-      document.getElementById('hud-status').textContent  = frozen ? 'FROZEN' : 'ANNEALING';
-    }
-  }
-
-  /* ── Main loop ──────────────────────────────────────────────────────── */
-  function loop() {
-    if (!frozen) {
-      const iters = 600 * Math.pow(2, speed - 1);
-      for (let i = 0; i < iters; i++) {
-        step();
-        if (frozen) {
-          if (!completedOnce) { localOpt(); completedOnce = true; if (typeof SFX !== 'undefined') SFX.play('complete'); }
-          break;
-        }
-      }
-    }
-    draw();
-    requestAnimationFrame(loop);
-  }
-
-  /* ── Interaction ────────────────────────────────────────────────────── */
-  function addCity(x, y) {
-    cities.push({ x, y });
-    // Re-insert into current tour at best position
-    let bestPos = 0, bestInc = Infinity;
-    for (let i = 0; i < tour.length; i++) {
-      const j = (i + 1) % tour.length;
-      const inc = dist(cities[tour[i]], { x, y }) + dist({ x, y }, cities[tour[j]])
-                - dist(cities[tour[i]], cities[tour[j]]);
-      if (inc < bestInc) { bestInc = inc; bestPos = i + 1; }
-    }
-    const newIdx = cities.length - 1;
-    tour.splice(bestPos, 0, newIdx);
-    curDist = tourDist(tour);
-    bestTour = [...tour];
-    bestDist = curDist;
-    // Reheat
-    T_INIT = calibrateTemp();
-    T = T_INIT;
-    T_MIN = T_INIT * 0.000001;
-    frozen = false;
-    completedOnce = false;
-    SFX.play('spawn');
-  }
-
-  function removeCity(x, y) {
-    if (cities.length <= 4) return;
-    let best = -1, bd = Infinity;
-    for (let i = 0; i < cities.length; i++) {
-      const dd = Math.hypot(cities[i].x - x, cities[i].y - y);
+  /* 新しい点は、順路がいちばん伸びないところへ差し込む */
+  function insert(x, y) {
+    if (N >= MAXN) return;
+    var id = N;
+    X[id] = x; Y[id] = y; TX[id] = FX[id] = x; TY[id] = FY[id] = y; born[id] = 0; N++;
+    var best = 0, bd = 1e18;
+    for (var i = 0; i < N - 1; i++) {
+      var a = tour[i], b = tour[(i + 1) % (N - 1)];
+      var dd = Math.hypot(X[a] - x, Y[a] - y) + Math.hypot(X[b] - x, Y[b] - y) - d(a, b);
       if (dd < bd) { bd = dd; best = i; }
     }
-    if (best >= 0 && bd < 40) {
-      cities.splice(best, 1);
-      // Rebuild tour indices
-      tour = tour.filter(idx => idx !== best).map(idx => idx > best ? idx - 1 : idx);
-      if (tour.length >= 3) {
-        curDist = tourDist(tour);
-        bestTour = [...tour];
-        bestDist = curDist;
-        T_INIT = calibrateTemp();
-        T = T_INIT;
-        T_MIN = T_INIT * 0.000001;
-        frozen = false;
-        completedOnce = false;
+    for (var k = N - 1; k > best + 1; k--) tour[k] = tour[k - 1];
+    tour[best + 1] = id;
+  }
+
+  /* ---------------------------------------------------------- 操作 */
+  var drag = -1, touchFx = { x: 0, y: 0, a: 0 };
+  canvas.addEventListener('pointerdown', function (e) {
+    var x = e.clientX, y = e.clientY, best = -1, bd = 20 * 20;
+    for (var i = 0; i < N; i++) { var dx = X[i] - x, dy = Y[i] - y, dd = dx * dx + dy * dy; if (dd < bd) { bd = dd; best = i; } }
+    if (best >= 0) { drag = best; born[best] = 0; }
+    else {
+      insert(x, y);
+      drag = N - 1;                       // 置いた点はそのまま指で動かせる
+      if (N > want + 40) {
+        /* 増えすぎたら古い点を 1 つ静かに抜く */
+        var victim = Math.floor(Math.random() * (N - 1)), k = 0;
+        for (var p = 0; p < N; p++) if (tour[p] !== victim) tour[k++] = tour[p];
+        for (var q = 0; q < N - 1; q++) if (tour[q] === N - 1) tour[q] = victim;
+        X[victim] = X[N - 1]; Y[victim] = Y[N - 1]; TX[victim] = TX[N - 1]; TY[victim] = TY[N - 1];
+        FX[victim] = FX[N - 1]; FY[victim] = FY[N - 1]; born[victim] = born[N - 1]; N--;
+        drag = victim;
       }
-      SFX.play('pop');
+      SFX.play('spawn', 150);
+    }
+    touchFx.x = x; touchFx.y = y; touchFx.a = 1;
+    /* 触ったところだけ少し温め直す */
+    if (phase !== 'hot') T = Math.max(T, T0 * 0.06);
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (drag < 0) return;
+    X[drag] = e.clientX; Y[drag] = e.clientY; born[drag] = 0;
+    if (glide < 1) { TX[drag] = X[drag]; TY[drag] = Y[drag]; FX[drag] = X[drag]; FY[drag] = Y[drag]; }
+    touchFx.x = e.clientX; touchFx.y = e.clientY; touchFx.a = 1;
+    if (phase !== 'hot') T = Math.max(T, T0 * 0.03);
+    SFX.play('move', 200);
+  });
+  function up() { drag = -1; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
+
+  document.getElementById('k-cities').addEventListener('input', function () { want = Math.round(40 + this.value / 100 * 160); });
+  document.getElementById('k-pace').addEventListener('input', function () { pace = this.value / 100; });
+  want = Math.round(40 + document.getElementById('k-cities').value / 100 * 160);
+  pace = document.getElementById('k-pace').value / 100;
+  document.getElementById('k-next').addEventListener('click', function () { newLayout(false); SFX.play('click'); });
+
+  /* ---------------------------------------------------------- 描く */
+  function draw(dt) {
+    var cold = Math.max(0, Math.min(1, Math.log(T0 / T) / Math.log(T0 / Tmin)));
+    /* 熱いうちは残像を長く残して、もつれを霞のように見せる */
+    tctx.globalCompositeOperation = 'destination-out';
+    tctx.fillStyle = P.rgba(P.bg, 0.1 + 0.6 * cold * cold);
+    tctx.fillRect(0, 0, W, H);
+    tctx.globalCompositeOperation = 'source-over';
+    var c = P.mix(P.steel, P.line, cold);
+    tctx.strokeStyle = P.rgba(c, 0.16 + 0.69 * cold);
+    tctx.lineWidth = 0.8 + 0.5 * cold;
+    tctx.lineJoin = 'round';
+    tctx.beginPath();
+    tctx.moveTo(X[tour[0]], Y[tour[0]]);
+    for (var i = 1; i < N; i++) tctx.lineTo(X[tour[i]], Y[tour[i]]);
+    tctx.closePath();
+    tctx.stroke();
+    P.fill(ctx, W, H);
+    P.grid(ctx, W, H, { alpha: 0.6 });
+    ctx.drawImage(trail, 0, 0, W, H);
+    ctx.fillStyle = P.rgba(P.line, 0.9);
+    ctx.beginPath();
+    for (var k = 0; k < N; k++) {
+      if (born[k] < 2.5) continue;
+      ctx.moveTo(X[k] + 2.2, Y[k]); ctx.arc(X[k], Y[k], 2.2, 0, Math.PI * 2);
+    }
+    ctx.fill();
+    /* 触った点はシアンで灯り、少しずつ白に戻る */
+    for (var m = 0; m < N; m++) {
+      if (born[m] >= 2.5) continue;
+      born[m] += drag === m ? 0 : dt;
+      var a = 1 - born[m] / 2.5;
+      ctx.fillStyle = P.rgba(P.mix(P.line, P.accent, a), 1);
+      ctx.beginPath(); ctx.arc(X[m], Y[m], 2.4 + a * 1.4, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = P.rgba(P.accent, a * 0.45);
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(X[m], Y[m], 7 + (1 - a) * 14, 0, Math.PI * 2); ctx.stroke();
     }
   }
 
-  canvas.addEventListener('click', e => {
-    const r = canvas.getBoundingClientRect();
-    addCity(e.clientX - r.left, e.clientY - r.top);
-  });
-  canvas.addEventListener('contextmenu', e => {
-    e.preventDefault();
-    const r = canvas.getBoundingClientRect();
-    removeCity(e.clientX - r.left, e.clientY - r.top);
-  });
-  canvas.addEventListener('touchend', e => {
-    e.preventDefault();
-    const t = e.changedTouches[0], r = canvas.getBoundingClientRect();
-    addCity(t.clientX - r.left, t.clientY - r.top);
-  }, { passive: false });
-
-  /* ── Controls ───────────────────────────────────────────────────────── */
-  const slCities = document.getElementById('sl-cities');
-  const slSpeed  = document.getElementById('sl-speed');
-
-  slCities.addEventListener('input', () => {
-    document.getElementById('val-cities').textContent = slCities.value;
-    SFX.play('tick');
-  });
-  slSpeed.addEventListener('input', () => {
-    speed = parseInt(slSpeed.value);
-    document.getElementById('val-speed').textContent = slSpeed.value;
-    SFX.play('tick');
-  });
-  document.getElementById('btn-reset').addEventListener('click', () => {
-    init(parseInt(slCities.value));
-    SFX.play('click');
-  });
-
-  /* ── Start ──────────────────────────────────────────────────────────── */
-  init(60);
-  requestAnimationFrame(loop);
+  /* ---------------------------------------------------------- 回す */
+  newLayout(true);
+  var lastT = performance.now();
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    var sp = 0.5 + pace * 1.3;
+    clock += dt * sp;
+    if (glide < 1) {
+      glide = Math.min(1, glide + dt * sp / 7);
+      var g = glide * glide * (3 - 2 * glide);
+      for (var i = 0; i < N; i++) if (i !== drag) { X[i] = FX[i] + (TX[i] - FX[i]) * g; Y[i] = FY[i] + (TY[i] - FY[i]) * g; }
+    }
+    if (phase === 'hot') {
+      T = T0;
+      if (clock > 5) { phase = 'cool'; clock = 0; }
+    } else if (phase === 'cool') {
+      /* 約 35 秒で冷え切る */
+      T = Math.max(Tmin, T * Math.exp(-dt * sp * 0.19));
+      if (T <= Tmin * 1.0001) {
+        phase = 'rest'; clock = 0;
+        if (!cooledSound) { SFX.play('grow', 4000); cooledSound = true; }
+      }
+    } else {
+      T = Math.max(Tmin, T * Math.exp(-dt * 0.8));
+      if (clock > 14) newLayout(false);
+    }
+    anneal(Math.round(N * 22));
+    draw(dt);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

@@ -8,10 +8,8 @@ require_once __DIR__ . '/includes/work-tile.php';
 
 $pageName = 'contents';
 $workCount = count($works);
-$pageTitle = '作品をさがす — ' . $workCount . '本の数学・物理ビジュアライゼーション一覧 | PULSE';
-$challengeCount = count(array_filter($works, fn($c) => !empty($c['challenge'])));
-$pageDesc = 'ライフゲーム、マンデルブロ集合、ローレンツ方程式、反応拡散、群れ、非周期タイリング——PULSEの'
-    . $workCount . '本を12のコレクションに分けて、検索・絞り込みしながら探せる一覧。';
+$pageTitle = '作品をさがす — 数式で動く' . $workCount . '本の一覧 | PULSE';
+$pageDesc = 'PULSEの全' . $workCount . '本の一覧です。12のグループに分けてあり、名前やキーワードでも探せます。';
 $pageCanonical = 'https://pulse.subara3.com/contents.php';
 
 // コレクションごとに新しい順で並べる
@@ -33,7 +31,7 @@ $extraStyle = '
 /* --- 操作バー: 検索 + コレクション絞り込み --- */
 .filterbar {
   position: sticky; top: 53px; z-index: 800;
-  background: rgba(10,10,15,.92); backdrop-filter: blur(14px);
+  background: rgba(13, 34, 56,.92); backdrop-filter: blur(14px);
   border-block: 1px solid var(--line);
   padding-block: .8rem;
 }
@@ -95,7 +93,7 @@ require_once __DIR__ . '/includes/nav.php';
 
 <main class="paper">
   <div class="wrap archive-hero">
-    <h1>動いている数学、<br>ぜんぶここに。</h1>
+    <h1>作品一覧</h1>
     <p class="archive-count"><b><?php echo $workCount; ?></b> 本 / 12 のコレクション</p>
   </div>
 
@@ -104,13 +102,12 @@ require_once __DIR__ . '/includes/nav.php';
       <div class="filter-row">
         <label class="search">
           <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-          <input type="search" id="q" placeholder="名前・キーワードで探す（例: 波、フラクタル、ising）"
+          <input type="search" id="q" placeholder="名前・キーワードで探す（例: 波、群れ、フラクタル）"
                  autocomplete="off" aria-label="作品を検索">
           <kbd>/</kbd>
         </label>
         <div class="toggles" role="group" aria-label="しるしで絞り込む">
           <button class="chip" type="button" id="fFav" aria-pressed="false"><i class="fa-solid fa-star" aria-hidden="true"></i> お気に入り <span class="n" id="fFavN">0</span></button>
-          <button class="chip" type="button" id="fCh" aria-pressed="false">挑戦 <span class="n"><?php echo $challengeCount; ?></span></button>
         </div>
       </div>
       <div class="chips" role="group" aria-label="コレクションで絞り込む">
@@ -139,7 +136,7 @@ require_once __DIR__ . '/includes/nav.php';
       </div>
       <div class="work-grid">
         <?php foreach ($items as $c):
-          $needle = mb_strtolower($c['page'] . ' ' . $c['title'] . ' ' . $c['desc'] . ' ' . ($c['meta'] ?? '') . ' ' . ($c['challenge'] ?? '') . ' ' . $col['name'] . ' ' . $col['en']);
+          $needle = mb_strtolower($c['page'] . ' ' . $c['title'] . ' ' . $c['desc'] . ' ' . ($c['meta'] ?? '') . ' ' . ' ' . $col['name'] . ' ' . $col['en']);
           echo pulseWorkTile($c, ['sub' => false, 'search' => $needle]);
         endforeach; ?>
       </div>
@@ -159,8 +156,8 @@ require_once __DIR__ . '/includes/nav.php';
   var blocks = Array.prototype.slice.call(document.querySelectorAll('[data-block]'));
   var noHit = document.getElementById('noHit');
   var noHitMsg = document.getElementById('noHitMsg');
-  var fFav = document.getElementById('fFav'), fCh = document.getElementById('fCh');
-  var group = '', onlyFav = false, onlyCh = false;
+  var fFav = document.getElementById('fFav');
+  var group = '', onlyFav = false;
   var MSG_WORD = noHitMsg.textContent;
 
   function favs() { return (window.PULSE && PULSE.fav) ? PULSE.fav.list() : []; }
@@ -171,8 +168,7 @@ require_once __DIR__ . '/includes/nav.php';
     tiles.forEach(function (t) {
       var ok = (!group || t.dataset.group === group) &&
                (!term || t.dataset.search.indexOf(term) !== -1) &&
-               (!onlyFav || fl.indexOf(t.dataset.page) !== -1) &&
-               (!onlyCh || t.dataset.challenge === '1');
+               (!onlyFav || fl.indexOf(t.dataset.page) !== -1);
       t.hidden = !ok;
       if (ok) hits++;
     });
@@ -183,7 +179,7 @@ require_once __DIR__ . '/includes/nav.php';
       : MSG_WORD;
     if (keepUrl) return;
     var url = new URL(location.href);
-    [['g', group], ['q', term], ['fav', onlyFav ? '1' : ''], ['ch', onlyCh ? '1' : '']].forEach(function (kv) {
+    [['g', group], ['q', term], ['fav', onlyFav ? '1' : '']].forEach(function (kv) {
       if (kv[1]) url.searchParams.set(kv[0], kv[1]); else url.searchParams.delete(kv[0]);
     });
     history.replaceState(null, '', url.pathname + url.search);
@@ -204,7 +200,6 @@ require_once __DIR__ . '/includes/nav.php';
     });
   });
   fFav.addEventListener('click', function () { onlyFav = !onlyFav; press(fFav, onlyFav); apply(); });
-  fCh.addEventListener('click', function () { onlyCh = !onlyCh; press(fCh, onlyCh); apply(); });
 
   function paintFavCount() { document.getElementById('fFavN').textContent = favs().length; }
   document.addEventListener('pulse:fav', function () { paintFavCount(); if (onlyFav) apply(true); });
@@ -226,7 +221,6 @@ require_once __DIR__ . '/includes/nav.php';
       if (c) { chips.forEach(function (o) { press(o, false); }); press(c, true); group = c.dataset.group; }
     }
     if (params.get('fav') === '1') { onlyFav = true; press(fFav, true); }
-    if (params.get('ch') === '1') { onlyCh = true; press(fCh, true); }
     if (params.toString()) apply(true);
   });
 })();

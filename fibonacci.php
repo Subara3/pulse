@@ -1,8 +1,203 @@
 <?php
-require_once __DIR__ . '/includes/config.php';require_once __DIR__ . '/includes/access_log.php';recordPageView('fibonacci');
-$pageName='fibonacci';$pageTitle='FIBONACCI - PULSE';$pageDesc='黄金角とフィボナッチ比が作る葉序・螺旋・成長場のCanvas可視化。';$pageCanonical='https://pulse.subara3.com/fibonacci.php';
-$extraStyle='body{background:#0a0a0f;min-height:100vh;overflow:hidden}#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}.hud{position:fixed;left:1rem;top:3.5rem;z-index:60;color:rgba(255,255,255,.4);font-family:"JetBrains Mono",monospace;font-size:.62rem;line-height:1.8;letter-spacing:.04em;pointer-events:none}.hud b{color:#00f5d4}.hud .sub{color:rgba(123,44,191,.9)}@media(max-width:768px){.hud{top:3rem;left:.75rem;font-size:.52rem}}';
-require_once __DIR__ . '/includes/header.php';require_once __DIR__ . '/includes/floating-nav.php';?>
-<canvas id="canvas"></canvas><div class="hud">MODE <b id="h-mode">PHYLLO</b><br>SEEDS <b id="h-n">420</b><br>ANGLE <b id="h-angle">137.5</b><br><span class="sub">PHI</span> <b>1.618</b></div><?php $interactionHints=[['type'=>'drag','label'=>'bend'],['type'=>'click','label'=>'pulse']];require_once __DIR__ . '/includes/interaction-hints.php';?>
-<div id="controls" class="drawer-controls"><div><div class="btn-row"><button class="control-btn active" data-mode="phyllo">PHYLLO</button><button class="control-btn" data-mode="spiral">SPIRAL</button><button class="control-btn" data-mode="lattice">LATTICE</button></div></div><div><div class="slider-row"><span class="slider-label">SEEDS</span><input type="range" id="sl-n" min="80" max="900" value="420"><span class="slider-value" id="sv-n">420</span></div></div><div><div class="slider-row"><span class="slider-label">ANGLE</span><input type="range" id="sl-a" min="1200" max="1500" value="1375"><span class="slider-value" id="sv-a">137.5</span></div></div><div><div class="btn-row"><button class="control-btn active" id="btn-grow">GROW</button><button class="control-btn" id="btn-reset">RESET</button></div></div></div><?php require_once __DIR__ . '/includes/drawer-controls.php';?>
-<script>(function(){var c=document.getElementById('canvas'),x=c.getContext('2d'),W,H,D=1,mode='phyllo',N=420,ang=137.5,grow=true,t=0,bend=0,pulses=[];var hm=document.getElementById('h-mode'),hn=document.getElementById('h-n'),ha=document.getElementById('h-angle'),sn=document.getElementById('sl-n'),sa=document.getElementById('sl-a'),vn=document.getElementById('sv-n'),va=document.getElementById('sv-a');function resize(){D=Math.min(2,devicePixelRatio||1);W=c.width=Math.floor(innerWidth*D);H=c.height=Math.floor(innerHeight*D);c.style.width=innerWidth+'px';c.style.height=innerHeight+'px'}function hud(){hm.textContent=mode.toUpperCase();hn.textContent=N;vn.textContent=N;ha.textContent=ang.toFixed(1);va.textContent=ang.toFixed(1)}function draw(){if(grow)t+=.01;x.fillStyle='rgba(10,10,15,.22)';x.fillRect(0,0,W,H);var cx=W/2,cy=H/2,maxR=Math.min(W,H)*.42,lim=Math.floor(N*(grow?(.65+.35*Math.sin(Math.min(t,Math.PI/2))):1));x.globalCompositeOperation='lighter';for(var i=1;i<=lim;i++){var a=i*ang*Math.PI/180+bend,r=maxR*Math.sqrt(i/N);if(mode==='spiral')r=maxR*i/N;var px=cx+Math.cos(a+t*.18)*r,py=cy+Math.sin(a+t*.18)*r;if(mode==='lattice'){px=cx+(i%34-17)*maxR/19+Math.sin(i+t)*7*D;py=cy+(Math.floor(i/34)-Math.floor(N/68))*maxR/22+Math.cos(i*.7+t)*7*D}var q=i/N;x.fillStyle=i%2?'rgba(0,245,212,'+(.16+q*.55)+')':'rgba(123,44,191,'+(.12+q*.5)+')';x.beginPath();x.arc(px,py,(1.4+3*q)*D,0,Math.PI*2);x.fill()}for(var p=pulses.length-1;p>=0;p--){var o=pulses[p];o.l+=.022;x.strokeStyle='rgba(0,245,212,'+Math.max(0,.7-o.l)+')';x.beginPath();x.arc(o.x*D,o.y*D,o.l*180*D,0,Math.PI*2);x.stroke();if(o.l>1)pulses.splice(p,1)}x.globalCompositeOperation='source-over';requestAnimationFrame(draw)}c.onpointerdown=e=>{pulses.push({x:e.clientX,y:e.clientY,l:0});if(typeof SFX!=='undefined')SFX.play('ripple',100)};c.onpointermove=e=>{if(e.buttons){bend+=(e.movementX||0)*.006;if(typeof SFX!=='undefined')SFX.play('move',120)}};document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>{mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(q=>q.classList.toggle('active',q===b));hud();if(typeof SFX!=='undefined')SFX.play('toggle')});sn.oninput=()=>{N=+sn.value;hud()};sa.oninput=()=>{ang=+sa.value/10;hud()};document.getElementById('btn-grow').onclick=e=>{grow=!grow;e.currentTarget.classList.toggle('active',grow);if(typeof SFX!=='undefined')SFX.play('toggle')};document.getElementById('btn-reset').onclick=()=>{bend=0;t=0;if(typeof SFX!=='undefined')SFX.play('success')};addEventListener('resize',resize);resize();hud();draw()})();</script><?php require_once __DIR__ . '/includes/sfx.php';require_once __DIR__ . '/includes/page-end.php';?></body></html>
+require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/access_log.php';
+recordPageView('fibonacci');
+
+$pageName = 'fibonacci';
+$pageTitle = 'FIBONACCI - PULSE';
+$pageDesc = '中心から種が一粒ずつ生まれて外へ押し出され、ひまわりの種のような渦が二方向に重なる。横にドラッグすると種の角度がずれて渦がほどけ、離すと元に戻る。';
+$pageCanonical = 'https://pulse.subara3.com/fibonacci.php';
+$extraStyle = '';
+
+require_once __DIR__ . '/includes/header.php';
+require_once __DIR__ . '/includes/floating-nav.php';
+?>
+<canvas id="canvas"></canvas>
+
+<div id="controls" class="drawer-controls">
+  <div class="ctl-row"><label for="k-grow">GROW</label><input type="range" id="k-grow" min="0" max="100" value="40"></div>
+  <div class="ctl-btns"><button type="button" class="active" data-look="seeds">SEEDS</button><button type="button" data-look="net">NET</button></div>
+</div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
+<script>
+(function () {
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0, CX = 0, CY = 0, R = 1, C = 1;
+  var N = 1300;                       /* 画面にいる種の数 */
+  var ctx = P.fit(canvas, function (w, h) {
+    W = w; H = h; CX = w / 2; CY = h / 2;
+    R = Math.min(w, h) * 0.47;
+    C = R / Math.sqrt(N);
+  });
+
+  var GOLD = Math.PI * (3 - Math.sqrt(5));   /* 黄金角 */
+  var FIB = [3, 5, 8, 13, 21, 34, 55, 89];
+  var total = N + 0.0;                 /* これまでに生まれた種の数（連続値） */
+  var rate = 4;                        /* 1 秒あたりの誕生数 */
+  var dev = 0, devHand = 0, devAuto = 0; /* 黄金角からのずれ */
+  var rot = 0, t = 0;
+  var look = 'seeds';
+
+  /* 種の位置（毎フレーム計算。保存しない） */
+  var px = new Float32Array(N + 2), py = new Float32Array(N + 2), pr = new Float32Array(N + 2);
+  var M = N + 2;
+  var glowB = new Float32Array(M);     /* 触ったところの灯り（誕生番号で持つ） */
+  var glow = new Float32Array(M);      /* その並びを今の位置順に写したもの */
+
+  function layout() {
+    var top = Math.floor(total), frac = total - top;
+    for (var a = 0; a <= N; a++) {
+      var b = top - a;                 /* 誕生番号 */
+      var age = a + frac;
+      var r = C * Math.sqrt(age + 0.3);
+      var ang = (b * GOLD) % (Math.PI * 2) - age * dev + rot;
+      var gi = ((b % M) + M) % M;
+      var x = CX + Math.cos(ang) * r, y = CY + Math.sin(ang) * r;
+      /* 指の近くの種はそっとよける */
+      if (hold) {
+        var dx = x - ptr.x, dy = y - ptr.y, d2 = dx * dx + dy * dy, s = 70 * 70;
+        if (d2 < s * 4) {
+          var k = Math.exp(-d2 / s) * 10 / (Math.sqrt(d2) + 1);
+          x += dx * k; y += dy * k;
+          glowB[gi] = Math.min(1, glowB[gi] + Math.exp(-d2 / s) * 0.25);
+        }
+      }
+      glow[a] = glowB[gi];
+      px[a] = x; py[a] = y; pr[a] = r;
+    }
+  }
+
+  function edgeFade(r) {
+    var f = r / R;
+    return f < 0.8 ? 1 : Math.max(0, 1 - (f - 0.8) / 0.2);
+  }
+
+  var LN = P.line, AC = P.accent, ST = P.steel;
+  function drawSeeds() {
+    /* 明るさを 6 段に分けてまとめて塗る */
+    var BUCKETS = 6;
+    for (var q = 0; q < BUCKETS; q++) {
+      ctx.beginPath();
+      for (var a = 0; a <= N; a++) {
+        var f = edgeFade(pr[a]);
+        if (f <= 0) continue;
+        var b0 = Math.floor(total) - a;
+        /* 21 本の渦にそって、明るさの帯がゆっくり回る */
+        var band = 0.62 + 0.38 * Math.cos(Math.PI * 2 * (b0 % 21) / 21 + t * 0.35);
+        var bright = (0.6 + 0.4 * Math.min(1, pr[a] / (R * 0.45))) * f * band;
+        if (Math.min(BUCKETS - 1, Math.floor(bright * BUCKETS)) !== q) continue;
+        var age = a + (total % 1);
+        var born = Math.min(1, age / 6);
+        var rad = C * (0.16 + 0.22 * Math.min(1, pr[a] / R)) * born * (look === 'net' ? 0.6 : 1);
+        ctx.moveTo(px[a] + rad, py[a]);
+        ctx.arc(px[a], py[a], rad, 0, Math.PI * 2);
+      }
+      ctx.fillStyle = P.rgba(LN, 0.18 + 0.8 * (q + 0.5) / BUCKETS);
+      ctx.fill();
+    }
+    /* 触った所だけシアン */
+    for (var a2 = 0; a2 <= N; a2++) {
+      if (glow[a2] < 0.02) continue;
+      var rad2 = C * (0.2 + 0.24 * Math.min(1, pr[a2] / R));
+      ctx.fillStyle = P.rgba(AC, glow[a2] * 0.85 * edgeFade(pr[a2]));
+      ctx.beginPath();
+      ctx.arc(px[a2], py[a2], rad2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  /* 斜めに走る 2 本の渦の列: 近い方の 2 つのフィボナッチ番手の隣とつなぐ */
+  function drawNet() {
+    var BUCKETS = 4;
+    var paths = [];
+    for (var q = 0; q < BUCKETS; q++) paths.push(new Path2D());
+    for (var a = 2; a <= N; a++) {
+      var f = edgeFade(pr[a]);
+      if (f <= 0) continue;
+      var best1 = -1, best2 = -1, d1 = 1e9, d2 = 1e9;
+      for (var j = 0; j < FIB.length; j++) {
+        var o = a + FIB[j];
+        if (o > N) break;
+        var dx = px[o] - px[a], dy = py[o] - py[a], d = dx * dx + dy * dy;
+        if (d < d1) { d2 = d1; best2 = best1; d1 = d; best1 = o; }
+        else if (d < d2) { d2 = d; best2 = o; }
+      }
+      var bright = (0.3 + 0.7 * Math.min(1, pr[a] / (R * 0.6))) * f;
+      var p = paths[Math.min(BUCKETS - 1, Math.floor(bright * BUCKETS))];
+      var lim = C * C * 9;
+      if (best1 >= 0 && d1 < lim) { p.moveTo(px[a], py[a]); p.lineTo(px[best1], py[best1]); }
+      if (best2 >= 0 && d2 < lim) { p.moveTo(px[a], py[a]); p.lineTo(px[best2], py[best2]); }
+    }
+    ctx.lineWidth = 1;
+    for (var q2 = 0; q2 < BUCKETS; q2++) {
+      ctx.strokeStyle = P.rgba(LN, 0.1 + 0.55 * (q2 + 0.5) / BUCKETS);
+      ctx.stroke(paths[q2]);
+    }
+  }
+
+  /* ---------------------------------------------------------- 操作 */
+  var hold = false, ptr = { x: 0, y: 0 }, startX = 0, devStart = 0;
+  canvas.addEventListener('pointerdown', function (e) {
+    hold = true; ptr.x = e.clientX; ptr.y = e.clientY;
+    startX = e.clientX; devStart = devHand;
+    SFX.play('tick');
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!hold) return;
+    var mx = e.clientX - ptr.x, my = e.clientY - ptr.y;
+    ptr.x = e.clientX; ptr.y = e.clientY;
+    devHand = devStart + (e.clientX - startX) / Math.max(320, W) * 0.05;
+    if (Math.abs(mx) + Math.abs(my) > 2) SFX.play('move', 220);
+  });
+  function up() { hold = false; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
+
+  var grow = document.getElementById('k-grow');
+  function readGrow() { rate = 1 + grow.value / 100 * 9; }
+  grow.addEventListener('input', readGrow);
+  readGrow();
+  document.querySelectorAll('[data-look]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-look]').forEach(function (o) { o.classList.toggle('active', o === b); });
+      look = b.dataset.look;
+      SFX.play('toggle');
+    });
+  });
+
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now(), chime = 0;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    t += dt;
+    total += rate * dt;
+    rot += dt * 0.025;
+    /* 離すと黄金角へゆっくり戻る */
+    if (!hold) devHand *= Math.exp(-dt * 0.5);
+    /* 放っておいても、ときどき角度がわずかにずれて戻る */
+    var ph = Math.sin(t * Math.PI * 2 / 48 - 1.2);
+    devAuto = ph > 0 ? 0.006 * ph * ph * ph : 0;
+    dev += (devHand + devAuto - dev) * Math.min(1, dt * 3);
+    for (var i = 0; i < M; i++) glowB[i] *= Math.exp(-dt * 1.4);
+
+    P.fill(ctx, W, H);
+    P.grid(ctx, W, H, { alpha: 0.7 });
+    layout();
+    if (look === 'net') drawNet();
+    drawSeeds();
+
+    chime += dt;
+    if (chime > 5) { chime = 0; SFX.play('grow', 4000); }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+<?php require_once __DIR__ . '/includes/sfx.php'; ?>
+<?php require_once __DIR__ . '/includes/page-end.php'; ?>
+</body>
+</html>

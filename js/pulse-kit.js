@@ -2,9 +2,8 @@
  * PULSE kit — 全ページ共通の小さな仕組み。
  *
  *  PULSE.fav     お気に入り（ブラウザに保存）
- *  PULSE.clear() 挑戦を達成したときに作品ページから呼ぶ。記録してトーストを出す
  *  PULSE.share() 作品ページの操作状態を URL（#s=...）にしてコピーする
- *  PULSE.tiles() 作品タイル（.work）のお気に入り・達成表示と、プレビュー動画の再生
+ *  PULSE.tiles() 作品タイル（.work）のお気に入り表示と、プレビュー動画の再生
  *
  * 保存はすべて localStorage。使えない環境（プライベートモード等）でも落ちないようにする。
  */
@@ -36,20 +35,6 @@
       emit('pulse:fav', { page: p, on: i === -1 });
       return i === -1;
     }
-  };
-
-  /* ---------------------------------------------------------- 達成 */
-  var CLR = 'pulse_clear';
-  P.cleared = function (p) { var o = load(CLR, {}); return p ? !!o[p] : o; };
-  P.clear = function (p) {
-    p = p || P.page;
-    if (!p) return;
-    var o = load(CLR, {});
-    if (o[p]) return;
-    var d = new Date(); o[p] = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-    save(CLR, o);
-    emit('pulse:clear', { page: p });
-    P.toast('達成を記録しました', 'is-clear');
   };
 
   /* -------------------------------------------------------- トースト */
@@ -205,7 +190,6 @@
       b.setAttribute('aria-pressed', fav ? 'true' : 'false');
       b.setAttribute('aria-label', fav ? 'お気に入りから外す' : 'お気に入りに入れる');
     }
-    t.classList.toggle('is-cleared', P.cleared(p));
   }
 
   P.tiles = function (root) {
@@ -225,10 +209,9 @@
   P.playVideo = play;
 
   document.addEventListener('pulse:fav', function () { P.tiles(); });
-  document.addEventListener('pulse:clear', function () { P.tiles(); });
   // 別タブでの変更も反映する
   window.addEventListener('storage', function (e) {
-    if (e.key === FAV || e.key === CLR) { P.tiles(); emit('pulse:fav', {}); }
+    if (e.key === FAV) { P.tiles(); emit('pulse:fav', {}); }
   });
 
   function boot() {

@@ -4,27 +4,234 @@ require_once __DIR__ . '/includes/access_log.php';
 recordPageView('cloth');
 
 $pageName = 'cloth';
-$pageTitle = "CLOTH - PULSE";
-$pageDesc = json_decode('"\u70b9\u3068\u5236\u7d04\u3067\u5e03\u3092\u4f5c\u308a\u3001\u91cd\u529b\u3068\u98a8\u306b\u63fa\u308c\u308b\u5f3e\u6027\u30e1\u30c3\u30b7\u30e5\u3092\u89e6\u308bCanvas\u53ef\u8996\u5316\u3002"');
+$pageTitle = 'CLOTH - PULSE';
+$pageDesc = '上の棒から布が垂れ下がり、風でゆっくりふくらんだりしぼんだりする。押すとその部分がへこみ、なぞると動かした向きに布が引っぱられる。';
 $pageCanonical = 'https://pulse.subara3.com/cloth.php';
-$extraStyle = 'body{background:#0a0a0f;min-height:100vh;overflow:hidden;margin:0}#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}.hud{position:fixed;top:1rem;right:1rem;z-index:20;font:12px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;color:rgba(255,255,255,.55);text-align:right;letter-spacing:.08em;background:rgba(10,10,15,.50);border:1px solid rgba(0,245,212,.16);padding:.75rem .85rem;border-radius:8px;backdrop-filter:blur(12px)}.hud b{color:#00f5d4}.hud .sub{color:rgba(123,44,191,.9)}.mark{position:fixed;left:1rem;bottom:1rem;z-index:20;font:11px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.22em;color:rgba(255,255,255,.18)}.drawer-controls .btn-row{display:flex;gap:.5rem;flex-wrap:wrap}.drawer-controls .control-btn{min-height:36px}.slider-row{display:grid;grid-template-columns:78px 1fr 54px;gap:.65rem;align-items:center}.slider-label,.slider-value{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;color:rgba(255,255,255,.72);letter-spacing:.08em}.slider-value{text-align:right;color:#00f5d4}input[type=range]{width:100%;accent-color:#00f5d4}@media(max-width:760px){.hud{top:.7rem;right:.7rem;font-size:10px;padding:.55rem .65rem}.mark{font-size:9px}.slider-row{grid-template-columns:64px 1fr 42px}}';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
-<div class="hud">POINTS <b id="h-points">0</b><br>LINKS <b id="h-links">0</b><br>GRAVITY <b id="h-g">0.30</b><br><span class="sub">WIND</span> <b id="h-wind">ON</b></div>
-<div class="mark">CLOTH</div>
-<?php $interactionHints=[['type'=>'drag','label'=>'pull'],['type'=>'click','label'=>'pin']];require_once __DIR__ . '/includes/interaction-hints.php'; ?>
-<div id="controls" class="drawer-controls"><div class="btn-row"><button class="control-btn active" data-mode="cloth">CLOTH</button><button class="control-btn" data-mode="net">NET</button><button class="control-btn" data-mode="veil">VEIL</button></div><div class="slider-row"><span class="slider-label">GRAVITY</span><input type="range" id="sl-g" min="0" max="80" value="30"><span class="slider-value" id="sv-g">0.30</span></div><div class="slider-row"><span class="slider-label">SIZE</span><input type="range" id="sl-size" min="12" max="28" value="20"><span class="slider-value" id="sv-size">20</span></div><div class="btn-row"><button class="control-btn active" id="btn-wind">WIND</button><button class="control-btn" id="btn-reset">RESET</button></div></div>
-<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-<script>
-(function(){
-'use strict';
 
-var c=document.getElementById('canvas'),x=c.getContext('2d'),W,H,D=1,mode='cloth',g=.3,cols=20,rows=14,pts=[],links=[],drag=-1,wind=true,t=0;
-var hp=document.getElementById('h-points'),hl=document.getElementById('h-links'),hg=document.getElementById('h-g'),hw=document.getElementById('h-wind'),sg=document.getElementById('sl-g'),ss=document.getElementById('sl-size'),vg=document.getElementById('sv-g'),vs=document.getElementById('sv-size');
-function resize(){D=Math.min(2,devicePixelRatio||1);W=c.width=Math.floor(innerWidth*D);H=c.height=Math.floor(innerHeight*D);c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';make()}function make(){pts=[];links=[];var spacing=Math.min(W,H)*.55/cols,ox=W/2-spacing*cols/2,oy=H*.18;for(var j=0;j<rows;j++)for(var i=0;i<cols;i++){pts.push({x:ox+i*spacing,y:oy+j*spacing,px:ox+i*spacing,py:oy+j*spacing,pin:j===0&&(i%3===0||mode==='veil')})}function add(a,b){links.push([a,b,spacing])}for(var y=0;y<rows;y++)for(var xx=0;xx<cols;xx++){var id=y*cols+xx;if(xx<cols-1)add(id,id+1);if(y<rows-1)add(id,id+cols)}hud()}function step(){t+=.016;for(var i=0;i<pts.length;i++){var p=pts[i];if(p.pin)continue;var vx=(p.x-p.px)*.99,vy=(p.y-p.py)*.99;p.px=p.x;p.py=p.y;p.x+=vx+(wind?Math.sin(t+i*.13)*.04*D:0);p.y+=vy+g*D}for(var k=0;k<5;k++)for(var j=links.length-1;j>=0;j--){var l=links[j],a=pts[l[0]],b=pts[l[1]],dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||1,diff=(d-l[2])/d*.5;if(d>l[2]*2.7&&mode==='net'){links.splice(j,1);continue}if(!a.pin){a.x+=dx*diff;a.y+=dy*diff}if(!b.pin){b.x-=dx*diff;b.y-=dy*diff}}}function draw(){step();x.fillStyle='rgba(10,10,15,.22)';x.fillRect(0,0,W,H);x.globalCompositeOperation='lighter';for(var i=0;i<links.length;i++){var l=links[i],a=pts[l[0]],b=pts[l[1]],stress=Math.min(1,Math.abs(Math.hypot(b.x-a.x,b.y-a.y)-l[2])/l[2]);x.strokeStyle=stress>.45?'rgba(123,44,191,.65)':'rgba(0,245,212,.34)';x.lineWidth=(1+stress)*D;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(b.x,b.y);x.stroke()}for(var j=0;j<pts.length;j++){if(pts[j].pin){x.fillStyle='rgba(123,44,191,.9)';x.beginPath();x.arc(pts[j].x,pts[j].y,3*D,0,Math.PI*2);x.fill()}}x.globalCompositeOperation='source-over';hud();requestAnimationFrame(draw)}function hud(){hp.textContent=pts.length;hl.textContent=links.length;hg.textContent=g.toFixed(2);hw.textContent=wind?'ON':'OFF';vg.textContent=g.toFixed(2);vs.textContent=cols}c.addEventListener('pointerdown',function(e){var mx=e.clientX*D,my=e.clientY*D,b=-1,bd=28*D;for(var i=0;i<pts.length;i++){var d=Math.hypot(pts[i].x-mx,pts[i].y-my);if(d<bd){bd=d;b=i}}drag=b;if(b>=0){pts[b].pin=!pts[b].pin;if(window.SFX)SFX.play('ripple',100)}});c.addEventListener('pointermove',function(e){if(e.buttons&&drag>=0){var p=pts[drag];p.x=e.clientX*D;p.y=e.clientY*D;p.px=p.x;p.py=p.y;if(window.SFX)SFX.play('move',140)}});c.addEventListener('pointerup',function(){drag=-1});document.querySelectorAll('[data-mode]').forEach(function(b){b.onclick=function(){mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(function(q){q.classList.toggle('active',q===b)});make();if(window.SFX)SFX.play('toggle')}});sg.oninput=function(){g=+sg.value/100;hud()};ss.oninput=function(){cols=+ss.value;rows=Math.max(8,Math.floor(cols*.7));make()};document.getElementById('btn-wind').onclick=function(e){wind=!wind;e.currentTarget.classList.toggle('active',wind);if(window.SFX)SFX.play('toggle')};document.getElementById('btn-reset').onclick=function(){make();if(window.SFX)SFX.play('success')};addEventListener('resize',resize);resize();draw();
+<div id="controls" class="drawer-controls">
+  <div class="ctl-row"><label for="k-wind">WIND</label><input type="range" id="k-wind" min="0" max="100" value="45"></div>
+  <div class="ctl-btns"><button type="button" class="active" data-look="silk">SILK</button><button type="button" data-look="net">NET</button></div>
+  <div class="ctl-btns"><button type="button" id="k-reset">RESET</button></div>
+</div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
+<script>
+(function () {
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0, sized = false;
+  var ctx = P.fit(canvas, function (w, h) { W = w; H = h; if (sized) build(); sized = true; });
+
+  /*
+   * 点を格子に並べ、隣どうしの距離を保つ（Verlet 積分 + 距離拘束）。
+   * 点は奥行き z も持つので、風で前後にふくらむ。投影して描き、面の向きで明るさを決める。
+   */
+  var CW = 46, CH = 31, NP = CW * CH;
+  var px = new Float32Array(NP), py = new Float32Array(NP), pz = new Float32Array(NP);
+  var ox = new Float32Array(NP), oy = new Float32Array(NP), oz = new Float32Array(NP);
+  var pin = new Uint8Array(NP);
+  var sx = new Float32Array(NP), sy = new Float32Array(NP), br = new Float32Array(NP);
+  var links = [], LA, LB, LR, NL = 0;
+  var S = 10, top = 0, left = 0, FOC = 1100;
+
+  function build() {
+    S = Math.min(W * 0.62 / (CW - 1), H * 0.72 / (CH - 1));
+    left = W / 2 - S * (CW - 1) / 2;
+    top = H * 0.12;
+    for (var j = 0; j < CH; j++) for (var i = 0; i < CW; i++) {
+      var k = j * CW + i;
+      px[k] = ox[k] = left + i * S;
+      py[k] = oy[k] = top + j * S * 0.35;          // 少したたんだ状態から落とす
+      pz[k] = oz[k] = (Math.random() - 0.5) * 2;
+      pin[k] = j === 0 && (i % 5 === 0 || i === CW - 1) ? 1 : 0;
+    }
+    links = [];
+    function L(a, b, r) { links.push(a, b, r); }
+    for (var j2 = 0; j2 < CH; j2++) for (var i2 = 0; i2 < CW; i2++) {
+      var k2 = j2 * CW + i2;
+      if (i2 < CW - 1) L(k2, k2 + 1, S);
+      if (j2 < CH - 1) L(k2, k2 + CW, S);
+      if (i2 < CW - 2) L(k2, k2 + 2, S * 2);       // 曲げにくさ
+      if (j2 < CH - 2) L(k2, k2 + CW * 2, S * 2);
+    }
+    NL = links.length / 3;
+    LA = new Int32Array(NL); LB = new Int32Array(NL); LR = new Float32Array(NL);
+    for (var n = 0; n < NL; n++) { LA[n] = links[n * 3]; LB[n] = links[n * 3 + 1]; LR[n] = links[n * 3 + 2]; }
+  }
+
+  var t = 0, wind = 0.45, look = 'silk';
+  var touch = { on: false, x: 0, y: 0, dx: 0, dy: 0, s: 0 };
+
+  function step(h) {
+    t += h;
+    var g = 700 * h * h, wz = wind * 2600 * h * h;
+    var tr = 54 * S / 10;
+    for (var k = 0; k < NP; k++) {
+      if (pin[k]) continue;
+      var x = px[k], y = py[k], z = pz[k];
+      var vx = (x - ox[k]) * 0.992, vy = (y - oy[k]) * 0.992, vz = (z - oz[k]) * 0.985;
+      ox[k] = x; oy[k] = y; oz[k] = z;
+      var i = k % CW, j = (k / CW) | 0;
+      /* 風: 横から斜めに渡っていく大きなうねり＋ときどきの突風 */
+      var gust = 0.55 + 0.45 * Math.sin(t * 0.21) * Math.sin(t * 0.13 + 1.7);
+      var w = (Math.sin(t * 0.9 - i * 0.16 + j * 0.05) + 0.6 * Math.sin(t * 1.55 - j * 0.21 + i * 0.07)) * gust;
+      px[k] = x + vx;
+      py[k] = y + vy + g;
+      pz[k] = z + vz + wz * w;
+      /* 指: 投影した位置の近くを奥へ押し込み、なぞった向きに少し引く */
+      if (touch.s > 0.01) {
+        var dx = sx[k] - touch.x, dy = sy[k] - touch.y, d2 = dx * dx + dy * dy;
+        if (d2 < tr * tr) {
+          var f = 1 - Math.sqrt(d2) / tr; f = f * f * touch.s;
+          /* 押し込みは位置だけ動かし、勢いはほとんど残さない（暴れないように） */
+          var dz = f * 2.2, mx = touch.dx * f * 0.12, my = touch.dy * f * 0.12;
+          pz[k] += dz; oz[k] += dz * 0.85;
+          px[k] += mx; ox[k] += mx * 0.7; py[k] += my; oy[k] += my * 0.7;
+        }
+      }
+    }
+    for (var it = 0; it < 8; it++) {
+      for (var n = 0; n < NL; n++) {
+        var a = LA[n], b = LB[n];
+        var ex = px[b] - px[a], ey = py[b] - py[a], ez = pz[b] - pz[a];
+        var d = Math.sqrt(ex * ex + ey * ey + ez * ez) || 1e-6;
+        var r = LR[n];
+        if (r > S * 1.5 && d < r) continue;          // 曲げのばねは縮みには効かせない
+        var df = (d - r) / d * 0.5;
+        var pa = pin[a], pb = pin[b];
+        if (pa && pb) continue;
+        if (pa) df *= 2; else if (pb) df *= 2;
+        if (!pa) { px[a] += ex * df; py[a] += ey * df; pz[a] += ez * df; }
+        if (!pb) { px[b] -= ex * df; py[b] -= ey * df; pz[b] -= ez * df; }
+      }
+    }
+  }
+
+  /* 投影と明るさ（面の法線と斜め上からの光） */
+  var Lx = -0.62, Ly = -0.34, Lz = 0.71;
+  function project() {
+    var cx = W / 2, cy = H * 0.42;
+    for (var k = 0; k < NP; k++) {
+      var s = FOC / (FOC + pz[k]);
+      sx[k] = cx + (px[k] - cx) * s; sy[k] = cy + (py[k] - cy) * s;
+    }
+    for (var j = 0; j < CH; j++) for (var i = 0; i < CW; i++) {
+      var k2 = j * CW + i;
+      var kl = i > 0 ? k2 - 1 : k2, kr = i < CW - 1 ? k2 + 1 : k2;
+      var ku = j > 0 ? k2 - CW : k2, kd = j < CH - 1 ? k2 + CW : k2;
+      var ax = px[kr] - px[kl], ay = py[kr] - py[kl], az = pz[kr] - pz[kl];
+      var bx = px[kd] - px[ku], by = py[kd] - py[ku], bz = pz[kd] - pz[ku];
+      var nx = ay * bz - az * by, ny = az * bx - ax * bz, nz = ax * by - ay * bx;
+      var nl = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1;
+      var dot = (nx * Lx + ny * Ly - nz * Lz) / nl;
+      br[k2] = Math.abs(dot);
+    }
+  }
+
+  var NB = 28, fillPaths = [], linePaths = [];
+  function bl(A, k, k1, k2, k3, u, v) { return (A[k] * (1 - u) + A[k1] * u) * (1 - v) + (A[k2] * (1 - u) + A[k3] * u) * v; }
+  function draw() {
+    P.fill(ctx, W, H);
+    P.grid(ctx, W, H, { alpha: 0.55 });
+    project();
+    var silk = look === 'silk';
+    for (var b = 0; b < NB; b++) { fillPaths[b] = new Path2D(); linePaths[b] = new Path2D(); }
+    function binOf(v) { return Math.min(NB - 1, (v * v * v * NB) | 0); }
+    for (var j = 0; j < CH - 1; j++) for (var i = 0; i < CW - 1; i++) {
+      var k = j * CW + i, k1 = k + 1, k2 = k + CW, k3 = k + CW + 1;
+      if (silk) {
+        /* 1 マスを 2×2 に割り、明るさを四隅から補間して段差を目立たなくする */
+        for (var v2 = 0; v2 < 2; v2++) for (var u2 = 0; u2 < 2; u2++) {
+          var u0 = u2 * 0.5, v0 = v2 * 0.5, u1 = u0 + 0.56, v1 = v0 + 0.56, uc = u0 + 0.25, vc = v0 + 0.25;
+          var bb = (br[k] * (1 - uc) + br[k1] * uc) * (1 - vc) + (br[k2] * (1 - uc) + br[k3] * uc) * vc;
+          var fp = fillPaths[binOf(bb)];
+          fp.moveTo(bl(sx, k, k1, k2, k3, u0, v0), bl(sy, k, k1, k2, k3, u0, v0));
+          fp.lineTo(bl(sx, k, k1, k2, k3, u1, v0), bl(sy, k, k1, k2, k3, u1, v0));
+          fp.lineTo(bl(sx, k, k1, k2, k3, u1, v1), bl(sy, k, k1, k2, k3, u1, v1));
+          fp.lineTo(bl(sx, k, k1, k2, k3, u0, v1), bl(sy, k, k1, k2, k3, u0, v1));
+          fp.closePath();
+        }
+      }
+      /* 横糸（上辺）と縦糸（左辺）。右端・下端は最後に足す */
+      if (!silk || j % 2 === 0) { var lp = linePaths[binOf((br[k] + br[k1]) * 0.5)]; lp.moveTo(sx[k], sy[k]); lp.lineTo(sx[k1], sy[k1]); }
+      if (!silk || i % 2 === 0) { var lq = linePaths[binOf((br[k] + br[k2]) * 0.5)]; lq.moveTo(sx[k], sy[k]); lq.lineTo(sx[k2], sy[k2]); }
+      if (i === CW - 2) { var lr = linePaths[binOf((br[k1] + br[k3]) * 0.5)]; lr.moveTo(sx[k1], sy[k1]); lr.lineTo(sx[k3], sy[k3]); }
+      if (j === CH - 2) { var ls = linePaths[binOf((br[k2] + br[k3]) * 0.5)]; ls.moveTo(sx[k2], sy[k2]); ls.lineTo(sx[k3], sy[k3]); }
+    }
+    if (silk) for (var b1 = 0; b1 < NB; b1++) {
+      var fc = P.mix(P.bg, P.ramp(0.06 + (b1 + 0.5) / NB * 0.78), 0.62);
+      ctx.fillStyle = P.rgba(fc, 1);
+      ctx.fill(fillPaths[b1]);
+    }
+    ctx.lineWidth = silk ? 0.7 : 0.9;
+    for (var b2 = 0; b2 < NB; b2++) {
+      var f = (b2 + 0.5) / NB;
+      ctx.strokeStyle = P.rgba(P.line, silk ? 0.07 + f * 0.3 : 0.16 + f * 0.62);
+      ctx.stroke(linePaths[b2]);
+    }
+    /* 棒と留め具 */
+    var y0 = sy[0];
+    ctx.strokeStyle = P.rgba(P.line, 0.8);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(sx[0] - S * 1.6, y0); ctx.lineTo(sx[CW - 1] + S * 1.6, y0); ctx.stroke();
+    ctx.fillStyle = P.rgba(P.line, 0.9);
+    for (var i2 = 0; i2 < CW; i2++) if (pin[i2]) { ctx.beginPath(); ctx.arc(sx[i2], sy[i2], 2.2, 0, Math.PI * 2); ctx.fill(); }
+    /* 指の位置 */
+    if (touch.s > 0.02) {
+      ctx.strokeStyle = P.rgba(P.accent, 0.6 * touch.s);
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(touch.x, touch.y, 10 + 8 * (1 - touch.s), 0, Math.PI * 2); ctx.stroke();
+    }
+  }
+
+  /* ---------------------------------------------------------- 操作 */
+  canvas.addEventListener('pointerdown', function (e) {
+    touch.on = true; touch.x = e.clientX; touch.y = e.clientY; touch.dx = touch.dy = 0;
+    canvas.setPointerCapture(e.pointerId);
+    SFX.play('collide', 200);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!touch.on) return;
+    touch.dx = e.clientX - touch.x; touch.dy = e.clientY - touch.y;
+    touch.x = e.clientX; touch.y = e.clientY;
+    if (Math.abs(touch.dx) + Math.abs(touch.dy) > 4) SFX.play('move', 180);
+  });
+  function up() { touch.on = false; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
+
+  document.getElementById('k-wind').addEventListener('input', function () { wind = this.value / 100; });
+  wind = document.getElementById('k-wind').value / 100;
+  document.querySelectorAll('[data-look]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-look]').forEach(function (o) { o.classList.toggle('active', o === b); });
+      look = b.dataset.look;
+      SFX.play('toggle');
+    });
+  });
+  document.getElementById('k-reset').addEventListener('click', function () { build(); SFX.play('click'); });
+
+  /* ---------------------------------------------------------- 回す */
+  build();
+  for (var w = 0; w < 40; w++) step(1 / 60);
+  var lastT = performance.now();
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    touch.s += ((touch.on ? 1 : 0) - touch.s) * Math.min(1, dt * 8);
+    var n = Math.max(1, Math.round(dt / (1 / 120)));
+    for (var i = 0; i < n; i++) step(dt / n);
+    touch.dx *= 0.5; touch.dy *= 0.5;
+    draw();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

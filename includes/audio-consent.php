@@ -24,8 +24,8 @@
     </span>
     <span class="pa-eyebrow">SOUND</span>
   </div>
-  <p class="pa-title" id="paPromptTitle">触れると、音が返ってきます。</p>
-  <p class="pa-lead">音はすべてサイン波をその場で合成しています。</p>
+  <p class="pa-title" id="paPromptTitle">音を鳴らしますか？</p>
+  <p class="pa-lead">クリックやドラッグに合わせて音が出ます。</p>
   <div class="pa-actions">
     <button type="button" class="pa-btn pa-btn-on" id="paYes"><i class="fa-solid fa-volume-high" aria-hidden="true"></i> 鳴らす</button>
     <button type="button" class="pa-btn" id="paNo">鳴らさない</button>
@@ -41,10 +41,10 @@
   z-index: 9500;
   width: min(330px, calc(100vw - 2rem));
   padding: 1rem 1.1rem 1.05rem;
-  background: rgba(13, 13, 19, 0.94);
+  background: rgba(10, 28, 47, 0.94);
   backdrop-filter: blur(12px);
   border: 1px solid var(--line-mid, rgba(255,255,255,0.13));
-  border-left: 2px solid var(--teal, #00f5d4);
+  border-left: 2px solid var(--teal, #5fd0ff);
   border-radius: var(--radius, 4px);
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
   animation: paIn 0.42s var(--ease, ease) both 0.9s;
@@ -61,7 +61,7 @@
 .pa-wave {
   width: 46px;
   height: 12px;
-  color: var(--teal, #00f5d4);
+  color: var(--teal, #5fd0ff);
   flex: none;
 }
 .pa-wave svg { width: 100%; height: 100%; display: block; }
@@ -75,7 +75,7 @@
   font-family: var(--font-mono, monospace);
   font-size: 0.6rem;
   letter-spacing: 0.3em;
-  color: var(--teal, #00f5d4);
+  color: var(--teal, #5fd0ff);
 }
 
 .pa-title {
@@ -84,13 +84,13 @@
   font-size: 0.9rem;
   font-weight: 700;
   line-height: 1.6;
-  color: var(--text, #e9e9ef);
+  color: var(--text, #e8f0f7);
 }
 .pa-lead {
   margin-top: 0.15rem;
   font-size: 0.72rem;
   line-height: 1.7;
-  color: var(--text-2, #9b9baa);
+  color: var(--text-2, #a9bccd);
 }
 
 .pa-actions { display: flex; gap: 0.5rem; margin-top: 0.85rem; }
@@ -106,7 +106,7 @@
   font-size: 0.72rem;
   font-weight: 500;
   letter-spacing: 0.08em;
-  color: var(--text-2, #9b9baa);
+  color: var(--text-2, #a9bccd);
   background: transparent;
   border: 1px solid var(--line-mid, rgba(255,255,255,0.13));
   border-radius: var(--radius, 4px);
@@ -114,20 +114,20 @@
   transition: color 0.24s var(--ease, ease), background 0.24s var(--ease, ease), border-color 0.24s var(--ease, ease);
 }
 .pa-btn:hover {
-  color: var(--text, #e9e9ef);
+  color: var(--text, #e8f0f7);
   border-color: var(--line-strong, rgba(255,255,255,0.24));
   background: rgba(255, 255, 255, 0.04);
 }
 .pa-btn-on {
-  color: var(--ink-0, #07070b);
-  background: var(--teal, #00f5d4);
-  border-color: var(--teal, #00f5d4);
+  color: var(--ink-0, #081626);
+  background: var(--teal, #5fd0ff);
+  border-color: var(--teal, #5fd0ff);
   font-weight: 700;
 }
 .pa-btn-on:hover {
-  color: var(--ink-0, #07070b);
-  background: #5affe4;
-  border-color: #5affe4;
+  color: var(--ink-0, #081626);
+  background: #a6e4ff;
+  border-color: #a6e4ff;
 }
 
 /* --- 切り替えボタン：ヘッダーナビに入る場合（文書系ページ） --- */
@@ -139,16 +139,16 @@
   font-family: var(--font-mono, monospace);
   font-size: 0.68rem;
   letter-spacing: 0.12em;
-  color: var(--text-2, #9b9baa);
+  color: var(--text-2, #a9bccd);
   background: transparent;
   border: 0;
   border-radius: var(--radius, 4px);
   cursor: pointer;
   transition: color 0.2s var(--ease, ease), background 0.2s var(--ease, ease);
 }
-.site-nav .pa-sound-btn:hover { color: var(--text, #e9e9ef); background: var(--ink-2, #101017); }
-.site-nav .pa-sound-btn.pa-on { color: var(--teal, #00f5d4); }
-.site-nav .pa-sound-btn.pa-on:hover { background: var(--teal-soft, rgba(0,245,212,0.12)); }
+.site-nav .pa-sound-btn:hover { color: var(--text, #e8f0f7); background: var(--ink-2, #112a44); }
+.site-nav .pa-sound-btn.pa-on { color: var(--teal, #5fd0ff); }
+.site-nav .pa-sound-btn.pa-on:hover { background: var(--teal-soft, rgba(95, 208, 255,0.12)); }
 
 /* --- 切り替えボタン：どこにも入らない場合 --- */
 .pa-sound-btn.pa-standalone {
@@ -159,10 +159,10 @@
   width: 46px;
   height: 46px;
   border-radius: 50%;
-  background: rgba(16, 16, 23, 0.86);
+  background: rgba(17, 42, 68, 0.86);
   backdrop-filter: blur(8px);
   border: 1px solid var(--line-mid, rgba(255,255,255,0.13));
-  color: var(--text-2, #9b9baa);
+  color: var(--text-2, #a9bccd);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -171,12 +171,12 @@
   transition: all 0.3s var(--ease, ease);
 }
 .pa-sound-btn.pa-standalone:hover {
-  background: var(--teal, #00f5d4);
-  color: var(--ink-1, #0a0a0f);
-  border-color: var(--teal, #00f5d4);
+  background: var(--teal, #5fd0ff);
+  color: var(--ink-1, #0d2238);
+  border-color: var(--teal, #5fd0ff);
   transform: scale(1.07);
 }
-.pa-sound-btn.pa-on { color: var(--teal, #00f5d4); border-color: var(--teal-line, rgba(0,245,212,0.32)); }
+.pa-sound-btn.pa-on { color: var(--teal, #5fd0ff); border-color: var(--teal-line, rgba(95, 208, 255,0.32)); }
 
 @media (max-width: 620px) {
   .site-nav .pa-sound-btn { padding: 0.45rem 0.45rem; }

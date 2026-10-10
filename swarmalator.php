@@ -5,424 +5,181 @@ recordPageView('swarmalator');
 
 $pageName = 'swarmalator';
 $pageTitle = 'SWARMALATOR - PULSE';
-$pageDesc = 'スウォーマレーター。空間を泳ぎ位相を同期する粒子群。結合パラメータの変化で5つの集団パターンが相転移する。';
+$pageDesc = '短い線の粒が、向きの近いものどうしで集まって輪になる。輪を一周すると線の向きも一周していて、全体の向きがゆっくり回り続ける。触るとそこへ粒が引き寄せられ、離すと輪に戻る。';
 $pageCanonical = 'https://pulse.subara3.com/swarmalator.php';
-
-$extraStyle = '
-body{background:#0a0a0f;min-height:100vh;overflow:hidden}
-#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
-.hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Space Grotesk","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,.34);font-size:.64rem;text-align:right;letter-spacing:.05em;line-height:1.8}
-.hud .v{color:#00f5d4;font-weight:700}
-#info{position:fixed;bottom:1.5rem;left:1.5rem;color:rgba(255,255,255,.22);font-family:"JetBrains Mono",monospace;font-size:.6rem;line-height:1.7;letter-spacing:.03em;pointer-events:none;z-index:50}
-#info .v{color:rgba(0,245,212,.5)}
-@media(max-width:768px){.hud{top:3rem;right:.6rem;font-size:.54rem}#info{bottom:4.5rem;left:1rem;font-size:.5rem}}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
-
 <canvas id="canvas"></canvas>
 
-<div class="hud" id="hud">
-  N <span class="v" id="h-n">150</span><br>
-  ORDER <span class="v" id="h-order">0.00</span>
-</div>
-
-<div id="info">
-  <span class="v">Swarmalator</span><br>
-  sync + swarm coupling
-</div>
-
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'perturb'],
-  ['type' => 'drag', 'label' => 'attract'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
-
 <div id="controls" class="drawer-controls">
-  <div>
-    <div class="slider-row">
-      <span class="slider-label">J</span>
-      <input type="range" id="sl-j" min="-100" max="100" value="10" step="1">
-      <span class="slider-value" id="sv-j">0.10</span>
-    </div>
-  </div>
-  <div>
-    <div class="slider-row">
-      <span class="slider-label">K</span>
-      <input type="range" id="sl-k" min="-100" max="100" value="-75" step="1">
-      <span class="slider-value" id="sv-k">-0.75</span>
-    </div>
-  </div>
-  <div>
-    <div class="slider-row">
-      <span class="slider-label">N</span>
-      <input type="range" id="sl-n" min="30" max="250" value="150" step="10">
-      <span class="slider-value" id="sv-n">150</span>
-    </div>
-  </div>
-  <div>
-    <div class="btn-row" style="flex-wrap:wrap">
-      <button class="control-btn" data-p="sync">SYNC</button>
-      <button class="control-btn" data-p="async">ASYNC</button>
-      <button class="control-btn active" data-p="phasewave">PHASE</button>
-      <button class="control-btn" data-p="splinter">SPLINTER</button>
-      <button class="control-btn" data-p="active">ACTIVE</button>
-    </div>
-  </div>
-  <div>
-    <div class="btn-row">
-      <button class="control-btn" id="btn-reset">RESET</button>
-    </div>
-  </div>
+  <div class="ctl-row"><label for="k-spin">SPIN</label><input type="range" id="k-spin" min="0" max="100" value="35"></div>
+  <div class="ctl-btns"><button type="button" class="active" data-mode="ring">RING</button><button type="button" data-mode="split">SPLIT</button><button type="button" data-mode="drift">DRIFT</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function(){
-var C = document.getElementById('canvas'), ctx = C.getContext('2d');
-var W, H, cx, cy, sc;
-var TWO_PI = Math.PI * 2;
+(function () {
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var ctx = canvas.getContext('2d');
+  var W = 0, H = 0;
 
-var J = 0.1, K = -0.75;
-var N = 150;
-var dt = 0.03, soft2 = 0.04;
-var viewScale = 3.0;
-
-var px, py, pth, pw;
-var cosT, sinT, dpx, dpy, dpth;
-
-var dragging = false, dragSX = 0, dragSY = 0;
-var clickSX = 0, clickSY = 0, didDrag = false;
-
-var presets = {
-  sync:      {j:  1.0, k:  1.0},
-  async:     {j: -0.5, k:  0.0},
-  phasewave: {j:  0.1, k: -0.75},
-  splinter:  {j:  0.1, k: -0.3},
-  active:    {j:  1.0, k: -1.0}
-};
-
-var hN = document.getElementById('h-n');
-var hOrd = document.getElementById('h-order');
-var slJ = document.getElementById('sl-j');
-var slK = document.getElementById('sl-k');
-var slN = document.getElementById('sl-n');
-var svJ = document.getElementById('sv-j');
-var svK = document.getElementById('sv-k');
-var svN = document.getElementById('sv-n');
-
-var LUT = 121;
-var glowLUT = new Array(LUT);
-var coreLUT = new Array(LUT);
-
-function hsl2rgb(h, s, l) {
-  s /= 100; l /= 100;
-  var a = s * Math.min(l, 1 - l);
-  var f = function(n) {
-    var k = (n + h / 30) % 12;
-    return l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
-  };
-  return [f(0) * 255 | 0, f(8) * 255 | 0, f(4) * 255 | 0];
-}
-
-function buildLUT() {
-  for (var i = 0; i < LUT; i++) {
-    var c = hsl2rgb(170 + i, 75, 52);
-    glowLUT[i] = 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',0.07)';
-    coreLUT[i] = 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',0.88)';
-  }
-}
-
-function cidx(theta) {
-  var i = (theta / TWO_PI * LUT) | 0;
-  return i < 0 ? 0 : i >= LUT ? LUT - 1 : i;
-}
-
-function resize() {
-  W = C.width = window.innerWidth;
-  H = C.height = window.innerHeight;
-  cx = W / 2;
-  cy = H / 2;
-  sc = Math.min(W, H) / (viewScale * 2);
-  ctx.fillStyle = '#0a0a0f';
-  ctx.fillRect(0, 0, W, H);
-}
-
-function initParticles() {
-  px = new Float64Array(N);
-  py = new Float64Array(N);
-  pth = new Float64Array(N);
-  pw = new Float64Array(N);
-  cosT = new Float64Array(N);
-  sinT = new Float64Array(N);
-  dpx = new Float64Array(N);
-  dpy = new Float64Array(N);
-  dpth = new Float64Array(N);
+  /* 粒は位置と向き（位相）を持つ。向きが近いほど強く引き合い、近いほど向きを揃え（または離し）合う */
+  var N = 480;
+  var x = new Float32Array(N), y = new Float32Array(N), th = new Float32Array(N), om = new Float32Array(N);
+  var dx = new Float32Array(N), dy = new Float32Array(N), dth = new Float32Array(N);
+  var cs = new Float32Array(N), sn = new Float32Array(N);
+  var MODES = { ring: [1, 0], split: [1, -0.1], drift: [1, -0.75] };
+  var J = 1, Kc = 0, tJ = 1, tK = 0, spin = 0.3;
 
   for (var i = 0; i < N; i++) {
-    var a = Math.random() * TWO_PI;
-    var r = 0.3 + Math.random() * 1.5;
-    px[i] = r * Math.cos(a);
-    py[i] = r * Math.sin(a);
-    pth[i] = Math.random() * TWO_PI;
-    pw[i] = (Math.random() - 0.5) * 0.02;
+    var a = Math.random() * Math.PI * 2, r = Math.sqrt(Math.random()) * 1.6;
+    x[i] = Math.cos(a) * r; y[i] = Math.sin(a) * r;
+    th[i] = Math.random() * Math.PI * 2;
+    om[i] = 0;
   }
 
-  ctx.fillStyle = '#0a0a0f';
-  ctx.fillRect(0, 0, W, H);
-}
+  /* 指: 模型の座標での位置と強さ */
+  var probe = { x: 0, y: 0, on: 0, sx: 0, sy: 0 };
 
-function step() {
-  var i, j;
-  for (i = 0; i < N; i++) {
-    cosT[i] = Math.cos(pth[i]);
-    sinT[i] = Math.sin(pth[i]);
-  }
-
-  for (i = 0; i < N; i++) {
-    var fx = 0, fy = 0, ft = 0;
-    var xi = px[i], yi = py[i];
-    var ci = cosT[i], si = sinT[i];
-
-    for (j = 0; j < N; j++) {
-      if (i === j) continue;
-      var dx = px[j] - xi;
-      var dy = py[j] - yi;
-      var d = Math.sqrt(dx * dx + dy * dy + soft2);
-      var invD = 1 / d;
-      var ux = dx * invD, uy = dy * invD;
-
-      var cosDT = cosT[j] * ci + sinT[j] * si;
-      var sinDT = sinT[j] * ci - cosT[j] * si;
-
-      var fNet = (1 + J * cosDT) - invD;
-      fx += ux * fNet;
-      fy += uy * fNet;
-      ft += sinDT * invD;
-    }
-
-    dpx[i] = fx / N;
-    dpy[i] = fy / N;
-    dpth[i] = pw[i] + K * ft / N;
-  }
-
-  if (dragging) {
-    var mx = (dragSX - cx) / sc;
-    var my = (dragSY - cy) / sc;
+  function step(h) {
+    var i, j;
+    for (i = 0; i < N; i++) { cs[i] = Math.cos(th[i]); sn[i] = Math.sin(th[i]); dx[i] = 0; dy[i] = 0; dth[i] = 0; }
+    var invN = 1 / N;
     for (i = 0; i < N; i++) {
-      var adx = mx - px[i];
-      var ady = my - py[i];
-      var ad = Math.sqrt(adx * adx + ady * ady + 0.04);
-      var af = 0.4 / (ad * ad);
-      dpx[i] += adx * af;
-      dpy[i] += ady * af;
+      var xi = x[i], yi = y[i], ci = cs[i], si = sn[i];
+      var ax = 0, ay = 0, at = 0;
+      for (j = i + 1; j < N; j++) {
+        var rx = x[j] - xi, ry = y[j] - yi;
+        var d2 = rx * rx + ry * ry + 1e-4, d = Math.sqrt(d2);
+        var cosd = cs[j] * ci + sn[j] * si;      /* cos(θj − θi) */
+        var sind = sn[j] * ci - cs[j] * si;      /* sin(θj − θi) */
+        var f = (1 + J * cosd) / d - 1 / d2;     /* 引き合い − 押し合い */
+        var fx = rx * f, fy = ry * f;
+        ax += fx; ay += fy; dx[j] -= fx; dy[j] -= fy;
+        var g = sind / d;
+        at += g; dth[j] -= g;
+      }
+      dx[i] += ax; dy[i] += ay; dth[i] += at;
+    }
+    var pr = probe.on;
+    for (i = 0; i < N; i++) {
+      var vx = dx[i] * invN, vy = dy[i] * invN;
+      if (pr > 0) {
+        var qx = probe.x - x[i], qy = probe.y - y[i], qd = Math.sqrt(qx * qx + qy * qy) + 0.02;
+        if (qd < 0.9) { var k = (1 - qd / 0.9) * 1.6 * pr; vx += qx / qd * k; vy += qy / qd * k; }
+      }
+      x[i] += vx * h; y[i] += vy * h;
+      th[i] += (spin + om[i] + Kc * dth[i] * invN) * h;
     }
   }
 
-  for (i = 0; i < N; i++) {
-    px[i] += dpx[i] * dt;
-    py[i] += dpy[i] * dt;
-    pth[i] += dpth[i] * dt;
-    pth[i] = ((pth[i] % TWO_PI) + TWO_PI) % TWO_PI;
-  }
-}
-
-function computeOrder() {
-  var sx = 0, sy = 0;
-  for (var i = 0; i < N; i++) {
-    sx += cosT[i];
-    sy += sinT[i];
-  }
-  return Math.sqrt(sx * sx + sy * sy) / N;
-}
-
-function autoScale() {
-  var maxR2 = 0;
-  for (var i = 0; i < N; i++) {
-    var r2 = px[i] * px[i] + py[i] * py[i];
-    if (r2 > maxR2) maxR2 = r2;
-  }
-  var target = Math.max(Math.sqrt(maxR2) * 1.4, 1.5);
-  viewScale += (target - viewScale) * 0.01;
-  sc = Math.min(W, H) / (viewScale * 2);
-}
-
-function render() {
-  ctx.globalCompositeOperation = 'source-over';
-  ctx.fillStyle = 'rgba(10,10,15,0.13)';
-  ctx.fillRect(0, 0, W, H);
-
-  ctx.globalCompositeOperation = 'lighter';
-  for (var i = 0; i < N; i++) {
-    var sx = cx + px[i] * sc;
-    var sy = cy + py[i] * sc;
-    ctx.beginPath();
-    ctx.arc(sx, sy, 7, 0, TWO_PI);
-    ctx.fillStyle = glowLUT[cidx(pth[i])];
-    ctx.fill();
+  /* 見える範囲に合わせて、中心と縮尺をゆっくり追う */
+  var cx = 0, cy = 0, scale = 0, T = 0;
+  function frameView(dt) {
+    var mx = 0, my = 0, i;
+    for (i = 0; i < N; i++) { mx += x[i]; my += y[i]; }
+    mx /= N; my /= N;
+    var rr = [];
+    for (i = 0; i < N; i += 3) rr.push(Math.hypot(x[i] - mx, y[i] - my));
+    rr.sort(function (a, b) { return a - b; });
+    var ext = rr[Math.floor(rr.length * 0.96)] || 1;
+    var want = Math.min(W, H) * 0.36 / Math.max(0.3, ext);
+    var k = scale ? Math.min(1, dt * 0.6) : 1;
+    cx += (mx - cx) * k; cy += (my - cy) * k; scale += (want - scale) * k;
   }
 
-  ctx.globalCompositeOperation = 'source-over';
-  for (var i = 0; i < N; i++) {
-    var sx = cx + px[i] * sc;
-    var sy = cy + py[i] * sc;
-    ctx.beginPath();
-    ctx.arc(sx, sy, 2.5, 0, TWO_PI);
-    ctx.fillStyle = coreLUT[cidx(pth[i])];
-    ctx.fill();
-  }
-}
-
-function updateSliders() {
-  slJ.value = Math.round(J * 100);
-  slK.value = Math.round(K * 100);
-  slN.value = N;
-  svJ.textContent = J.toFixed(2);
-  svK.textContent = K.toFixed(2);
-  svN.textContent = N;
-}
-
-function clearPresets() {
-  var btns = document.querySelectorAll('[data-p]');
-  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
-}
-
-function setPreset(name) {
-  var p = presets[name];
-  if (!p) return;
-  J = p.j; K = p.k;
-  updateSliders();
-  initParticles();
-  clearPresets();
-  var btn = document.querySelector('[data-p="' + name + '"]');
-  if (btn) btn.classList.add('active');
-  if (typeof SFX !== 'undefined') SFX.play('toggle');
-}
-
-slJ.addEventListener('input', function() {
-  J = parseInt(this.value) / 100;
-  svJ.textContent = J.toFixed(2);
-  clearPresets();
-});
-slK.addEventListener('input', function() {
-  K = parseInt(this.value) / 100;
-  svK.textContent = K.toFixed(2);
-  clearPresets();
-});
-slN.addEventListener('input', function() {
-  var v = parseInt(this.value);
-  svN.textContent = v;
-  if (v !== N) {
-    N = v;
-    initParticles();
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
-  }
-});
-
-var pBtns = document.querySelectorAll('[data-p]');
-for (var b = 0; b < pBtns.length; b++) {
-  pBtns[b].addEventListener('click', (function(btn) {
-    return function() { setPreset(btn.dataset.p); };
-  })(pBtns[b]));
-}
-
-document.getElementById('btn-reset').addEventListener('click', function() {
-  initParticles();
-  if (typeof SFX !== 'undefined') SFX.play('click');
-});
-
-function getPos(e) {
-  if (e.touches && e.touches.length) return {x: e.touches[0].clientX, y: e.touches[0].clientY};
-  return {x: e.clientX, y: e.clientY};
-}
-
-C.addEventListener('mousedown', function(e) {
-  var p = getPos(e);
-  dragging = true; didDrag = false;
-  dragSX = clickSX = p.x;
-  dragSY = clickSY = p.y;
-});
-C.addEventListener('mousemove', function(e) {
-  if (!dragging) return;
-  var p = getPos(e);
-  dragSX = p.x; dragSY = p.y;
-  var dx = dragSX - clickSX, dy = dragSY - clickSY;
-  if (dx * dx + dy * dy > 25) didDrag = true;
-  if (didDrag && typeof SFX !== 'undefined') SFX.play('move', 120);
-});
-C.addEventListener('mouseup', function() {
-  if (!didDrag && dragging) {
-    perturb(clickSX, clickSY);
-  }
-  dragging = false;
-});
-C.addEventListener('touchstart', function(e) {
-  e.preventDefault();
-  var p = getPos(e);
-  dragging = true; didDrag = false;
-  dragSX = clickSX = p.x;
-  dragSY = clickSY = p.y;
-}, {passive: false});
-C.addEventListener('touchmove', function(e) {
-  e.preventDefault();
-  if (!dragging) return;
-  var p = getPos(e);
-  dragSX = p.x; dragSY = p.y;
-  var dx = dragSX - clickSX, dy = dragSY - clickSY;
-  if (dx * dx + dy * dy > 25) didDrag = true;
-  if (didDrag && typeof SFX !== 'undefined') SFX.play('move', 120);
-}, {passive: false});
-C.addEventListener('touchend', function() {
-  if (!didDrag && dragging) {
-    perturb(clickSX, clickSY);
-  }
-  dragging = false;
-});
-C.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-
-function perturb(sx, sy) {
-  var mx = (sx - cx) / sc;
-  var my = (sy - cy) / sc;
-  for (var i = 0; i < N; i++) {
-    var dx = px[i] - mx;
-    var dy = py[i] - my;
-    var d = Math.sqrt(dx * dx + dy * dy) + 0.1;
-    if (d < 2.5) {
-      var push = (2.5 - d) * 0.25;
-      px[i] += dx / d * push;
-      py[i] += dy / d * push;
-      pth[i] += (Math.random() - 0.5) * 0.8;
-      pth[i] = ((pth[i] % TWO_PI) + TWO_PI) % TWO_PI;
+  function draw() {
+    P.fill(ctx, W, H);
+    P.grid(ctx, W, H, { step: 36, major: 4, alpha: 0.6 });
+    var ox = W / 2, oy = H / 2, L = Math.max(4, Math.min(8, scale * 0.045));
+    /* 明るさは「向き」で決める。基準の向きはゆっくり回るので、明るい帯が輪をめぐって見える */
+    var ref = T * 0.15;
+    var BUCK = 6, b, i;
+    ctx.lineCap = 'round';
+    for (b = 0; b < BUCK; b++) {
+      var u = (b + 0.5) / BUCK;
+      ctx.strokeStyle = P.rgba(P.ramp(0.5 + u * 0.5), 0.4 + u * 0.6);
+      ctx.lineWidth = 1 + u * 0.6;
+      ctx.beginPath();
+      for (i = 0; i < N; i++) {
+        var lv = (Math.cos(th[i] - ref) + 1) * 0.5;
+        if (Math.min(BUCK - 1, (lv * BUCK) | 0) !== b) continue;
+        var sx = ox + (x[i] - cx) * scale, sy = oy + (y[i] - cy) * scale;
+        /* 針: 根元から向きの方へだけ伸ばす（向きが一周すると針も一周して見える） */
+        var c = Math.cos(th[i]) * L, s = Math.sin(th[i]) * L;
+        ctx.moveTo(sx - c * 0.35, sy - s * 0.35); ctx.lineTo(sx + c * 1.3, sy + s * 1.3);
+      }
+      ctx.stroke();
+    }
+    if (probe.on > 0.02) {
+      ctx.fillStyle = P.rgba(P.accent, 0.8 * probe.on);
+      ctx.beginPath(); ctx.arc(probe.sx, probe.sy, 2.5, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = P.rgba(P.accent, 0.35 * probe.on);
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(probe.sx, probe.sy, 0.9 * scale, 0, Math.PI * 2); ctx.stroke();
     }
   }
-  if (typeof SFX !== 'undefined') SFX.play('ripple');
-}
 
-var fc = 0;
-function animate() {
-  var sPerFrame = N > 200 ? 2 : 3;
-  for (var s = 0; s < sPerFrame; s++) step();
-  autoScale();
-  render();
-
-  if (++fc % 8 === 0) {
-    hN.textContent = N;
-    hOrd.textContent = computeOrder().toFixed(2);
+  /* ---------------------------------------------------------- 操作 */
+  var down = false;
+  function setProbe(e) {
+    probe.sx = e.clientX; probe.sy = e.clientY;
+    probe.x = cx + (e.clientX - W / 2) / scale;
+    probe.y = cy + (e.clientY - H / 2) / scale;
   }
+  canvas.addEventListener('pointerdown', function (e) {
+    down = true; setProbe(e); probe.on = 1;
+    SFX.play('grow');
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    setProbe(e);
+    SFX.play('move', 200);
+  });
+  function up() { down = false; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
 
-  requestAnimationFrame(animate);
-}
+  function spinFrom(v) { return v / 100 * 0.9; }
+  document.getElementById('k-spin').addEventListener('input', function () { spin = spinFrom(+this.value); });
+  document.querySelectorAll('[data-mode]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-mode]').forEach(function (o) { o.classList.toggle('active', o === b); });
+      var m = MODES[b.dataset.mode]; tJ = m[0]; tK = m[1];
+      SFX.play('toggle');
+    });
+  });
+  spin = spinFrom(+document.getElementById('k-spin').value);
+  (function () {
+    var act = document.querySelector('[data-mode].active');
+    if (act) { var m = MODES[act.dataset.mode]; J = tJ = m[0]; Kc = tK = m[1]; }
+  })();
 
-window.addEventListener('resize', resize);
-buildLUT();
-resize();
-initParticles();
-updateSliders();
-requestAnimationFrame(animate);
+  ctx = P.fit(canvas, function (w, h) { W = w; H = h; });
+  /* 最初から輪の形が見えるよう、少し先まで進めておく */
+  for (var w0 = 0; w0 < 500; w0++) step(0.06);
+  frameView(1);
+
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now();
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now; T += dt;
+    /* モードを替えたときは、結合の強さを数秒かけて移す */
+    J += (tJ - J) * Math.min(1, dt * 0.8);
+    Kc += (tK - Kc) * Math.min(1, dt * 0.8);
+    if (!down) probe.on = Math.max(0, probe.on - dt * 1.5);
+    step(dt * 1.2); step(dt * 1.2); step(dt * 1.2);
+    frameView(dt);
+    draw();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

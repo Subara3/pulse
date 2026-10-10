@@ -1,341 +1,298 @@
 <?php
 require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/access_log.php';
 recordPageView('lsystemgarden');
 
 $pageName = 'lsystemgarden';
 $pageTitle = 'L-SYSTEM GARDEN - PULSE';
-$pageDesc = 'Lシステムの枝がゆっくり成長し、風でしなる発光ガーデン。クリックで新しい種を植えられる。';
+$pageDesc = '画面の下から草や木が少しずつ伸びて、風が吹くたびに左右になびく。指を動かすと近くの草が揺れ、押したところから新しい芽が伸びる。';
 $pageCanonical = 'https://pulse.subara3.com/lsystemgarden.php';
-
-$extraStyle = '
-body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
-#canvas { position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; }
-.ui { position: fixed; z-index: 10; pointer-events: none; font-family: "Space Grotesk", "Segoe UI", sans-serif; letter-spacing: 0.05em; }
-.hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.36); font-size: 0.62rem; line-height: 1.8; text-align: right; }
-.hud .v { color: #00f5d4; font-weight: 700; }
-.info { left: 1rem; bottom: 1rem; color: rgba(255,255,255,0.32); font-size: 0.56rem; line-height: 1.7; max-width: min(72vw, 520px); }
-@media (max-width: 768px) {
-  .hud { top: 0.75rem; right: 0.75rem; font-size: 0.54rem; }
-  .info { left: 0.75rem; bottom: 0.75rem; font-size: 0.5rem; max-width: 74vw; }
-}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
 
-<div class="ui hud">
-  SEEDS: <span class="v" id="hudSeeds">0</span><br>
-  SEGMENTS: <span class="v" id="hudSegs">0</span><br>
-  WIND: <span class="v" id="hudWind">0.20</span>
-</div>
-
-<div class="ui info">
-  TAP: PLANT SEED<br>
-  DRAG: PUSH WIND<br>
-  RIGHT-CLICK: CLEAR GARDEN<br>
-  L-SYSTEM BRANCHES GROW SLOWLY INTO A LUMINOUS CANOPY
-</div>
-
 <div id="controls" class="drawer-controls">
-  <div class="slider-wrap">
-    <label>DEPTH</label>
-    <input type="range" id="depthSlider" min="3" max="7" value="5">
-  </div>
-  <div class="slider-wrap">
-    <label>ANGLE</label>
-    <input type="range" id="angleSlider" min="12" max="42" value="24">
-  </div>
-  <div class="slider-wrap">
-    <label>GROWTH SPEED</label>
-    <input type="range" id="speedSlider" min="20" max="140" value="70">
-  </div>
-  <div class="btn-row">
-    <button class="control-btn" id="autoBtn">AUTO: ON</button>
-    <button class="control-btn" id="plantBtn">PLANT BURST</button>
-    <button class="control-btn" id="resetBtn">RESET</button>
-  </div>
+  <div class="ctl-row"><label for="k-wind">WIND</label><input type="range" id="k-wind" min="0" max="100" value="40"></div>
+  <div class="ctl-row"><label for="k-grow">GROW</label><input type="range" id="k-grow" min="0" max="100" value="45"></div>
+  <div class="ctl-btns"><button type="button" id="k-reseed">RESEED</button></div>
 </div>
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'plant'],
-  ['type' => 'drag', 'label' => 'wind'],
-  ['type' => 'right', 'label' => 'clear']
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-require_once __DIR__ . '/includes/drawer-controls.php';
-?>
-
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function() {
+(function () {
+  'use strict';
   var canvas = document.getElementById('canvas');
-  var ctx = canvas.getContext('2d', { alpha: false });
+  var W = 0, H = 0, ready = false;
 
-  var hudSeeds = document.getElementById('hudSeeds');
-  var hudSegs = document.getElementById('hudSegs');
-  var hudWind = document.getElementById('hudWind');
-
-  var depthSlider = document.getElementById('depthSlider');
-  var angleSlider = document.getElementById('angleSlider');
-  var speedSlider = document.getElementById('speedSlider');
-  var autoBtn = document.getElementById('autoBtn');
-  var plantBtn = document.getElementById('plantBtn');
-  var resetBtn = document.getElementById('resetBtn');
-
-  var W = 0, H = 0, DPR = 1;
-  var time = 0;
-  var seeds = [];
-  var autoPlant = true;
-  var windBias = 0.2;
-  var dragging = false;
-  var pointerId = null;
-  var lastAuto = 0;
-
-  function rgba(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; }
-  function mix(a, b, t) {
-    return [
-      Math.round(a[0] + (b[0] - a[0]) * t),
-      Math.round(a[1] + (b[1] - a[1]) * t),
-      Math.round(a[2] + (b[2] - a[2]) * t)
-    ];
-  }
-
-  function resize() {
-    DPR = Math.min(2, window.devicePixelRatio || 1);
-    W = Math.floor(window.innerWidth);
-    H = Math.floor(window.innerHeight);
-    canvas.width = Math.floor(W * DPR);
-    canvas.height = Math.floor(H * DPR);
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  }
-
-  function lsys(depth) {
-    var str = 'X';
-    for (var i = 0; i < depth; i++) {
-      var next = '';
-      for (var j = 0; j < str.length; j++) {
-        var ch = str[j];
-        if (ch === 'X') next += 'F[+X][-X]FX';
-        else if (ch === 'F') next += 'FF';
-        else next += ch;
-      }
-      str = next;
+  /* 4 種類の草。文字列の書き換え規則で枝ぶりが決まる */
+  var SPECIES = [
+    { axiom: 'X', rules: { X: 'F+[[X]-X]-F[-FX]+X', F: 'FF' }, angle: 22, iter: 4, tip: 'dot', hgt: 1.0 },
+    { axiom: 'F', rules: { F: 'F[+F]F[-F][F]' }, angle: 19, iter: 3, tip: 'dot', hgt: 0.7 },
+    { axiom: 'X', rules: { X: 'F[+X][-X]FX', F: 'FF' }, angle: 26, iter: 5, tip: 'ring', hgt: 0.9 },
+    { axiom: 'F', rules: { F: 'FF-[-F+F+F]+[+F-F-F]' }, angle: 20, iter: 3, tip: 'none', hgt: 0.85 },
+    { axiom: 'X', rules: { X: 'F[-X]F[+X]-X', F: 'FF' }, angle: 14, iter: 5, tip: 'dot', hgt: 1.15 }
+  ];
+  SPECIES.forEach(function (s) {
+    var str = s.axiom;
+    for (var i = 0; i < s.iter; i++) {
+      var out = '';
+      for (var c = 0; c < str.length; c++) out += s.rules[str[c]] || str[c];
+      str = out;
     }
-    return str;
-  }
+    s.str = str;
+  });
 
-  function compileSegments(x, y, depth, angleDeg, scale, hueJitter) {
-    var sentence = lsys(depth);
-    var stack = [];
-    var px = x, py = y;
-    var ang = -Math.PI / 2;
-    var segs = [];
-    var baseLen = Math.min(W, H) * (0.018 + scale * 0.012);
+  var plants = [], motes = [], marks = [], blades = [];
+  var windAmt = 0.4, growRate = 0.45, T = 0;
 
-    for (var i = 0; i < sentence.length; i++) {
-      var ch = sentence[i];
+  function makePlant(x, z, touched, preGrow) {
+    var sp = SPECIES[(Math.random() * SPECIES.length) | 0];
+    var str = sp.str, a0 = sp.angle * Math.PI / 180;
+    var n = 0;
+    for (var c = 0; c < str.length; c++) if (str[c] === 'F') n++;
+    var parent = new Int16Array(n), rel = new Float32Array(n), len = new Float32Array(n),
+        dist = new Float32Array(n), tip = new Uint8Array(n).fill(1), head = new Float32Array(n);
+    var lean = (Math.random() - 0.5) * 0.25;
+    var cur = -1, hd = -Math.PI / 2 + lean, stack = [], k = 0, maxD = 1;
+    for (c = 0; c < str.length; c++) {
+      var ch = str[c];
       if (ch === 'F') {
-        var len = baseLen * (0.88 + 0.24 * Math.sin(i * 0.17 + hueJitter));
-        var nx = px + Math.cos(ang) * len;
-        var ny = py + Math.sin(ang) * len;
-        var t = i / sentence.length;
-        segs.push({ x1: px, y1: py, x2: nx, y2: ny, t: t });
-        px = nx; py = ny;
-      } else if (ch === '+') {
-        ang += angleDeg * Math.PI / 180;
-      } else if (ch === '-') {
-        ang -= angleDeg * Math.PI / 180;
-      } else if (ch === '[') {
-        stack.push({ x: px, y: py, a: ang });
-      } else if (ch === ']') {
-        var s = stack.pop();
-        if (s) { px = s.x; py = s.y; ang = s.a; }
+        parent[k] = cur;
+        rel[k] = hd - (cur < 0 ? -Math.PI / 2 + lean : head[cur]);
+        head[k] = hd;
+        len[k] = 0.8 + Math.random() * 0.4;
+        dist[k] = (cur < 0 ? 0 : dist[cur]) + 1;
+        if (dist[k] > maxD) maxD = dist[k];
+        if (cur >= 0) tip[cur] = 0;
+        cur = k++;
+      } else if (ch === '+') hd += a0 * (0.75 + Math.random() * 0.5);
+      else if (ch === '-') hd -= a0 * (0.75 + Math.random() * 0.5);
+      else if (ch === '[') stack.push(cur, hd);
+      else if (ch === ']') { hd = stack.pop(); cur = stack.pop(); }
+    }
+    /* 静止時の高さを測って、狙いの背丈に合わせる */
+    var X = new Float32Array(n), Y = new Float32Array(n), A = new Float32Array(n), top = 0;
+    for (k = 0; k < n; k++) {
+      var p = parent[k], py = p < 0 ? 0 : Y[p];
+      Y[k] = py + Math.sin(head[k]) * len[k];
+      if (Y[k] < top) top = Y[k];
+    }
+    var h = H * (0.18 + z * 0.42) * sp.hgt * (0.75 + Math.random() * 0.4);
+    return {
+      sp: sp, n: n, parent: parent, rel: rel, len: len, dist: dist, tip: tip,
+      X: X, Y: Y, A: A, maxD: maxD, scale: h / Math.max(1, -top),
+      bx: x, by: H + 2 - (1 - z) * H * 0.07, base: -Math.PI / 2 + lean, z: z,
+      g: preGrow ? 0.25 + Math.random() * 0.8 : 0, speed: 0.75 + Math.random() * 0.5,
+      life: 45 + Math.random() * 60, age: preGrow ? Math.random() * 40 : 0,
+      fade: 1, sw: 0, sv: 0, cool: touched ? 1 : 0, grown: !!preGrow
+    };
+  }
+
+  function target() { return Math.round(Math.max(8, Math.min(20, W / 85))); }
+
+  function reseed() {
+    plants.length = 0;
+    var n = target();
+    for (var i = 0; i < n; i++) {
+      var z = Math.random();
+      plants.push(makePlant((i + 0.2 + Math.random() * 0.6) / n * W, z, false, true));
+    }
+    plants.sort(function (a, b) { return a.z - b.z; });
+  }
+
+  function resize(w, h) {
+    W = w; H = h;
+    reseed();
+    blades.length = 0;
+    var nb = Math.round(W / 7);
+    for (var b = 0; b < nb; b++) blades.push({ x: Math.random() * W, h: H * (0.015 + Math.pow(Math.random(), 2) * 0.07), lean: (Math.random() - 0.5) * 0.5, a: 0.18 + Math.random() * 0.3 });
+    motes.length = 0;
+    for (var i = 0; i < 46; i++) motes.push({ x: Math.random() * W, y: H * (0.25 + Math.random() * 0.75), r: 0.6 + Math.random() * 1.1, ph: Math.random() * 6.28 });
+  }
+
+  /* 風: 横へ流れていく突風の帯。草の列が順番になびく */
+  function wind(x) {
+    var base = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(T * 0.06));
+    var gust = Math.sin(x * 0.0042 - T * 0.75) * 0.55 + Math.sin(x * 0.011 - T * 1.6 + 1.3) * 0.22;
+    return windAmt * (base * 0.7 + gust * (0.4 + base * 0.6));
+  }
+
+  var LN = P.line, ST = P.steel, AC = P.accent;
+  function drawPlant(pl) {
+    var n = pl.n, g = pl.g * pl.maxD, k2 = 2 / (pl.maxD * pl.maxD);
+    var sway = pl.sw + (1 - pl.fade) * 0.9 * (pl.base > -Math.PI / 2 ? 1 : -1);
+    var col = P.mix(ST, LN, 0.35 + pl.z * 0.65);
+    if (pl.cool > 0) col = P.mix(col, AC, pl.cool);
+    var alpha = (0.42 + pl.z * 0.5) * pl.fade;
+    var paths = [new Path2D(), new Path2D(), new Path2D()], tips = new Path2D(), anyTip = false;
+    var s = pl.scale;
+    for (var k = 0; k < n; k++) {
+      var p = pl.parent[k];
+      var px = p < 0 ? pl.bx : pl.X[p], py = p < 0 ? pl.by : pl.Y[p], pa = p < 0 ? pl.base : pl.A[p];
+      var f = g - pl.dist[k] + 1;
+      if (f <= 0) { pl.X[k] = px; pl.Y[k] = py; pl.A[k] = pa; continue; }
+      if (f > 1) f = 1;
+      var a = pa + pl.rel[k] + sway * k2 * pl.dist[k];
+      pl.A[k] = a;
+      var x = px + Math.cos(a) * pl.len[k] * s * f, y = py + Math.sin(a) * pl.len[k] * s * f;
+      pl.X[k] = x; pl.Y[k] = y;
+      var q = pl.dist[k] / pl.maxD, b = q < 0.3 ? 0 : q < 0.65 ? 1 : 2;
+      paths[b].moveTo(px, py); paths[b].lineTo(x, y);
+      if (pl.tip[k] && f === 1 && pl.sp.tip !== 'none') {
+        anyTip = true;
+        if (pl.sp.tip === 'ring') { tips.moveTo(x + 2.2, y); tips.arc(x, y, 2.2, 0, 6.2832); }
+        else { tips.moveTo(x + 1.1, y); tips.arc(x, y, 1.1, 0, 6.2832); }
       }
     }
-    return segs;
-  }
-
-  function plant(x, y, burst) {
-    var depth = parseInt(depthSlider.value, 10);
-    var angle = parseFloat(angleSlider.value);
-    var count = burst ? 3 : 1;
-    for (var i = 0; i < count; i++) {
-      var sx = x + (Math.random() - 0.5) * (burst ? 180 : 20);
-      var sy = y + (Math.random() - 0.5) * (burst ? 40 : 12);
-      var hueJitter = Math.random() * Math.PI * 2;
-      var segs = compileSegments(sx, sy, depth, angle * (0.9 + Math.random() * 0.25), 0.7 + Math.random() * 0.7, hueJitter);
-      seeds.push({
-        x: sx, y: sy,
-        segs: segs,
-        growth: 0,
-        glow: 0,
-        phase: Math.random() * Math.PI * 2,
-        sway: (Math.random() * 2 - 1) * 0.4,
-        colorA: mix([0, 245, 212], [123, 44, 191], 0.15 + Math.random() * 0.3),
-        colorB: mix([0, 245, 212], [123, 44, 191], 0.7 + Math.random() * 0.25)
-      });
+    var wz = 0.55 + pl.z * 0.75;
+    ctx.strokeStyle = P.rgba(col, alpha);
+    ctx.lineWidth = 1.7 * wz; ctx.stroke(paths[0]);
+    ctx.strokeStyle = P.rgba(col, alpha * 0.9);
+    ctx.lineWidth = 1.05 * wz; ctx.stroke(paths[1]);
+    ctx.strokeStyle = P.rgba(col, alpha * 0.75);
+    ctx.lineWidth = 0.65 * wz; ctx.stroke(paths[2]);
+    if (anyTip) {
+      if (pl.sp.tip === 'ring') { ctx.lineWidth = 0.8; ctx.strokeStyle = P.rgba(col, alpha * 0.8); ctx.stroke(tips); }
+      else { ctx.fillStyle = P.rgba(col, alpha * 0.85); ctx.fill(tips); }
     }
-    while (seeds.length > 22) seeds.shift();
-    if (typeof SFX !== 'undefined') SFX.play('spawn', 40);
   }
 
-  function clearGarden() {
-    seeds = [];
-    if (typeof SFX !== 'undefined') SFX.play('ripple', 60);
-  }
+  var ctx = P.fit(canvas, function (w, h) { resize(w, h); ready = true; });
 
-  function update(dt) {
-    var growthSpeed = parseFloat(speedSlider.value) / 10000;
-
-    if (autoPlant && time - lastAuto > 3600 && seeds.length < 16) {
-      lastAuto = time;
-      plant(Math.random() * W, H * (0.72 + Math.random() * 0.24), false);
+  /* ---------------------------------------------------------- 操作 */
+  var down = false, lastX = 0, lastY = 0, lastMoveT = 0;
+  function pushAt(x, vx) {
+    for (var i = 0; i < plants.length; i++) {
+      var pl = plants[i], dx = (pl.bx - x) / 170;
+      var f = Math.exp(-dx * dx);
+      pl.sv += Math.max(-3, Math.min(3, vx * 0.012)) * f;
     }
-
-    var totalSeg = 0;
-    for (var i = 0; i < seeds.length; i++) {
-      var s = seeds[i];
-      s.growth += dt * growthSpeed;
-      if (s.growth > 1) s.growth = 1;
-      s.glow += dt * 0.0012;
-      totalSeg += Math.floor(s.segs.length * s.growth);
-    }
-
-    windBias *= 0.996;
-    if (Math.abs(windBias) < 0.03) windBias = 0;
-
-    hudSeeds.textContent = seeds.length;
-    hudSegs.textContent = totalSeg;
-    hudWind.textContent = windBias.toFixed(2);
   }
-
-  function draw() {
-    ctx.fillStyle = 'rgba(10,10,15,0.16)';
-    ctx.fillRect(0, 0, W, H);
-
-    var g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, 'rgba(22, 18, 44, 0.24)');
-    g.addColorStop(1, 'rgba(8, 16, 24, 0.02)');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, W, H);
-
-    ctx.globalCompositeOperation = 'lighter';
-    for (var i = 0; i < seeds.length; i++) {
-      var s = seeds[i];
-      var n = Math.floor(s.segs.length * s.growth);
-      for (var k = 0; k < n; k++) {
-        var seg = s.segs[k];
-        var depthF = 1 - seg.t;
-        var wobble = Math.sin(time * 0.00035 + s.phase + seg.t * 8) * (2 + 28 * depthF * windBias) + s.sway * 14 * depthF;
-        var col = mix(s.colorA, s.colorB, seg.t);
-
-        ctx.strokeStyle = rgba(col, 0.08 + 0.26 * depthF);
-        ctx.lineWidth = 0.6 + 2.4 * depthF;
-        ctx.beginPath();
-        ctx.moveTo(seg.x1 + wobble, seg.y1);
-        ctx.lineTo(seg.x2 + wobble * 1.2, seg.y2);
-        ctx.stroke();
-      }
-
-      var pulse = 0.45 + 0.55 * Math.sin(s.glow + s.phase);
-      ctx.fillStyle = rgba(s.colorA, 0.35 * pulse);
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, 2 + pulse * 3, 0, Math.PI * 2);
-      ctx.fill();
+  canvas.addEventListener('pointerdown', function (e) {
+    down = true; lastX = e.clientX; lastY = e.clientY;
+    var z = 0.7 + Math.random() * 0.3;
+    var pl = makePlant(e.clientX, z, true, false);
+    plants.push(pl);
+    plants.sort(function (a, b) { return a.z - b.z; });
+    /* 増えすぎたら、いちばん古い株から枯れはじめる */
+    var alive = plants.filter(function (p) { return p.age < p.life; });
+    if (alive.length > target() + 4) {
+      alive.sort(function (a, b) { return (b.age - b.life) - (a.age - a.life); });
+      alive[0].age = alive[0].life;
     }
-    ctx.globalCompositeOperation = 'source-over';
-  }
-
-  function pointerDown(e) {
-    dragging = true;
-    pointerId = e.pointerId;
+    marks.push({ x: e.clientX, y: pl.by - 2, t: 0 });
+    pushAt(e.clientX, (Math.random() - 0.5) * 60);
+    SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
-    plant(e.clientX, e.clientY, false);
-  }
-
-  function pointerMove(e) {
-    if (!dragging || e.pointerId !== pointerId) return;
-    var nx = (e.clientX / Math.max(1, W) - 0.5) * 2;
-    windBias += nx * 0.06;
-    windBias = Math.max(-1.6, Math.min(1.6, windBias));
-    if (typeof SFX !== 'undefined') SFX.play('move', 90);
-  }
-
-  function pointerUp(e) {
-    if (e.pointerId !== pointerId) return;
-    dragging = false;
-    pointerId = null;
-  }
-
-  canvas.addEventListener('click', function(e) {
-    plant(e.clientX, e.clientY, false);
   });
-
-  canvas.addEventListener('pointerdown', pointerDown);
-  canvas.addEventListener('pointermove', pointerMove);
-  canvas.addEventListener('pointerup', pointerUp);
-  canvas.addEventListener('pointercancel', pointerUp);
-
-  canvas.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    clearGarden();
+  canvas.addEventListener('pointermove', function (e) {
+    if (e.pointerType !== 'mouse' && !down) return;
+    var dx = e.clientX - lastX;
+    lastX = e.clientX; lastY = e.clientY;
+    if (Math.abs(dx) < 1) return;
+    pushAt(e.clientX, down ? dx * 1.6 : dx * 0.6);
+    for (var i = 0; i < motes.length; i++) {
+      var m = motes[i], ddx = m.x - e.clientX, ddy = m.y - e.clientY;
+      if (ddx * ddx + ddy * ddy < 9000) m.x += dx * 0.3;
+    }
+    if (down) SFX.play('move', 220);
   });
+  function up() { down = false; }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
 
-  autoBtn.addEventListener('click', function() {
-    autoPlant = !autoPlant;
-    autoBtn.textContent = 'AUTO: ' + (autoPlant ? 'ON' : 'OFF');
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
+  var kWind = document.getElementById('k-wind'), kGrow = document.getElementById('k-grow');
+  kWind.addEventListener('input', function () { windAmt = this.value / 100; });
+  kGrow.addEventListener('input', function () { growRate = this.value / 100; });
+  document.getElementById('k-reseed').addEventListener('click', function () {
+    reseed();
+    plants.forEach(function (p) { p.g = Math.random() * 0.15; p.age = 0; p.grown = false; });
+    SFX.play('click');
   });
+  windAmt = kWind.value / 100;
+  growRate = kGrow.value / 100;
 
-  plantBtn.addEventListener('click', function() {
-    plant(W * (0.2 + Math.random() * 0.6), H * (0.78 + Math.random() * 0.18), true);
-    if (typeof SFX !== 'undefined') SFX.play('grow', 40);
-  });
-
-  resetBtn.addEventListener('click', function() {
-    seeds = [];
-    depthSlider.value = 5;
-    angleSlider.value = 24;
-    speedSlider.value = 70;
-    autoPlant = true;
-    autoBtn.textContent = 'AUTO: ON';
-    initSeeds();
-    if (typeof SFX !== 'undefined') SFX.play('click');
-  });
-
-  depthSlider.addEventListener('input', function() {
-    if (typeof SFX !== 'undefined') SFX.play('tick', 80);
-  });
-  angleSlider.addEventListener('input', function() {
-    if (typeof SFX !== 'undefined') SFX.play('tick', 80);
-  });
-  speedSlider.addEventListener('input', function() {
-    if (typeof SFX !== 'undefined') SFX.play('tick', 80);
-  });
-
-  function initSeeds() {
-    var baseY = H * 0.9;
-    plant(W * 0.28, baseY, false);
-    plant(W * 0.5, baseY, false);
-    plant(W * 0.72, baseY, false);
-    for (var i = 0; i < seeds.length; i++) seeds[i].growth = 0.25 + Math.random() * 0.45;
-  }
-
-  window.addEventListener('resize', resize);
-  resize();
-  initSeeds();
-
-  var prev = performance.now();
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now();
   function frame(now) {
-    var dt = Math.min(40, now - prev);
-    prev = now;
-    time += dt;
-    update(dt);
-    draw();
-    if (Math.random() < 0.008 && typeof SFX !== 'undefined') SFX.play('ripple', 1200);
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    T += dt;
+    if (!ready) { requestAnimationFrame(frame); return; }
+
+    P.fill(ctx, W, H);
+    P.grid(ctx, W, H, { step: 36, major: 4, alpha: 0.55 });
+
+    var alive = 0;
+    for (var i = plants.length - 1; i >= 0; i--) {
+      var pl = plants[i];
+      pl.age += dt;
+      if (pl.g < 1) {
+        pl.g = Math.min(1, pl.g + dt * (0.012 + growRate * 0.07) * pl.speed);
+        if (pl.g >= 1 && !pl.grown) { pl.grown = true; SFX.play('grow', 5000); }
+      }
+      if (pl.cool > 0 && pl.g > 0.6) pl.cool = Math.max(0, pl.cool - dt * 0.08);
+      if (pl.age > pl.life) {
+        pl.fade -= dt / 9;
+        if (pl.fade <= 0) { plants.splice(i, 1); continue; }
+      } else alive++;
+      var stiff = 5 + (1 - pl.z) * 3;
+      var force = wind(pl.bx) * stiff * 0.4;
+      pl.sv += (force - pl.sw * stiff - pl.sv * 1.6) * dt;
+      pl.sw += pl.sv * dt;
+    }
+    /* 枯れて減った分は、どこかに芽が出て埋まる */
+    if (alive < target() && Math.random() < dt * 0.6) {
+      var np = makePlant(Math.random() * W, Math.random(), false, false);
+      plants.push(np);
+      plants.sort(function (a, b) { return a.z - b.z; });
+    }
+
+    for (i = 0; i < plants.length; i++) drawPlant(plants[i]);
+
+    /* 足元の細い草。風の帯がここでも見える */
+    ctx.lineWidth = 0.8;
+    for (var pass = 0; pass < 2; pass++) {
+      ctx.strokeStyle = P.rgba(pass ? P.line : P.steel, pass ? 0.32 : 0.5);
+      ctx.beginPath();
+      for (i = pass; i < blades.length; i += 2) {
+        var bl = blades[i], bend = bl.lean + wind(bl.x) * 1.3;
+        var tx = bl.x + Math.sin(bend) * bl.h, ty = H - Math.cos(bend) * bl.h;
+        ctx.moveTo(bl.x, H + 1);
+        ctx.quadraticCurveTo(bl.x + Math.sin(bend) * bl.h * 0.25, H - bl.h * 0.5, tx, ty);
+      }
+      ctx.stroke();
+    }
+
+    /* 風に乗って漂う綿毛 */
+    ctx.fillStyle = P.rgba(P.line, 0.4);
+    ctx.beginPath();
+    for (i = 0; i < motes.length; i++) {
+      var m = motes[i];
+      m.x += (12 + wind(m.x) * 90) * dt;
+      m.y += Math.sin(T * 0.5 + m.ph) * 6 * dt - 3 * dt;
+      if (m.x > W + 10) { m.x = -10; m.y = H * (0.3 + Math.random() * 0.7); }
+      if (m.x < -10) m.x = W + 10;
+      if (m.y < H * 0.15) m.y = H;
+      ctx.moveTo(m.x + m.r, m.y);
+      ctx.arc(m.x, m.y, m.r, 0, 6.2832);
+    }
+    ctx.fill();
+
+    ctx.lineWidth = 1;
+    for (i = marks.length - 1; i >= 0; i--) {
+      var mk = marks[i];
+      mk.t += dt;
+      var a = 1 - mk.t / 1.4;
+      if (a <= 0) { marks.splice(i, 1); continue; }
+      ctx.strokeStyle = P.rgba(P.accent, a * 0.6);
+      ctx.beginPath();
+      ctx.ellipse(mk.x, mk.y, 4 + mk.t * 40, 1.5 + mk.t * 8, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);

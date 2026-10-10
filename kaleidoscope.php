@@ -5,312 +5,237 @@ recordPageView('kaleidoscope');
 
 $pageName = 'kaleidoscope';
 $pageTitle = 'KALEIDOSCOPE - PULSE';
-$pageDesc = '万華鏡。二面体群D_Nの対称性で粒子の軌跡が反射・回転し、幾何学模様が浮かび上がる。';
+$pageDesc = '回る筒の中でガラス片が転がり、合わせ鏡に映った対称な模様が少しずつ変わっていく。ドラッグすると筒の回り方が変わり、タップするとその位置に片が1つ増える。';
 $pageCanonical = 'https://pulse.subara3.com/kaleidoscope.php';
-
-$extraStyle = '
-body{background:#0a0a0f;min-height:100vh;overflow:hidden}
-#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none}
-.hud{position:fixed;top:3.5rem;right:1rem;z-index:100;font-family:"Space Grotesk","Segoe UI",sans-serif;pointer-events:none;color:rgba(255,255,255,0.34);font-size:0.64rem;text-align:right;letter-spacing:0.05em;line-height:1.8}
-.hud .v{color:#00f5d4;font-weight:700}
-#info{position:fixed;bottom:1.5rem;left:1.5rem;color:rgba(255,255,255,0.22);font-family:"JetBrains Mono",monospace;font-size:0.6rem;line-height:1.7;letter-spacing:0.03em;pointer-events:none;z-index:50}
-#info .v{color:rgba(0,245,212,0.5)}
-@media(max-width:768px){.hud{top:3rem;right:0.6rem;font-size:0.54rem}#info{bottom:1rem;left:1rem;font-size:0.5rem}}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
-
 <canvas id="canvas"></canvas>
 
-<div class="hud">
-  D<sub><span id="hudN" class="v">6</span></sub><br>
-  PARTICLES: <span id="hudP" class="v">0</span>
-</div>
-
-<div id="info">
-  dihedral group D<sub><span class="v" id="infoN">6</span></sub><br>
-  <span class="v" id="infoM">12</span> symmetry copies
-</div>
-
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'spawn'],
-  ['type' => 'drag', 'label' => 'paint'],
-  ['type' => 'right', 'label' => 'clear'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
-
 <div id="controls" class="drawer-controls">
-  <div class="slider-wrap">
-    <label class="slider-label">SYMMETRY</label>
-    <div class="btn-row" id="symBtns">
-      <button class="control-btn" data-n="3">3</button>
-      <button class="control-btn" data-n="4">4</button>
-      <button class="control-btn" data-n="5">5</button>
-      <button class="control-btn active" data-n="6">6</button>
-      <button class="control-btn" data-n="8">8</button>
-      <button class="control-btn" data-n="12">12</button>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <label class="slider-label">FADE</label>
-    <div class="slider-row">
-      <input type="range" id="fadeSlider" min="1" max="10" value="4">
-      <span class="slider-value" id="fadeVal">4</span>
-    </div>
-  </div>
-  <div class="slider-wrap">
-    <div class="btn-row">
-      <button class="control-btn active" id="autoBtn">AUTO</button>
-      <button class="control-btn" id="clearBtn">CLEAR</button>
-    </div>
-  </div>
+  <div class="ctl-row"><label for="k-mirrors">MIRRORS</label><input type="range" id="k-mirrors" min="3" max="12" step="1" value="6"></div>
+  <div class="ctl-row"><label for="k-spin">SPIN</label><input type="range" id="k-spin" min="0" max="100" value="35"></div>
+  <div class="ctl-btns"><button type="button" id="k-shake">SHAKE</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function() {
+(function () {
   'use strict';
+  var canvas = document.getElementById('canvas');
+  var ctx = canvas.getContext('2d');
+  var W = 0, H = 0, RS = 1;
 
-  var C = document.getElementById('canvas');
-  var ctx = C.getContext('2d');
-  var TC = document.createElement('canvas');
-  var tctx = TC.getContext('2d');
+  /* 筒の中（半径 1 の円）でガラス片が重力に引かれて転がる。
+     見えるのは、その中身を合わせ鏡で 2M 回写した像 */
+  var M = 6, spin = 0.5, gAng = Math.PI / 2, gSpin = 0;
+  var pieces = [];
+  var TYPES = ['tri', 'shard', 'sliver', 'bead', 'ring', 'tri', 'shard', 'bead'];
 
-  var W, H, cx, cy, R;
-  var symN = 6;
-  var fadeRate = 0.02;
-  var autoOn = true;
-  var particles = [];
-  var painting = false;
-  var frame = 0;
-
-  function resize() {
-    W = C.width = TC.width = window.innerWidth;
-    H = C.height = TC.height = window.innerHeight;
-    cx = W / 2;
-    cy = H / 2;
-    R = Math.min(W, H) * 0.42;
-    tctx.fillStyle = '#0a0a0f';
-    tctx.fillRect(0, 0, W, H);
-  }
-
-  window.addEventListener('resize', resize);
-  resize();
-
-  function mkP(x, y, vx, vy) {
-    var d = Math.sqrt(x * x + y * y);
-    var t = Math.min(d / R, 1);
+  function makePiece(x, y, mine) {
+    var type = TYPES[(Math.random() * TYPES.length) | 0];
+    var s = 0.08 + Math.random() * 0.12, pts = [];
+    if (type === 'tri' || type === 'shard') {
+      var n = type === 'tri' ? 3 : 4, a0 = Math.random() * 6.283;
+      for (var k = 0; k < n; k++) {
+        var a = a0 + k / n * 6.283 + (Math.random() - 0.5) * 0.9;
+        var r = s * (0.6 + Math.random() * 0.5);
+        pts.push([Math.cos(a) * r, Math.sin(a) * r]);
+      }
+    } else if (type === 'sliver') {
+      var w = s * 0.18;
+      pts = [[-s, -w], [s, -w * 0.3], [s * 0.9, w], [-s * 0.8, w * 0.6]];
+    }
+    if (type === 'bead') s *= 0.45;
+    if (type === 'ring') s *= 0.55;
+    var tone = Math.random();
     return {
-      x: x, y: y,
-      vx: vx !== undefined ? vx : (Math.random() - 0.5) * 2,
-      vy: vy !== undefined ? vy : (Math.random() - 0.5) * 2,
-      life: 1,
-      decay: 0.002 + Math.random() * 0.004,
-      size: 1.2 + Math.random() * 1.8,
-      hue: 175 + t * 110
+      type: type, pts: pts, s: s, rad: type === 'rod' ? s * 0.5 : s * 0.85,
+      x: x, y: y, vx: 0, vy: 0, a: Math.random() * 6.283, w: 0,
+      fill: tone < 0.4 ? 0 : tone < 0.75 ? 1 : 2,
+      mine: mine ? 1 : 0
     };
   }
-
-  function drawSym(x, y, sz) {
-    var step = 2 * Math.PI / symN;
-    for (var k = 0; k < symN; k++) {
-      var c = Math.cos(k * step), s = Math.sin(k * step);
-      tctx.beginPath();
-      tctx.arc(cx + x * c - y * s, cy + x * s + y * c, sz, 0, 6.283);
-      tctx.fill();
-      tctx.beginPath();
-      tctx.arc(cx + x * c + y * s, cy + x * s - y * c, sz, 0, 6.283);
-      tctx.fill();
+  function seed() {
+    pieces = [];
+    for (var i = 0; i < 15; i++) {
+      var a = Math.random() * 6.283, r = Math.sqrt(Math.random()) * 0.8;
+      pieces.push(makePiece(Math.cos(a) * r, Math.sin(a) * r, false));
     }
   }
 
-  function spawnBurst(sx, sy, n) {
-    var dx = sx - cx, dy = sy - cy;
-    n = n || 10;
-    for (var i = 0; i < n; i++) {
-      var a = Math.random() * 6.283;
-      var v = 0.5 + Math.random() * 2;
-      if (particles.length < 500) {
-        particles.push(mkP(dx, dy, Math.cos(a) * v, Math.sin(a) * v));
+  function step(dt) {
+    /* 筒は一定の速さで回り、壁に触れた片を持ち上げる。持ち上がった片は上から崩れて中央を横切る */
+    var om = spin + gSpin;
+    gSpin *= Math.exp(-dt * 1.2);
+    var gx = Math.cos(gAng) * 0.8, gy = Math.sin(gAng) * 0.8;
+    var drag = Math.exp(-dt * 1.6), i, j, p, q;
+    for (i = 0; i < pieces.length; i++) {
+      p = pieces[i];
+      p.vx = (p.vx + gx * dt) * drag; p.vy = (p.vy + gy * dt) * drag;
+      p.x += p.vx * dt; p.y += p.vy * dt;
+      p.a += p.w * dt; p.w *= Math.exp(-dt * 1.2);
+      if (p.mine > 0) p.mine = Math.max(0, p.mine - dt / 3);
+    }
+    /* 片どうし: 重なったら押し離し、こすれた分だけ回す */
+    for (var it = 0; it < 2; it++) {
+      for (i = 0; i < pieces.length; i++) {
+        p = pieces[i];
+        for (j = i + 1; j < pieces.length; j++) {
+          q = pieces[j];
+          var dx = q.x - p.x, dy = q.y - p.y, d = Math.sqrt(dx * dx + dy * dy) + 1e-6, m = p.rad + q.rad;
+          if (d >= m) continue;
+          var o = (m - d) * 0.5, nx = dx / d, ny = dy / d;
+          p.x -= nx * o; p.y -= ny * o; q.x += nx * o; q.y += ny * o;
+          var rv = (q.vx - p.vx) * nx + (q.vy - p.vy) * ny;
+          if (rv < 0) { p.vx += nx * rv * 0.5; p.vy += ny * rv * 0.5; q.vx -= nx * rv * 0.5; q.vy -= ny * rv * 0.5; }
+          var tv = (q.vx - p.vx) * -ny + (q.vy - p.vy) * nx;
+          p.w -= tv * 2; q.w += tv * 2;
+        }
+        /* 筒の壁 */
+        var r = Math.sqrt(p.x * p.x + p.y * p.y), lim = 1 - p.rad;
+        if (r > lim) {
+          var ux = p.x / r, uy = p.y / r;
+          p.x = ux * lim; p.y = uy * lim;
+          var vn = p.vx * ux + p.vy * uy;
+          if (vn > 0) { p.vx -= ux * vn * 1.3; p.vy -= uy * vn * 1.3; }
+          var vt = p.vx * -uy + p.vy * ux, wall = om * r, k = Math.min(1, dt * 10);
+          p.vx += -uy * (wall - vt) * k; p.vy += ux * (wall - vt) * k;
+          p.w += (wall - vt) * 3 * k;
+        }
       }
     }
-    if (typeof SFX !== 'undefined') SFX.play('spawn');
   }
 
-  function tick() {
-    frame++;
-
-    if (autoOn && frame % 4 === 0 && particles.length < 350) {
-      var t = frame * 0.008;
-      var sr = R * (0.08 + 0.18 * (Math.sin(t * 0.37) * 0.5 + 0.5));
-      var sa = t * 0.6;
-      var va = Math.random() * 6.283;
-      var vs = 0.3 + Math.random() * 1.5;
-      particles.push(mkP(
-        Math.cos(sa) * sr, Math.sin(sa) * sr,
-        Math.cos(va) * vs, Math.sin(va) * vs
-      ));
-    }
-
-    tctx.fillStyle = 'rgba(10,10,15,' + fadeRate + ')';
-    tctx.fillRect(0, 0, W, H);
-
-    tctx.globalCompositeOperation = 'lighter';
-    for (var i = particles.length - 1; i >= 0; i--) {
-      var p = particles[i];
-
-      var a = Math.atan2(p.vy, p.vx) + (Math.random() - 0.5) * 0.15;
-      var spd = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
-      p.vx = Math.cos(a) * spd;
-      p.vy = Math.sin(a) * spd;
-
-      p.x += p.vx;
-      p.y += p.vy;
-      p.life -= p.decay;
-
-      var dist = Math.sqrt(p.x * p.x + p.y * p.y);
-      if (dist > R) {
-        var nx = p.x / dist, ny = p.y / dist;
-        var dot = p.vx * nx + p.vy * ny;
-        p.vx -= 2 * dot * nx;
-        p.vy -= 2 * dot * ny;
-        p.x = nx * (R - 1);
-        p.y = ny * (R - 1);
+  var LN = P.line, ST = P.steel;
+  function tracePiece(p) {
+    var S = RS, X = p.x * S, Y = p.y * S, c = Math.cos(p.a), s = Math.sin(p.a);
+    if (p.type === 'bead' || p.type === 'ring') {
+      ctx.moveTo(X + p.s * S, Y); ctx.arc(X, Y, p.s * S, 0, 6.283);
+    } else if (p.type === 'rod') {
+      ctx.moveTo(X - c * p.s * S, Y - s * p.s * S); ctx.lineTo(X + c * p.s * S, Y + s * p.s * S);
+    } else {
+      for (var k = 0; k < p.pts.length; k++) {
+        var px = p.pts[k][0], py = p.pts[k][1];
+        var qx = X + (px * c - py * s) * S, qy = Y + (px * s + py * c) * S;
+        if (k === 0) ctx.moveTo(qx, qy); else ctx.lineTo(qx, qy);
       }
-
-      if (p.life <= 0) {
-        particles.splice(i, 1);
-        continue;
-      }
-
-      var dt = Math.min(Math.sqrt(p.x * p.x + p.y * p.y) / R, 1);
-      p.hue = 175 + dt * 110;
-
-      var al = p.life * 0.3;
-      tctx.fillStyle = 'hsla(' + Math.round(p.hue) + ',80%,55%,' + al.toFixed(3) + ')';
-      drawSym(p.x, p.y, p.size * p.life);
+      ctx.closePath();
     }
-    tctx.globalCompositeOperation = 'source-over';
-
-    ctx.drawImage(TC, 0, 0);
-
-    ctx.strokeStyle = 'rgba(0,245,212,0.07)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(cx, cy, R, 0, 6.283);
-    ctx.stroke();
-
-    ctx.strokeStyle = 'rgba(0,245,212,0.025)';
-    ctx.lineWidth = 0.5;
-    for (var k = 0; k < symN; k++) {
-      var la = k * Math.PI / symN;
+  }
+  var FILLS = [null, P.rgba(LN, 0.07), P.rgba(ST, 0.16)];
+  function drawPieces() {
+    for (var i = 0; i < pieces.length; i++) {
+      var p = pieces[i];
       ctx.beginPath();
-      ctx.moveTo(cx + Math.cos(la) * R, cy + Math.sin(la) * R);
-      ctx.lineTo(cx - Math.cos(la) * R, cy - Math.sin(la) * R);
+      tracePiece(p);
+      if (p.fill && p.type !== 'rod' && p.type !== 'ring') { ctx.fillStyle = FILLS[p.fill]; ctx.fill(); }
+      var col = p.mine > 0 ? P.mix(LN, P.accent, p.mine) : LN;
+      ctx.strokeStyle = P.rgba(col, p.type === 'ring' ? 0.42 : 0.55);
+      ctx.lineWidth = p.type === 'rod' ? 1.4 : 1;
       ctx.stroke();
     }
-
-    document.getElementById('hudP').textContent = particles.length;
-    requestAnimationFrame(tick);
   }
 
-  for (var i = 0; i < 20; i++) {
-    var ia = Math.random() * 6.283;
-    var id = Math.random() * R * 0.25;
-    particles.push(mkP(Math.cos(ia) * id, Math.sin(ia) * id));
-  }
-
-  tick();
-
-  function pos(e) {
-    if (e.touches) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    return { x: e.clientX, y: e.clientY };
-  }
-
-  C.addEventListener('mousedown', function(e) {
-    if (e.button === 2) return;
-    painting = true;
-    var p = pos(e);
-    spawnBurst(p.x, p.y, 8);
-  });
-
-  C.addEventListener('mousemove', function(e) {
-    if (!painting) return;
-    var p = pos(e);
-    if (particles.length < 500) {
-      particles.push(mkP(p.x - cx, p.y - cy, (Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 0.5));
+  function draw() {
+    P.fill(ctx, W, H);
+    var cx = W / 2, cy = H / 2, k;
+    /* 鏡の継ぎ目: ごく薄い放射線 */
+    ctx.strokeStyle = P.rgba(ST, 0.1);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    for (k = 0; k < M * 2; k++) {
+      var a = k / (M * 2) * Math.PI * 2;
+      ctx.moveTo(cx, cy); ctx.lineTo(cx + Math.cos(a) * RS * 1.1, cy + Math.sin(a) * RS * 1.1);
     }
-    if (typeof SFX !== 'undefined') SFX.play('move', 80);
-  });
-
-  C.addEventListener('mouseup', function() { painting = false; });
-  C.addEventListener('mouseleave', function() { painting = false; });
-
-  C.addEventListener('touchstart', function(e) {
-    e.preventDefault();
-    painting = true;
-    var p = pos(e);
-    spawnBurst(p.x, p.y, 8);
-  }, { passive: false });
-
-  C.addEventListener('touchmove', function(e) {
-    e.preventDefault();
-    if (!painting) return;
-    var p = pos(e);
-    if (particles.length < 500) {
-      particles.push(mkP(p.x - cx, p.y - cy, (Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 0.5));
+    ctx.stroke();
+    ctx.lineJoin = 'round';
+    for (k = 0; k < M; k++) {
+      for (var m = 0; m < 2; m++) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(k / M * Math.PI * 2);
+        if (m) ctx.scale(1, -1);
+        drawPieces();
+        ctx.restore();
+      }
     }
-    if (typeof SFX !== 'undefined') SFX.play('move', 80);
-  }, { passive: false });
+  }
 
-  C.addEventListener('touchend', function() { painting = false; });
-
-  C.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    particles = [];
-    tctx.fillStyle = '#0a0a0f';
-    tctx.fillRect(0, 0, W, H);
-    if (typeof SFX !== 'undefined') SFX.play('click');
+  /* ---------------------------------------------------------- 操作 */
+  var down = false, last = null, moved = 0;
+  canvas.addEventListener('pointerdown', function (e) {
+    down = true; moved = 0; last = { x: e.clientX, y: e.clientY };
+    canvas.setPointerCapture(e.pointerId);
   });
-
-  document.getElementById('symBtns').addEventListener('click', function(e) {
-    var btn = e.target.closest('[data-n]');
-    if (!btn) return;
-    symN = parseInt(btn.dataset.n);
-    var all = document.querySelectorAll('#symBtns .control-btn');
-    for (var i = 0; i < all.length; i++) all[i].classList.remove('active');
-    btn.classList.add('active');
-    document.getElementById('hudN').textContent = symN;
-    document.getElementById('infoN').textContent = symN;
-    document.getElementById('infoM').textContent = symN * 2;
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
+  canvas.addEventListener('pointermove', function (e) {
+    if (!down) return;
+    var cx = W / 2, cy = H / 2;
+    /* 中心のまわりを回すようにドラッグした分だけ、筒が回る */
+    var a0 = Math.atan2(last.y - cy, last.x - cx), a1 = Math.atan2(e.clientY - cy, e.clientX - cx);
+    var da = Math.atan2(Math.sin(a1 - a0), Math.cos(a1 - a0));
+    var lin = (e.clientX - last.x) / Math.max(W, H) * 4;
+    gSpin = Math.max(-2, Math.min(2, gSpin + (da + lin) * 2.5));
+    moved += Math.hypot(e.clientX - last.x, e.clientY - last.y);
+    last = { x: e.clientX, y: e.clientY };
+    SFX.play('move', 220);
   });
+  function up(e) {
+    if (!down) return;
+    down = false;
+    if (moved < 10 && e.type === 'pointerup') {
+      /* 触れた場所（筒の中の位置）に新しい片を置く */
+      var x = (last.x - W / 2) / RS, y = (last.y - H / 2) / RS, r = Math.hypot(x, y);
+      if (r > 0.85) { x *= 0.85 / r; y *= 0.85 / r; }
+      pieces.push(makePiece(x, y, true));
+      while (pieces.length > 24) {
+        var idx = 0;
+        for (var i = 0; i < pieces.length; i++) if (!pieces[i].mine) { idx = i; break; }
+        pieces.splice(idx, 1);
+      }
+      SFX.play('spawn');
+    } else {
+      SFX.play('collide', 300);
+    }
+  }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
 
-  document.getElementById('fadeSlider').addEventListener('input', function() {
-    fadeRate = parseInt(this.value) * 0.005;
-    document.getElementById('fadeVal').textContent = this.value;
+  function spinFrom(v) { return 0.25 + v / 100 * 0.9; }
+  document.getElementById('k-mirrors').addEventListener('input', function () { M = Math.max(3, Math.min(12, +this.value | 0)); SFX.play('tick', 120); });
+  document.getElementById('k-spin').addEventListener('input', function () { spin = spinFrom(+this.value); });
+  document.getElementById('k-shake').addEventListener('click', function () {
+    for (var i = 0; i < pieces.length; i++) { var a = Math.random() * 6.283; pieces[i].vx += Math.cos(a) * 0.9; pieces[i].vy += Math.sin(a) * 0.9; pieces[i].w += (Math.random() - 0.5) * 6; }
+    SFX.play('click');
   });
+  M = +document.getElementById('k-mirrors').value | 0;
+  spin = spinFrom(+document.getElementById('k-spin').value);
 
-  document.getElementById('autoBtn').addEventListener('click', function() {
-    autoOn = !autoOn;
-    if (autoOn) this.classList.add('active');
-    else this.classList.remove('active');
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
-  });
+  ctx = P.fit(canvas, function (w, h) { W = w; H = h; RS = Math.hypot(w, h) * 0.5 * 0.8; });
+  seed();
+  for (var w0 = 0; w0 < 90; w0++) step(1 / 30);
 
-  document.getElementById('clearBtn').addEventListener('click', function() {
-    particles = [];
-    tctx.fillStyle = '#0a0a0f';
-    tctx.fillRect(0, 0, W, H);
-    if (typeof SFX !== 'undefined') SFX.play('click');
-  });
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now(), tumbleWait = 0;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    step(dt);
+    /* 片が底に積もって動かなくなりかけたら、ときどき小さく転がす */
+    tumbleWait -= dt;
+    if (tumbleWait <= 0) {
+      var p = pieces[(Math.random() * pieces.length) | 0];
+      p.w += (Math.random() - 0.5) * 4; p.vx += (Math.random() - 0.5) * 0.3; p.vy += (Math.random() - 0.5) * 0.3;
+      tumbleWait = 0.6 + Math.random();
+    }
+    draw();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
-
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

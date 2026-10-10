@@ -3,10 +3,10 @@
 <noscript>
 <style>canvas{display:none!important}.ui{display:none!important}.floating-nav{display:none!important}body{overflow:auto!important}</style>
 <div style="padding:3rem 2rem;max-width:800px;margin:0 auto;text-align:center">
-<h1 style="color:#00f5d4;font-family:Space Grotesk,sans-serif;font-size:1.5rem"><?php echo htmlspecialchars($pageTitle); ?></h1>
+<h1 style="color:#5fd0ff;font-family:Space Grotesk,sans-serif;font-size:1.5rem"><?php echo htmlspecialchars($pageTitle); ?></h1>
 <p style="color:#888;font-size:1rem;line-height:1.8;margin:1rem 0"><?php echo htmlspecialchars($pageDesc); ?></p>
 <p style="color:#666;font-size:0.85rem">This page requires JavaScript.<br>Please enable JavaScript to view the interactive canvas.</p>
-<p style="margin-top:2rem"><a href="index.php" style="color:#00f5d4">Back to home</a></p>
+<p style="margin-top:2rem"><a href="index.php" style="color:#5fd0ff">Back to home</a></p>
 </div>
 </noscript>
 
@@ -17,11 +17,11 @@
    幅が 0 や画面外だと AdSense が枠を埋めないので、待機中も同じ位置で透明にしておく。 */
 #stickyAd{position:fixed;bottom:0;left:0;right:0;z-index:9000;opacity:0;pointer-events:none;transition:opacity .38s cubic-bezier(.16,.84,.44,1)}
 #stickyAd.is-shown{opacity:1;pointer-events:auto}
-#stickyAdBox{position:relative;height:90px;max-height:90px;overflow:hidden;background:rgba(7,7,11,.96);border-top:1px solid rgba(255,255,255,.13)}
+#stickyAdBox{position:relative;height:90px;max-height:90px;overflow:hidden;background:rgba(8, 22, 38,.96);border-top:1px solid rgba(255,255,255,.13)}
 #stickyAdBox *{max-height:90px!important}
 #stickyAdBox iframe{max-height:90px!important;height:90px!important}
-#stickyAdClose{position:absolute;left:50%;transform:translateX(-50%);top:-25px;height:25px;display:inline-flex;align-items:center;gap:.45rem;padding:0 .7rem;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.62rem;letter-spacing:.18em;color:#9b9baa;background:rgba(7,7,11,.96);border:1px solid rgba(255,255,255,.13);border-bottom:0;border-radius:4px 4px 0 0;cursor:pointer;transition:color .2s}
-#stickyAdClose:hover{color:#00f5d4}
+#stickyAdClose{position:absolute;left:50%;transform:translateX(-50%);top:-25px;height:25px;display:inline-flex;align-items:center;gap:.45rem;padding:0 .7rem;font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.62rem;letter-spacing:.18em;color:#a9bccd;background:rgba(8, 22, 38,.96);border:1px solid rgba(255,255,255,.13);border-bottom:0;border-radius:4px 4px 0 0;cursor:pointer;transition:color .2s}
+#stickyAdClose:hover{color:#5fd0ff}
 </style>
 <div id="stickyAd" aria-label="広告">
   <button id="stickyAdClose" type="button" aria-label="広告を閉じる">AD <i class="fa-solid fa-xmark" aria-hidden="true"></i></button>

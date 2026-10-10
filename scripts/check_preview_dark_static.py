@@ -57,7 +57,8 @@ def analyze(path: Path):
     d02 = mean_abs_diff(frames[0], frames[2])
     motion = max(d01, d12, d02)
 
-    too_dark = max(lumas) < 18
+    # 2026-10: 地が藍 #0d2238（輝度 約30）になったので、地だけの画面を「暗すぎ」として拾える値にした
+    too_dark = max(lumas) < 36
     too_static = motion < 1.8
     ok = not (too_dark or too_static)
     return {

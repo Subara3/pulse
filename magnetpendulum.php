@@ -5,376 +5,294 @@ recordPageView('magnetpendulum');
 
 $pageName = 'magnetpendulum';
 $pageTitle = 'MAGNETPENDULUM - PULSE';
-$pageDesc = "3つの磁石が作る引力圏フラクタル。わずかな初期位置の差が全く異なる磁石へ向かう振り子を生む。";
+$pageDesc = '振り子のおもりが3つの磁石のあいだを揺れ、最後にどれか1つの上で止まる。背景は、どこから放すとどの磁石で止まるかを濃さで塗り分けた図になっている。押さえて放すと、そこから振り子が動き出す。';
 $pageCanonical = 'https://pulse.subara3.com/magnetpendulum.php';
-$extraStyle = '
-body { background: #0a0a0f; overflow: hidden; }
-#canvas { position: fixed; inset: 0; display: block; }
-.hud { position: fixed; top: 1rem; left: 1.5rem; font-family: "JetBrains Mono", monospace; font-size: 0.7rem; color: rgba(255,255,255,0.4); text-align: left; line-height: 1.8; z-index: 10; pointer-events: none; }
-.hud .v0 { color: #00f5d4; }
-.hud .v1 { color: #8c32d2; }
-.hud .v2 { color: #4664e6; }
-.ctrl { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 10; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; }
-.ctrl button { background: rgba(0,245,212,0.08); border: 1px solid rgba(0,245,212,0.3); color: #00f5d4; font-family: "JetBrains Mono", monospace; font-size: 0.65rem; padding: 0.35rem 0.8rem; cursor: pointer; letter-spacing: 0.1em; transition: background 0.2s; }
-.ctrl button:hover { background: rgba(0,245,212,0.18); }
-.title { position: fixed; bottom: 1.5rem; left: 1.5rem; font-family: "Space Grotesk", sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.12); letter-spacing: 0.2em; z-index: 10; pointer-events: none; }
-@media (max-width: 768px) {
-  .hud { font-size: 0.6rem; }
-  .title { font-size: 0.55rem; bottom: 1rem; left: 1rem; }
-}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
-<div class="hud">
-  <div>A <span class="v0">■</span></div>
-  <div>B <span class="v1">■</span></div>
-  <div>C <span class="v2">■</span></div>
-  <div id="hStat" style="margin-top:0.5rem;font-size:0.6rem;color:rgba(255,255,255,0.22)"></div>
-</div>
-<div id="controls" class="ctrl drawer-controls">
-  <button id="btnReset">RESET</button>
+
+<div id="controls" class="drawer-controls">
+  <div class="ctl-row"><label for="k-drag">DRAG</label><input type="range" id="k-drag" min="0" max="100" value="18"></div>
+  <div class="ctl-btns"><button type="button" class="active" data-n="3">THREE</button><button type="button" data-n="4">FOUR</button><button type="button" data-n="5">FIVE</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-<div class="title">MAGNETPENDULUM</div>
-<?php
-$interactionHints = [
-  ['type' => 'drag',  'label' => 'move magnet'],
-  ['type' => 'click', 'label' => 'trace path'],
-  ['type' => 'right', 'label' => 'reset'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
 (function () {
-  const canvas = document.getElementById('canvas');
-  const ctx    = canvas.getContext('2d');
-  const hStat  = document.getElementById('hStat');
-  let W = 0, H = 0;
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0, SC = 1, CELL = 3;
+  var ctx = P.fit(canvas, function (w, h) { W = w; H = h; SC = Math.min(w, h) / 3.4; alloc(); });
 
-  /* ── Coordinate system ───────────────────────────────────── */
-  const RANGE_Y = 1.4; // world units from centre to top/bottom
-  let PX = 1;          // pixels per world unit
-
-  function s2w(sx, sy) {
-    return [(sx - W * 0.5) / PX, (sy - H * 0.5) / PX];
-  }
-  function w2s(wx, wy) {
-    return [wx * PX + W * 0.5, wy * PX + H * 0.5];
-  }
-
-  /* ── Physics constants ───────────────────────────────────── */
-  const DAMP  = 0.25;   // velocity damping
-  const SPR   = 0.5;    // pendulum restoring spring
-  const MSTR  = 1.2;    // magnet strength
-  const MH2   = 0.05;   // (magnet height)² — keeps force finite at centre
-  const DT    = 0.06;   // Euler time step
-  const MAX_I = 200;    // max integration steps
-  const CONV2 = 5e-4;   // convergence threshold (speed²)
-
-  /* ── Magnets ─────────────────────────────────────────────── */
-  // Teal (hue 172), Purple (hue 272), Blue-violet (hue 230 – transition zone)
-  const INIT_M = [
-    { x:  0,      y: -0.55  },
-    { x:  0.476,  y:  0.275 },
-    { x: -0.476,  y:  0.275 },
-  ];
-  const MCOL = [[0, 245, 212], [140, 50, 210], [70, 100, 230]];
-  const MCSS = ['#00f5d4', '#8c32d2', '#4664e6'];
-  let mags = INIT_M.map(m => ({ ...m }));
-
-  /* ── Simulation ──────────────────────────────────────────── */
-  function simPt(x0, y0) {
-    let x = x0, y = y0, vx = 0, vy = 0;
-    for (let i = 0; i < MAX_I; i++) {
-      let ax = -DAMP * vx - SPR * x;
-      let ay = -DAMP * vy - SPR * y;
-      for (let j = 0; j < 3; j++) {
-        const dx = mags[j].x - x, dy = mags[j].y - y;
-        const r2 = dx * dx + dy * dy + MH2;
-        const f  = MSTR / (r2 * Math.sqrt(r2));
-        ax += f * dx;  ay += f * dy;
-      }
-      vx += ax * DT;  vy += ay * DT;
-      x  += vx * DT;  y  += vy * DT;
-      if (i > 30 && vx * vx + vy * vy < CONV2) return [nearM(x, y), i];
+  /* 振り子の先: 中心へ戻るばね + 空気の抵抗 + 磁石の引力（少し上に吊った点として） */
+  var K = 0.5, HH = 0.27, drag = 0.2;
+  var nMag = 3, mx = [], my = [], spin = 0, rad = 1;
+  function placeMagnets() {
+    mx.length = 0; my.length = 0;
+    for (var i = 0; i < nMag; i++) {
+      var a = spin + i / nMag * Math.PI * 2 - Math.PI / 2;
+      mx.push(Math.cos(a) * rad); my.push(Math.sin(a) * rad);
     }
-    return [nearM(x, y), MAX_I];
   }
-
-  function nearM(x, y) {
-    let b = 0, md = Infinity;
-    for (let j = 0; j < 3; j++) {
-      const d = (x - mags[j].x) ** 2 + (y - mags[j].y) ** 2;
-      if (d < md) { md = d; b = j; }
+  function accel(x, y, vx, vy, out) {
+    var ax = -K * x - drag * vx, ay = -K * y - drag * vy;
+    for (var i = 0; i < nMag; i++) {
+      var dx = mx[i] - x, dy = my[i] - y, r2 = dx * dx + dy * dy + HH * HH;
+      var f = 1 / (r2 * Math.sqrt(r2));
+      ax += dx * f; ay += dy * f;
     }
-    return b;
+    out[0] = ax; out[1] = ay;
   }
-
-  /* ── Progressive rendering ───────────────────────────────── */
-  let imd = null, rS = 4, rI = 0, rW = 0, rH = 0;
-  let rDone = false, rRestart = false;
-
-  function startRender() {
-    rS = 4;  rI = 0;
-    rW = Math.ceil(W / rS);  rH = Math.ceil(H / rS);
-    imd = ctx.createImageData(W, H);
-    const d = imd.data;
-    for (let i = 0; i < d.length; i += 4) { d[i] = 10; d[i+1] = 10; d[i+2] = 15; d[i+3] = 255; }
-    rDone = false;  rRestart = false;
-    if (hStat) hStat.textContent = 'RENDERING...';
-  }
-
-  function renderBatch() {
-    if (rRestart) { startRender(); return; }
-    if (rDone)    return;
-
-    const BATCH = rS === 4 ? 600 : 500;
-    const total = rW * rH;
-    const end   = Math.min(rI + BATCH, total);
-    const d = imd.data;
-    const s = rS;
-
-    for (let i = rI; i < end; i++) {
-      const gx = i % rW, gy = (i / rW) | 0;
-      const px = gx * s,  py = gy * s;
-      const [wx, wy] = s2w(px + s * 0.5, py + s * 0.5);
-      const [m, iter] = simPt(wx, wy);
-      const c = MCOL[m];
-      const t = 0.35 + 0.65 * (1 - iter / MAX_I); // darker near boundaries
-      const r = (c[0] * t) | 0, g = (c[1] * t) | 0, b = (c[2] * t) | 0;
-      for (let dy = 0; dy < s; dy++) {
-        for (let dx = 0; dx < s; dx++) {
-          const ppx = px + dx, ppy = py + dy;
-          if (ppx < W && ppy < H) {
-            const idx = (ppy * W + ppx) * 4;
-            d[idx] = r;  d[idx+1] = g;  d[idx+2] = b;
-          }
+  var A = [0, 0];
+  /* どの磁石に落ちるかと、落ちるまでの長さ */
+  function settle(x, y) {
+    var vx = 0, vy = 0, dt = 0.045;
+    for (var s = 0; s < 1400; s++) {
+      accel(x, y, vx, vy, A);
+      vx += A[0] * dt; vy += A[1] * dt;
+      x += vx * dt; y += vy * dt;
+      if ((s & 7) === 0 && vx * vx + vy * vy < 0.04) {
+        for (var i = 0; i < nMag; i++) {
+          var dx = mx[i] - x, dy = my[i] - y;
+          if (dx * dx + dy * dy < 0.02) return i * 4096 + s;
         }
       }
     }
-
-    rI = end;
-    if (hStat) hStat.textContent = (rS === 4 ? 'RENDERING ' : 'REFINING ') + ((rI / total * 100) | 0) + '%';
-
-    if (rI >= total) {
-      if (rS > 2) {
-        rS = 2;  rI = 0;
-        rW = Math.ceil(W / rS);  rH = Math.ceil(H / rS);
-      } else {
-        rDone = true;
-        if (hStat) hStat.textContent = '';
-      }
+    var best = 0, bd = 1e9;
+    for (var j = 0; j < nMag; j++) {
+      var d = (mx[j] - x) * (mx[j] - x) + (my[j] - y) * (my[j] - y);
+      if (d < bd) { bd = d; best = j; }
     }
+    return best * 4096 + 1400;
   }
 
-  /* ── Pendulum trace ──────────────────────────────────────── */
-  let trace = null;
-
-  function computeTrace(x0, y0) {
-    const pts = [[x0, y0]];
-    let x = x0, y = y0, vx = 0, vy = 0;
-    for (let i = 0; i < MAX_I; i++) {
-      let ax = -DAMP * vx - SPR * x, ay = -DAMP * vy - SPR * y;
-      for (let j = 0; j < 3; j++) {
-        const dx = mags[j].x - x, dy = mags[j].y - y;
-        const r2 = dx * dx + dy * dy + MH2;
-        const f  = MSTR / (r2 * Math.sqrt(r2));
-        ax += f * dx;  ay += f * dy;
-      }
-      vx += ax * DT;  vy += ay * DT;
-      x  += vx * DT;  y  += vy * DT;
-      if (i % 2 === 0) pts.push([x, y]);
-      if (i > 30 && vx * vx + vy * vy < CONV2) break;
+  /* ---------------------------------------------------------- 地図 */
+  var NX, NY, label, steps, order, scan = 0, img, buf, bctx;
+  function alloc() {
+    NX = Math.ceil(W / CELL); NY = Math.ceil(H / CELL);
+    label = new Int16Array(NX * NY).fill(-1);
+    steps = new Uint16Array(NX * NY);
+    img = new ImageData(NX, NY);
+    var d = img.data;
+    for (var k = 0; k < NX * NY; k++) { d[k * 4] = P.bg[0]; d[k * 4 + 1] = P.bg[1]; d[k * 4 + 2] = P.bg[2]; d[k * 4 + 3] = 255; }
+    buf = document.createElement('canvas'); buf.width = NX; buf.height = NY;
+    bctx = buf.getContext('2d');
+    makeOrder();
+  }
+  /* 中心から外へ、輪が広がるように塗り直していく */
+  function makeOrder() {
+    var n = NX * NY, dist = new Float32Array(n);
+    order = new Uint32Array(n);
+    for (var k = 0; k < n; k++) {
+      var i = k % NX, j = (k / NX) | 0;
+      dist[k] = Math.hypot(i - NX / 2, j - NY / 2) + Math.random() * 1.5;
+      order[k] = k;
     }
-    return { pts, mag: nearM(x, y), t0: performance.now(), played: false };
+    order.sort(function (a, b) { return dist[a] - dist[b]; });
+    scan = 0;
+  }
+  function rescan() { scan = 0; }
+
+  var TONE = [0.03, 0.09, 0.15, 0.06, 0.12];
+  function paint(k) {
+    var i = k % NX, j = (k / NX) | 0, L = label[k];
+    var t = TONE[L];
+    /* 落ちるのに時間がかかった所ほど少し明るい。境目の入り組んだ所が浮かぶ */
+    var s = steps[k] / 1400;
+    var v = t + Math.min(1, s * 2.5) * 0.06;
+    /* 隣と行き先が違う所は線として明るくする */
+    var edge = 0;
+    if (i > 0 && label[k - 1] >= 0 && label[k - 1] !== L) edge++;
+    if (j > 0 && label[k - NX] >= 0 && label[k - NX] !== L) edge++;
+    if (i < NX - 1 && label[k + 1] >= 0 && label[k + 1] !== L) edge++;
+    if (j < NY - 1 && label[k + NX] >= 0 && label[k + NX] !== L) edge++;
+    if (edge) v = Math.min(0.6, 0.27 + edge * 0.05);
+    /* 画面の外側ほど地に沈める */
+    var rx = (i - NX / 2) / (NX / 2), ry = (j - NY / 2) / (NY / 2), rr = Math.sqrt(rx * rx * 0.8 + ry * ry * 0.8);
+    var f = rr < 0.4 ? 1 : Math.max(0.22, 1 - (rr - 0.4) * 1.25);
+    v *= f;
+    var c = P.ramp(v), o = k * 4, d = img.data;
+    d[o] = c[0]; d[o + 1] = c[1]; d[o + 2] = c[2];
+  }
+  function work(budget) {
+    var t0 = performance.now(), n = NX * NY, cx = NX / 2, cy = NY / 2, done = 0;
+    while (scan < n && performance.now() - t0 < budget) {
+      for (var q = 0; q < 24 && scan < n; q++, scan++) {
+        var k = order[scan];
+        var x = ((k % NX) + 0.5 - cx) * CELL / SC, y = (((k / NX) | 0) + 0.5 - cy) * CELL / SC;
+        var r = settle(x, y);
+        label[k] = (r / 4096) | 0; steps[k] = r % 4096;
+        paint(k);
+        /* 隣の線も塗り直す */
+        if (k > 0) { if (label[k - 1] >= 0) paint(k - 1); }
+        if (k >= NX && label[k - NX] >= 0) paint(k - NX);
+        done++;
+      }
+    }
+    return done;
   }
 
-  /* ── Overlay drawing ─────────────────────────────────────── */
-  function drawOverlay(ts) {
-    // Magnets
-    for (let j = 0; j < 3; j++) {
-      const [sx, sy] = w2s(mags[j].x, mags[j].y);
-      const col = MCSS[j];
+  /* ---------------------------------------------------------- 振り子 */
+  var bobs = [], rings = [];
+  function addBob(x, y, mine) {
+    if (bobs.length > 5) bobs.shift();
+    var b = { x: x, y: y, vx: 0, vy: 0, tx: new Float32Array(220), ty: new Float32Array(220), n: 0, head: 0, mine: mine, held: false, done: -1, life: 1 };
+    bobs.push(b);
+    return b;
+  }
+  function stepBob(b, h) {
+    accel(b.x, b.y, b.vx, b.vy, A);
+    b.vx += A[0] * h; b.vy += A[1] * h;
+    b.x += b.vx * h; b.y += b.vy * h;
+  }
+  function record(b) {
+    b.tx[b.head] = b.x; b.ty[b.head] = b.y;
+    b.head = (b.head + 1) % 220; if (b.n < 220) b.n++;
+  }
+  function sxp(x) { return W / 2 + x * SC; }
+  function syp(y) { return H / 2 + y * SC; }
 
-      // Soft glow
-      ctx.save();
-      ctx.globalAlpha = 0.18;
-      ctx.beginPath();
-      ctx.arc(sx, sy, 24, 0, Math.PI * 2);
-      ctx.fillStyle = col;
-      ctx.fill();
-      ctx.restore();
-
-      // Pulsing outer ring (3 magnets phase-offset by 120°)
-      const pulse = 0.5 + 0.5 * Math.sin(ts * 0.003 + j * 2.094);
-      ctx.beginPath();
-      ctx.arc(sx, sy, 13 + pulse * 5, 0, Math.PI * 2);
-      ctx.strokeStyle = col;
-      ctx.globalAlpha = 0.15 + 0.25 * pulse;
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-
-      // Solid core
-      ctx.beginPath();
-      ctx.arc(sx, sy, 7, 0, Math.PI * 2);
-      ctx.fillStyle = col;
-      ctx.fill();
-    }
-
-    // Trace animation
-    if (trace) {
-      const dur = 3.0;
-      // rAF timestamp can predate the click that set t0, which made idx negative
-      const p   = Math.min(Math.max((ts - trace.t0) / 1000 / dur, 0), 1);
-      const n   = trace.pts.length;
-      const idx = Math.floor(p * (n - 1));
-      const col = MCSS[trace.mag];
-
-      // Fading trail
-      ctx.lineWidth = 1.5;
-      for (let k = 1; k <= idx; k++) {
-        const alpha = 0.08 + 0.92 * (k / n);
-        const [x1, y1] = w2s(trace.pts[k-1][0], trace.pts[k-1][1]);
-        const [x2, y2] = w2s(trace.pts[k][0],   trace.pts[k][1]);
+  function drawBob(b) {
+    var col = b.mine ? P.accent : P.line;
+    ctx.lineWidth = b.mine ? 1.4 : 1.1;
+    for (var s = 1; s < b.n; s++) {
+      var i0 = (b.head - b.n + s - 1 + 440) % 220, i1 = (i0 + 1) % 220;
+      var a = s / b.n;
+      if ((s & 3) === 1 || s === 1) {
+        if (s > 1) ctx.stroke();
+        ctx.strokeStyle = P.rgba(col, a * a * 0.8 * b.life);
         ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.strokeStyle = col;
-        ctx.globalAlpha = alpha * 0.75;
-        ctx.stroke();
+        ctx.moveTo(sxp(b.tx[i0]), syp(b.ty[i0]));
       }
-      ctx.globalAlpha = 1;
+      ctx.lineTo(sxp(b.tx[i1]), syp(b.ty[i1]));
+    }
+    ctx.stroke();
+    ctx.fillStyle = P.rgba(col, 0.95 * b.life);
+    ctx.beginPath(); ctx.arc(sxp(b.x), syp(b.y), b.mine ? 4 : 3.2, 0, Math.PI * 2); ctx.fill();
+  }
 
-      // Moving bob
-      if (idx < n) {
-        const [bx, by] = w2s(trace.pts[idx][0], trace.pts[idx][1]);
-        ctx.beginPath();
-        ctx.arc(bx, by, 5, 0, Math.PI * 2);
-        ctx.fillStyle = '#ffffff';
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(bx, by, 8, 0, Math.PI * 2);
-        ctx.strokeStyle = col;
-        ctx.globalAlpha = 0.75;
-        ctx.lineWidth = 1.5;
-        ctx.stroke();
-        ctx.globalAlpha = 1;
+  /* ---------------------------------------------------------- 操作 */
+  var held = null;
+  function world(e) { return [(e.clientX - W / 2) / SC, (e.clientY - H / 2) / SC]; }
+  canvas.addEventListener('pointerdown', function (e) {
+    var w = world(e);
+    held = addBob(w[0], w[1], true);
+    held.held = true;
+    SFX.play('spawn');
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!held) return;
+    var w = world(e);
+    held.x = w[0]; held.y = w[1]; held.n = 0;
+    SFX.play('move', 260);
+  });
+  function up() { if (held) { held.held = false; held.vx = (Math.random() - 0.5) * 0.02; held.vy = (Math.random() - 0.5) * 0.02; held = null; } }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', up);
+
+  var kDrag = document.getElementById('k-drag'), dragTimer = 0;
+  function readDrag() { drag = 0.1 + kDrag.value / 100 * 0.32; }
+  kDrag.addEventListener('input', function () {
+    readDrag();
+    clearTimeout(dragTimer);
+    dragTimer = setTimeout(rescan, 250);
+  });
+  readDrag();
+  var nBtns = document.querySelectorAll('[data-n]');
+  function setN(n, sound) {
+    nMag = n;
+    nBtns.forEach(function (o) { o.classList.toggle('active', +o.dataset.n === n); });
+    placeMagnets(); rescan();
+    if (sound) SFX.play('toggle');
+  }
+  nBtns.forEach(function (b) { b.addEventListener('click', function () { setN(+b.dataset.n, true); }); });
+  placeMagnets();
+  setTimeout(function () {
+    var a = document.querySelector('[data-n].active');
+    if (a && +a.dataset.n !== nMag) setN(+a.dataset.n, false);
+  }, 400);
+
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now(), autoT = 0.3, turnT = 50;
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+
+    work(scan < 2000 ? 14 : 8);
+    if (scan >= NX * NY && !window.__mpDone) window.__mpDone = performance.now();
+    bctx.putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'low';
+    ctx.drawImage(buf, 0, 0, W, H);
+
+    /* しばらくすると磁石の並びが少し回り、地図が中心から描き変わる */
+    if (scan >= NX * NY) {
+      turnT -= dt;
+      if (turnT <= 0) {
+        spin += (0.4 + Math.random() * 0.8) * (Math.random() < 0.5 ? -1 : 1);
+        rad = 0.85 + Math.random() * 0.35;
+        placeMagnets(); rescan();
+        turnT = 45;
       }
+    }
 
-      if (p >= 1) {
-        if (!trace.played) { trace.played = true; SFX.play('success'); }
-        if (ts - trace.t0 > dur * 1000 + 2500) trace = null;
+    autoT -= dt;
+    if (autoT <= 0) {
+      var free = 0;
+      for (var q = 0; q < bobs.length; q++) if (!bobs[q].mine) free++;
+      if (free < 3) {
+        var ang = Math.random() * Math.PI * 2, rr = 0.9 + Math.random() * 0.9;
+        addBob(Math.cos(ang) * rr * W / H * 0.85, Math.sin(ang) * rr, false);
       }
+      autoT = 4 + Math.random() * 3;
     }
-  }
 
-  /* ── Event handling ──────────────────────────────────────── */
-  let dragMag = -1;
-
-  function screenPos(e) {
-    if (e.touches) return { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    return { x: e.clientX, y: e.clientY };
-  }
-
-  function hitMag(sx, sy) {
-    for (let j = 0; j < 3; j++) {
-      const [mx, my] = w2s(mags[j].x, mags[j].y);
-      if ((sx - mx) ** 2 + (sy - my) ** 2 < 625) return j; // 25 px radius
+    var sim = dt * 3.2, sub = 6, h = sim / sub;
+    for (var n = bobs.length - 1; n >= 0; n--) {
+      var b = bobs[n];
+      if (!b.held) {
+        for (var s = 0; s < sub; s++) stepBob(b, h);
+        if (b.done < 0 && b.vx * b.vx + b.vy * b.vy < 0.002) {
+          for (var m = 0; m < nMag; m++) {
+            if ((mx[m] - b.x) * (mx[m] - b.x) + (my[m] - b.y) * (my[m] - b.y) < 0.03) {
+              b.done = 0;
+              rings.push({ m: m, t: 0, mine: b.mine });
+              if (b.mine) SFX.play('pop'); else SFX.play('collide', 3000);
+            }
+          }
+        }
+        if (b.done >= 0) { b.done += dt; b.life = Math.max(0, 1 - b.done / 3); }
+      }
+      record(b);
+      if (b.life <= 0) { bobs.splice(n, 1); continue; }
+      drawBob(b);
     }
-    return -1;
-  }
 
-  canvas.addEventListener('mousemove', e => {
-    const { x, y } = screenPos(e);
-    canvas.style.cursor = hitMag(x, y) >= 0 ? 'grab' : (dragMag >= 0 ? 'grabbing' : 'crosshair');
-    if (dragMag < 0) return;
-    const [wx, wy] = s2w(x, y);
-    mags[dragMag].x = wx;  mags[dragMag].y = wy;
-    rRestart = true;
-    SFX.play('move', 50);
-  });
-
-  canvas.addEventListener('mousedown', e => {
-    if (e.button === 2) return;
-    const { x, y } = screenPos(e);
-    const j = hitMag(x, y);
-    if (j >= 0) {
-      dragMag = j;
-      canvas.style.cursor = 'grabbing';
-    } else {
-      const [wx, wy] = s2w(x, y);
-      trace = computeTrace(wx, wy);
-      SFX.play('spawn');
+    /* 磁石 */
+    for (var i = 0; i < nMag; i++) {
+      var X = sxp(mx[i]), Y = syp(my[i]);
+      ctx.fillStyle = P.rgba(P.deep, 0.9);
+      ctx.beginPath(); ctx.arc(X, Y, 7, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = P.rgba(P.line, 0.85); ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.arc(X, Y, 7, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = P.rgba(P.line, 0.9);
+      ctx.beginPath(); ctx.arc(X, Y, 2, 0, Math.PI * 2); ctx.fill();
     }
-  });
-
-  canvas.addEventListener('mouseup', () => {
-    if (dragMag >= 0) SFX.play('click');
-    dragMag = -1;
-  });
-  canvas.addEventListener('mouseleave', () => { dragMag = -1; });
-
-  canvas.addEventListener('contextmenu', e => { e.preventDefault(); reset(); });
-
-  canvas.addEventListener('touchstart', e => {
-    e.preventDefault();
-    const { x, y } = screenPos(e);
-    const j = hitMag(x, y);
-    if (j >= 0) {
-      dragMag = j;
-    } else {
-      const [wx, wy] = s2w(x, y);
-      trace = computeTrace(wx, wy);
-      SFX.play('spawn');
+    for (var r = rings.length - 1; r >= 0; r--) {
+      var rg = rings[r]; rg.t += dt;
+      var al = 1 - rg.t / 1.8;
+      if (al <= 0) { rings.splice(r, 1); continue; }
+      ctx.strokeStyle = P.rgba(rg.mine ? P.accent : P.line, al * 0.6);
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(sxp(mx[rg.m]), syp(my[rg.m]), 9 + rg.t * 26, 0, Math.PI * 2); ctx.stroke();
     }
-  }, { passive: false });
-
-  canvas.addEventListener('touchmove', e => {
-    e.preventDefault();
-    if (dragMag < 0) return;
-    const { x, y } = screenPos(e);
-    const [wx, wy] = s2w(x, y);
-    mags[dragMag].x = wx;  mags[dragMag].y = wy;
-    rRestart = true;
-    SFX.play('move', 50);
-  }, { passive: false });
-
-  canvas.addEventListener('touchend', () => {
-    if (dragMag >= 0) SFX.play('click');
-    dragMag = -1;
-  });
-
-  function reset() {
-    mags = INIT_M.map(m => ({ ...m }));
-    trace = null;
-    rRestart = true;
-    SFX.play('toggle');
+    requestAnimationFrame(frame);
   }
-
-  document.getElementById('btnReset').addEventListener('click', reset);
-
-  /* ── Resize & main loop ──────────────────────────────────── */
-  function resize() {
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-    PX = H / (2 * RANGE_Y);
-    startRender();
-  }
-  window.addEventListener('resize', resize);
-
-  function loop(ts) {
-    renderBatch();
-    if (imd) ctx.putImageData(imd, 0, 0);
-    drawOverlay(ts);
-    requestAnimationFrame(loop);
-  }
-
-  resize();
-  requestAnimationFrame(loop);
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

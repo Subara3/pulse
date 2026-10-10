@@ -4,19 +4,17 @@ require_once __DIR__ . '/includes/access_log.php';
 recordPageView('index');
 
 require_once __DIR__ . '/includes/contents-data.php';
-require_once __DIR__ . '/includes/latest-log.php';
 require_once __DIR__ . '/includes/work-tile.php';
 
 $pageName = 'index';
 $workCount = count($works);
-$pageTitle = 'PULSE — 動いている数学を' . $workCount . '本｜ライフゲーム・マンデルブロ集合・ローレンツ方程式ほか';
-$pageDesc = 'ライフゲーム、マンデルブロ集合、ローレンツ方程式、反応拡散、群れ、非周期タイリング。'
-    . '数式と規則が動いているところだけを集めた' . $workCount . '本のインタラクティブ・アーカイブ。AIが毎日1本ずつ増やしています。';
+$pageTitle = 'PULSE — 数式で動く絵' . $workCount . '本｜水面・群れ・フラクタル・反応拡散ほか';
+$pageDesc = '雨の水面、鳥の群れ、マンデルブロ集合、反応拡散、ペンローズタイル。'
+    . '数式どおりに動く絵を' . $workCount . '本集めました。クリックやドラッグで動きが変わります。毎日1本ずつ追加しています。';
 $pageCanonical = 'https://pulse.subara3.com/';
 
 /* ---- 日付まわり ------------------------------------------------------- */
 $today = date('Y-m-d');
-$dayNumber = (new DateTime('2026-01-28'))->diff(new DateTime($today))->days;
 $pick = pulsePickOfTheDay($works, $today);
 
 /* 一覧用の短い説明。途中で切るときは切ったことが分かるように省略記号を付ける */
@@ -76,8 +74,8 @@ $extraStyle = '
 .stage-veil {
   position: absolute; inset: 0; pointer-events: none;
   background:
-    linear-gradient(to top, rgba(7,7,11,.96) 0%, rgba(7,7,11,.55) 26%, rgba(7,7,11,0) 52%),
-    linear-gradient(to right, rgba(7,7,11,.55) 0%, rgba(7,7,11,0) 45%);
+    linear-gradient(to top, rgba(8, 22, 38,.96) 0%, rgba(8, 22, 38,.55) 26%, rgba(8, 22, 38,0) 52%),
+    linear-gradient(to right, rgba(8, 22, 38,.55) 0%, rgba(8, 22, 38,0) 45%);
 }
 .stage-in {
   position: absolute; inset: auto 0 0 0;
@@ -100,7 +98,7 @@ $extraStyle = '
 .stage-btn {
   width: 44px; height: 44px; display: grid; place-items: center;
   border: 1px solid var(--line-mid); border-radius: 50%;
-  background: rgba(7,7,11,.55); color: var(--text-2); cursor: pointer;
+  background: rgba(8, 22, 38,.55); color: var(--text-2); cursor: pointer;
   transition: all var(--dur) var(--ease);
 }
 .stage-btn:hover { color: var(--teal); border-color: var(--teal-line); }
@@ -124,7 +122,7 @@ $extraStyle = '
   .stage-in { grid-template-columns: 1fr; gap: 1.4rem; }
   .stage-intro { text-align: left; order: -1; }
   .stage-intro p, .stage-down { display: none; }
-  .stage-veil { background: linear-gradient(to top, rgba(7,7,11,.97) 0%, rgba(7,7,11,.6) 40%, rgba(7,7,11,.1) 70%); }
+  .stage-veil { background: linear-gradient(to top, rgba(8, 22, 38,.97) 0%, rgba(8, 22, 38,.6) 40%, rgba(8, 22, 38,.1) 70%); }
 }
 
 /* ===================== 目次 ===================== */
@@ -144,24 +142,14 @@ $extraStyle = '
 .fav-head a { margin-left: auto; font-size: .78rem; color: var(--text-3); text-decoration: none; }
 .fav-head a:hover { color: var(--teal); }
 
-/* ===================== 日記と声 ===================== */
+/* ===================== 見たいもの ===================== */
 .after {
-  display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
-  gap: clamp(2rem, 5vw, 5rem);
+  max-width: 640px;
   padding-block: clamp(3rem, 7vw, 5rem);
   border-top: 1px solid var(--line);
 }
-@media (max-width: 860px) { .after { grid-template-columns: 1fr; } }
 .after h2 { font-family: var(--font-body); font-size: 1.05rem; letter-spacing: .06em; }
 .after-sub { font-size: .8rem; color: var(--text-3); margin-top: .4rem; }
-
-.logline { display: block; margin-top: 1.3rem; text-decoration: none; padding-left: 1.1rem; border-left: 2px solid var(--echo-color); }
-.logline.is-null { border-left-color: var(--null-color); }
-.logline-who { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .12em; color: var(--echo-color); }
-.logline.is-null .logline-who { color: var(--null-color); }
-.logline-who span { color: var(--text-3); margin-left: .6rem; }
-.logline p { margin-top: .5rem; line-height: 2.05; color: var(--text); }
-.logline:hover p { color: var(--teal); }
 
 .fb { display: grid; gap: .8rem; margin-top: 1.3rem; }
 .fb textarea {
@@ -206,8 +194,8 @@ require_once __DIR__ . '/includes/nav.php';
     <?php endif; ?>
 
     <div class="stage-intro">
-      <h1>数式と規則が<b>動いているところ</b>だけを、<?php echo $workCount; ?>本。</h1>
-      <p>読まなくていい。触ればわかる。</p>
+      <h1>数式で動く絵を<b><?php echo $workCount; ?>本</b>置いています。</h1>
+      <p>クリックやドラッグで動きが変わります。</p>
       <a class="stage-down" href="#rooms"><?php echo count($rooms); ?>のコレクションを見る <i class="fa-solid fa-arrow-down" aria-hidden="true"></i></a>
     </div>
   </div>
@@ -249,24 +237,13 @@ require_once __DIR__ . '/includes/nav.php';
       <?php endforeach; ?>
     </div>
 
-    <?php
-      $isEcho = (($latestLog['author'] ?? 'ECHO') === 'ECHO');
-      $dayStr = str_pad((string)($latestLog['day'] ?? 0), 3, '0', STR_PAD_LEFT);
-    ?>
     <section class="after">
-      <div>
-        <h2>その日つくったものの話</h2>
-        <a href="log.php" class="logline <?php echo $isEcho ? '' : 'is-null'; ?>">
-          <span class="logline-who"><?php echo htmlspecialchars($latestLog['author'] ?? ''); ?><span>Day <?php echo $dayStr; ?> · <?php echo htmlspecialchars($latestLog['date'] ?? ''); ?></span></span>
-          <p><?php echo htmlspecialchars($latestLog['preview'] ?? '', ENT_QUOTES, 'UTF-8'); ?></p>
-        </a>
-      </div>
       <div id="feedback">
         <h2>見たいものを教えてください</h2>
         <p class="after-sub">「こういう現象を見たい」「あのページのここが分かりにくい」、どちらも歓迎です。</p>
         <form class="fb" id="feedbackForm">
           <textarea id="feedbackMessage" required aria-label="見たいもの・気になったこと"
-            placeholder="例：three-body の軌道が見たい / SORT の速度を落としたい"></textarea>
+            placeholder="例：オーロラのような動きが見たい / WAVES の雨をもっと静かにしたい"></textarea>
           <div class="fb-row">
             <button type="submit" class="btn btn--primary" id="feedbackSubmit">送る</button>
             <span class="fb-note">返信はできませんが、全部読んでいます。</span>
@@ -355,7 +332,7 @@ require_once __DIR__ . '/includes/nav.php';
       delete t.dataset.bound;
       var v = t.querySelector('video');
       if (v) { v.removeAttribute('data-autoplay'); delete v.dataset.loaded; v.innerHTML = ''; }
-      t.querySelectorAll('.work-desc, .work-goal').forEach(function (x) { x.remove(); });
+      t.querySelectorAll('.work-desc').forEach(function (x) { x.remove(); });
       grid.appendChild(t);
     });
     room.hidden = grid.children.length === 0;

@@ -4,31 +4,173 @@ require_once __DIR__ . '/includes/access_log.php';
 recordPageView('string');
 
 $pageName = 'string';
-$pageTitle = "STRING ART - PULSE";
-$pageDesc = json_decode('"\u5186\u5468\u4e0a\u306e\u70b9\u3092\u6570\u5f0f\u3067\u7d50\u3073\u3001\u7cf8\u306e\u5bc6\u5ea6\u304c\u66f2\u7dda\u3092\u63cf\u304fCanvas\u53ef\u8996\u5316\u3002"');
+$pageTitle = 'STRING ART - PULSE';
+$pageDesc = '円に並べた釘のあいだに糸を張っていて、糸が重なって濃くなったところに曲線が見える。糸の掛け方が少しずつ変わり、曲線の形も変わっていく。指でなぞると、横切った糸がはじかれて震える。';
 $pageCanonical = 'https://pulse.subara3.com/string.php';
-$extraStyle = 'body{background:#0a0a0f;min-height:100vh;overflow:hidden;margin:0}#canvas{position:fixed;inset:0;width:100%;height:100%;touch-action:none;cursor:crosshair}.hud{position:fixed;top:1rem;right:1rem;z-index:20;font:12px/1.7 ui-monospace,SFMono-Regular,Menlo,monospace;color:rgba(255,255,255,.55);text-align:right;letter-spacing:.08em;background:rgba(10,10,15,.50);border:1px solid rgba(0,245,212,.16);padding:.75rem .85rem;border-radius:8px;backdrop-filter:blur(12px)}.hud b{color:#00f5d4}.hud .sub{color:rgba(123,44,191,.9)}.mark{position:fixed;left:1rem;bottom:1rem;z-index:20;font:11px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.22em;color:rgba(255,255,255,.18)}.drawer-controls .btn-row{display:flex;gap:.5rem;flex-wrap:wrap}.drawer-controls .control-btn{min-height:36px}.slider-row{display:grid;grid-template-columns:78px 1fr 54px;gap:.65rem;align-items:center}.slider-label,.slider-value{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;color:rgba(255,255,255,.72);letter-spacing:.08em}.slider-value{text-align:right;color:#00f5d4}input[type=range]{width:100%;accent-color:#00f5d4}@media(max-width:760px){.hud{top:.7rem;right:.7rem;font-size:10px;padding:.55rem .65rem}.mark{font-size:9px}.slider-row{grid-template-columns:64px 1fr 42px}}';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
-<div class="hud">POINTS <b id="h-points">160</b><br>STEP <b id="h-step">67</b><br>LINES <b id="h-lines">0</b><br><span class="sub">FORM</span> <b id="h-mode">ROSE</b></div>
-<div class="mark">STRING ART</div>
-<?php $interactionHints=[['type'=>'drag','label'=>'step'],['type'=>'click','label'=>'burst']];require_once __DIR__ . '/includes/interaction-hints.php'; ?>
-<div id="controls" class="drawer-controls"><div class="btn-row"><button class="control-btn active" data-mode="rose">ROSE</button><button class="control-btn" data-mode="cardioid">CARDIOID</button><button class="control-btn" data-mode="weave">WEAVE</button></div><div class="slider-row"><span class="slider-label">POINTS</span><input type="range" id="sl-points" min="48" max="260" value="160"><span class="slider-value" id="sv-points">160</span></div><div class="slider-row"><span class="slider-label">STEP</span><input type="range" id="sl-step" min="2" max="140" value="67"><span class="slider-value" id="sv-step">67</span></div><div class="btn-row"><button class="control-btn active" id="btn-draw">DRAW</button><button class="control-btn" id="btn-reset">RESET</button></div></div>
-<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-<script>
-(function(){
-'use strict';
 
-var c=document.getElementById('canvas'),x=c.getContext('2d'),W,H,D=1,points=160,step=67,mode='rose',drawOn=true,phase=0,burst=0;
-var hp=document.getElementById('h-points'),hs=document.getElementById('h-step'),hl=document.getElementById('h-lines'),hm=document.getElementById('h-mode'),sp=document.getElementById('sl-points'),ss=document.getElementById('sl-step'),vp=document.getElementById('sv-points'),vs=document.getElementById('sv-step');
-function resize(){D=Math.min(2,devicePixelRatio||1);W=c.width=Math.floor(innerWidth*D);H=c.height=Math.floor(innerHeight*D);c.style.width=innerWidth+'px';c.style.height=innerHeight+'px'}
-function pt(i,r,cx,cy){var a=i/points*Math.PI*2+phase;return [cx+Math.cos(a)*r,cy+Math.sin(a)*r]}
-function draw(){if(drawOn)phase+=.002;x.fillStyle='rgba(10,10,15,.2)';x.fillRect(0,0,W,H);x.globalCompositeOperation='lighter';var cx=W/2,cy=H/2,r=Math.min(W,H)*(.34+burst*.05),lines=Math.min(points*2,420);for(var i=0;i<lines;i++){var j=mode==='cardioid'?i*2:mode==='weave'?i*step+Math.sin(i*.07+phase)*points*.1:i*step;var a=pt(i%points,r,cx,cy),b=pt(((j%points)+points)%points,r,cx,cy),q=i/lines;x.strokeStyle=i%2?'rgba(123,44,191,'+(.08+q*.32)+')':'rgba(0,245,212,'+(.10+q*.38)+')';x.lineWidth=(.6+q*.8)*D;x.beginPath();x.moveTo(a[0],a[1]);x.lineTo(b[0],b[1]);x.stroke()}if(burst>0)burst*=.94;x.globalCompositeOperation='source-over';hud(lines);requestAnimationFrame(draw)}
-function hud(lines){hp.textContent=points;hs.textContent=step;hl.textContent=lines||0;hm.textContent=mode.toUpperCase();vp.textContent=points;vs.textContent=step}
-c.addEventListener('pointerdown',function(){burst=1;if(window.SFX)SFX.play('ripple',100)});c.addEventListener('pointermove',function(e){if(e.buttons){step=Math.max(2,Math.min(140,step+(e.movementX||0)*.1));ss.value=Math.round(step);hud();if(window.SFX)SFX.play('move',130)}});document.querySelectorAll('[data-mode]').forEach(function(b){b.onclick=function(){mode=b.dataset.mode;document.querySelectorAll('[data-mode]').forEach(function(q){q.classList.toggle('active',q===b)});if(window.SFX)SFX.play('toggle')}});sp.oninput=function(){points=+sp.value;hud()};ss.oninput=function(){step=+ss.value;hud()};document.getElementById('btn-draw').onclick=function(e){drawOn=!drawOn;e.currentTarget.classList.toggle('active',drawOn);if(window.SFX)SFX.play('toggle')};document.getElementById('btn-reset').onclick=function(){points=160;step=67;sp.value=160;ss.value=67;phase=0;if(window.SFX)SFX.play('success')};addEventListener('resize',resize);resize();draw();
+<div id="controls" class="drawer-controls">
+  <div class="ctl-row"><label for="k-nails">NAILS</label><input type="range" id="k-nails" min="0" max="100" value="55"></div>
+  <div class="ctl-row"><label for="k-pace">PACE</label><input type="range" id="k-pace" min="0" max="100" value="40"></div>
+  <div class="ctl-btns"><button type="button" id="k-hold">HOLD</button></div>
+</div>
+<?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
+<script>
+(function () {
+  'use strict';
+  var canvas = document.getElementById('canvas');
+  var W = 0, H = 0, cx = 0, cy = 0, R = 1;
+
+  /* 釘 i から釘 i×k へ糸を張る。k が 2 ならハート形、3 なら 2 枚の花びら */
+  var NMAX = 400, nails = 200, k = 2, kdir = 1, pace = 0.4, hold = false, rot = -Math.PI / 2, T = 0;
+  var amp = new Float32Array(NMAX), ph = new Float32Array(NMAX), hot = new Float32Array(NMAX);
+  var AX = new Float32Array(NMAX), AY = new Float32Array(NMAX), BX = new Float32Array(NMAX), BY = new Float32Array(NMAX);
+
+  var ctx = P.fit(canvas, function (w, h) { W = w; H = h; cx = W / 2; cy = H / 2; R = Math.min(W, H) * 0.42; });
+
+  function layout() {
+    var tau = Math.PI * 2;
+    for (var i = 0; i < nails; i++) {
+      var a = i / nails * tau + rot, b = i * k / nails * tau + rot;
+      AX[i] = cx + Math.cos(a) * R; AY[i] = cy + Math.sin(a) * R;
+      BX[i] = cx + Math.cos(b) * R; BY[i] = cy + Math.sin(b) * R;
+    }
+  }
+
+  /* ---------------------------------------------------------- 操作 */
+  /* なぞった線と交わった糸だけをはじく */
+  function cross(x1, y1, x2, y2, i) {
+    var ax = AX[i], ay = AY[i], bx = BX[i], by = BY[i];
+    var d = (x2 - x1) * (by - ay) - (y2 - y1) * (bx - ax);
+    if (Math.abs(d) < 1e-6) return false;
+    var t = ((ax - x1) * (by - ay) - (ay - y1) * (bx - ax)) / d;
+    var u = ((ax - x1) * (y2 - y1) - (ay - y1) * (x2 - x1)) / d;
+    return t >= 0 && t <= 1 && u > 0.04 && u < 0.96;
+  }
+  function pluck(i, s) {
+    amp[i] = Math.min(16, Math.max(amp[i], s));
+    ph[i] = 0; hot[i] = 1;
+  }
+  var down = false, last = null, moved = 0;
+  canvas.addEventListener('pointerdown', function (e) {
+    down = true; moved = 0;
+    last = { x: e.clientX, y: e.clientY };
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!down && e.pointerType !== 'mouse') return;
+    var p = { x: e.clientX, y: e.clientY };
+    if (!last) { last = p; return; }
+    var sp = Math.hypot(p.x - last.x, p.y - last.y);
+    if (sp < 2) return;
+    moved += sp;
+    var hits = 0;
+    for (var i = 0; i < nails; i++) {
+      if (cross(last.x, last.y, p.x, p.y, i)) { pluck(i, Math.min(16, 3 + sp * (down ? 0.5 : 0.2))); hits++; }
+    }
+    if (hits) SFX.play('tick', 120);
+    last = p;
+  });
+  function up(e) {
+    /* その場で離したら、近くを通る糸をまとめて軽くはじく */
+    if (down && moved < 6 && last) {
+      var n = 0;
+      for (var i = 0; i < nails; i++) {
+        var ax = AX[i], ay = AY[i], bx = BX[i] - ax, by = BY[i] - ay, l2 = bx * bx + by * by + 1e-6;
+        var t = ((last.x - ax) * bx + (last.y - ay) * by) / l2;
+        t = t < 0 ? 0 : t > 1 ? 1 : t;
+        var dx = ax + bx * t - last.x, dy = ay + by * t - last.y, dd = Math.sqrt(dx * dx + dy * dy);
+        if (dd < 46) { pluck(i, 9 * (1 - dd / 46) + 2); n++; }
+      }
+      SFX.play(n ? 'collide' : 'tick');
+    }
+    down = false;
+  }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', function () { down = false; });
+  canvas.addEventListener('pointerleave', function () { if (!down) last = null; });
+
+  var kNails = document.getElementById('k-nails'), kPace = document.getElementById('k-pace'), kHold = document.getElementById('k-hold');
+  function setNails(v) { nails = Math.round(80 + Math.pow(v / 100, 1.2) * 280); }
+  kNails.addEventListener('input', function () { setNails(+this.value); });
+  kPace.addEventListener('input', function () { pace = this.value / 100; });
+  kHold.addEventListener('click', function () { hold = !hold; kHold.classList.toggle('active', hold); SFX.play('toggle'); });
+  setNails(+kNails.value);
+  pace = kPace.value / 100;
+  hold = kHold.classList.contains('active');
+
+  /* ---------------------------------------------------------- 回す */
+  var lastT = performance.now();
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    T += dt;
+    hold = kHold.classList.contains('active');
+    if (!hold) {
+      /* 整数の近くではゆっくり、あいだは少し速く。形がはっきりする所に長く留まる */
+      var s = Math.sin(Math.PI * k);
+      k += kdir * dt * (0.004 + pace * 0.03) * (0.25 + 3 * s * s);
+      if (k > 30) kdir = -1; else if (k < 2) kdir = 1;
+    }
+    rot += dt * 0.006;
+    layout();
+
+    P.fill(ctx, W, H);
+
+    /* 震えていない糸はまとめて 1 本の道で描く */
+    var still = new Path2D(), live = [];
+    for (var i = 0; i < nails; i++) {
+      if (amp[i] > 0.15) { live.push(i); continue; }
+      amp[i] = 0;
+      still.moveTo(AX[i], AY[i]); still.lineTo(BX[i], BY[i]);
+    }
+    var dens = Math.min(1, 200 / nails);
+    ctx.lineWidth = 0.7;
+    ctx.strokeStyle = P.rgba(P.line, 0.12 + dens * 0.12);
+    ctx.stroke(still);
+
+    /* はじいた糸: 中ほどがふくらんで震え、だんだん収まる */
+    for (var q = 0; q < live.length; q++) {
+      i = live[q];
+      ph[i] += dt;
+      amp[i] *= Math.pow(0.28, dt);
+      hot[i] = Math.max(0, hot[i] - dt * 1.1);
+      var ax = AX[i], ay = AY[i], bx = BX[i], by = BY[i];
+      var dx = bx - ax, dy = by - ay, l = Math.sqrt(dx * dx + dy * dy) + 1e-6;
+      var off = amp[i] * Math.sin(ph[i] * 11) * 2;
+      var mx = (ax + bx) / 2 - dy / l * off, my = (ay + by) / 2 + dx / l * off;
+      ctx.strokeStyle = P.rgba(P.mix(P.line, P.accent, hot[i] * 0.8), 0.22 + hot[i] * 0.4);
+      ctx.lineWidth = 0.8 + hot[i] * 0.5;
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.quadraticCurveTo(mx, my, bx, by);
+      ctx.stroke();
+    }
+
+    /* 釘 */
+    ctx.fillStyle = P.rgba(P.line, 0.7);
+    ctx.beginPath();
+    var tau = Math.PI * 2, nr = nails > 240 ? 0.9 : 1.2;
+    for (i = 0; i < nails; i++) {
+      var a = i / nails * tau + rot, x = cx + Math.cos(a) * (R + 3), y = cy + Math.sin(a) * (R + 3);
+      ctx.moveTo(x + nr, y);
+      ctx.arc(x, y, nr, 0, tau);
+    }
+    ctx.fill();
+    ctx.strokeStyle = P.rgba(P.steel, 0.35);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(cx, cy, R + 9, 0, tau);
+    ctx.stroke();
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>

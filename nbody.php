@@ -1,422 +1,267 @@
 <?php
 require_once __DIR__ . '/includes/config.php';
+require_once __DIR__ . '/includes/access_log.php';
 recordPageView('nbody');
 
 $pageName = 'nbody';
 $pageTitle = 'N-BODY - PULSE';
-$pageDesc = 'N体重力シミュレーション。粒子が互いに引き合い、軌道を描く。';
+$pageDesc = '同じ重さの3つの星が引き合いながら、1本の8の字の上を追いかけるように回り続ける。引っぱって離すと小さな粒が飛び出し、星のあいだで振り回される。';
 $pageCanonical = 'https://pulse.subara3.com/nbody.php';
-
-$extraStyle = '
-body { background: #0a0a0f; min-height: 100vh; overflow: hidden; }
-#canvas { position: fixed; inset: 0; width: 100%; height: 100%; touch-action: none; }
-.ui { position: fixed; z-index: 100; pointer-events: none; font-family: "Space Grotesk", "Segoe UI", sans-serif; }
-.hud { top: 1rem; right: 1rem; color: rgba(255,255,255,0.34); font-size: 0.63rem; line-height: 1.8; text-align: right; letter-spacing: 0.05em; }
-.hud .v { color: #00f5d4; font-weight: 700; }
-.info { left: 1.2rem; bottom: 1.2rem; color: rgba(255,255,255,0.24); font-size: 0.56rem; line-height: 1.75; letter-spacing: 0.05em; max-width: min(74vw, 420px); }
-@media (max-width: 768px) {
-  .hud { top: 0.65rem; right: 0.65rem; font-size: 0.54rem; }
-  .info { left: 0.85rem; bottom: 0.9rem; font-size: 0.49rem; max-width: 72vw; }
-}
-';
+$extraStyle = '';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/floating-nav.php';
 ?>
 <canvas id="canvas"></canvas>
 
-<div class="ui hud">
-  BODIES: <span id="hudBodies" class="v">0</span><br>
-  ENERGY: <span id="hudEnergy" class="v">0</span><br>
-  TRAILS: <span id="hudTrails" class="v">ON</span>
-</div>
-
-<div class="ui info">
-  TAP: ADD BODY<br>
-  DRAG: LAUNCH WITH VELOCITY<br>
-  RIGHT-CLICK: REMOVE NEAREST<br>
-  GRAVITY SHAPES THE DANCE
-</div>
-
-<?php
-$interactionHints = [
-  ['type' => 'click', 'label' => 'body'],
-  ['type' => 'drag', 'label' => 'launch'],
-  ['type' => 'right', 'label' => 'remove'],
-];
-require_once __DIR__ . '/includes/interaction-hints.php';
-?>
 <div id="controls" class="drawer-controls">
-  <div class="slider-wrap">
-    <label>GRAVITY</label>
-    <input type="range" id="gravSlider" min="1" max="30" value="12">
-  </div>
-  <div class="slider-wrap">
-    <label>TRAIL LENGTH</label>
-    <input type="range" id="trailSlider" min="10" max="200" value="80">
-  </div>
-  <div class="btn-row">
-    <button class="control-btn" id="trailBtn">TRAILS: ON</button>
-    <button class="control-btn" id="mergeBtn">MERGE: ON</button>
-    <button class="control-btn" id="presetBtn">PRESET</button>
-    <button class="control-btn" id="resetBtn">RESET</button>
-  </div>
+  <div class="ctl-row"><label for="k-time">TIME</label><input type="range" id="k-time" min="0" max="100" value="40"></div>
+  <div class="ctl-btns"><button type="button" class="active" data-sys="eight">EIGHT</button><button type="button" data-sys="triple">TRIPLE</button></div>
+  <div class="ctl-btns"><button type="button" id="k-reset">RESET</button></div>
 </div>
 <?php require_once __DIR__ . '/includes/drawer-controls.php'; ?>
-
+<?php require_once __DIR__ . '/includes/colors.php'; ?>
 <script>
-(function() {
+(function () {
+  'use strict';
   var canvas = document.getElementById('canvas');
-  var ctx = canvas.getContext('2d', { alpha: false });
+  var W = 0, H = 0, CX = 0, CY = 0, U = 1;
+  var ctx = P.fit(canvas, function (w, h) { W = w; H = h; CX = w / 2; CY = h / 2; scale(); });
 
-  var hudBodies = document.getElementById('hudBodies');
-  var hudEnergy = document.getElementById('hudEnergy');
-  var hudTrails = document.getElementById('hudTrails');
-
-  var gravSlider = document.getElementById('gravSlider');
-  var trailSlider = document.getElementById('trailSlider');
-  var trailBtn = document.getElementById('trailBtn');
-  var mergeBtn = document.getElementById('mergeBtn');
-  var presetBtn = document.getElementById('presetBtn');
-  var resetBtn = document.getElementById('resetBtn');
-
-  var W = 0, H = 0;
-  var bodies = [];
-  var showTrails = true;
-  var mergeEnabled = true;
-  var presetIdx = 0;
-  var dragStart = null;
-  var dragCurrent = null;
-  var SOFTENING = 4;
-  var DT = 0.3;
-
-  var ACCENT = [0, 245, 212];
-  var SUB = [123, 44, 191];
-
-  function rgba(c, a) { return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; }
-  function mix(a, b, t) {
-    return [
-      (a[0] + (b[0] - a[0]) * t) | 0,
-      (a[1] + (b[1] - a[1]) * t) | 0,
-      (a[2] + (b[2] - a[2]) * t) | 0
-    ];
+  /* ---------------------------------------------------------- 星
+     EIGHT: 等しい 3 つの星が 1 本の 8 の字を共有して回る周期解。
+     TRIPLE: 近い連星のまわりを、3 つめの星がずれていく楕円で回る。 */
+  var sys = 'eight', bodies = [], dust = [];
+  var TRAIL = 900;
+  function body(m, x, y, vx, vy) {
+    return { m: m, x: x, y: y, vx: vx, vy: vy, ax: 0, ay: 0, tx: new Float32Array(TRAIL), ty: new Float32Array(TRAIL), tn: 0, th: 0 };
   }
-
-  function resize() {
-    W = Math.floor(window.innerWidth);
-    H = Math.floor(window.innerHeight);
-    canvas.width = W;
-    canvas.height = H;
-    canvas.style.width = W + 'px';
-    canvas.style.height = H + 'px';
-  }
-
-  function createBody(x, y, vx, vy, mass) {
-    var m = mass || (2 + Math.random() * 6);
-    var t = Math.min(1, m / 15);
-    bodies.push({
-      x: x, y: y,
-      vx: vx || 0, vy: vy || 0,
-      mass: m,
-      rad: Math.sqrt(m) * 2.2,
-      col: mix(ACCENT, SUB, t),
-      trail: []
-    });
-    hudBodies.textContent = bodies.length;
-  }
-
-  function seed() {
-    bodies = [];
-    var cx = W / 2, cy = H / 2;
-    createBody(cx, cy, 0, 0, 20);
-    for (var i = 0; i < 6; i++) {
-      var angle = Math.random() * Math.PI * 2;
-      var dist = 80 + Math.random() * 150;
-      var speed = Math.sqrt(20 * parseFloat(gravSlider.value) / dist) * 0.6;
-      var px = cx + Math.cos(angle) * dist;
-      var py = cy + Math.sin(angle) * dist;
-      var vx = -Math.sin(angle) * speed;
-      var vy = Math.cos(angle) * speed;
-      createBody(px, py, vx, vy, 1.5 + Math.random() * 3);
+  function setup() {
+    bodies.length = 0; dust.length = 0;
+    if (sys === 'eight') {
+      var x1 = 0.97000436, y1 = -0.24308753, vx3 = -0.93240737, vy3 = -0.86473146;
+      bodies.push(body(1, x1, y1, -vx3 / 2, -vy3 / 2));
+      bodies.push(body(1, -x1, -y1, -vx3 / 2, -vy3 / 2));
+      bodies.push(body(1, 0, 0, vx3, vy3));
+    } else {
+      var d = 0.42, m = 0.5, v = Math.sqrt(m / (2 * d));
+      var m3 = 0.22, r3 = 1.75, v3 = Math.sqrt((2 * m + m3) / r3) * 0.72;
+      var bvx = 0, bvy = -m3 * v3 / (2 * m);
+      bodies.push(body(m, -d / 2, 0, bvx, -v + bvy));
+      bodies.push(body(m, d / 2, 0, bvx, v + bvy));
+      bodies.push(body(m3, r3, 0, 0, v3));
+      /* 重心を原点に */
+      var cx = 0, cy = 0, mt = 0;
+      bodies.forEach(function (b) { cx += b.m * b.x; cy += b.m * b.y; mt += b.m; });
+      bodies.forEach(function (b) { b.x -= cx / mt; b.y -= cy / mt; });
     }
+    accel();
+    scale();
+  }
+  function scale() {
+    U = sys === 'eight' ? Math.min(W, H) * 0.42 / 1.08 : Math.min(W, H) * 0.45 / 2.05;
   }
 
-  function presetBinary() {
-    bodies = [];
-    var cx = W / 2, cy = H / 2;
-    var sep = 80;
-    var spd = 1.2;
-    createBody(cx - sep, cy, 0, spd, 12);
-    createBody(cx + sep, cy, 0, -spd, 12);
-    for (var i = 0; i < 8; i++) {
-      var a = Math.random() * Math.PI * 2;
-      var d = 180 + Math.random() * 120;
-      createBody(cx + Math.cos(a) * d, cy + Math.sin(a) * d,
-        -Math.sin(a) * 0.5, Math.cos(a) * 0.5, 1 + Math.random() * 2);
-    }
-  }
-
-  function presetRing() {
-    bodies = [];
-    var cx = W / 2, cy = H / 2;
-    createBody(cx, cy, 0, 0, 30);
-    var count = 20;
-    var dist = 140;
-    for (var i = 0; i < count; i++) {
-      var a = (i / count) * Math.PI * 2;
-      var speed = Math.sqrt(30 * parseFloat(gravSlider.value) / dist) * 0.55;
-      createBody(cx + Math.cos(a) * dist, cy + Math.sin(a) * dist,
-        -Math.sin(a) * speed, Math.cos(a) * speed, 0.8);
-    }
-  }
-
-  var PRESETS = [seed, presetBinary, presetRing];
-  var PRESET_NAMES = ['ORBIT', 'BINARY', 'RING'];
-
-  function updatePhysics() {
-    var G = parseFloat(gravSlider.value);
-    var n = bodies.length;
-    var trailLen = parseInt(trailSlider.value, 10);
-
-    // compute forces
-    for (var i = 0; i < n; i++) {
-      var a = bodies[i];
-      var ax = 0, ay = 0;
-      for (var j = 0; j < n; j++) {
-        if (i === j) continue;
+  var SOFT = 1e-4, DSOFT = 0.004;
+  function accel() {
+    for (var i = 0; i < bodies.length; i++) { bodies[i].ax = 0; bodies[i].ay = 0; }
+    for (var i2 = 0; i2 < bodies.length; i2++) {
+      var a = bodies[i2];
+      for (var j = i2 + 1; j < bodies.length; j++) {
         var b = bodies[j];
-        var dx = b.x - a.x;
-        var dy = b.y - a.y;
-        var d2 = dx * dx + dy * dy + SOFTENING * SOFTENING;
-        var d = Math.sqrt(d2);
-        var f = G * b.mass / d2;
-        ax += f * dx / d;
-        ay += f * dy / d;
-      }
-      a.vx += ax * DT;
-      a.vy += ay * DT;
-    }
-
-    // integrate + trails
-    for (var i = 0; i < n; i++) {
-      var a = bodies[i];
-      a.x += a.vx * DT;
-      a.y += a.vy * DT;
-      if (showTrails) {
-        a.trail.push(a.x, a.y);
-        if (a.trail.length > trailLen * 2) {
-          a.trail.splice(0, a.trail.length - trailLen * 2);
-        }
+        var dx = b.x - a.x, dy = b.y - a.y, r2 = dx * dx + dy * dy + SOFT, inv = 1 / (r2 * Math.sqrt(r2));
+        a.ax += dx * inv * b.m; a.ay += dy * inv * b.m;
+        b.ax -= dx * inv * a.m; b.ay -= dy * inv * a.m;
       }
     }
-
-    // merge
-    if (mergeEnabled) {
-      for (var i = 0; i < bodies.length; i++) {
-        for (var j = i + 1; j < bodies.length; j++) {
-          var a = bodies[i], b = bodies[j];
-          var dx = a.x - b.x, dy = a.y - b.y;
-          var dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < a.rad + b.rad) {
-            var totalMass = a.mass + b.mass;
-            a.x = (a.x * a.mass + b.x * b.mass) / totalMass;
-            a.y = (a.y * a.mass + b.y * b.mass) / totalMass;
-            a.vx = (a.vx * a.mass + b.vx * b.mass) / totalMass;
-            a.vy = (a.vy * a.mass + b.vy * b.mass) / totalMass;
-            a.mass = totalMass;
-            a.rad = Math.sqrt(totalMass) * 2.2;
-            a.col = mix(ACCENT, SUB, Math.min(1, totalMass / 15));
-            bodies.splice(j, 1);
-            j--;
-            if (typeof SFX !== 'undefined') SFX.play('collide', 80);
-          }
-        }
-      }
-    }
-
-    hudBodies.textContent = bodies.length;
-
-    // kinetic energy
-    var ke = 0;
+  }
+  function dustAccel(p) {
+    p.ax = 0; p.ay = 0;
     for (var i = 0; i < bodies.length; i++) {
-      var a = bodies[i];
-      ke += 0.5 * a.mass * (a.vx * a.vx + a.vy * a.vy);
+      var b = bodies[i], dx = b.x - p.x, dy = b.y - p.y, r2 = dx * dx + dy * dy + DSOFT, inv = 1 / (r2 * Math.sqrt(r2));
+      p.ax += dx * inv * b.m; p.ay += dy * inv * b.m;
+      if (r2 < 0.01) SFX.play('tick', 1500);
     }
-    hudEnergy.textContent = ke.toFixed(0);
+  }
+  /* 速度ベルレ。長く回しても 8 の字が崩れない */
+  function step(h) {
+    var i, b;
+    for (i = 0; i < bodies.length; i++) { b = bodies[i]; b.vx += b.ax * h / 2; b.vy += b.ay * h / 2; b.x += b.vx * h; b.y += b.vy * h; }
+    for (i = 0; i < dust.length; i++) { b = dust[i]; b.vx += b.ax * h / 2; b.vy += b.ay * h / 2; b.x += b.vx * h; b.y += b.vy * h; }
+    accel();
+    for (i = 0; i < dust.length; i++) dustAccel(dust[i]);
+    for (i = 0; i < bodies.length; i++) { b = bodies[i]; b.vx += b.ax * h / 2; b.vy += b.ay * h / 2; }
+    for (i = 0; i < dust.length; i++) { b = dust[i]; b.vx += b.ax * h / 2; b.vy += b.ay * h / 2; }
   }
 
-  function draw() {
-    ctx.fillStyle = 'rgba(10,10,15,0.22)';
-    ctx.fillRect(0, 0, W, H);
+  /* ---------------------------------------------------------- 粒 */
+  var DTRAIL = 260;
+  function addDust(x, y, vx, vy, touched) {
+    if (dust.length > 46) dust.shift();
+    var p = { x: x, y: y, vx: vx, vy: vy, ax: 0, ay: 0, age: 0, touched: touched, tx: new Float32Array(DTRAIL), ty: new Float32Array(DTRAIL), tn: 0, th: 0 };
+    dustAccel(p);
+    dust.push(p);
+  }
+  function autoDust() {
+    /* 外側から、ゆるく回りこむ向きに投げ入れる */
+    var ang = Math.random() * Math.PI * 2, r = sys === 'eight' ? 1.7 : 2.6;
+    var x = Math.cos(ang) * r, y = Math.sin(ang) * r;
+    var v = Math.sqrt(3 / r) * (0.3 + Math.random() * 0.3), s = Math.random() < 0.5 ? 1 : -1;
+    addDust(x, y, -Math.sin(ang) * v * s - x * 0.05, Math.cos(ang) * v * s - y * 0.05, false);
+  }
+  function record(o, cap) {
+    o.tx[o.th] = o.x; o.ty[o.th] = o.y;
+    o.th = (o.th + 1) % cap;
+    if (o.tn < cap) o.tn++;
+  }
 
-    // trails
-    if (showTrails) {
-      for (var i = 0; i < bodies.length; i++) {
-        var b = bodies[i];
-        var t = b.trail;
-        if (t.length < 4) continue;
-        var len = t.length / 2;
-        for (var k = 2; k < t.length; k += 2) {
-          var progress = (k / 2) / len;
-          ctx.strokeStyle = rgba(b.col, progress * 0.28);
-          ctx.lineWidth = 0.5 + progress * 1.2;
-          ctx.beginPath();
-          ctx.moveTo(t[k - 2], t[k - 1]);
-          ctx.lineTo(t[k], t[k + 1]);
-          ctx.stroke();
-        }
+  /* ---------------------------------------------------------- 描く */
+  var view = 0, cv = 1, sv = 0;
+  function toX(x, y) { return CX + (x * cv - y * sv) * U; }
+  function toY(x, y) { return CY + (x * sv + y * cv) * U; }
+  var LN = P.line, AC = P.accent, ST = P.steel;
+
+  function drawTrail(o, cap, color, peak, width) {
+    var n = o.tn;
+    if (n < 2) return;
+    var B = 10, start = (o.th - n + cap) % cap;
+    for (var b = 0; b < B; b++) {
+      var i0 = Math.floor(n * b / B), i1 = Math.min(n - 1, Math.floor(n * (b + 1) / B) + 1);
+      ctx.beginPath();
+      for (var i = i0; i <= i1; i++) {
+        var k = (start + i) % cap, X = toX(o.tx[k], o.ty[k]), Y = toY(o.tx[k], o.ty[k]);
+        if (i === i0) ctx.moveTo(X, Y); else ctx.lineTo(X, Y);
       }
-    }
-
-    // bodies
-    for (var i = 0; i < bodies.length; i++) {
-      var b = bodies[i];
-
-      // glow
-      var g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.rad * 4);
-      g.addColorStop(0, rgba(b.col, 0.12));
-      g.addColorStop(1, rgba(b.col, 0));
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, b.rad * 4, 0, Math.PI * 2);
-      ctx.fill();
-
-      // core
-      ctx.fillStyle = rgba(b.col, 0.9);
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, b.rad, 0, Math.PI * 2);
-      ctx.fill();
-
-      // bright center
-      ctx.fillStyle = rgba(b.col, 0.25);
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, b.rad * 0.25, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // drag indicator
-    if (dragStart && dragCurrent) {
-      ctx.strokeStyle = rgba(ACCENT, 0.4);
-      ctx.lineWidth = 1;
-      ctx.setLineDash([4, 4]);
-      ctx.beginPath();
-      ctx.moveTo(dragStart.x, dragStart.y);
-      ctx.lineTo(dragCurrent.x, dragCurrent.y);
+      var a = Math.pow((b + 1) / B, 1.6);
+      ctx.lineWidth = width * (0.5 + 0.5 * a);
+      ctx.strokeStyle = P.rgba(color, peak * a);
       ctx.stroke();
+    }
+  }
+  function draw() {
+    for (var i = 0; i < dust.length; i++) {
+      var p = dust[i], fade = Math.min(1, p.age / 0.5) * Math.max(0, Math.min(1, (LIFE - p.age) / 4));
+      drawTrail(p, DTRAIL, p.touched ? AC : ST, (p.touched ? 0.7 : 0.75) * fade, 1);
+      ctx.fillStyle = P.rgba(p.touched ? AC : LN, 0.8 * fade);
+      ctx.beginPath(); ctx.arc(toX(p.x, p.y), toY(p.x, p.y), 1.5, 0, Math.PI * 2); ctx.fill();
+    }
+    for (var j = 0; j < bodies.length; j++) drawTrail(bodies[j], TRAIL, LN, 0.75, 1.6);
+    for (var k = 0; k < bodies.length; k++) {
+      var b = bodies[k], X = toX(b.x, b.y), Y = toY(b.x, b.y), r = 2.5 + Math.sqrt(b.m) * 3.2;
+      var g = ctx.createRadialGradient(X, Y, 0, X, Y, r * 4.5);
+      g.addColorStop(0, P.rgba(LN, 0.28)); g.addColorStop(1, P.rgba(LN, 0));
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(X, Y, r * 4.5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = P.rgba(LN, 1);
+      ctx.beginPath(); ctx.arc(X, Y, r, 0, Math.PI * 2); ctx.fill();
+    }
+    /* 引っぱっている間: 打ち出す向き */
+    if (drag) {
+      ctx.strokeStyle = P.rgba(AC, 0.6);
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 5]);
+      ctx.beginPath(); ctx.moveTo(drag.x0, drag.y0); ctx.lineTo(drag.x, drag.y); ctx.stroke();
       ctx.setLineDash([]);
+      ctx.fillStyle = P.rgba(AC, 0.9);
+      ctx.beginPath(); ctx.arc(drag.x0, drag.y0, 3, 0, Math.PI * 2); ctx.fill();
+    }
+  }
 
-      // arrow tip
-      var dx = dragCurrent.x - dragStart.x;
-      var dy = dragCurrent.y - dragStart.y;
-      var len = Math.sqrt(dx * dx + dy * dy);
-      if (len > 10) {
-        ctx.fillStyle = rgba(ACCENT, 0.5);
-        ctx.beginPath();
-        ctx.arc(dragStart.x, dragStart.y, 4, 0, Math.PI * 2);
-        ctx.fill();
+  /* ---------------------------------------------------------- 操作 */
+  var drag = null;
+  function toSim(X, Y) {
+    var x = (X - CX) / U, y = (Y - CY) / U;
+    return [x * cv + y * sv, -x * sv + y * cv];
+  }
+  canvas.addEventListener('pointerdown', function (e) {
+    drag = { x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY };
+    SFX.play('tick');
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (!drag) return;
+    drag.x = e.clientX; drag.y = e.clientY;
+    SFX.play('move', 260);
+  });
+  function up() {
+    if (!drag) return;
+    var s = toSim(drag.x0, drag.y0), e2 = toSim(drag.x, drag.y);
+    var dx = s[0] - e2[0], dy = s[1] - e2[1], len = Math.hypot(dx, dy);
+    if (len * U < 8) {
+      /* 軽く触ると、その場から粒が輪になってこぼれる */
+      for (var i = 0; i < 6; i++) {
+        var a = i / 6 * Math.PI * 2;
+        addDust(s[0] + Math.cos(a) * 0.03, s[1] + Math.sin(a) * 0.03, Math.cos(a) * 0.08, Math.sin(a) * 0.08, true);
+      }
+      SFX.play('pop');
+    } else {
+      /* ゴムのように、引いた向きと反対へ飛ぶ */
+      var k = 1.6;
+      for (var j = 0; j < 3; j++) addDust(s[0], s[1], dx * k * (1 + j * 0.04), dy * k * (1 + j * 0.04), true);
+      SFX.play('spawn');
+    }
+    drag = null;
+  }
+  canvas.addEventListener('pointerup', up);
+  canvas.addEventListener('pointercancel', function () { drag = null; });
+
+  var timeEl = document.getElementById('k-time'), simSpeed = 0.45;
+  function readTime() { simSpeed = 0.15 + timeEl.value / 100 * 0.75; }
+  timeEl.addEventListener('input', readTime);
+  readTime();
+  document.querySelectorAll('[data-sys]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('[data-sys]').forEach(function (o) { o.classList.toggle('active', o === b); });
+      sys = b.dataset.sys; setup(); warm();
+      SFX.play('toggle');
+    });
+  });
+  document.getElementById('k-reset').addEventListener('click', function () { setup(); warm(); SFX.play('click'); });
+
+  /* ---------------------------------------------------------- 回す */
+  var LIFE = 26, H_STEP = 0.0015, recAcc = 0, dustAcc = 0;
+  function advance(simT) {
+    var n = Math.ceil(simT / H_STEP), h = simT / n;
+    for (var i = 0; i < n; i++) {
+      step(h);
+      recAcc += h;
+      if (recAcc > (sys === 'eight' ? 0.008 : 0.03)) {
+        recAcc = 0;
+        for (var j = 0; j < bodies.length; j++) record(bodies[j], TRAIL);
+        for (var k = 0; k < dust.length; k++) record(dust[k], DTRAIL);
       }
     }
   }
-
-  function nearestBody(x, y) {
-    var best = -1, bestD = Infinity;
-    for (var i = 0; i < bodies.length; i++) {
-      var dx = x - bodies[i].x, dy = y - bodies[i].y;
-      var d = dx * dx + dy * dy;
-      if (d < bestD) { bestD = d; best = i; }
-    }
-    return best;
+  function warm() {
+    /* 最初から軌道の線が見えているように、少し先まで回しておく */
+    advance(sys === 'eight' ? 4.5 : 9);
   }
+  setup(); warm();
+  autoDust(); autoDust();
 
-  canvas.addEventListener('pointerdown', function(e) {
-    if (e.button === 2) return;
-    dragStart = { x: e.clientX, y: e.clientY };
-    dragCurrent = { x: e.clientX, y: e.clientY };
-  });
-
-  canvas.addEventListener('pointermove', function(e) {
-    if (!dragStart) return;
-    dragCurrent = { x: e.clientX, y: e.clientY };
-  });
-
-  canvas.addEventListener('pointerup', function(e) {
-    if (!dragStart) return;
-    var dx = dragStart.x - e.clientX;
-    var dy = dragStart.y - e.clientY;
-    var len = Math.sqrt(dx * dx + dy * dy);
-    var vx = dx * 0.02;
-    var vy = dy * 0.02;
-    if (len < 5) { vx = 0; vy = 0; }
-    createBody(dragStart.x, dragStart.y, vx, vy);
-    if (typeof SFX !== 'undefined') SFX.play('spawn');
-    dragStart = null;
-    dragCurrent = null;
-  });
-
-  canvas.addEventListener('pointercancel', function() {
-    dragStart = null;
-    dragCurrent = null;
-  });
-
-  canvas.addEventListener('contextmenu', function(e) {
-    e.preventDefault();
-    if (bodies.length <= 1) return;
-    var i = nearestBody(e.clientX, e.clientY);
-    if (i >= 0) {
-      bodies.splice(i, 1);
-      hudBodies.textContent = bodies.length;
-      if (typeof SFX !== 'undefined') SFX.play('pop');
+  var lastT = performance.now();
+  function frame(now) {
+    var dt = Math.min(0.05, (now - lastT) / 1000);
+    lastT = now;
+    advance(dt * simSpeed * (sys === 'eight' ? 1 : 1.6));
+    for (var i = dust.length - 1; i >= 0; i--) {
+      var p = dust[i];
+      p.age += dt;
+      if (p.age > LIFE || Math.hypot(p.x, p.y) > 9) dust.splice(i, 1);
     }
-  });
+    dustAcc += dt;
+    if (dustAcc > 2.6) { dustAcc = 0; autoDust(); }
+    view += dt * 0.012;
+    cv = Math.cos(view); sv = Math.sin(view);
 
-  gravSlider.addEventListener('input', function() {
-    if (typeof SFX !== 'undefined') SFX.play('tick', 70);
-  });
-  trailSlider.addEventListener('input', function() {
-    if (typeof SFX !== 'undefined') SFX.play('tick', 70);
-  });
-
-  trailBtn.addEventListener('click', function() {
-    showTrails = !showTrails;
-    trailBtn.textContent = 'TRAILS: ' + (showTrails ? 'ON' : 'OFF');
-    hudTrails.textContent = showTrails ? 'ON' : 'OFF';
-    if (!showTrails) {
-      for (var i = 0; i < bodies.length; i++) bodies[i].trail = [];
-    }
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
-  });
-
-  mergeBtn.addEventListener('click', function() {
-    mergeEnabled = !mergeEnabled;
-    mergeBtn.textContent = 'MERGE: ' + (mergeEnabled ? 'ON' : 'OFF');
-    if (typeof SFX !== 'undefined') SFX.play('toggle');
-  });
-
-  presetBtn.addEventListener('click', function() {
-    presetIdx = (presetIdx + 1) % PRESETS.length;
-    PRESETS[presetIdx]();
-    if (typeof SFX !== 'undefined') SFX.play('click');
-  });
-
-  resetBtn.addEventListener('click', function() {
-    seed();
-    if (typeof SFX !== 'undefined') SFX.play('click');
-  });
-
-  window.addEventListener('resize', resize);
-
-  function loop() {
-    updatePhysics();
+    P.fill(ctx, W, H);
+    P.grid(ctx, W, H, { alpha: 0.7 });
     draw();
-    requestAnimationFrame(loop);
+    requestAnimationFrame(frame);
   }
-
-  resize();
-  seed();
-  loop();
+  requestAnimationFrame(frame);
 })();
 </script>
-
 <?php require_once __DIR__ . '/includes/sfx.php'; ?>
 <?php require_once __DIR__ . '/includes/page-end.php'; ?>
 </body>

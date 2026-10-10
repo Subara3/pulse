@@ -51,7 +51,7 @@ if (!isset($controls) || empty($controls)) return;
   align-items: center;
   gap: 0.5rem;
   padding: 0.6rem 1rem;
-  background: rgba(10, 10, 15, 0.8);
+  background: rgba(13, 34, 56, 0.8);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 25px;
@@ -65,15 +65,15 @@ if (!isset($controls) || empty($controls)) return;
 }
 
 .ctrl-btn:hover {
-  border-color: var(--accent, #00f5d4);
-  color: var(--accent, #00f5d4);
+  border-color: var(--accent, #5fd0ff);
+  color: var(--accent, #5fd0ff);
   transform: translateX(-3px);
 }
 
 .ctrl-btn.active {
-  background: rgba(0, 245, 212, 0.15);
-  border-color: var(--accent, #00f5d4);
-  color: var(--accent, #00f5d4);
+  background: rgba(95, 208, 255, 0.15);
+  border-color: var(--accent, #5fd0ff);
+  color: var(--accent, #5fd0ff);
 }
 
 .ctrl-btn i {

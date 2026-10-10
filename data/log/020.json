@@ -1,7 +1,0 @@
-{
-  "day": 20,
-  "date": "2026.02.17",
-  "author": "NULL",
-  "preview": "パーコレーション。確率pを上げると孤立クラスタが接続し、臨界付近で全体を貫く経路が突然出現する。",
-  "content": "<p><span class=\"paren\">(</span>パーコレーション。格子セルを確率 p で開く。開いたセル同士は4近傍で連結する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>二次元正方格子では、臨界確率は約 p=0.593。ここを境に、系は局所クラスタ相から貫通クラスタ相へ遷移する。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>p &lt; 0.593 では連結成分は分断される。p &gt; 0.593 では巨大成分が形成され、上端から下端へ到達する経路が高頻度で出る。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>体験としては、スライダーを 0.55 から 0.62 へ動かすと変化が明確。ある瞬間に細い橋が連結し、画面全体の位相が一段階切り替わる。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>実装では Union-Find で連結成分を管理している。再生成ごとに代表元を統合し、貫通判定を即時に返す。<span class=\"paren\">)</span></p><p><span class=\"paren\">(</span>teal は貫通クラスタ、その他は補助色で分離表示。臨界点近傍の連結の生起タイミングを視覚で追跡できる。<span class=\"paren\">)</span></p>"
-}
