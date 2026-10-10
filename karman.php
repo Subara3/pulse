@@ -44,6 +44,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function alloc() {
     NX = Math.max(150, Math.min(230, Math.round(W / 6)));
     NY = Math.max(64, Math.round(NX * H / W));
+    /* 縦長の画面ではマスが増えすぎるので、格子を粗くして同じ重さに保つ（縦横のマスは常に正方形） */
+    if (NX * NY > 22000) { NX = Math.round(Math.sqrt(22000 * W / H)); NY = Math.round(NX * H / W); }
     N = NX * NY;
     cs = W / NX;
     f = []; g = [];
@@ -51,7 +53,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     solid = new Uint8Array(N);
     ux = new Float32Array(N); uy = new Float32Array(N);
     vort = new Float32Array(N); sm = new Float32Array(N); psi = new Float32Array(N);
-    ob.r = Math.max(6, Math.round(NY * 0.085));
+    ob.r = Math.max(6, Math.round(Math.min(NX, NY) * 0.085));
     fin.r = Math.max(2.5, ob.r * 0.4);
     ob.x = ob.tx = NX * 0.2; ob.y = ob.ty = NY * 0.5;
     /* 柱のすぐ後ろに横向きの揺れを一つ置いておく。渦がちぎれ始めるまでの待ち時間が短くなる */
@@ -140,6 +142,16 @@ require_once __DIR__ . '/includes/floating-nav.php';
       }
     }
     var t = f; f = g; g = t;
+    /* 出口の手前では流れを一様な流れへ少しずつ戻す。渦が右端で跳ね返って溜まらない */
+    var SP = Math.round(NX * 0.22);
+    for (var jj = 0; jj < NY; jj++) {
+      for (var ii = NX - SP; ii < NX; ii++) {
+        var kk = jj * NX + ii;
+        if (solid[kk]) continue;
+        var usp = (ii - (NX - SP)) / SP, wsp = usp * usp * 0.035;
+        for (q = 0; q < 9; q++) f[q][kk] += (feq[q] - f[q][kk]) * wsp;
+      }
+    }
   }
 
   /* 渦の強さを出して、少しならす */
@@ -159,6 +171,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
         var nv = (vort[a + i - 1] + vort[a + i] + vort[a + i + 1] + vort[b + i - 1] + vort[b + i] * 2 + vort[b + i + 1]
                    + vort[c + i - 1] + vort[c + i] + vort[c + i + 1]) * 0.1;
         /* 1 歩ごとの細かなちらつきを、時間方向にならして消す */
+        /* 右端に近づくほど渦の線を薄くして、画面の外へ溶けていくように見せる */
+        var fo = (NX * 0.96 - i) / (NX * 0.24);
+        nv *= fo >= 1 ? 1 : fo <= 0 ? 0 : fo * fo * (3 - 2 * fo);
         sm[b + i] = smFresh ? nv : sm[b + i] * 0.55 + nv * 0.45;
       }
     }
@@ -288,21 +303,23 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ---------------------------------------------------------- 操作 */
   var down = false, rest = 0;
   function gridPos(e) {
-    var m = ob.r * 1.6;
-    return { x: Math.max(m, Math.min(NX * 0.82, e.clientX / cs - 0.5)), y: e.clientY / cs - 0.5 };
+    return { x: Math.max(ob.r + 3, Math.min(NX - ob.r - 3, e.clientX / cs - 0.5)), y: e.clientY / cs - 0.5 };
   }
   /* どこを押しても柱がその場所へ来て、押している間は指にぴったりついてくる */
   canvas.addEventListener('pointerdown', function (e) {
     down = true; ob.held = true;
     var p = gridPos(e);
-    ob.tx = p.x; ob.ty = p.y;
+    /* 柱はその瞬間に指の位置へ置く。流れはそこから追いつく */
+    ob.tx = ob.x = p.x; ob.ty = ob.y = p.y;
+    mask();
     SFX.play('collide', 200);
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
     var p = gridPos(e);
-    ob.tx = p.x; ob.ty = p.y;
+    ob.tx = ob.x = p.x; ob.ty = ob.y = p.y;
+    mask();
     SFX.play('move', 220);
   });
   function up() { down = false; ob.held = false; rest = 6; }
@@ -345,7 +362,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       }
     }
     var px = ob.x, py = ob.y;
-    var k = ob.held ? Math.min(1, dt * 30) : Math.min(1, dt * 1.5);
+    var k = ob.held ? 1 : Math.min(1, dt * 1.5);
     ob.x += (ob.tx - ob.x) * k; ob.y += (ob.ty - ob.y) * k;
     if (ob.y < 0) { ob.y += NY; ob.ty += NY; } else if (ob.y >= NY) { ob.y -= NY; ob.ty -= NY; }
     var movedBy = Math.hypot(ob.x - px, ob.y - py);

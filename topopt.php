@@ -5,7 +5,7 @@ recordPageView('topopt');
 
 $pageName = 'topopt';
 $pageTitle = 'TOPOPT - PULSE';
-$pageDesc = '四角い板に重さがかかると、力のかからない部分から材料が削られ、橋の骨組みのような形が残る。重りの位置がゆっくり動くと、骨組みの形も変わる。触ると重りがそこへ移り、触った場所の材料が足されるか削られて、骨組みが組み直される。';
+$pageDesc = '四角い板に重さがかかると、力のかからない部分から材料が削られ、橋や塔の骨組みのような形が残る。重りの位置がゆっくり動くと、骨組みの形も変わる。触ると重りがそこへ移り、触った場所の材料が足されるか削られて、骨組みが組み直される。';
 $pageCanonical = 'https://pulse.subara3.com/topopt.php';
 $extraStyle = '';
 
@@ -38,10 +38,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
   for (var i0 = 0; i0 < 8; i0++) for (var j0 = 0; j0 < 8; j0++) KE[i0 * 8 + j0] = kk[KI[i0][j0]] / (1 - nu * nu);
 
   var TN, NX, NY, NE, ND, EDOF, X, XN, DC, CE, EE, U, F, FIX, R, Z, Pp, Q, DIAG, FW, FI;
-  var span = 'bridge', mass = 0.45, vol = 1, volT = 0.4;
+  var tall = false, span = 'bridge', mass = 0.45, vol = 1, volT = 0.4;
 
   function build() {
-    var aw = W * 0.84, ah = H * 0.66, asp = Math.max(0.7, Math.min(2.6, aw / ah));
+    /* 縦長の画面では板も縦長にして、上から重りをかける塔にする */
+    tall = H > W * 1.15;
+    var aw = W * (tall ? 0.9 : 0.84), ah = H * (tall ? 0.74 : 0.66), asp = Math.max(0.45, Math.min(2.6, aw / ah));
     NY = Math.round(Math.sqrt(2600 / asp)); NX = Math.round(NY * asp);
     NE = NX * NY; ND = 2 * (NX + 1) * (NY + 1);
     EDOF = new Int32Array(NE * 8);
@@ -69,7 +71,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     supports();
     vol = 1;
-    loadX = span === 'bridge' ? NX / 2 : NX; loadY = span === 'bridge' ? NY : NY / 2;
+    loadX = span === 'bridge' ? NX / 2 : NX; loadY = span === 'bridge' ? (tall ? 0 : NY) : NY / 2;
     SHADE = null;
   }
   function node(ix, iy) { return (NY + 1) * ix + iy; }
@@ -93,7 +95,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     F.fill(0);
     var ix, d;
     /* 橋: 道路の重さが下の縁に均等にかかる */
-    if (span === 'bridge') {
+    if (span === 'bridge' && !tall) {
       for (ix = 0; ix <= NX; ix++) { d = 2 * node(ix, NY) + 1; if (!FIX[d]) F[d] -= 1.6 / NX; }
     }
     var x = Math.max(0, Math.min(NX, loadX)), y = Math.max(0, Math.min(NY, loadY));
@@ -173,13 +175,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     for (e = 0; e < NE; e++) X[e] = XN[e];
     /* 橋の道路（いちばん下の 1 段）は削らない */
-    if (span === 'bridge') for (e = (NY - 1) * NX; e < NE; e++) X[e] = 1;
+    if (span === 'bridge' && !tall) for (e = (NY - 1) * NX; e < NE; e++) X[e] = 1;
   }
 
   /* ------------------------------------------------ 描く */
   var SUB = 4, SW, SH, SHADE = null, simg, sbuf, sctx, OX, OY, ES;
   function layout() {
-    ES = Math.min(W * 0.84 / NX, H * 0.66 / NY);
+    ES = Math.min(W * (tall ? 0.9 : 0.84) / NX, H * (tall ? 0.74 : 0.66) / NY);
     OX = (W - ES * NX) / 2; OY = (H - ES * NY) / 2 - H * 0.02;
     SW = NX * SUB; SH = NY * SUB;
     SHADE = new Float32Array(SW * SH); TSH = new Float32Array(SW * SH);
@@ -336,7 +338,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       /* 放っておくと、重りがゆっくり行き来する */
       autoT += dt;
       var s = Math.sin(autoT * 2 * Math.PI / 46);
-      if (span === 'bridge') { wantX = NX * (0.5 + 0.32 * s); wantY = NY; }
+      if (span === 'bridge') { wantX = NX * (0.5 + 0.32 * s); wantY = tall ? 0 : NY; }
       else { wantX = NX; wantY = NY * (0.5 + 0.38 * s); }
     }
     if (idle > 7) {

@@ -71,13 +71,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var w = new Walk(STARTS[cycle % STARTS.length], true);
     for (var i = 0; i < 70; i++) w.advance(1);
     walks.push(w);
-    view.span = view.tSpan = Math.max(20, w.max * 1.1) * 1.4;
-    view.step = view.tStep = Math.max(8, w.n + 1) * 1.4;
+    view.span = view.tSpan = Math.max(20, w.max * 1.06 + 2) * 1.15;
+    view.step = view.tStep = Math.max(8, w.n + 1) * 1.15;
+    view.x0 = null;
   }
 
   /* ---------------------------------------------------------- 見え方 */
   var view = { span: 40, step: 20, tSpan: 40, tStep: 20 };   /* 横幅に入れる値の幅 / いちばん大きい弧の幅 */
-  var X0 = 0, S = 1, Y0 = 0, VY = 1;
+  var X0 = 0, S = 1, Y0 = 0, VY = 1, VERT = false;
   function frameView(dt) {
     var span = 10, step = 6;
     for (var i = 0; i < walks.length; i++) {
@@ -90,28 +91,39 @@ require_once __DIR__ . '/includes/floating-nav.php';
     /* 広げるときは早めに、縮めるときはゆっくり */
     /* 引きは段階的に: はみ出しそうになったときだけ、少し余裕をもって一度に引く。
        それ以外のあいだは画面の縮尺を止めておく */
-    if (span > view.tSpan * 0.97 || span < view.tSpan / 2.4) view.tSpan = span * 1.3;
-    if (step > view.tStep * 0.97 || step < view.tStep / 2.4) view.tStep = step * 1.3;
+    if (span > view.tSpan * 0.97 || span < view.tSpan / 2.4) view.tSpan = span * 1.15;
+    if (step > view.tStep * 0.97 || step < view.tStep / 2.4) view.tStep = step * 1.15;
     view.span += (view.tSpan - view.span) * Math.min(1, dt * 3);
     view.step += (view.tStep - view.step) * Math.min(1, dt * 3);
-    S = Math.min((W * 0.94) / view.span, (H * 0.94) / view.step);
-    X0 = (W - view.span * S) / 2;
-    /* 横長の画面では弧を縦に少し伸ばし、上下も埋める */
-    VY = Math.max(1, Math.min(1.45, (H * 0.45) / (view.step / 2 * S)));
-    Y0 = H / 2;
+    /* 縦長の画面では数直線を縦に置く。長い辺 L に沿って数を並べ、短い辺 D に弧がふくらむ */
+    VERT = H > W * 1.15;
+    var L = VERT ? H : W, D = VERT ? W : H;
+    var SA0 = (L * 0.94) / view.span, SP0 = (D * 0.94) / view.step, base = Math.min(SA0, SP0);
+    /* 余った向きには弧を最大 1.45 倍まで伸ばして画面を埋める */
+    var SA = Math.min(SA0, base * 1.7), SP = Math.min(SP0, base * 1.45);
+    S = SA; VY = SP / SA;
+    /* 今ある形が長い辺の真ん中に来るように、ゆっくり寄せる */
+    var x0t = (L - span / 1.06 * S) / 2;
+    view.x0 = view.x0 == null ? x0t : view.x0 + (x0t - view.x0) * Math.min(1, dt * 1.2);
+    X0 = Math.max(L * 0.03, view.x0);
+    Y0 = D / 2;
   }
 
   /* 直線上の点（値 v, 高さ h）を画面へ。輪のときは数直線を円に巻く */
   var out = [0, 0];
   function map(v, h) {
-    if (morph < 0.001) { out[0] = X0 + v * S; out[1] = Y0 - h * S * VY; return out; }
+    if (morph < 0.001) {
+      if (VERT) { out[0] = Y0 + h * S * VY; out[1] = X0 + v * S; }
+      else { out[0] = X0 + v * S; out[1] = Y0 - h * S * VY; }
+      return out;
+    }
     var R0 = Math.min(W, H) * 0.29;
     var ang = -Math.PI / 2 + (v / view.span) * Math.PI * 2;
     /* 上の弧は輪の外へ、下の弧は内へふくらむ。ふくらみは輪の幅に収める */
     var hh = h / view.span * 3.4, th = (Math.exp(2 * hh) - 1) / (Math.exp(2 * hh) + 1);
     var rr = R0 * (1 + 0.62 * th);
     var rx = W / 2 + Math.cos(ang) * rr, ry = H / 2 + Math.sin(ang) * rr;
-    var lx = X0 + v * S, ly = Y0 - h * S * VY;
+    var lx = VERT ? Y0 + h * S * VY : X0 + v * S, ly = VERT ? X0 + v * S : Y0 - h * S * VY;
     var e = morph * morph * (3 - 2 * morph);
     out[0] = lx + (rx - lx) * e; out[1] = ly + (ry - ly) * e;
     return out;
@@ -198,7 +210,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (ang < 0) ang += Math.PI * 2;
       return ang / (Math.PI * 2) * view.span;
     }
-    return (x - X0) / S;
+    return ((VERT ? y : x) - X0) / S;
   }
   function touchArcs(x, y, reach) {
     /* 指の近くを通る弧を探して、しばらく灯す */
@@ -209,7 +221,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
         var a = w.vals[k], b = w.vals[k + 1], side = (k % 2 === 0) ? 1 : -1;
         var c = (a + b) / 2, r = Math.abs(b - a) / 2, on = false;
         if (morph < 0.001) {
-          var dx = x - (X0 + c * S), dy = Y0 - y;
+          var dx = (VERT ? y : x) - (X0 + c * S), dy = VERT ? x - Y0 : Y0 - y;
           on = dy * side >= -reach && Math.abs(Math.hypot(dx, dy / VY) - r * S) < reach;
         } else {
           for (var s2 = 0; s2 <= 24 && !on; s2++) {

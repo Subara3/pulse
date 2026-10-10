@@ -32,19 +32,25 @@ require_once __DIR__ . '/includes/floating-nav.php';
    * 点を格子に並べ、隣どうしの距離を保つ（Verlet 積分 + 距離拘束）。
    * 点は奥行き z も持つので、風で前後にふくらむ。投影して描き、面の向きで明るさを決める。
    */
-  var CW = 46, CH = 31, NP = CW * CH;
-  var px = new Float32Array(NP), py = new Float32Array(NP), pz = new Float32Array(NP);
-  var ox = new Float32Array(NP), oy = new Float32Array(NP), oz = new Float32Array(NP);
-  var pin = new Uint8Array(NP);
-  var heat = new Float32Array(NP);      // 触られた糸が水色に光る強さ（布と一緒に動き、ゆっくり消える）
-  var sx = new Float32Array(NP), sy = new Float32Array(NP), br = new Float32Array(NP);
+  var CW = 0, CH = 0, NP = 0, px, py, pz, ox, oy, oz, pin, heat, sx, sy, br;
   var links = [], LA, LB, LR, NL = 0;
-  var S = 10, top = 0, left = 0, FOC = 1100;
+  var S = 10, top = 0, left = 0, FOC = 1100, RS = 1;
 
+  /* 布の大きさは画面に合わせる。横長でも縦長でも、幅と高さの大半を使い、点の数はほぼ一定（約 1400） */
   function build() {
-    S = Math.min(W * 0.62 / (CW - 1), H * 0.72 / (CH - 1));
+    var portrait = H > W;
+    var bw = W * (portrait ? 0.82 : 0.62), bh = H * (portrait ? 0.62 : 0.72);
+    S = Math.sqrt(bw * bh / 1400);
+    CW = Math.max(12, Math.round(bw / S) + 1); CH = Math.max(10, Math.round(bh / S) + 1);
+    S = Math.min(bw / (CW - 1), bh / (CH - 1));
+    RS = Math.max(0.5, Math.min(1.2, Math.min(W, H) / 720));   // 指の効く範囲も画面に合わせる
+    NP = CW * CH;
+    px = new Float32Array(NP); py = new Float32Array(NP); pz = new Float32Array(NP);
+    ox = new Float32Array(NP); oy = new Float32Array(NP); oz = new Float32Array(NP);
+    pin = new Uint8Array(NP); heat = new Float32Array(NP);
+    sx = new Float32Array(NP); sy = new Float32Array(NP); br = new Float32Array(NP);
     left = W / 2 - S * (CW - 1) / 2;
-    top = H * 0.12;
+    top = H * (portrait ? 0.14 : 0.12);
     for (var j = 0; j < CH; j++) for (var i = 0; i < CW; i++) {
       var k = j * CW + i;
       px[k] = ox[k] = left + i * S;
@@ -72,7 +78,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function step(h) {
     t += h;
     var g = 700 * h * h, wz = wind * 1900 * h * h;
-    var tr = 150;
+    var tr = 150 * RS;
     for (var k = 0; k < NP; k++) {
       if (pin[k]) continue;
       var x = px[k], y = py[k], z = pz[k];
@@ -91,7 +97,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
         if (d2 < tr * tr) {
           var f = 1 - Math.sqrt(d2) / tr; f = f * f * touch.s;
           /* 押し込みは位置だけ動かし、勢いはほとんど残さない（暴れないように） */
-          var want = 180 * f;
+          var want = 180 * RS * f;
           if (pz[k] < want) { var dz = (want - pz[k]) * 0.3; pz[k] += dz; oz[k] += dz * 0.8; }
         }
       }
@@ -209,7 +215,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     k = k || 1.2;
     for (var i = 0; i < NP; i++) {
       var dx = sx[i] - x, dy = sy[i] - y, d2 = dx * dx + dy * dy;
-      if (d2 < 150 * 150) heat[i] = Math.min(1, heat[i] + (1 - Math.sqrt(d2) / 150) * k);
+      var wr = 150 * RS; if (d2 < wr * wr) heat[i] = Math.min(1, heat[i] + (1 - Math.sqrt(d2) / wr) * k);
     }
   }
 
@@ -225,7 +231,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     touch.dx = e.clientX - touch.x; touch.dy = e.clientY - touch.y;
     touch.x = e.clientX; touch.y = e.clientY;
     /* なぞると、指のまわりの布が指と一緒に引っぱられる（すぐについてくる） */
-    var gr = 170;
+    var gr = 170 * RS;
     for (var k = 0; k < NP; k++) {
       if (pin[k]) continue;
       var ddx = sx[k] - touch.x, ddy = sy[k] - touch.y, d2 = ddx * ddx + ddy * ddy;

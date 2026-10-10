@@ -30,7 +30,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   /* 筒の中（半径 1 の円）でガラス片が重力に引かれて転がる。
      見えるのは、その中身を合わせ鏡で 2M 回写した像 */
-  var M = 6, spin = 0.5, gAng = Math.PI / 2, gSpin = 0;
+  var M = 6, spin = 0.5, gAng = Math.PI / 2, gSpin = 0, tubeA = 0, simT = 0;
   var pieces = [];
   var TYPES = ['tri', 'shard', 'sliver', 'bead', 'ring', 'tri', 'shard', 'bead'];
 
@@ -51,30 +51,41 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (type === 'bead') s *= 0.45;
     if (type === 'ring') s *= 0.55;
     var tone = Math.random();
-    return {
+    var pc = {
       type: type, pts: pts, s: s, rad: type === 'rod' ? s * 0.5 : s * 0.85,
       x: x, y: y, vx: 0, vy: 0, a: Math.random() * 6.283, w: 0,
       fill: tone < 0.4 ? 0 : tone < 0.75 ? 1 : 2,
-      mine: mine ? 1 : 0
+      mine: mine ? 1 : 0,
+      hr: Math.sqrt(Math.random()) * 0.75, ha: Math.random() * 6.283, hp: Math.random() * 6.283, hs: 0.6 + Math.random() * 0.8
     };
+    /* 置いた場所をそのまま居場所の出発点にする */
+    pc.hp = -simT * 0.11 * pc.hs + (Math.random() < 0.5 ? 0 : Math.PI);
+    pc.hr = Math.min(0.85, Math.hypot(x, y));
+    pc.ha = Math.atan2(y, x) - tubeA * pc.hs - 0.5 * Math.sin(simT * 0.07 * pc.hs + pc.hp * 1.7);
+    return pc;
   }
   function seed() {
     pieces = [];
-    for (var i = 0; i < 15; i++) {
+    for (var i = 0; i < 19; i++) {
       var a = Math.random() * 6.283, r = Math.sqrt(Math.random()) * 0.8;
       pieces.push(makePiece(Math.cos(a) * r, Math.sin(a) * r, false));
     }
   }
 
   function step(dt) {
-    /* 筒は一定の速さで回り、壁に触れた片を持ち上げる。持ち上がった片は上から崩れて中央を横切る */
+    /* 片はそれぞれ筒の中に「居場所」を持ち、居場所は中央から縁までゆっくり行き来する。
+       筒が回ると居場所も回るので、片は中央を横切りながら回り続け、どこかに積もりきらない */
     var om = spin + gSpin;
     gSpin *= Math.exp(-dt * 1.2);
-    var gx = Math.cos(gAng) * 0.8, gy = Math.sin(gAng) * 0.8;
-    var drag = Math.exp(-dt * 1.6), i, j, p, q;
+    tubeA += om * dt * 0.5; simT += dt;
+    var drag = Math.exp(-dt * 1.3), i, j, p, q;
     for (i = 0; i < pieces.length; i++) {
       p = pieces[i];
-      p.vx = (p.vx + gx * dt) * drag; p.vy = (p.vy + gy * dt) * drag;
+      var hr = Math.max(0.04, Math.min(0.88, p.hr + 0.3 * Math.sin(simT * 0.11 * p.hs + p.hp)));
+      var ha = p.ha + tubeA * p.hs + 0.5 * Math.sin(simT * 0.07 * p.hs + p.hp * 1.7);
+      var tx = Math.cos(ha) * hr, ty = Math.sin(ha) * hr;
+      p.vx = (p.vx + (tx - p.x) * 1.1 * dt) * drag; p.vy = (p.vy + (ty - p.y) * 1.1 * dt) * drag;
+      p.w += ((p.hs - 1) * 1.2 - p.w) * dt * 0.5;
       p.x += p.vx * dt; p.y += p.vy * dt;
       p.a += p.w * dt; p.w *= Math.exp(-dt * 1.2);
       if (p.mine > 0) p.mine = Math.max(0, p.mine - dt / 1.6);
@@ -102,9 +113,6 @@ require_once __DIR__ . '/includes/floating-nav.php';
           p.x = ux * lim; p.y = uy * lim;
           var vn = p.vx * ux + p.vy * uy;
           if (vn > 0) { p.vx -= ux * vn * 1.3; p.vy -= uy * vn * 1.3; }
-          var vt = p.vx * -uy + p.vy * ux, wall = om * r, k = Math.min(1, dt * 10);
-          p.vx += -uy * (wall - vt) * k; p.vy += ux * (wall - vt) * k;
-          p.w += (wall - vt) * 3 * k;
         }
       }
     }
@@ -248,7 +256,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   M = +document.getElementById('k-mirrors').value | 0;
   spin = spinFrom(+document.getElementById('k-spin').value);
 
-  ctx = P.fit(canvas, function (w, h) { W = w; H = h; RS = Math.hypot(w, h) * 0.5 * 0.8; });
+  ctx = P.fit(canvas, function (w, h) { W = w; H = h; RS = Math.min(w, h) * 0.58; /* 縦横比によらず、短い辺の円を中心に模様が埋まる */ });
   seed();
   for (var w0 = 0; w0 < 90; w0++) step(1 / 30);
 
@@ -260,7 +268,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     step(dt);
     /* 足した片は時間をかけて減らし、もとの数（約 16）に戻す */
     trimWait -= dt;
-    if (trimWait <= 0) { trimWait = 2.5; if (pieces.length > 16 && !down) pieces.shift(); }
+    if (trimWait <= 0) { trimWait = 2.5; if (pieces.length > 19 && !down) pieces.shift(); }
     /* 片が底に積もって動かなくなりかけたら、ときどき小さく転がす */
     tumbleWait -= dt;
     if (tumbleWait <= 0) {

@@ -631,7 +631,7 @@
   {
     "page": "harmonograph",
     "title": "HARMONOGRAPH",
-    "desc": "2つの振り子につながったペンが、楕円を少しずつ回しながら重ねて描く。揺れが弱まるにつれて、線は中心へ縮んでいく。押さえるとペンが指の位置に来て、なぞったとおりに線を引き、放すとそこから振り子が揺れて模様を描き直す。",
+    "desc": "2つの振り子につながったペンが、楕円を少しずつ回しながら重ねて描く。揺れが弱まるにつれて、線は中心へ縮んでいく。押さえるとペンが指の位置に来て、なぞったとおりに線を引き、放すとそこから振り子が大きく揺れ出して、すぐに新しい模様を描き上げる。",
     "desc_en": "A pen driven by two pendulums draws slowly turning ellipses on top of each other, shrinking toward the centre as the swing dies down. Drag to push a pendulum and the line swings wider in that direction.",
     "icon": "fa-pen-nib",
     "category": "描くもの",
@@ -827,7 +827,7 @@
   {
     "page": "topopt",
     "title": "TOPOPT",
-    "desc": "四角い板に重さがかかると、力のかからない部分から材料が削られ、橋の骨組みのような形が残る。重りの位置がゆっくり動くと、骨組みの形も変わる。触ると重りがそこへ移り、触った場所の材料が足されるか削られて、骨組みが組み直される。",
+    "desc": "四角い板に重さがかかると、力のかからない部分から材料が削られ、橋や塔の骨組みのような形が残る。重りの位置がゆっくり動くと、骨組みの形も変わる。触ると重りがそこへ移り、触った場所の材料が足されるか削られて、骨組みが組み直される。",
     "desc_en": "Weight presses on a solid plate, and the material that carries no force is carved away until a bridge-like frame remains. As the load slowly travels, the frame reshapes to follow it. Touch to move the load.",
     "icon": "fa-cubes-stacked",
     "group": "mind",

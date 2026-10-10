@@ -36,7 +36,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   function alloc() {
     var side = Math.min(W, H) * 0.94;
-    S = side > 1100 ? 6 : side > 560 ? 5 : 3;
+    /* 小さい画面ではマスを大きくして、開いた時点の山が画面の幅の 8 割を超えるようにする */
+    S = side > 1100 ? 6 : side > 560 ? 5 : 4;
     N = Math.floor(side / S) | 1;
     if (N > 241) N = 241;
     ox = Math.round((W - N * S) / 2); oy = Math.round((H - N * S) / 2);

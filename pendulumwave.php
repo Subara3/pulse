@@ -40,6 +40,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   pend.forEach(function (p) { var T = CYCLE / p.n; p.L = 0.42 + 0.58 * (T * T) / (Tmax * Tmax); });
 
   var pace = 0.45, swing = 0.35, t = 0, speed = 0.6;
+  var ys = 1, yawBase = -0.35, yawAmp = 0.4;
   var yaw = -0.35, pitch = 0.38, yawT = -0.35, pitchT = 0.38, autoYaw = true;
   var gather = 0, gathering = false;
 
@@ -49,7 +50,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var c = Math.cos(yaw), s = Math.sin(yaw);
     var x1 = c * x + s * z, z1 = -s * x + c * z;
     var cp = Math.cos(pitch), sp = Math.sin(pitch);
-    var y1 = y + 0.5;
+    var y1 = (y + 0.55) * ys;
     var y2 = cp * y1 - sp * z1, z2 = sp * y1 + cp * z1;
     var k = f / (D - z2);
     return [cx + x1 * k, cy - y2 * k, k];
@@ -224,7 +225,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   ctx = P.fit(canvas, function (w, h) {
     W = w; H = h;
-    f = Math.min(w * 1.35, h * 2.15);
+    /* 縦長の画面では、振り子を縦に伸ばし、正面寄りから近づいて見る（列が画面の幅いっぱいに出る） */
+    var tall = h > w * 1.15;
+    ys = tall ? Math.min(2.8, 1.25 * h / w) : 1;
+    yawBase = tall ? -0.12 : -0.35; yawAmp = tall ? 0.12 : 0.4;
+    pitchT = tall ? 0.26 : 0.38;
+    f = tall ? w * 1.7 : Math.min(w * 1.35, h * 2.15);
     cx = w / 2; cy = h * 0.5;
     pend.forEach(function (p) { p.trail.length = 0; });
   });
@@ -254,7 +260,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (p.hold > 0.05) p.glow = 1;
       for (var q = p.kicks.length - 1; q >= 0; q--) { p.kicks[q].age += dt; if (p.kicks[q].age > 16) p.kicks.splice(q, 1); }
     });
-    if (autoYaw) yawT += (-0.35 + Math.sin(now / 1000 * 0.05) * 0.4 - yawT) * Math.min(1, dt * 0.5);
+    if (autoYaw) yawT += (yawBase + Math.sin(now / 1000 * 0.05) * yawAmp - yawT) * Math.min(1, dt * 0.5);
     var e = 1 - Math.exp(-dt * 3);
     yaw += (yawT - yaw) * e; pitch += (pitchT - pitch) * e;
     draw(dt);

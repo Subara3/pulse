@@ -26,7 +26,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
   'use strict';
   var canvas = document.getElementById('canvas');
   var W = 0, H = 0, S = 100;
-  var ctx = P.fit(canvas, function (w, h) { W = w; H = h; S = Math.min(w * 0.84 / 4, h * 0.78 / 2); });
+  /* 縦長の画面では台を縦向きに置く（描くときに 90 度回し、触った位置も同じだけ戻す） */
+  var tall = false;
+  var ctx = P.fit(canvas, function (w, h) {
+    W = w; H = h; tall = h > w;
+    S = tall ? Math.min(w * 0.9 / 2, h * 0.8 / 4) : Math.min(w * 0.84 / 4, h * 0.78 / 2);
+  });
 
   /* 台は幅 4・高さ 2 の箱に収める。STADIUM は半円 2 つを直線でつないだ形 */
   var shape = 'stadium';
@@ -148,8 +153,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ---------------------------------------------------------- 描く */
-  function X(x) { return W / 2 + x * S; }
-  function Y(y) { return H / 2 + y * S; }
+  function X(x) { return x * S; }
+  function Y(y) { return y * S; }
   function drawTable(alpha) {
     ctx.strokeStyle = P.rgba(P.line, 0.55 * alpha);
     ctx.lineWidth = 1.3;
@@ -207,7 +212,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   /* ---------------------------------------------------------- 操作 */
   var downP = null, lastP = null, sparks = [];
-  function world(e) { return [(e.clientX - W / 2) / S, (e.clientY - H / 2) / S]; }
+  function world(e) {
+    var dx = (e.clientX - W / 2) / S, dy = (e.clientY - H / 2) / S;
+    return tall ? [dy, -dx] : [dx, dy];
+  }
   function pull(p) {
     var k = 1, g = 0;
     while (!inside(p[0] * k, p[1] * k) && g++ < 60) k *= 0.96;
@@ -277,6 +285,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
     fadeIn = Math.min(1, fadeIn + dt * 1.2);
     P.fill(ctx, W, H);
+    ctx.save();
+    ctx.translate(W / 2, H / 2);
+    if (tall) ctx.rotate(Math.PI / 2);
     drawTable(1);
     for (var i = 0; i < balls.length; i++) {
       var b = balls[i];
@@ -299,6 +310,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       o.go(speed * dt);
       drawBall(o, fadeIn * o.fade);
     }
+    ctx.restore();
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);

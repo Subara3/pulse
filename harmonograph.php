@@ -5,7 +5,7 @@ recordPageView('harmonograph');
 
 $pageName = 'harmonograph';
 $pageTitle = 'HARMONOGRAPH - PULSE';
-$pageDesc = '2つの振り子につながったペンが、楕円を少しずつ回しながら重ねて描く。揺れが弱まるにつれて、線は中心へ縮んでいく。押さえるとペンが指の位置に来て、なぞったとおりに線を引き、放すとそこから振り子が揺れて模様を描き直す。';
+$pageDesc = '2つの振り子につながったペンが、楕円を少しずつ回しながら重ねて描く。揺れが弱まるにつれて、線は中心へ縮んでいく。押さえるとペンが指の位置に来て、なぞったとおりに線を引き、放すとそこから振り子が大きく揺れ出して、すぐに新しい模様を描き上げる。';
 $pageCanonical = 'https://pulse.subara3.com/harmonograph.php';
 $extraStyle = '';
 
@@ -25,7 +25,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 (function () {
   'use strict';
   var canvas = document.getElementById('canvas');
-  var W = 0, H = 0, DPR = 1, layer = null, lctx = null;
+  var W = 0, H = 0, DPR = 1, layer = null, lctx = null, ready = false;
   var ctx = P.fit(canvas, function (w, h, dpr) {
     W = w; H = h; DPR = dpr;
     layer = document.createElement('canvas');
@@ -34,6 +34,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
     lctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     lctx.lineCap = 'round'; lctx.lineJoin = 'round';
     lastX = null;
+    /* 画面の大きさが変わったら、新しい大きさで模様を描き上げ直す（線が消えて 1 本だけにならないように） */
+    if (ready) { setup(); preInk(); }
   });
 
   /* 振り子 4 つ: ペン側（x, y）と台側（x, y）。それぞれ減衰する単振動。
@@ -47,20 +49,53 @@ require_once __DIR__ . '/includes/floating-nav.php';
   var gamma = 0.08, speed = 1, startAmp = 1;
   var BASE = 2.4;
 
-  function setup() {
+  /* fx, fy, fvx, fvy を渡すと、ペンがその位置・速さから始まる組み合わせを選ぶ。
+     振れ幅は毎回同じ大きさにそろえ、指の速さは振れの向きのきっかけにだけ使う */
+  function setup(px, py, pvx, pvy) {
     ri = (ri + 1 + (Math.random() * (RATIOS.length - 1) | 0)) % RATIOS.length;
     var r = RATIOS[ri], R = Math.min(W, H) * 0.25;
     om[0] = om[1] = r[0] * BASE;
     om[2] = om[3] = r[1] * BASE;
-    var p1 = Math.random() * Math.PI * 2, p2 = Math.random() * Math.PI * 2;
-    /* ペン側は円に近い楕円、台側は向きの違う楕円 */
-    var amp = [R, R * (0.75 + Math.random() * 0.25), R * 0.95, R * (0.7 + Math.random() * 0.3)];
-    var ph = [p1, p1 + Math.PI * r[2] * 2, p2, p2 + Math.PI * (0.3 + Math.random() * 0.4)];
-    for (var i = 0; i < 4; i++) { u[i] = amp[i] * Math.cos(ph[i]); v[i] = -amp[i] * om[i] * Math.sin(ph[i]); }
+    var best = null, bestScore = 1e9;
+    for (var tries = 0; tries < (px == null ? 16 : 40); tries++) {
+      var p1 = Math.random() * Math.PI * 2, p2 = Math.random() * Math.PI * 2;
+      var amp = [R, R * (0.75 + Math.random() * 0.25), R * 0.95, R * (0.7 + Math.random() * 0.3)];
+      var ph = [p1, p1 + Math.PI * r[2] * 2, p2, p2 + Math.PI * (0.3 + Math.random() * 0.4)];
+      var U = [], V = [];
+      for (var i = 0; i < 4; i++) { U[i] = amp[i] * Math.cos(ph[i]); V[i] = -amp[i] * om[i] * Math.sin(ph[i]); }
+      var score = 0;
+      if (px != null) {
+        /* 台側を、ペンが指の位置に来るように決め直す。台側の振れ幅が R に近いものを選ぶ */
+        var dirx = pvx, diry = pvy, dl = Math.hypot(dirx, diry);
+        var sp = R * om[0] * 0.6;
+        if (dl > 1) { dirx = dirx / dl * sp; diry = diry / dl * sp; } else { dirx = 0; diry = 0; }
+        U[2] = U[0] - (px - W / 2); U[3] = U[1] - (py - H / 2);
+        V[2] = V[0] - dirx; V[3] = V[1] - diry;
+        var a2 = Math.hypot(U[2], V[2] / om[2]), a3 = Math.hypot(U[3], V[3] / om[3]);
+        score = Math.abs(a2 - R) + Math.abs(a3 - R * 0.85);
+      }
+      /* 模様の大きさ（振れ止まりなしで数周ぶん追った外枠）が短い辺の 6 割に届かない組み合わせは避ける */
+      var ext = spanOf(U, V), need = Math.min(W, H) * 0.6;
+      if (ext < need) score += (need - ext) * 3;
+      if (score < bestScore) { bestScore = score; best = [U, V]; }
+    }
+    for (var k = 0; k < 4; k++) { u[k] = best[0][k]; v[k] = best[1][k]; }
     startAmp = energy();
     lastX = null; drawn = 0;
-    lctx.clearRect(0, 0, W, H);
+    if (px == null) lctx.clearRect(0, 0, W, H);
   }
+  function spanOf(U, V) {
+    var x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9;
+    for (var t = 0; t < 12; t += 0.03) {
+      var q = [], k;
+      for (k = 0; k < 4; k++) { var A = Math.hypot(U[k], V[k] / om[k]), ph = Math.atan2(-V[k] / om[k], U[k]); q[k] = A * Math.cos(om[k] * t + ph); }
+      var X = q[0] - q[2], Y = q[1] - q[3];
+      if (X < x0) x0 = X; if (X > x1) x1 = X; if (Y < y0) y0 = Y; if (Y > y1) y1 = Y;
+    }
+    return Math.min(x1 - x0, y1 - y0);
+  }
+  /* 開いたとき: 最初の 30 秒ぶんほどを先に描いておく */
+  function preInk() { ink(11000, 0.003, 0.42); }
   function energy() {
     var e = 0;
     for (var i = 0; i < 4; i++) e += v[i] * v[i] / (om[i] * om[i]) + u[i] * u[i];
@@ -95,7 +130,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ---------------------------------------------------------- 操作 */
   /* ペンをつかむ: 台側の振り子をずらして、ペン先を指の位置に合わせる。
      放すと、指の速さを持ったまま振り子が揺れ続け、そこから模様を描き直す */
-  var held = false, fx = 0, fy = 0, fvx = 0, fvy = 0, lt = 0, hot = 0;
+  var boost = 0, held = false, fx = 0, fy = 0, fvx = 0, fvy = 0, lt = 0, hot = 0;
   function pin() {
     u[2] = u[0] - (fx - W / 2); u[3] = u[1] - (fy - H / 2);
     v[2] = v[0] - fvx; v[3] = v[1] - fvy;
@@ -136,9 +171,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
     if (!held) return;
     held = false;
     if (performance.now() - lt > 120) { fvx = 0; fvy = 0; }
-    pin();
-    startAmp = Math.max(energy(), Math.min(W, H) * 0.12);
-    drawn = 0;
+    lastX = fx; lastY = fy;
+    setup(fx, fy, fvx, fvy);
+    lastX = fx; lastY = fy;
+    /* 離したあとの最初の 1.5 秒は速く描いて、すぐ模様が描き上がるようにする */
+    boost = 1.5;
+    drawn = 0; phase = 'draw'; fade = 1;
+    SFX.play('grow');
   }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);
@@ -154,12 +193,14 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ---------------------------------------------------------- 回す */
   var lastT = performance.now(), phase = 'draw', fade = 1, holdT = 0;
   setup();
-  /* 開いた瞬間から線が見えるように、最初の数秒ぶんは先に描いておく */
-  ink(11000, 0.003, 0.42);
+  preInk();
+  ready = true;
   function frame(now) {
     var dt = Math.min(0.05, (now - lastT) / 1000);
     lastT = now;
-    var h = dt * speed, sub = Math.max(8, Math.ceil(h / 0.003));
+    var bk = 1;
+    if (boost > 0) { bk = 1 + 13 * Math.min(1, boost / 0.8); boost -= dt; }
+    var h = dt * speed * bk, sub = Math.max(8, Math.ceil(h / 0.003));
     if (phase === 'draw') {
       var amp = energy() / startAmp;
       /* 線が中心に縮むほど細く薄く。真ん中が白く潰れないようにする */
