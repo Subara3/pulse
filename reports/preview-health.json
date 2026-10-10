@@ -1,353 +1,57 @@
 {
-  "generatedAt": "2026-10-10T11:40:32.406079Z",
+  "generatedAt": "2026-10-10T20:17:36.162333Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok billiard\nok cloth\nok harmonograph\nok kaleidoscope\nok karman\nok pendulumwave\nok recaman\nok sandpile\nok topopt\n\nDone. success=9, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok waterwheel\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
       "name": "check_and_fix_preview_flash",
       "ok": true,
       "result": {
-        "checked": 9,
+        "checked": 1,
         "flagged": 0,
         "fixed": 0,
         "failed": [],
         "details": [
           {
-            "file": "billiard.mp4",
+            "file": "waterwheel.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                44.5715,
-                47.188,
-                49.9626,
-                51.7749,
-                54.4284,
-                56.8719,
-                56.8677,
-                57.0286,
-                57.0978,
-                57.1306,
-                57.2731,
-                57.3015,
-                57.0109
+                42.3636,
+                42.9765,
+                43.3486,
+                43.5301,
+                43.9202,
+                44.1812,
+                44.1255,
+                44.1594,
+                44.1216,
+                44.1512,
+                44.1113,
+                44.1622,
+                44.1321
               ],
               "end": [
-                52.1314,
-                50.4085,
-                48.5854,
-                46.3981,
-                44.346,
+                43.4985,
+                43.3575,
+                43.1562,
+                42.7265,
+                42.4036,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 57.3015,
-              "end_max": 52.1314,
-              "start_med": 56.8719,
-              "end_med": 44.346
-            }
-          },
-          {
-            "file": "cloth.mp4",
-            "initial": {
-              "ok": true,
-              "start": [
-                42.0,
-                45.2123,
-                48.5352,
-                51.6194,
-                54.4657,
-                57.4448,
-                60.5352,
-                60.3392,
-                59.5687,
-                59.4397,
-                59.2451,
-                59.0138,
-                58.883,
-                58.5153
-              ],
-              "end": [
-                51.2573,
-                49.9009,
-                47.8566,
-                46.0648,
-                44.1258,
-                42.0,
-                42.0,
-                42.0,
-                42.0
-              ],
-              "start_max": 60.5352,
-              "end_max": 51.2573,
-              "start_med": 58.883,
-              "end_med": 44.1258
-            }
-          },
-          {
-            "file": "harmonograph.mp4",
-            "initial": {
-              "ok": true,
-              "start": [
-                42.0,
-                42.5781,
-                43.3197,
-                43.8923,
-                43.8458,
-                44.5464,
-                45.0641,
-                45.0698,
-                45.0739,
-                45.0787,
-                45.0834,
-                45.0863,
-                45.0841,
-                45.1074
-              ],
-              "end": [
-                45.0509,
-                44.979,
-                44.3127,
-                43.5499,
-                42.8222,
-                42.0,
-                42.0,
-                42.0,
-                42.0
-              ],
-              "start_max": 45.1074,
-              "end_max": 45.0509,
-              "start_med": 45.0698,
-              "end_med": 42.8222
-            }
-          },
-          {
-            "file": "kaleidoscope.mp4",
-            "initial": {
-              "ok": true,
-              "start": [
-                42.0,
-                44.4224,
-                46.8067,
-                49.1346,
-                51.1263,
-                53.485,
-                56.063,
-                55.8707,
-                55.8563,
-                56.0431,
-                55.783,
-                55.8111,
-                55.7409,
-                55.5131
-              ],
-              "end": [
-                52.4256,
-                50.289,
-                48.3077,
-                46.1485,
-                44.1756,
-                42.0,
-                42.0,
-                42.0,
-                42.0
-              ],
-              "start_max": 56.063,
-              "end_max": 52.4256,
-              "start_med": 55.7409,
-              "end_med": 44.1756
-            }
-          },
-          {
-            "file": "karman.mp4",
-            "initial": {
-              "ok": true,
-              "start": [
-                42.0,
-                42.4544,
-                43.5497,
-                44.0253,
-                44.8813,
-                45.7322,
-                45.9107,
-                46.0696,
-                46.0562,
-                46.1078,
-                45.9572,
-                46.1628,
-                46.1099,
-                45.9678
-              ],
-              "end": [
-                44.6553,
-                44.3089,
-                43.4757,
-                42.99,
-                42.6975,
-                42.0,
-                42.0,
-                42.0,
-                42.0
-              ],
-              "start_max": 46.1628,
-              "end_max": 44.6553,
-              "start_med": 45.9572,
-              "end_med": 42.6975
-            }
-          },
-          {
-            "file": "pendulumwave.mp4",
-            "initial": {
-              "ok": true,
-              "start": [
-                42.0,
-                42.5478,
-                43.2506,
-                43.7465,
-                43.9686,
-                44.3748,
-                44.9094,
-                44.89,
-                44.987,
-                44.9581,
-                44.9464,
-                44.8798,
-                44.902,
-                45.1727
-              ],
-              "end": [
-                43.9288,
-                43.8231,
-                43.5158,
-                42.9851,
-                42.5542,
-                42.0,
-                42.0,
-                42.0,
-                42.0
-              ],
-              "start_max": 45.1727,
-              "end_max": 43.9288,
-              "start_med": 44.89,
-              "end_med": 42.5542
-            }
-          },
-          {
-            "file": "recaman.mp4",
-            "initial": {
-              "ok": true,
-              "start": [
-                42.0,
-                43.5702,
-                45.3551,
-                46.9057,
-                48.112,
-                49.7375,
-                51.1993,
-                51.2275,
-                51.262,
-                51.28,
-                51.2682,
-                51.3128,
-                51.3328,
-                51.3754
-              ],
-              "end": [
-                49.871,
-                48.5707,
-                46.9972,
-                45.4288,
-                43.7894,
-                42.0,
-                42.0,
-                42.0,
-                42.0
-              ],
-              "start_max": 51.3754,
-              "end_max": 49.871,
-              "start_med": 51.2275,
-              "end_med": 43.7894
-            }
-          },
-          {
-            "file": "sandpile.mp4",
-            "initial": {
-              "ok": true,
-              "start": [
-                42.0,
-                43.454,
-                44.769,
-                46.2277,
-                46.7873,
-                48.2619,
-                49.7712,
-                50.5625,
-                50.4508,
-                50.5285,
-                50.0357,
-                49.9042,
-                49.4883,
-                49.326
-              ],
-              "end": [
-                48.9121,
-                47.8448,
-                46.5289,
-                45.0738,
-                43.5885,
-                42.0,
-                42.0,
-                42.0,
-                42.0
-              ],
-              "start_max": 50.5625,
-              "end_max": 48.9121,
-              "start_med": 49.4883,
-              "end_med": 43.5885
-            }
-          },
-          {
-            "file": "topopt.mp4",
-            "initial": {
-              "ok": true,
-              "start": [
-                42.0,
-                43.9227,
-                45.8297,
-                47.7555,
-                48.8566,
-                50.8347,
-                52.609,
-                52.6462,
-                52.6253,
-                52.6273,
-                52.5517,
-                52.5815,
-                52.5555,
-                52.4883
-              ],
-              "end": [
-                48.3385,
-                47.376,
-                46.1843,
-                44.7437,
-                43.4803,
-                42.0,
-                42.0,
-                42.0,
-                42.0
-              ],
-              "start_max": 52.6462,
-              "end_max": 48.3385,
-              "start_med": 52.5517,
-              "end_med": 43.4803
+              "start_max": 44.1812,
+              "end_max": 43.4985,
+              "start_med": 44.1216,
+              "end_med": 42.4036
             }
           }
         ]
@@ -357,121 +61,23 @@
       "name": "check_preview_dark_static",
       "ok": true,
       "result": {
-        "checked": 9,
-        "flagged_count": 3,
+        "checked": 1,
+        "flagged_count": 1,
         "flagged_pages": [
-          "harmonograph",
-          "karman",
-          "pendulumwave"
+          "waterwheel"
         ],
         "results": [
           {
-            "file": "billiard.mp4",
-            "ok": true,
-            "too_dark": false,
-            "too_static": false,
-            "luma": [
-              47.86,
-              52.9,
-              49.71
-            ],
-            "motion": 15.306
-          },
-          {
-            "file": "cloth.mp4",
-            "ok": true,
-            "too_dark": false,
-            "too_static": false,
-            "luma": [
-              50.28,
-              47.41,
-              42.49
-            ],
-            "motion": 16.421
-          },
-          {
-            "file": "harmonograph.mp4",
+            "file": "waterwheel.mp4",
             "ok": false,
             "too_dark": true,
             "too_static": false,
             "luma": [
-              33.77,
-              34.31,
-              35.74
+              32.63,
+              32.67,
+              32.69
             ],
-            "motion": 7.368
-          },
-          {
-            "file": "kaleidoscope.mp4",
-            "ok": true,
-            "too_dark": false,
-            "too_static": false,
-            "luma": [
-              46.26,
-              55.58,
-              50.44
-            ],
-            "motion": 22.345
-          },
-          {
-            "file": "karman.mp4",
-            "ok": false,
-            "too_dark": true,
-            "too_static": false,
-            "luma": [
-              34.83,
-              34.63,
-              34.88
-            ],
-            "motion": 8.633
-          },
-          {
-            "file": "pendulumwave.mp4",
-            "ok": false,
-            "too_dark": true,
-            "too_static": false,
-            "luma": [
-              33.62,
-              33.57,
-              33.37
-            ],
-            "motion": 8.087
-          },
-          {
-            "file": "recaman.mp4",
-            "ok": true,
-            "too_dark": false,
-            "too_static": false,
-            "luma": [
-              40.98,
-              50.14,
-              46.28
-            ],
-            "motion": 10.883
-          },
-          {
-            "file": "sandpile.mp4",
-            "ok": true,
-            "too_dark": false,
-            "too_static": false,
-            "luma": [
-              39.55,
-              45.72,
-              42.89
-            ],
-            "motion": 11.469
-          },
-          {
-            "file": "topopt.mp4",
-            "ok": true,
-            "too_dark": false,
-            "too_static": false,
-            "luma": [
-              42.47,
-              44.77,
-              42.85
-            ],
-            "motion": 9.285
+            "motion": 4.184
           }
         ]
       }
@@ -480,138 +86,18 @@
       "name": "auto_fix_preview_loop",
       "ok": true,
       "result": {
-        "checked": 9,
+        "checked": 1,
         "flagged": 0,
         "fixed": 0,
         "failed": [],
         "details": [
           {
-            "file": "billiard.mp4",
+            "file": "waterwheel.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 51.7749,
-              "y2": 42.0,
-              "y3": null,
-              "seam_diff": 0.0,
-              "start_spike": false,
-              "end_spike": false,
-              "hard_seam": false
-            }
-          },
-          {
-            "file": "cloth.mp4",
-            "initial": {
-              "ok": true,
-              "duration": 5.4,
-              "y0": 42.0,
-              "y1": 54.4657,
-              "y2": 42.0,
-              "y3": null,
-              "seam_diff": 0.0,
-              "start_spike": false,
-              "end_spike": false,
-              "hard_seam": false
-            }
-          },
-          {
-            "file": "harmonograph.mp4",
-            "initial": {
-              "ok": true,
-              "duration": 5.4,
-              "y0": 42.0,
-              "y1": 43.8458,
-              "y2": 42.0,
-              "y3": null,
-              "seam_diff": 0.0,
-              "start_spike": false,
-              "end_spike": false,
-              "hard_seam": false
-            }
-          },
-          {
-            "file": "kaleidoscope.mp4",
-            "initial": {
-              "ok": true,
-              "duration": 5.4,
-              "y0": 42.0,
-              "y1": 51.1263,
-              "y2": 42.0,
-              "y3": null,
-              "seam_diff": 0.0,
-              "start_spike": false,
-              "end_spike": false,
-              "hard_seam": false
-            }
-          },
-          {
-            "file": "karman.mp4",
-            "initial": {
-              "ok": true,
-              "duration": 5.4,
-              "y0": 42.0,
-              "y1": 44.8813,
-              "y2": 42.0,
-              "y3": null,
-              "seam_diff": 0.0,
-              "start_spike": false,
-              "end_spike": false,
-              "hard_seam": false
-            }
-          },
-          {
-            "file": "pendulumwave.mp4",
-            "initial": {
-              "ok": true,
-              "duration": 5.4,
-              "y0": 42.0,
-              "y1": 43.9686,
-              "y2": 42.0,
-              "y3": null,
-              "seam_diff": 0.0,
-              "start_spike": false,
-              "end_spike": false,
-              "hard_seam": false
-            }
-          },
-          {
-            "file": "recaman.mp4",
-            "initial": {
-              "ok": true,
-              "duration": 5.4,
-              "y0": 42.0,
-              "y1": 48.112,
-              "y2": 42.0,
-              "y3": null,
-              "seam_diff": 0.0,
-              "start_spike": false,
-              "end_spike": false,
-              "hard_seam": false
-            }
-          },
-          {
-            "file": "sandpile.mp4",
-            "initial": {
-              "ok": true,
-              "duration": 5.4,
-              "y0": 42.0,
-              "y1": 46.7873,
-              "y2": 42.0,
-              "y3": null,
-              "seam_diff": 0.0,
-              "start_spike": false,
-              "end_spike": false,
-              "hard_seam": false
-            }
-          },
-          {
-            "file": "topopt.mp4",
-            "initial": {
-              "ok": true,
-              "duration": 5.4,
-              "y0": 42.0,
-              "y1": 48.8566,
+              "y1": 43.5301,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
