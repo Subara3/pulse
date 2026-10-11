@@ -866,6 +866,19 @@
     "added": "2026-10-10"
   },
   {
+    "page": "pane",
+    "title": "PANE",
+    "desc": "曇った窓ガラスに雨粒がつき、くっついて大きくなった粒が下へ流れ落ちていく。流れた跡は曇りが取れ、小さな粒が点々と残る。押すとまわりの粒が指の下に集まり、なぞると曇りが拭われて、離すと集めた水が流れ落ちる。",
+    "desc_en": "Raindrops gather on a fogged window, and drops that grow by merging run down the glass. Each run clears a line through the fog and leaves a row of tiny beads behind. Press to pull nearby drops under your finger, trace to wipe the fog, and let go to send the gathered water running down.",
+    "icon": "fa-cloud-rain",
+    "group": "flow",
+    "category": "流れるもの",
+    "category_en": "FLOW",
+    "meta": "くっついて重くなった粒が流れ落ちる",
+    "meta_en": "Drops merge, grow heavy and run down",
+    "added": "2026-10-11"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
