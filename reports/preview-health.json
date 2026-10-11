@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-10T20:17:36.162333Z",
+  "generatedAt": "2026-10-11T20:22:02.384308Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok waterwheel\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok pane\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "waterwheel.mp4",
+            "file": "pane.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                42.3636,
-                42.9765,
-                43.3486,
-                43.5301,
-                43.9202,
-                44.1812,
-                44.1255,
-                44.1594,
-                44.1216,
-                44.1512,
-                44.1113,
-                44.1622,
-                44.1321
+                45.6993,
+                49.7264,
+                53.1773,
+                57.0603,
+                61.2047,
+                64.742,
+                64.7798,
+                64.7658,
+                64.7863,
+                64.7563,
+                64.7842,
+                64.772,
+                64.7602
               ],
               "end": [
-                43.4985,
-                43.3575,
-                43.1562,
-                42.7265,
-                42.4036,
+                56.6186,
+                53.5173,
+                50.228,
+                47.6483,
+                44.7917,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 44.1812,
-              "end_max": 43.4985,
-              "start_med": 44.1216,
-              "end_med": 42.4036
+              "start_max": 64.7863,
+              "end_max": 56.6186,
+              "start_med": 64.7563,
+              "end_med": 44.7917
             }
           }
         ]
@@ -62,22 +62,20 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 1,
-        "flagged_pages": [
-          "waterwheel"
-        ],
+        "flagged_count": 0,
+        "flagged_pages": [],
         "results": [
           {
-            "file": "waterwheel.mp4",
-            "ok": false,
-            "too_dark": true,
+            "file": "pane.mp4",
+            "ok": true,
+            "too_dark": false,
             "too_static": false,
             "luma": [
-              32.63,
-              32.67,
-              32.69
+              56.81,
+              57.11,
+              56.72
             ],
-            "motion": 4.184
+            "motion": 2.155
           }
         ]
       }
@@ -92,12 +90,12 @@
         "failed": [],
         "details": [
           {
-            "file": "waterwheel.mp4",
+            "file": "pane.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 43.5301,
+              "y1": 57.0603,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
