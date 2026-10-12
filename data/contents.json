@@ -879,6 +879,19 @@
     "added": "2026-10-11"
   },
   {
+    "page": "mudcrack",
+    "title": "MUDCRACK",
+    "desc": "乾いていく泥に白いひびが伸び、ほかのひびに当たると止まる。ひびの途中からは直角に新しいひびが分かれ、地面が大小の区画に分かれていく。古いひびは少しずつ消えて、空いたところにまた新しいひびが入る。押すとまわりのひびが消えて、そこから水色のひびが四方へ走り、なぞると指の跡に沿ってひびが入る。",
+    "desc_en": "White cracks spread across drying mud and stop where they meet another crack. New cracks split off at right angles, dividing the ground into plots large and small. Old cracks slowly close and fresh ones run into the space they leave. Press to clear the cracks around your finger and send cyan cracks running out in every direction; trace to crack the ground along your path.",
+    "icon": "fa-burst",
+    "group": "grow",
+    "category": "育つもの",
+    "category_en": "GROWTH",
+    "meta": "ぶつかると止まり、直角に分かれるひび",
+    "meta_en": "Cracks stop where they meet and branch at right angles",
+    "added": "2026-10-12"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
