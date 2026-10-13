@@ -892,6 +892,19 @@
     "added": "2026-10-12"
   },
   {
+    "page": "ridgeline",
+    "title": "RIDGELINE",
+    "desc": "何十本もの横線が重なって山並みを描き、山はゆっくり手前へ流れてくる。押さえるとそこから山が盛り上がって高くなり、離すと山は地形といっしょに流れていく。なぞると指の跡に尾根ができる。",
+    "desc_en": "Dozens of stacked horizontal lines trace a mountain range that slowly drifts toward you. Hold a point and a peak rises there and keeps growing; let go and it flows forward with the land. Drag to raise a ridge along your path.",
+    "icon": "fa-mountain-sun",
+    "group": "curve",
+    "category": "描くもの",
+    "category_en": "CURVE",
+    "meta": "横線を重ねて描く、流れてくる山並み",
+    "meta_en": "Stacked lines tracing a drifting range",
+    "added": "2026-10-13"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
