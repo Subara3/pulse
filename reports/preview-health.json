@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-12T20:24:16.255887Z",
+  "generatedAt": "2026-10-13T20:20:21.027923Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok mudcrack\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok ridgeline\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "mudcrack.mp4",
+            "file": "ridgeline.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                42.9992,
-                44.0529,
-                44.9401,
-                45.6301,
-                46.6627,
-                47.1562,
-                47.1689,
-                47.1882,
-                47.177,
-                47.2009,
-                47.1908,
-                47.2056,
-                47.1936
+                42.6544,
+                43.9337,
+                44.9693,
+                46.3273,
+                46.7471,
+                47.9969,
+                47.8979,
+                48.0095,
+                47.7931,
+                48.0553,
+                47.9715,
+                48.0511,
+                47.8545
               ],
               "end": [
-                46.3953,
-                45.5489,
-                44.8746,
-                43.9248,
-                43.0504,
+                46.2089,
+                45.2067,
+                44.7968,
+                43.8238,
+                43.094,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 47.2056,
-              "end_max": 46.3953,
-              "start_med": 47.1689,
-              "end_med": 43.0504
+              "start_max": 48.0553,
+              "end_max": 46.2089,
+              "start_med": 47.8545,
+              "end_med": 43.094
             }
           }
         ]
@@ -66,16 +66,16 @@
         "flagged_pages": [],
         "results": [
           {
-            "file": "mudcrack.mp4",
+            "file": "ridgeline.mp4",
             "ok": true,
             "too_dark": false,
             "too_static": false,
             "luma": [
-              36.25,
-              36.52,
-              37.05
+              37.28,
+              37.14,
+              37.2
             ],
-            "motion": 5.713
+            "motion": 14.911
           }
         ]
       }
@@ -90,12 +90,12 @@
         "failed": [],
         "details": [
           {
-            "file": "mudcrack.mp4",
+            "file": "ridgeline.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 45.6301,
+              "y1": 46.3273,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
