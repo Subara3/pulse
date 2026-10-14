@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-13T20:20:21.027923Z",
+  "generatedAt": "2026-10-14T20:17:43.629038Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok ridgeline\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok girih\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "ridgeline.mp4",
+            "file": "girih.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                42.6544,
-                43.9337,
-                44.9693,
-                46.3273,
-                46.7471,
-                47.9969,
-                47.8979,
-                48.0095,
-                47.7931,
-                48.0553,
-                47.9715,
-                48.0511,
-                47.8545
+                44.6752,
+                47.4854,
+                49.5478,
+                52.1034,
+                54.9759,
+                57.0738,
+                57.2908,
+                57.3316,
+                57.3701,
+                57.0091,
+                57.1956,
+                57.2583,
+                56.9748
               ],
               "end": [
-                46.2089,
-                45.2067,
-                44.7968,
-                43.8238,
-                43.094,
+                52.3005,
+                50.0798,
+                48.3947,
+                46.304,
+                44.3852,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 48.0553,
-              "end_max": 46.2089,
-              "start_med": 47.8545,
-              "end_med": 43.094
+              "start_max": 57.3701,
+              "end_max": 52.3005,
+              "start_med": 57.0091,
+              "end_med": 44.3852
             }
           }
         ]
@@ -66,16 +66,16 @@
         "flagged_pages": [],
         "results": [
           {
-            "file": "ridgeline.mp4",
+            "file": "girih.mp4",
             "ok": true,
             "too_dark": false,
             "too_static": false,
             "luma": [
-              37.28,
-              37.14,
-              37.2
+              47.76,
+              48.17,
+              48.61
             ],
-            "motion": 14.911
+            "motion": 35.883
           }
         ]
       }
@@ -90,12 +90,12 @@
         "failed": [],
         "details": [
           {
-            "file": "ridgeline.mp4",
+            "file": "girih.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 46.3273,
+              "y1": 52.1034,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
