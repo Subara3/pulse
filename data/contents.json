@@ -905,6 +905,19 @@
     "added": "2026-10-13"
   },
   {
+    "page": "girih",
+    "title": "GIRIH",
+    "desc": "多角形で埋めた床の各辺の中点から線が2本ずつ伸び、となりの線と交わって星形の帯模様になる。線の角度がゆっくり変わり、星が細くなったり太くなったりする波が床を渡っていく。押すとまわりの星が鋭くとがって水色に光り、なぞると跡に沿って星の形が変わる。",
+    "desc_en": "Two lines leave the midpoint of every edge of a tiled floor and meet their neighbours, forming a pattern of stars drawn as bands. The angle of the lines slowly shifts, so a wave of fattening and thinning stars moves across the floor. Press and the stars around you sharpen and light up in cyan; drag to reshape the stars along your path.",
+    "icon": "fa-star",
+    "group": "tile",
+    "category": "敷き詰めるもの",
+    "category_en": "TILING",
+    "meta": "辺の中点から引いた線で描く星の帯模様",
+    "meta_en": "Star strapwork drawn from edge midpoints",
+    "added": "2026-10-14"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
