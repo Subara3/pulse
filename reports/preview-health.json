@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-14T20:17:43.629038Z",
+  "generatedAt": "2026-10-15T20:15:05.780089Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok girih\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok soapfilm\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "girih.mp4",
+            "file": "soapfilm.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                44.6752,
-                47.4854,
-                49.5478,
-                52.1034,
-                54.9759,
-                57.0738,
-                57.2908,
-                57.3316,
-                57.3701,
-                57.0091,
-                57.1956,
-                57.2583,
-                56.9748
+                50.7555,
+                59.6538,
+                67.8338,
+                77.0427,
+                85.5147,
+                94.5592,
+                94.7717,
+                94.6999,
+                94.7313,
+                94.4252,
+                94.6833,
+                94.5888,
+                94.3737
               ],
               "end": [
-                52.3005,
-                50.0798,
-                48.3947,
-                46.304,
-                44.3852,
+                75.3842,
+                68.5402,
+                62.2145,
+                55.5141,
+                49.0441,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 57.3701,
-              "end_max": 52.3005,
-              "start_med": 57.0091,
-              "end_med": 44.3852
+              "start_max": 94.7717,
+              "end_max": 75.3842,
+              "start_med": 94.4252,
+              "end_med": 49.0441
             }
           }
         ]
@@ -66,16 +66,16 @@
         "flagged_pages": [],
         "results": [
           {
-            "file": "girih.mp4",
+            "file": "soapfilm.mp4",
             "ok": true,
             "too_dark": false,
             "too_static": false,
             "luma": [
-              47.76,
-              48.17,
-              48.61
+              91.35,
+              90.97,
+              90.1
             ],
-            "motion": 35.883
+            "motion": 74.49
           }
         ]
       }
@@ -90,12 +90,12 @@
         "failed": [],
         "details": [
           {
-            "file": "girih.mp4",
+            "file": "soapfilm.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 52.1034,
+              "y1": 77.0427,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
