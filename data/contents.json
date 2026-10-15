@@ -918,6 +918,19 @@
     "added": "2026-10-14"
   },
   {
+    "page": "soapfilm",
+    "title": "SOAPFILM",
+    "desc": "縦に張った石けんの膜に光の縞が横に何本も並び、膜が上から薄くなるにつれて縞がゆっくり下へ流れていく。膜の中ではところどころで渦が巻き、縞が巻き込まれて曲がる。押すとそこの膜が厚くなって輪の縞が出て、なぞると縞が指の動きに引きずられる。",
+    "desc_en": "A soap film hangs upright, crossed by many horizontal bands of light. As the film thins from the top, the bands slowly slide downward, and small eddies in the film wind them into curls. Press and the film thickens there, raising a set of rings; drag and the bands are pulled along with your finger.",
+    "icon": "fa-soap",
+    "group": "light",
+    "category": "光るもの",
+    "category_en": "LIGHT",
+    "meta": "薄くなっていく石けんの膜にできる光の縞",
+    "meta_en": "Light bands on a thinning soap film",
+    "added": "2026-10-15"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
