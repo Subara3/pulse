@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-15T20:15:05.780089Z",
+  "generatedAt": "2026-10-16T20:21:20.212020Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok soapfilm\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok mobile\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "soapfilm.mp4",
+            "file": "mobile.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                50.7555,
-                59.6538,
-                67.8338,
-                77.0427,
-                85.5147,
-                94.5592,
-                94.7717,
-                94.6999,
-                94.7313,
-                94.4252,
-                94.6833,
-                94.5888,
-                94.3737
+                42.4121,
+                42.9911,
+                43.3601,
+                43.2843,
+                43.6522,
+                43.811,
+                43.7844,
+                43.8017,
+                43.7486,
+                43.7497,
+                43.7186,
+                43.6975,
+                43.6037
               ],
               "end": [
-                75.3842,
-                68.5402,
-                62.2145,
-                55.5141,
-                49.0441,
+                42.7872,
+                43.2484,
+                42.9437,
+                42.6754,
+                42.3112,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 94.7717,
-              "end_max": 75.3842,
-              "start_med": 94.4252,
-              "end_med": 49.0441
+              "start_max": 43.811,
+              "end_max": 43.2484,
+              "start_med": 43.6975,
+              "end_med": 42.3112
             }
           }
         ]
@@ -62,20 +62,22 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 0,
-        "flagged_pages": [],
+        "flagged_count": 1,
+        "flagged_pages": [
+          "mobile"
+        ],
         "results": [
           {
-            "file": "soapfilm.mp4",
-            "ok": true,
-            "too_dark": false,
+            "file": "mobile.mp4",
+            "ok": false,
+            "too_dark": true,
             "too_static": false,
             "luma": [
-              91.35,
-              90.97,
-              90.1
+              32.18,
+              33.05,
+              32.12
             ],
-            "motion": 74.49
+            "motion": 6.395
           }
         ]
       }
@@ -90,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "soapfilm.mp4",
+            "file": "mobile.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 77.0427,
+              "y1": 43.2843,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
