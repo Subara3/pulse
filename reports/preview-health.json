@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-16T20:21:20.212020Z",
+  "generatedAt": "2026-10-17T20:18:09.995364Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok mobile\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok factors\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "mobile.mp4",
+            "file": "factors.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                42.4121,
-                42.9911,
-                43.3601,
-                43.2843,
-                43.6522,
-                43.811,
-                43.7844,
-                43.8017,
-                43.7486,
-                43.7497,
-                43.7186,
-                43.6975,
-                43.6037
+                42.953,
+                43.953,
+                44.8894,
+                44.9772,
+                45.8439,
+                46.3808,
+                46.2404,
+                45.9673,
+                45.7947,
+                45.4779,
+                45.408,
+                45.3171,
+                45.2702
               ],
               "end": [
-                42.7872,
-                43.2484,
-                42.9437,
-                42.6754,
-                42.3112,
+                43.7879,
+                43.8955,
+                43.5071,
+                43.0127,
+                42.5397,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 43.811,
-              "end_max": 43.2484,
-              "start_med": 43.6975,
-              "end_med": 42.3112
+              "start_max": 46.3808,
+              "end_max": 43.8955,
+              "start_med": 45.408,
+              "end_med": 42.5397
             }
           }
         ]
@@ -64,20 +64,20 @@
         "checked": 1,
         "flagged_count": 1,
         "flagged_pages": [
-          "mobile"
+          "factors"
         ],
         "results": [
           {
-            "file": "mobile.mp4",
+            "file": "factors.mp4",
             "ok": false,
             "too_dark": true,
             "too_static": false,
             "luma": [
-              32.18,
-              33.05,
-              32.12
+              34.2,
+              33.11,
+              33.51
             ],
-            "motion": 6.395
+            "motion": 9.182
           }
         ]
       }
@@ -92,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "mobile.mp4",
+            "file": "factors.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 43.2843,
+              "y1": 44.9772,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
