@@ -944,6 +944,19 @@
     "added": "2026-10-16"
   },
   {
+    "page": "factors",
+    "title": "FACTORS",
+    "desc": "数えた数だけの点が、その数を掛け算に分けた形どおりに、小さな多角形を入れ子にして並ぶ。数が1つ増えるたびに点が飛んで並び直し、素数のときは1つの大きな輪になる。押すとまわりの点がはじけて水色に光り、なぞると点が指についてきて、離すと元の並びに戻る。",
+    "desc_en": "A number of dots arrange themselves into nested polygons, following how that number splits into a product. Each time the count goes up by one, the dots fly to new places, and when the number is prime they form a single large ring. Press and the dots around your finger burst outward and glow; drag and they follow your finger, returning to the pattern when you let go.",
+    "icon": "fa-braille",
+    "group": "number",
+    "category": "数えるもの",
+    "category_en": "NUMBER",
+    "meta": "数を掛け算に分けて並べる入れ子の点",
+    "meta_en": "Dots nested by how a number factors",
+    "added": "2026-10-17"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
