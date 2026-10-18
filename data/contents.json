@@ -957,6 +957,19 @@
     "added": "2026-10-17"
   },
   {
+    "page": "rrt",
+    "title": "RRT",
+    "desc": "1つの点から白い直線の枝が四方へ伸び、丸い岩をよけながら画面を埋めていく。枝が水色の点に届くと、根元からそこまでの道が光り、次の木がその点から伸びはじめる。押すと枝がそこへ向かって一斉に伸び、なぞると指を追いかける。",
+    "desc_en": "Straight white branches spread out from a single point, steering around round rocks until they fill the screen. When a branch reaches the cyan dot, the route back to the root lights up, and the next tree starts growing from that dot. Press and the branches race toward that spot; drag and they chase your finger.",
+    "icon": "fa-sitemap",
+    "group": "mind",
+    "category": "探すもの",
+    "category_en": "MIND",
+    "meta": "岩をよけて画面を埋める探索の木",
+    "meta_en": "A search tree that fills the screen around rocks",
+    "added": "2026-10-18"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
