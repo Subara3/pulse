@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-17T20:18:09.995364Z",
+  "generatedAt": "2026-10-18T20:15:48.300958Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok factors\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok rrt\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "factors.mp4",
+            "file": "rrt.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                42.953,
-                43.953,
-                44.8894,
-                44.9772,
-                45.8439,
-                46.3808,
-                46.2404,
-                45.9673,
-                45.7947,
-                45.4779,
-                45.408,
-                45.3171,
-                45.2702
+                42.5733,
+                43.3839,
+                43.8694,
+                44.4124,
+                44.7334,
+                45.1093,
+                45.1538,
+                45.192,
+                45.2133,
+                45.1931,
+                45.1838,
+                45.1968,
+                44.9672
               ],
               "end": [
-                43.7879,
-                43.8955,
-                43.5071,
-                43.0127,
-                42.5397,
+                44.5246,
+                44.0944,
+                43.7611,
+                43.2164,
+                42.7092,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 46.3808,
-              "end_max": 43.8955,
-              "start_med": 45.408,
-              "end_med": 42.5397
+              "start_max": 45.2133,
+              "end_max": 44.5246,
+              "start_med": 45.1093,
+              "end_med": 42.7092
             }
           }
         ]
@@ -64,20 +64,20 @@
         "checked": 1,
         "flagged_count": 1,
         "flagged_pages": [
-          "factors"
+          "rrt"
         ],
         "results": [
           {
-            "file": "factors.mp4",
+            "file": "rrt.mp4",
             "ok": false,
             "too_dark": true,
             "too_static": false,
             "luma": [
-              34.2,
-              33.11,
-              33.51
+              33.89,
+              33.47,
+              33.47
             ],
-            "motion": 9.182
+            "motion": 8.976
           }
         ]
       }
@@ -92,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "factors.mp4",
+            "file": "rrt.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 44.9772,
+              "y1": 44.4124,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
