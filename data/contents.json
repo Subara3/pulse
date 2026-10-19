@@ -970,6 +970,19 @@
     "added": "2026-10-18"
   },
   {
+    "page": "flutter",
+    "title": "FLUTTER",
+    "desc": "細長い紙片が何十枚も、左右に揺れたりくるくる回ったりしながら落ちてくる。通った跡には、少し前の向きが細い線で点々と残る。押すとそこから風が吹いて紙片が舞い上がり、同じ向きで放たれた水色の紙片が数枚、すぐにばらばらの道に分かれて落ちていく。なぞると指の向きに紙片が流される。",
+    "desc_en": "Dozens of thin paper slips fall down the screen, some swaying from side to side, others spinning over and over. Each leaves a row of faint lines behind it, showing which way it pointed a moment ago. Press and a gust lifts the slips around your finger, and a few cyan slips are released together facing the same way, then quickly split onto different paths. Drag and the slips are carried along with your finger.",
+    "icon": "fa-feather",
+    "group": "chaos",
+    "category": "予測できないもの",
+    "category_en": "CHAOS",
+    "meta": "揺れたり回ったりしながら落ちる紙片",
+    "meta_en": "Paper slips that sway or tumble as they fall",
+    "added": "2026-10-19"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
