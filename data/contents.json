@@ -983,6 +983,19 @@
     "added": "2026-10-19"
   },
   {
+    "page": "seashell",
+    "title": "SEASHELL",
+    "desc": "巻き貝の殻が、口の縁に輪を1本ずつ足しながら育っていく。古い輪は巻きに沿って奥へ送られ、先端に向かって小さくなる。殻の形は、平たい渦巻きから高い塔まで、ゆっくり変わっていく。押すとそこの殻が外へふくらんで水色に光り、なぞると指の跡に沿ってふくらみが並ぶ。ふくらみは殻といっしょに奥へ巻かれていく。",
+    "desc_en": "A snail shell grows by adding one ring at a time to the edge of its opening. Older rings are carried back along the coil and shrink toward the tip. The shape slowly changes, from a flat coil to a tall spire. Press and the shell swells outward there and glows cyan; drag and a row of swellings forms along your finger. The swellings are wound back into the shell as it grows.",
+    "icon": "fa-hurricane",
+    "group": "grow",
+    "category": "育つもの",
+    "category_en": "GROW",
+    "meta": "輪を足しながら育つ巻き貝の殻",
+    "meta_en": "A shell that grows one ring at a time",
+    "added": "2026-10-20"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
