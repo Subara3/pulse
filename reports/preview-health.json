@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-19T20:18:48.784877Z",
+  "generatedAt": "2026-10-20T20:22:59.564687Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok flutter\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok seashell\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "flutter.mp4",
+            "file": "seashell.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                42.0993,
-                42.2481,
-                42.4298,
-                41.74,
-                41.9271,
-                42.051,
-                42.0779,
-                42.072,
-                42.0854,
-                42.0936,
-                42.099,
-                42.0448,
-                42.2466
+                43.523,
+                45.1697,
+                46.592,
+                47.4544,
+                48.9111,
+                50.6517,
+                50.62,
+                50.6766,
+                50.611,
+                50.7558,
+                50.7495,
+                50.772,
+                50.7189
               ],
               "end": [
-                42.0647,
-                42.4843,
-                42.425,
-                42.2827,
-                42.1706,
+                47.5504,
+                46.7257,
+                45.7316,
+                44.4508,
+                43.3083,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 42.4298,
-              "end_max": 42.4843,
-              "start_med": 42.0854,
-              "end_med": 42.0647
+              "start_max": 50.772,
+              "end_max": 47.5504,
+              "start_med": 50.62,
+              "end_med": 43.3083
             }
           }
         ]
@@ -62,22 +62,20 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 1,
-        "flagged_pages": [
-          "flutter"
-        ],
+        "flagged_count": 0,
+        "flagged_pages": [],
         "results": [
           {
-            "file": "flutter.mp4",
-            "ok": false,
-            "too_dark": true,
+            "file": "seashell.mp4",
+            "ok": true,
+            "too_dark": false,
             "too_static": false,
             "luma": [
-              30.27,
-              30.46,
-              30.43
+              40.4,
+              42.43,
+              41.26
             ],
-            "motion": 2.641
+            "motion": 10.245
           }
         ]
       }
@@ -92,12 +90,12 @@
         "failed": [],
         "details": [
           {
-            "file": "flutter.mp4",
+            "file": "seashell.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 41.74,
+              "y1": 47.4544,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
