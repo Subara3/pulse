@@ -996,6 +996,19 @@
     "added": "2026-10-20"
   },
   {
+    "page": "shore",
+    "title": "SHORE",
+    "desc": "沖から来た波が砕けて砂浜を駆け上がり、引いていく。引いた跡には泡が細い線になって残り、濡れた砂は少しずつ乾く。砂の上を押すとそこに丸い溝が彫られ、なぞると指の跡に溝が引かれて、次の波がそれを少しずつ消していく。海を押すと、そこから波が浜へ押し寄せる。",
+    "desc_en": "Waves come in from offshore, break, run up a sandy beach and slide back. Each time the water pulls away it leaves thin lines of foam on the sand, and the wet sand slowly dries. Press the sand to carve a round groove, trace to draw a groove behind your finger, and the next waves wear it away little by little. Press the sea to send a wave rushing up the beach from there.",
+    "icon": "fa-water",
+    "group": "flow",
+    "category": "流れるもの",
+    "category_en": "FLOW",
+    "meta": "波が砂浜を駆け上がり、泡の線を残して引く",
+    "meta_en": "Waves run up the sand and leave lines of foam",
+    "added": "2026-10-21"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
