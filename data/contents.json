@@ -1009,6 +1009,19 @@
     "added": "2026-10-21"
   },
   {
+    "page": "origami",
+    "title": "ORIGAMI",
+    "desc": "山折りと谷折りの折り目がついた紙が、平行四辺形の面で画面を埋めている。深くたたまれる部分が波になって紙の上をゆっくり渡り、たたまれたところほど面の明暗が強くなる。押すとそこを中心に紙が深くたたまれて指のほうへ寄り、なぞると指の跡に沿って折り目が深くなる。",
+    "desc_en": "A sheet of paper creased into mountain and valley folds fills the screen with parallelogram faces. Waves of deeper folding drift slowly across the sheet, and the more a part is folded, the stronger the light and shadow on its faces. Press and the paper folds tightly around that point and gathers toward your finger; drag to deepen the creases along your path.",
+    "icon": "fa-layer-group",
+    "group": "tile",
+    "category": "敷き詰めるもの",
+    "category_en": "TILING",
+    "meta": "山折りと谷折りの平行四辺形で埋めた紙",
+    "meta_en": "Paper tiled with mountain and valley parallelograms",
+    "added": "2026-10-22"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
