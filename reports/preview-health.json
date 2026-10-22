@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-21T20:18:26.356330Z",
+  "generatedAt": "2026-10-22T20:16:55.899133Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok shore\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok origami\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "shore.mp4",
+            "file": "origami.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                41.2024,
-                40.722,
-                40.3931,
-                40.1744,
-                39.3754,
-                39.2645,
-                39.3057,
-                39.3553,
-                39.2407,
-                39.2598,
-                39.2895,
-                39.29,
-                39.2425
+                49.8734,
+                58.2956,
+                66.2164,
+                74.3952,
+                82.1306,
+                90.5422,
+                90.5463,
+                90.7934,
+                90.8423,
+                91.0511,
+                91.0525,
+                91.2988,
+                90.9555
               ],
               "end": [
-                40.6124,
-                41.0369,
-                41.2875,
-                41.5502,
-                41.7837,
+                79.321,
+                71.7331,
+                64.6241,
+                57.1114,
+                49.7414,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 42.0,
-              "end_max": 42.0,
-              "start_med": 39.3553,
-              "end_med": 41.7837
+              "start_max": 91.2988,
+              "end_max": 79.321,
+              "start_med": 90.5463,
+              "end_med": 49.7414
             }
           }
         ]
@@ -62,22 +62,20 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 1,
-        "flagged_pages": [
-          "shore"
-        ],
+        "flagged_count": 0,
+        "flagged_pages": [],
         "results": [
           {
-            "file": "shore.mp4",
-            "ok": false,
-            "too_dark": true,
+            "file": "origami.mp4",
+            "ok": true,
+            "too_dark": false,
             "too_static": false,
             "luma": [
-              27.0,
-              27.21,
-              27.47
+              87.39,
+              88.41,
+              96.09
             ],
-            "motion": 3.723
+            "motion": 16.064
           }
         ]
       }
@@ -92,12 +90,12 @@
         "failed": [],
         "details": [
           {
-            "file": "shore.mp4",
+            "file": "origami.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 40.1744,
+              "y1": 74.3952,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
