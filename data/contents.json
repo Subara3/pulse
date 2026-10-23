@@ -1022,6 +1022,19 @@
     "added": "2026-10-22"
   },
   {
+    "page": "jellyfish",
+    "title": "JELLYFISH",
+    "desc": "暗い水の中を何十匹ものクラゲが、傘を縮めては開きながらゆっくり昇っていく。近くのクラゲどうしで傘を縮める拍子と進む向きが揃い、ゆるい群れになって漂う。押すとそこから小さなクラゲが生まれ、まわりのクラゲが一斉に傘を縮めて指から離れる。なぞると指の向きに水が流れて、触手がなびく。",
+    "desc_en": "Dozens of jellyfish rise slowly through dark water, squeezing and opening their bells. Neighbours fall into the same beat and the same heading, drifting together in loose groups. Press and the jellyfish around your finger contract at once and swim away, while small new ones appear there; drag to push the water along your path and their tentacles stream after it.",
+    "icon": "fa-water",
+    "group": "swarm",
+    "category": "群れるもの",
+    "category_en": "SWARM",
+    "meta": "傘を縮める拍子が揃っていくクラゲ",
+    "meta_en": "Jellyfish falling into a shared pulse",
+    "added": "2026-10-23"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
