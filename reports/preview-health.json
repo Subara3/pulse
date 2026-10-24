@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-23T20:21:47.804612Z",
+  "generatedAt": "2026-10-24T20:17:45.409459Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok jellyfish\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok aurora\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "jellyfish.mp4",
+            "file": "aurora.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                43.4933,
-                45.349,
-                46.6626,
-                48.7172,
-                49.9338,
-                51.9851,
-                51.9396,
-                51.9942,
-                51.9629,
-                51.9532,
-                51.8667,
-                51.9425,
-                51.8587
+                41.6342,
+                41.0766,
+                40.5733,
+                39.6856,
+                39.2554,
+                38.4875,
+                38.5249,
+                38.4524,
+                38.5217,
+                38.4919,
+                38.5133,
+                38.4428,
+                38.3822
               ],
               "end": [
-                48.1756,
-                47.0115,
-                45.8283,
-                44.7637,
-                43.4981,
+                40.6679,
+                40.9423,
+                41.3522,
+                41.6414,
+                41.933,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 51.9942,
-              "end_max": 48.1756,
-              "start_med": 51.8667,
-              "end_med": 43.4981
+              "start_max": 42.0,
+              "end_max": 42.0,
+              "start_med": 38.5249,
+              "end_med": 41.933
             }
           }
         ]
@@ -62,20 +62,22 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 0,
-        "flagged_pages": [],
+        "flagged_count": 1,
+        "flagged_pages": [
+          "aurora"
+        ],
         "results": [
           {
-            "file": "jellyfish.mp4",
-            "ok": true,
-            "too_dark": false,
+            "file": "aurora.mp4",
+            "ok": false,
+            "too_dark": true,
             "too_static": false,
             "luma": [
-              41.86,
-              41.46,
-              41.53
+              26.15,
+              28.02,
+              28.86
             ],
-            "motion": 6.295
+            "motion": 7.3
           }
         ]
       }
@@ -90,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "jellyfish.mp4",
+            "file": "aurora.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 48.7172,
+              "y1": 39.6856,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
