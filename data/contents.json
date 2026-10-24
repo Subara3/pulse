@@ -1035,6 +1035,19 @@
     "added": "2026-10-23"
   },
   {
+    "page": "aurora",
+    "title": "AURORA",
+    "desc": "夜空にオーロラが3本かかり、縦の細い光の筋を並べた帯がゆっくり波打ちながら、ところどころで折れ重なる。下の湖には、その光が逆さに映る。押すと近くの帯がそこへ引き寄せられて水色に光り、明るいところが帯に沿って左右へ走る。なぞると帯が指についてきて、ひだが寄る。",
+    "desc_en": "Three bands of aurora hang in the night sky, each a row of thin vertical streaks of light that slowly waves and folds over itself in places. The lake below reflects them upside down. Press and the nearby bands are pulled toward that point and glow cyan, while brighter light runs left and right along them; drag and the bands follow your finger and gather into folds.",
+    "icon": "fa-star",
+    "group": "light",
+    "category": "光るもの",
+    "category_en": "LIGHT",
+    "meta": "波打ち、折れ重なる光の帯",
+    "meta_en": "Bands of light that wave and fold",
+    "added": "2026-10-24"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
