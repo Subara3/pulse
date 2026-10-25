@@ -1048,6 +1048,19 @@
     "added": "2026-10-24"
   },
   {
+    "page": "weave",
+    "title": "WEAVE",
+    "desc": "縦の白い糸と横の鋼色の糸が1本ずつ上下を入れ替えて織られ、斜めの綾や菱の模様が画面いっぱいに並ぶ。模様は端から少しずつ別の織り方に入れ替わっていく。押すとまわりの糸が指のほうへ寄せられ、そこから新しい織り方が広がる。なぞると指の跡に沿って糸の上下が入れ替わる。",
+    "desc_en": "White vertical threads and steel-grey horizontal threads pass over and under each other one by one, filling the screen with diagonal twills and diamonds. The weave slowly changes to a different pattern, sweeping in from the edges. Press and the nearby threads are drawn toward your finger while a new weave spreads out from that point; drag and the threads swap over and under along your path.",
+    "icon": "fa-border-all",
+    "group": "lattice",
+    "category": "格子のもの",
+    "category_en": "LATTICE",
+    "meta": "上下を入れ替えて織られる糸",
+    "meta_en": "Threads woven over and under",
+    "added": "2026-10-25"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
