@@ -1061,6 +1061,19 @@
     "added": "2026-10-25"
   },
   {
+    "page": "spiderweb",
+    "title": "SPIDERWEB",
+    "desc": "画面いっぱいに張られた放射状の糸の上を、小さなクモが外側から内側へ回りながら、渦巻きの糸を1本ずつ張っていく。巣は風を受けてゆっくりたわみ、糸についた露が揺れる。押すとまわりの糸が指のほうへ寄せ集められて水色に光り、なぞると寄せた糸が指についてきて、離すと震えながら元に戻る。",
+    "desc_en": "Radial threads stretch across the whole screen, and a small spider circles from the outside in, laying the spiral thread one strand at a time. The web sways slowly in the wind and dew drops tremble on the threads. Press to gather the nearby threads toward your finger, glowing cyan; drag and they follow, then spring back trembling when you let go.",
+    "icon": "fa-spider",
+    "group": "force",
+    "category": "引き合うもの",
+    "category_en": "FORCE",
+    "meta": "押すと糸が寄る",
+    "meta_en": "Press to gather the threads",
+    "added": "2026-10-26"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
