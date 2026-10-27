@@ -1074,6 +1074,19 @@
     "added": "2026-10-26"
   },
   {
+    "page": "droste",
+    "title": "DROSTE",
+    "desc": "四角い通路の図面の奥に同じ図面が描かれ、それが渦を巻きながら中心へ果てしなく続いている。画面はその渦に沿って、ゆっくり回りながら拡大し続ける。押すとそこの線が丸くふくらんで水色に光り、渦の中心が指のほうへ寄る。なぞるとふくらみが指についてきて、線が指の動いた向きへ引きずられる。",
+    "desc_en": "A blueprint of a square corridor contains the same drawing deeper inside, and the copies join into one spiral that runs endlessly toward the center. The view keeps zooming in along that spiral, turning slowly as it goes. Press and the lines there bulge outward and glow cyan while the center of the spiral drifts toward your finger; drag and the bulge follows you, pulling the lines along the way you move.",
+    "icon": "fa-hurricane",
+    "group": "fractal",
+    "category": "繰り返すもの",
+    "category_en": "FRACTAL",
+    "meta": "渦になって続く入れ子の図面",
+    "meta_en": "Nested drawings joined into a spiral",
+    "added": "2026-10-27"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
