@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-26T20:18:41.958667Z",
+  "generatedAt": "2026-10-27T20:19:51.115014Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok spiderweb\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok droste\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "spiderweb.mp4",
+            "file": "droste.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                42.8014,
-                44.02,
-                44.7312,
-                45.5141,
-                46.045,
-                46.7694,
-                46.7647,
-                46.7659,
-                46.7309,
-                46.8656,
-                46.8223,
-                46.8376,
-                46.7353
+                42.3512,
+                43.0326,
+                43.3118,
+                43.6313,
+                43.7695,
+                43.9322,
+                43.8636,
+                43.9447,
+                43.9127,
+                43.9066,
+                43.8353,
+                43.882,
+                43.7993
               ],
               "end": [
-                45.647,
-                44.8358,
-                44.4053,
-                43.6107,
-                42.952,
+                43.516,
+                43.307,
+                43.1916,
+                42.7285,
+                42.433,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 46.8656,
-              "end_max": 45.647,
-              "start_med": 46.7353,
-              "end_med": 42.952
+              "start_max": 43.9447,
+              "end_max": 43.516,
+              "start_med": 43.8353,
+              "end_med": 42.433
             }
           }
         ]
@@ -62,20 +62,22 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 0,
-        "flagged_pages": [],
+        "flagged_count": 1,
+        "flagged_pages": [
+          "droste"
+        ],
         "results": [
           {
-            "file": "spiderweb.mp4",
-            "ok": true,
-            "too_dark": false,
+            "file": "droste.mp4",
+            "ok": false,
+            "too_dark": true,
             "too_static": false,
             "luma": [
-              35.85,
-              35.86,
-              36.16
+              32.4,
+              32.72,
+              32.52
             ],
-            "motion": 12.512
+            "motion": 6.672
           }
         ]
       }
@@ -90,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "spiderweb.mp4",
+            "file": "droste.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 45.5141,
+              "y1": 43.6313,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
