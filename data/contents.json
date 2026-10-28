@@ -1087,6 +1087,19 @@
     "added": "2026-10-27"
   },
   {
+    "page": "survey",
+    "title": "SURVEY",
+    "desc": "暗い洞窟の中を小さな探査機が何台か進み、四方へ伸ばした細い光で壁を測って、測った壁を白い線で図面に描き足していく。まだ測っていないところへ向かって進むが、古い線は少しずつ薄れるので、探査は終わらない。押すとそこから輪が広がってまわりの壁が水色に浮かび、近くの探査機が向かってくる。なぞると指のまわりの壁が浮かび、探査機が1台ついてくる。",
+    "desc_en": "A few small probes move through a dark cave, measuring the walls with thin beams cast in every direction and adding each wall they measure to the drawing as a white line. They head for places not yet measured, but old lines slowly fade, so the survey never ends. Press and a ring spreads out, lighting up the nearby walls in cyan while the closest probes come over. Drag and the walls around your finger appear, with one probe following along.",
+    "icon": "fa-satellite-dish",
+    "group": "mind",
+    "category": "探すもの",
+    "category_en": "MIND",
+    "meta": "光で壁を測って洞窟の図面を描く探査機",
+    "meta_en": "Probes that draw a cave map by measuring walls with light",
+    "added": "2026-10-28"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
