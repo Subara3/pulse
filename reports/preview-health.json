@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-28T20:18:21.774790Z",
+  "generatedAt": "2026-10-29T20:23:22.205133Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok survey\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok siteswap\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "survey.mp4",
+            "file": "siteswap.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                42.602,
-                43.3333,
-                44.1082,
-                44.0497,
-                44.8274,
-                45.4528,
-                45.4453,
-                45.4175,
-                45.4172,
-                45.3877,
-                45.428,
-                45.4222,
-                45.4823
+                42.198,
+                42.5222,
+                42.684,
+                42.3729,
+                42.4564,
+                42.5938,
+                42.5972,
+                42.6011,
+                42.5915,
+                42.6018,
+                42.5977,
+                42.5981,
+                42.5919
               ],
               "end": [
-                44.2749,
-                43.9492,
-                43.6477,
-                43.1044,
-                42.6446,
+                42.6362,
+                42.8931,
+                42.7658,
+                42.5107,
+                42.292,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 45.4823,
-              "end_max": 44.2749,
-              "start_med": 45.4172,
-              "end_med": 42.6446
+              "start_max": 42.684,
+              "end_max": 42.8931,
+              "start_med": 42.5938,
+              "end_med": 42.292
             }
           }
         ]
@@ -64,20 +64,20 @@
         "checked": 1,
         "flagged_count": 1,
         "flagged_pages": [
-          "survey"
+          "siteswap"
         ],
         "results": [
           {
-            "file": "survey.mp4",
+            "file": "siteswap.mp4",
             "ok": false,
             "too_dark": true,
-            "too_static": false,
+            "too_static": true,
             "luma": [
-              34.14,
-              33.58,
-              33.66
+              30.86,
+              31.05,
+              31.29
             ],
-            "motion": 3.601
+            "motion": 1.51
           }
         ]
       }
@@ -92,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "survey.mp4",
+            "file": "siteswap.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 44.0497,
+              "y1": 42.3729,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
