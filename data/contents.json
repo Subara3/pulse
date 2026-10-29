@@ -1100,6 +1100,19 @@
     "added": "2026-10-28"
   },
   {
+    "page": "siteswap",
+    "title": "SITESWAP",
+    "desc": "左右の手が交互に玉を投げ上げ、玉は高さの違う放物線を描いて反対の手や同じ手に落ちる。投げる高さの並びと玉の数はしばらくごとに替わり、通った跡の線が何本も重なって、高さの違う山形が並ぶ。押すと近くの放物線が指のほうへ曲がって水色に光り、次に投げる玉はその高さまで上がる。なぞると曲がった放物線が指についてくる。",
+    "desc_en": "Two hands take turns tossing balls upward, and each ball follows an arc of its own height into the other hand or back into the same one. The sequence of heights and the number of balls change every so often, and the lines left behind pile up into rows of arches of different heights. Press and the nearby arcs bend toward your finger and glow cyan, and the next balls are thrown up to that height. Drag and the bent arcs follow your finger.",
+    "icon": "fa-baseball",
+    "group": "number",
+    "category": "数えるもの",
+    "category_en": "NUMBER",
+    "meta": "投げる高さの並びで描かれる放物線",
+    "meta_en": "Arcs drawn by a sequence of throw heights",
+    "added": "2026-10-29"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
