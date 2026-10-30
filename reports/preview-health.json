@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-29T20:23:22.205133Z",
+  "generatedAt": "2026-10-30T20:26:14.868164Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok siteswap\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok tendril\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "siteswap.mp4",
+            "file": "tendril.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                42.198,
-                42.5222,
-                42.684,
-                42.3729,
-                42.4564,
-                42.5938,
-                42.5972,
-                42.6011,
-                42.5915,
-                42.6018,
-                42.5977,
-                42.5981,
-                42.5919
+                42.8549,
+                43.7576,
+                44.5336,
+                44.8947,
+                45.7965,
+                46.3823,
+                46.405,
+                46.4242,
+                46.411,
+                46.4434,
+                46.5147,
+                46.5908,
+                46.5963
               ],
               "end": [
-                42.6362,
-                42.8931,
-                42.7658,
-                42.5107,
-                42.292,
+                45.2821,
+                45.2105,
+                44.4328,
+                43.716,
+                42.8263,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 42.684,
-              "end_max": 42.8931,
-              "start_med": 42.5938,
-              "end_med": 42.292
+              "start_max": 46.5963,
+              "end_max": 45.2821,
+              "start_med": 46.405,
+              "end_med": 42.8263
             }
           }
         ]
@@ -62,22 +62,20 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 1,
-        "flagged_pages": [
-          "siteswap"
-        ],
+        "flagged_count": 0,
+        "flagged_pages": [],
         "results": [
           {
-            "file": "siteswap.mp4",
-            "ok": false,
-            "too_dark": true,
-            "too_static": true,
+            "file": "tendril.mp4",
+            "ok": true,
+            "too_dark": false,
+            "too_static": false,
             "luma": [
-              30.86,
-              31.05,
-              31.29
+              35.36,
+              36.17,
+              36.46
             ],
-            "motion": 1.51
+            "motion": 7.97
           }
         ]
       }
@@ -92,12 +90,12 @@
         "failed": [],
         "details": [
           {
-            "file": "siteswap.mp4",
+            "file": "tendril.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 42.3729,
+              "y1": 44.8947,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
