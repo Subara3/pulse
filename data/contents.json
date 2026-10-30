@@ -1113,6 +1113,19 @@
     "added": "2026-10-29"
   },
   {
+    "page": "tendril",
+    "title": "TENDRIL",
+    "desc": "画面の端からつるが伸びてきて、ところどころで葉を開き、細い巻きひげを渦の形に巻いていく。古いつるは薄れて消え、また新しいつるが伸びてくる。押すとそこから水色のつるが何本も伸びて、まわりのつるが指のほうへ寄る。なぞると指の跡に沿ってつるが伸び、葉と巻きひげがついていく。",
+    "desc_en": "Vines creep in from the edges of the screen, opening leaves and winding thin tendrils into tight spirals. Old vines fade away and new ones keep arriving. Press to send several cyan vines out from that spot while nearby vines lean toward your finger. Drag and a vine grows along your path, putting out leaves and tendrils as it goes.",
+    "icon": "fa-seedling",
+    "group": "curve",
+    "category": "描くもの",
+    "category_en": "CURVE",
+    "meta": "葉を開き、巻きひげを巻いて伸びるつる",
+    "meta_en": "Vines that open leaves and curl tendrils",
+    "added": "2026-10-30"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
