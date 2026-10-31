@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-30T20:26:14.868164Z",
+  "generatedAt": "2026-10-31T20:16:59.721478Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok tendril\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok smoke\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "tendril.mp4",
+            "file": "smoke.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                42.8549,
-                43.7576,
-                44.5336,
-                44.8947,
-                45.7965,
-                46.3823,
-                46.405,
-                46.4242,
-                46.411,
-                46.4434,
-                46.5147,
-                46.5908,
-                46.5963
+                42.1738,
+                42.3034,
+                42.5804,
+                42.0833,
+                42.2357,
+                42.2242,
+                42.297,
+                42.2797,
+                42.3042,
+                42.2608,
+                42.3249,
+                42.3097,
+                42.2945
               ],
               "end": [
-                45.2821,
-                45.2105,
-                44.4328,
-                43.716,
-                42.8263,
+                41.9128,
+                42.5451,
+                42.3997,
+                42.2873,
+                42.1548,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 46.5963,
-              "end_max": 45.2821,
-              "start_med": 46.405,
-              "end_med": 42.8263
+              "start_max": 42.5804,
+              "end_max": 42.5451,
+              "start_med": 42.2945,
+              "end_med": 42.0
             }
           }
         ]
@@ -62,20 +62,22 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 0,
-        "flagged_pages": [],
+        "flagged_count": 1,
+        "flagged_pages": [
+          "smoke"
+        ],
         "results": [
           {
-            "file": "tendril.mp4",
-            "ok": true,
-            "too_dark": false,
+            "file": "smoke.mp4",
+            "ok": false,
+            "too_dark": true,
             "too_static": false,
             "luma": [
-              35.36,
-              36.17,
-              36.46
+              30.47,
+              30.58,
+              30.61
             ],
-            "motion": 7.97
+            "motion": 2.5
           }
         ]
       }
@@ -90,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "tendril.mp4",
+            "file": "smoke.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 44.8947,
+              "y1": 42.0833,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
