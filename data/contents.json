@@ -1126,6 +1126,19 @@
     "added": "2026-10-30"
   },
   {
+    "page": "smoke",
+    "title": "SMOKE",
+    "desc": "画面の下に並んだ線香から、細い煙が何本も立ちのぼる。下のほうではまっすぐ上がるが、高くなるとゆらぎ始め、隣り合っていた煙の筋がばらばらに分かれて渦を巻く。押すとそこから水色の煙が出てまわりの煙が押しのけられ、なぞると煙が指の動いた向きに流される。",
+    "desc_en": "Thin threads of smoke rise from a row of incense sticks. Low down they climb straight, but higher up they start to waver, and strands that rose side by side split apart and curl into eddies. Press to release cyan smoke and push the nearby smoke aside; drag to sweep the smoke along with your finger.",
+    "icon": "fa-smog",
+    "group": "chaos",
+    "category": "予測できないもの",
+    "category_en": "CHAOS",
+    "meta": "立ちのぼる煙の筋",
+    "meta_en": "rising streaks of smoke",
+    "added": "2026-10-31"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
