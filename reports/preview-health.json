@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-10-31T20:16:59.721478Z",
+  "generatedAt": "2026-11-01T20:19:58.292374Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok smoke\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok dripstone\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "smoke.mp4",
+            "file": "dripstone.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                42.1738,
-                42.3034,
-                42.5804,
-                42.0833,
-                42.2357,
-                42.2242,
-                42.297,
-                42.2797,
-                42.3042,
-                42.2608,
-                42.3249,
-                42.3097,
-                42.2945
+                41.981,
+                42.3486,
+                42.3742,
+                42.1696,
+                42.1687,
+                42.0154,
+                41.9794,
+                42.0162,
+                41.948,
+                42.0191,
+                41.9828,
+                41.983,
+                41.905
               ],
               "end": [
-                41.9128,
-                42.5451,
-                42.3997,
-                42.2873,
-                42.1548,
+                42.433,
+                42.4548,
+                42.5201,
+                42.401,
+                42.308,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 42.5804,
-              "end_max": 42.5451,
-              "start_med": 42.2945,
-              "end_med": 42.0
+              "start_max": 42.3742,
+              "end_max": 42.5201,
+              "start_med": 42.0154,
+              "end_med": 42.308
             }
           }
         ]
@@ -64,20 +64,20 @@
         "checked": 1,
         "flagged_count": 1,
         "flagged_pages": [
-          "smoke"
+          "dripstone"
         ],
         "results": [
           {
-            "file": "smoke.mp4",
+            "file": "dripstone.mp4",
             "ok": false,
             "too_dark": true,
             "too_static": false,
             "luma": [
-              30.47,
-              30.58,
-              30.61
+              30.19,
+              30.15,
+              30.37
             ],
-            "motion": 2.5
+            "motion": 8.224
           }
         ]
       }
@@ -92,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "smoke.mp4",
+            "file": "dripstone.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 42.0833,
+              "y1": 42.1696,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
