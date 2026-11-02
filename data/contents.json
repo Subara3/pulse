@@ -1152,6 +1152,19 @@
     "added": "2026-11-01"
   },
   {
+    "page": "moonpath",
+    "title": "MOONPATH",
+    "desc": "夜の海に月の光が映り、水平線から手前まで、波のきらめきが縦の帯になって揺れている。月はゆっくり動き、光の帯もそれについて動く。海を押すとそこに風が当たってさざ波が立ち、帯の外でも水色の光の粒が散る。なぞると指の跡に沿ってさざ波が流れ、空を押すと月がそこへ移る。",
+    "desc_en": "Moonlight falls on a night sea, and the glints on the waves form a vertical band that runs from the horizon to your feet. The moon drifts slowly and the band of light moves with it. Press the sea and a gust roughens the water there, scattering cyan glints even outside the band; drag and the ripples follow your finger. Press the sky and the moon moves there.",
+    "icon": "fa-moon",
+    "group": "light",
+    "category": "光るもの",
+    "category_en": "LIGHT",
+    "meta": "波に映る月の光の帯",
+    "meta_en": "A path of moonlight on the waves",
+    "added": "2026-11-02"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
