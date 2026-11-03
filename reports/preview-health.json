@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-02T20:19:35.738987Z",
+  "generatedAt": "2026-11-03T20:19:01.803635Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok moonpath\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok waterfall\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,40 +18,40 @@
         "failed": [],
         "details": [
           {
-            "file": "moonpath.mp4",
+            "file": "waterfall.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                44.7038,
-                47.8706,
-                50.6227,
-                53.4684,
-                56.0663,
-                59.0811,
-                59.0399,
-                59.2016,
-                59.1734,
-                59.2383,
-                59.1381,
-                59.3004,
-                59.2326
+                42.6977,
+                43.5388,
+                44.6226,
+                45.1552,
+                46.288,
+                46.8441,
+                46.9307,
+                46.7353,
+                46.7328,
+                46.7889,
+                46.6295,
+                46.5224,
+                46.3037
               ],
               "end": [
-                53.0324,
-                50.7185,
-                48.7624,
-                46.5903,
-                44.4389,
+                44.7982,
+                43.9092,
+                43.6971,
+                43.1356,
+                42.7118,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 59.3004,
-              "end_max": 53.0324,
-              "start_med": 59.0811,
-              "end_med": 44.4389
+              "start_max": 46.9307,
+              "end_max": 44.7982,
+              "start_med": 46.5224,
+              "end_med": 42.7118
             }
           }
         ]
@@ -62,20 +62,22 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 0,
-        "flagged_pages": [],
+        "flagged_count": 1,
+        "flagged_pages": [
+          "waterfall"
+        ],
         "results": [
           {
-            "file": "moonpath.mp4",
-            "ok": true,
-            "too_dark": false,
+            "file": "waterfall.mp4",
+            "ok": false,
+            "too_dark": true,
             "too_static": false,
             "luma": [
-              50.34,
-              50.53,
-              49.68
+              35.79,
+              35.72,
+              34.74
             ],
-            "motion": 8.795
+            "motion": 12.083
           }
         ]
       }
@@ -90,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "moonpath.mp4",
+            "file": "waterfall.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 53.4684,
+              "y1": 45.1552,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
