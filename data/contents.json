@@ -1165,6 +1165,19 @@
     "added": "2026-11-02"
   },
   {
+    "page": "waterfall",
+    "title": "WATERFALL",
+    "desc": "崖の縁から水が何本もの白い筋になって落ち、下の滝つぼで泡としぶきを上げる。水の多いところは少しずつ横へ移っていく。押すとそこに岩が置かれて水が左右に割れ、なぞると岩が指についてきて、割れた流れも一緒に動く。滝つぼを押すと水面に大きな波が立つ。",
+    "desc_en": "Water pours over a cliff edge in many thin white strands and throws up foam and spray in the pool below. The thickest parts of the fall drift slowly sideways. Press to set a rock there and the water splits around it; drag and the rock follows your finger, carrying the split stream with it. Press the pool and a large wave runs across its surface.",
+    "icon": "fa-water",
+    "group": "flow",
+    "category": "流れるもの",
+    "category_en": "FLOW",
+    "meta": "岩で割れる滝の流れ",
+    "meta_en": "A falling curtain of water that splits on rocks",
+    "added": "2026-11-03"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
