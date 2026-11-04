@@ -1178,6 +1178,19 @@
     "added": "2026-11-03"
   },
   {
+    "page": "huddle",
+    "title": "HUDDLE",
+    "desc": "雪の吹きつける氷の上で、何百羽ものペンギンが押し合って1つの大きな塊になっている。風上の端で冷えたものは塊の縁を歩いて風下へ回りこみ、ときどき一歩ずつ詰める動きが塊を横切っていく。押すとまわりのペンギンが水色になって指から離れ、すき間があく。なぞると指の通り道が割れて、離すとすき間が埋まっていく。",
+    "desc_en": "On wind-blown ice, hundreds of penguins press together into one big crowd. The ones chilled on the windward edge walk along the rim to the sheltered side, and now and then a shuffle of small steps passes across the whole group. Press and the penguins around your finger turn cyan and back away, opening a gap; drag to split a path through them, and when you let go the gap fills in again.",
+    "icon": "fa-snowflake",
+    "group": "swarm",
+    "category": "群れるもの",
+    "category_en": "SWARM",
+    "meta": "風上から風下へ回りこむペンギンの塊",
+    "meta_en": "A penguin huddle turning over in the wind",
+    "added": "2026-11-04"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
