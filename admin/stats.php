@@ -7,6 +7,7 @@
 // 認証キーはリポジトリに置かず、サーバーの secrets.php で define('PULSE_STATS_KEY', '...') する。
 // 未設定なら誰も開けない。
 $secretsPath = __DIR__ . '/../../web/config/secrets.php';
+if (!defined('ALLOW_INCLUDE')) define('ALLOW_INCLUDE', true);  // secrets.php はこれが無いと読ませない
 if (file_exists($secretsPath)) require_once $secretsPath;
 $secretKey = defined('PULSE_STATS_KEY') ? (string) PULSE_STATS_KEY : '';
 

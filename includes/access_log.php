@@ -23,7 +23,10 @@ $data = [
 // IPはハッシュにして残す。ソルトはリポジトリに置かず、サーバーの secrets.php で
 // define('PULSE_LOG_SALT', '...') する。未設定のあいだはIPを残さない。
 $secretsPath = __DIR__ . '/../../web/config/secrets.php';
-if (!defined('PULSE_LOG_SALT') && file_exists($secretsPath)) require_once $secretsPath;
+if (!defined('PULSE_LOG_SALT') && file_exists($secretsPath)) {
+    if (!defined('ALLOW_INCLUDE')) define('ALLOW_INCLUDE', true);  // secrets.php はこれが無いと読ませない
+    require_once $secretsPath;
+}
 if (defined('PULSE_LOG_SALT') && PULSE_LOG_SALT !== '') {
     $data['ip'] = hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '') . PULSE_LOG_SALT);
 }
