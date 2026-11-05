@@ -12,7 +12,9 @@
  *  - コードは 4 つを約 7 秒ずつ巡回する。鳴る音は必ずその時のコード構成音。
  *  - 発音時刻は 1/16 グリッドにスナップする。連打してもリズムになる。
  *  - キー（基音）はページ名から決まる。ページごとに響きが違い、再訪しても同じ。
- *  - 背後に常時アンビエントパッド（サイン波 4 本のドローン）が流れる。
+ *  - 常時鳴り続ける低音のドローンは置かない（重低音のうなりが不快だったので 2026-11 に廃止）。
+ *    代わりに、遠くで鳴る単音がときどき入る。
+ *  - 低すぎる音は 1 オクターブずつ上げて鳴らす（FLOOR_HZ）。
  *
  * ---------------------------------------------------------------------------
  * 既存ページ向け API（変更なし・そのまま動く）
@@ -105,6 +107,8 @@ window.PulseAudio = (function () {
 
   var MASTER_VOL = 0.72;   /* 全体音量 */
   var MAX_VOICES = 20;
+  /* これより低い音は、同じ音名のままオクターブを上げる。低い帯域のうなりを出さない */
+  var FLOOR_HZ = 165;
   var voices = 0;
   var recentSlots = [];   // 同一グリッド・同一音程の重複を潰す
 
@@ -259,7 +263,8 @@ window.PulseAudio = (function () {
     var vol = opts.vol == null ? 0.07 : opts.vol;
     var atk = opts.attack == null ? 0.012 : opts.attack;
     var f = freqOf(semi);
-    if (f < 20 || f > 12000) return;
+    while (f < FLOOR_HZ) f *= 2;
+    if (f > 12000) return;
 
     var osc = ctx.createOscillator();
     osc.type = 'sine';
@@ -319,56 +324,7 @@ window.PulseAudio = (function () {
     if (!ready() || padRunning || reduceMotion) return;
     padRunning = true;
 
-    var c = chord();
-    var voicesSemi = [c.deg, c.deg + 7, c.deg + 12, c.deg + 19];
-    var pans = [-0.35, 0.3, -0.15, 0.4];
-
-    for (var i = 0; i < voicesSemi.length; i++) {
-      var osc = ctx.createOscillator();
-      osc.type = 'sine';
-      osc.frequency.value = freqOf(voicesSemi[i] + 12) * (1 + (i - 1.5) * 0.0012);
-      var g = ctx.createGain();
-      g.gain.value = i < 2 ? 0.5 : 0.22;
-      osc.connect(g);
-      if (ctx.createStereoPanner) {
-        var p = ctx.createStereoPanner();
-        p.pan.value = pans[i];
-        g.connect(p); p.connect(padGain);
-      } else {
-        g.connect(padGain);
-      }
-      osc.start();
-      padOscs.push(osc);
-      padGains.push(g);
-    }
-
-    /* ごくゆっくりした揺れ */
-    padLfo = ctx.createOscillator();
-    padLfo.type = 'sine';
-    padLfo.frequency.value = 0.055;
-    var lfoGain = ctx.createGain();
-    lfoGain.gain.value = 0.02;
-    padLfo.connect(lfoGain);
-    lfoGain.connect(padGain.gain);
-    padLfo.start();
-
-    padGain.gain.setTargetAtTime(0.075, ctx.currentTime, 4.0);
-
-    /* コードが変わったらパッドの各声部をポルタメントで移す */
-    var lastBar = -1;
-    setInterval(function () {
-      if (!ready() || !padRunning) return;
-      var b = barIndex();
-      if (b === lastBar) return;
-      lastBar = b;
-      var cc = PROG[b];
-      var target = [cc.deg, cc.deg + cc.tones[2], cc.deg + 12, cc.deg + 12 + cc.tones[1]];
-      for (var j = 0; j < padOscs.length; j++) {
-        padOscs[j].frequency.setTargetAtTime(
-          freqOf(target[j] + 12) * (1 + (j - 1.5) * 0.0012), ctx.currentTime, 2.2
-        );
-      }
-    }, 1000);
+    /* 以前はここでサイン波 4 本のドローンを常時鳴らしていた。重低音のうなりになるので廃止した。 */
 
     /* 遠くで鳴る単音。何も操作していなくても部屋が静かにならない。 */
     (function chime() {
