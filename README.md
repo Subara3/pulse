@@ -35,8 +35,7 @@ python3 scripts/check_palette_render.py
 
 ## 毎日の追加の流れ
 
-毎日の作品は main に直接入れず、`daily/{日付}` ブランチ → PR → CodeRabbit のレビュー → 人がマージ、の順に通す。
-PR は `.github/workflows/daily-pr.yml` が検査（check_policy / test_build）のあとに自動で作る。
+`daily/{日付}` ブランチ → PR → CodeRabbit のレビュー → 人がマージ。手順は [CLAUDE.md](CLAUDE.md) の「検査してからコミット＆プッシュ」。
 
 ## デプロイ
 
