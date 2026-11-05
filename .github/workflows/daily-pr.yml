@@ -31,8 +31,11 @@ jobs:
     needs: check
     if: ${{ always() }}
     runs-on: ubuntu-latest
+    outputs:
+      number: ${{ steps.pr.outputs.number }}
     steps:
       - name: PR を作る
+        id: pr
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH: ${{ github.ref_name }}
@@ -44,4 +47,42 @@ jobs:
           fi
           title=$(gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA" -q '.commit.message' | head -1)
           body="毎日の自動追加（${BRANCH}）。検査（check_policy / test_build）: ${CHECK}"
-          gh pr create -R "$GITHUB_REPOSITORY" --base main --head "$BRANCH" --title "$title" --body "$body"
+          url=$(gh pr create -R "$GITHUB_REPOSITORY" --base main --head "$BRANCH" --title "$title" --body "$body")
+          echo "number=${url##*/}" >> "$GITHUB_OUTPUT"
+
+  # 新しく PR を作ったときだけ、CodeRabbit のレビューを待って Discord に知らせる。
+  # Webhook の URL は Secrets の DISCORD_WEBHOOK_URL。未設定なら何もしない。
+  notify:
+    needs: open-pr
+    if: ${{ needs.open-pr.outputs.number != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Discord に知らせる
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          NUM: ${{ needs.open-pr.outputs.number }}
+        run: |
+          set -eu
+          if [ -z "$HOOK" ]; then echo "DISCORD_WEBHOOK_URL が未設定"; exit 0; fi
+          R="$GITHUB_REPOSITORY"
+          # CodeRabbit のレビューが終わるまで最大20分待つ
+          risk="（レビュー待ち）"; comments=0
+          for i in $(seq 1 40); do
+            body=$(gh api "repos/$R/issues/$NUM/comments" -q '[.[]|select(.user.login|test("coderabbit"))][0].body // ""')
+            if [ -n "$body" ] && ! echo "$body" | grep -q "Currently processing"; then
+              risk=$(echo "$body" | grep -o 'Merge Risk:\*\* \*\*[^*]*' | head -1 | sed 's/.*\*\*//' || true)
+              [ -z "$risk" ] && risk="不明"
+              comments=$(gh api "repos/$R/pulls/$NUM/comments" -q '[.[]|select(.user.login|test("coderabbit"))]|length')
+              break
+            fi
+            sleep 30
+          done
+          title=$(gh pr view "$NUM" -R "$R" --json title,additions,deletions -q '.title + "（+" + (.additions|tostring) + " / -" + (.deletions|tostring) + "）"')
+          msg="PULSEのPRが届いた: ${title}
+          CodeRabbit: マージのリスク ${risk}、行への指摘 ${comments}件
+          PR: https://github.com/$R/pull/$NUM
+          Change Stack: https://app.coderabbit.ai/change-stack/$R/pull/$NUM"
+          jq -n --arg c "$msg" '{content:$c, allowed_mentions:{parse:[]}}' | curl -sf -H 'Content-Type: application/json' -d @- "$HOOK" >/dev/null
+          echo "sent"
