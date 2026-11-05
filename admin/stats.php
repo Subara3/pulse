@@ -1,13 +1,16 @@
 <?php
 /**
  * アクセス統計ビューア（簡易版）
- * URL: /admin/stats.php?key=YOUR_SECRET_KEY
+ * URL: /admin/stats.php?key=（secrets.php の PULSE_STATS_KEY）
  */
 
-// 簡易認証キー（後で変更してね）
-$secretKey = 'pulse_stats_2026';
+// 認証キーはリポジトリに置かず、サーバーの secrets.php で define('PULSE_STATS_KEY', '...') する。
+// 未設定なら誰も開けない。
+$secretsPath = __DIR__ . '/../../web/config/secrets.php';
+if (file_exists($secretsPath)) require_once $secretsPath;
+$secretKey = defined('PULSE_STATS_KEY') ? (string) PULSE_STATS_KEY : '';
 
-if (($_GET['key'] ?? '') !== $secretKey) {
+if ($secretKey === '' || !hash_equals($secretKey, (string) ($_GET['key'] ?? ''))) {
     http_response_code(403);
     die('Access Denied');
 }

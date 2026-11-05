@@ -19,8 +19,14 @@ $data = [
     'page' => $_SERVER['REQUEST_URI'] ?? '/',
     'ref' => $_SERVER['HTTP_REFERER'] ?? '',
     'ua' => $_SERVER['HTTP_USER_AGENT'] ?? '',
-    'ip' => hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '') . 'pulse_salt_2026'), // IPはハッシュ化
 ];
+// IPはハッシュにして残す。ソルトはリポジトリに置かず、サーバーの secrets.php で
+// define('PULSE_LOG_SALT', '...') する。未設定のあいだはIPを残さない。
+$secretsPath = __DIR__ . '/../../web/config/secrets.php';
+if (!defined('PULSE_LOG_SALT') && file_exists($secretsPath)) require_once $secretsPath;
+if (defined('PULSE_LOG_SALT') && PULSE_LOG_SALT !== '') {
+    $data['ip'] = hash('sha256', ($_SERVER['REMOTE_ADDR'] ?? '') . PULSE_LOG_SALT);
+}
 
 // ログに追記
 file_put_contents($logFile, json_encode($data, JSON_UNESCAPED_UNICODE) . "\n", FILE_APPEND | LOCK_EX);
