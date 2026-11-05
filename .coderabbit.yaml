@@ -1,0 +1,25 @@
+# CodeRabbit の設定。毎日 AI が足す作品ページ（daily/ ブランチの PR）をレビューさせる。
+language: "ja-JP"
+
+reviews:
+  profile: "chill"
+  high_level_summary: true
+  auto_review:
+    enabled: true
+    drafts: false
+  path_filters:
+    - "!img/previews/**"
+    - "!**/*.mp4"
+  path_instructions:
+    - path: "*.php"
+      instructions: |
+        作品ページ。CLAUDE.md の「作品の決めごと」「音（SFX / チルエンジン）ルール」「配色」に反していないかを見る。
+        特に、画面に文字や HUD を出していないか、色を includes/colors.php の P 以外から取っていないか、
+        連続して起きる操作の SFX.play にスロットルがあるか、ページ側で AudioContext を作っていないか。
+        数式の誤り、端の処理、毎フレームの無駄な確保など、動かしたときに困る点も指摘する。
+
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "CLAUDE.md"

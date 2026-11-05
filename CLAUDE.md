@@ -7,7 +7,7 @@ PULSE は、数式と規則で動くものを「眺めていられる形」に�
 
 - **URL**: https://pulse.subara3.com/
 - **ホスティング**: Lolipop（FTP経由）
-- **デプロイ**: GitHub Actions（main への push で自動FTPデプロイ）
+- **デプロイ**: GitHub Actions（main への push で自動FTPデプロイ）。日々の追加は `daily/` ブランチ → PR → CodeRabbit のレビュー → 人がマージ
 - **技術**: PHP + 素の JavaScript + Canvas 2D。外部ライブラリなし。
 - **デザイン基準**: `css/pulse.css`（トークン・共通コンポーネント）と `includes/colors.php`（Canvas 側の色）。
   ページ側の `$extraStyle` は原則空。トークンを上書きしない。
@@ -139,11 +139,14 @@ php -l {pagename}.php
 python3 scripts/check_policy.py          # 必須。落ちたら直してから push
 python3 tests/test_build.py              # PHP/JSON構文 + ポリシー
 
+git checkout -b daily/{YYYY-MM-DD}          # 日付は UTC
 git add {pagename}.php data/contents.json
 git commit -m "add: {TITLE}（{説明}）"
-git push origin main
+git push origin daily/{YYYY-MM-DD}
 ```
-デプロイ・プレビュー動画・CLAUDE.md 一覧の再生成はすべて CI が自動でやる。
+**main には直接 push しない。** `daily/` のブランチを push すると、CI が検査を走らせて PR を作り、
+CodeRabbit がレビューする。人が PR を見てマージしたら、デプロイ・プレビュー動画・CLAUDE.md 一覧の再生成を CI がやる。
+同じ日のブランチがもうあれば、そのブランチに追加でコミットする。
 
 ## 触る必要がないファイル
 
