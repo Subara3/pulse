@@ -33,6 +33,10 @@ python3 scripts/check_policy.py      # 分類・必須include・配色・リン�
 python3 scripts/check_palette_render.py
 ```
 
+## 毎日の追加の流れ
+
+`daily/{日付}` ブランチ → PR → CodeRabbit のレビュー → 人がマージ。手順は [CLAUDE.md](CLAUDE.md) の「検査してからコミット＆プッシュ」。
+
 ## デプロイ
 
 `main` へ push すると GitHub Actions が
