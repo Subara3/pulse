@@ -1204,6 +1204,19 @@
     "added": "2026-11-05"
   },
   {
+    "page": "cumulus",
+    "title": "CUMULUS",
+    "desc": "平らな底の上に丸いふくらみが盛り上がり、その縁にまた小さなふくらみが重なって、積雲が何層もゆっくりわき上がりながら横へ流れていく。ふくらみは少しずつしぼんで消え、別のところからまたわいてくる。押すとそこのふくらみから小さなふくらみが指のほうへ次々に盛り上がって水色に光り、なぞると指の跡に沿って雲がわく。",
+    "desc_en": "Round bulges swell up from flat bases, smaller bulges pile onto their rims, and layer after layer of cumulus clouds slowly billow upward while drifting sideways. The bulges gradually shrink away and new ones rise somewhere else. Press and small bulges swell out of the cloud toward your finger one after another, glowing cyan; drag and clouds rise along your path.",
+    "icon": "fa-cloud",
+    "group": "fractal",
+    "category": "繰り返すもの",
+    "category_en": "FRACTAL",
+    "meta": "ふくらみの上にふくらみが重なる積雲",
+    "meta_en": "Clouds of bulges on bulges",
+    "added": "2026-11-06"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
