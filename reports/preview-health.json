@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-06T00:19:00.630424Z",
+  "generatedAt": "2026-11-07T00:37:21.530366Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok velvet\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok cumulus\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,42 +18,42 @@
         "failed": [],
         "details": [
           {
-            "file": "velvet.mp4",
+            "file": "cumulus.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                43.6609,
-                45.3862,
-                46.982,
-                48.374,
-                49.927,
-                51.6511,
-                51.639,
-                51.7318,
-                51.8074,
-                51.6353,
-                51.5913,
-                51.8405,
-                51.7923,
-                51.7418,
-                51.7483
+                43.5956,
+                45.4106,
+                46.9305,
+                48.2737,
+                49.5734,
+                51.1789,
+                51.1641,
+                51.2103,
+                51.1525,
+                51.2766,
+                51.2692,
+                51.2966,
+                51.2247,
+                51.861,
+                51.8419
               ],
               "end": [
-                48.2686,
-                46.7128,
-                45.9862,
-                44.6181,
-                43.5456,
+                48.6451,
+                47.4168,
+                46.273,
+                44.8325,
+                43.5312,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 51.8405,
-              "end_max": 48.2686,
-              "start_med": 51.639,
-              "end_med": 43.5456
+              "start_max": 51.861,
+              "end_max": 48.6451,
+              "start_med": 51.1789,
+              "end_med": 43.5312
             }
           }
         ]
@@ -68,16 +68,16 @@
         "flagged_pages": [],
         "results": [
           {
-            "file": "velvet.mp4",
+            "file": "cumulus.mp4",
             "ok": true,
             "too_dark": false,
             "too_static": false,
             "luma": [
-              41.47,
-              41.27,
-              41.07
+              41.0,
+              42.47,
+              42.34
             ],
-            "motion": 14.096
+            "motion": 10.703
           }
         ]
       }
@@ -92,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "velvet.mp4",
+            "file": "cumulus.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 48.374,
+              "y1": 48.2737,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
