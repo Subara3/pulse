@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-07T00:37:21.530366Z",
+  "generatedAt": "2026-11-08T01:37:36.174211Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok cumulus\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok coil\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,42 +18,42 @@
         "failed": [],
         "details": [
           {
-            "file": "cumulus.mp4",
+            "file": "coil.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                43.5956,
-                45.4106,
-                46.9305,
-                48.2737,
-                49.5734,
-                51.1789,
-                51.1641,
-                51.2103,
-                51.1525,
-                51.2766,
-                51.2692,
-                51.2966,
-                51.2247,
-                51.861,
-                51.8419
+                43.6281,
+                45.2183,
+                46.8994,
+                47.732,
+                49.3071,
+                50.968,
+                51.0225,
+                51.0158,
+                51.0276,
+                51.0094,
+                51.1152,
+                51.018,
+                51.0946,
+                51.0889,
+                51.0966
               ],
               "end": [
-                48.6451,
-                47.4168,
-                46.273,
-                44.8325,
-                43.5312,
+                48.1234,
+                46.9289,
+                45.9375,
+                44.6077,
+                43.415,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 51.861,
-              "end_max": 48.6451,
-              "start_med": 51.1789,
-              "end_med": 43.5312
+              "start_max": 51.1152,
+              "end_max": 48.1234,
+              "start_med": 51.0158,
+              "end_med": 43.415
             }
           }
         ]
@@ -68,16 +68,16 @@
         "flagged_pages": [],
         "results": [
           {
-            "file": "cumulus.mp4",
+            "file": "coil.mp4",
             "ok": true,
             "too_dark": false,
             "too_static": false,
             "luma": [
-              41.0,
-              42.47,
-              42.34
+              40.69,
+              41.05,
+              40.98
             ],
-            "motion": 10.703
+            "motion": 21.412
           }
         ]
       }
@@ -92,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "cumulus.mp4",
+            "file": "coil.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 48.2737,
+              "y1": 47.732,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
