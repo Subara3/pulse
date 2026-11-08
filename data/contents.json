@@ -1217,6 +1217,19 @@
     "added": "2026-11-06"
   },
   {
+    "page": "coil",
+    "title": "COIL",
+    "desc": "上に並んだ口から細い糸が落ち、下へ流れる床の上に輪や8の字を描きながら積もっていく。輪の大きさと巻き方はゆっくり変わり、描いた線は床といっしょに下へ流れていく。押すと近くの口が指の下へ来て水色の糸を落とし、まわりの線が押しのけられる。なぞると口が指についてきて、指の跡に沿って輪が並ぶ。",
+    "desc_en": "Thin threads fall from a row of spouts at the top and pile onto a floor that keeps sliding downward, laying loops and figure-eights. The size of the loops and the way they wind change slowly, and the drawn lines drift down with the floor. Press and the nearest spout moves under your finger and drops a cyan thread while the lines around it are pushed aside; drag and the spout follows you, leaving a row of loops along your path.",
+    "icon": "fa-rotate",
+    "group": "curve",
+    "category": "描くもの",
+    "category_en": "CURVE",
+    "meta": "流れる床に落ちて輪を描く糸",
+    "meta_en": "Threads coiling onto a moving floor",
+    "added": "2026-11-07"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
