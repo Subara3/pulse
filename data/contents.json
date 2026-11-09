@@ -1230,6 +1230,19 @@
     "added": "2026-11-07"
   },
   {
+    "page": "stir",
+    "title": "STIR",
+    "desc": "何本もの縞が並んだ水を、円を描いて回る棒がかき混ぜる。縞は棒に引かれて細く伸び、折り返されて、何重にも重なった層になる。ときどき櫛が端から端へ渡り、混ざりきったところに新しい縞を引き直す。押すとそこに水色のしずくが落ちて渦が巻き、しずくはすぐに細い筋に引き伸ばされる。なぞると水が指についてきて、縞が指の跡に沿って引きずられる。",
+    "desc_en": "Rods moving in circles stir a tank of water laid out in stripes. The stripes are pulled thin by the rods, folded back, and stacked into many thin layers. Now and then a comb sweeps from one end to the other and lays fresh stripes over the mixed water. Press and a cyan drop falls there with a swirl, and it is quickly stretched into a thin thread. Drag and the water follows your finger, pulling the stripes along your path.",
+    "icon": "fa-blender",
+    "group": "chaos",
+    "category": "予測できないもの",
+    "category_en": "CHAOS",
+    "meta": "回る棒が縞を折りたたむ水",
+    "meta_en": "Rods folding striped water into layers",
+    "added": "2026-11-09"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
