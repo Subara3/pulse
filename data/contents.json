@@ -1243,6 +1243,19 @@
     "added": "2026-11-08"
   },
   {
+    "page": "stir",
+    "title": "STIR",
+    "desc": "縞模様の水を円を描いて回る棒がかき混ぜ、縞は細く伸びて折り返されて何重もの層になる。押すとそこに水色のしずくが落ちて渦が巻き、なぞると水が指についてきて縞が引きずられる。",
+    "desc_en": "Rods moving in circles stir striped water, stretching the stripes thin and folding them into many layers. Press to drop cyan ink with a swirl, and drag to pull the water and stripes along your finger.",
+    "icon": "fa-blender",
+    "group": "chaos",
+    "category": "予測できないもの",
+    "category_en": "CHAOS",
+    "meta": "回る棒が縞を折りたたむ水",
+    "meta_en": "Rods folding striped water into layers",
+    "added": "2026-11-09"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
