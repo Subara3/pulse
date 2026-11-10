@@ -1230,6 +1230,19 @@
     "added": "2026-11-07"
   },
   {
+    "page": "floe",
+    "title": "FLOE",
+    "desc": "大小の流氷が海面をすき間なく覆い、ゆっくり横へ流れていく。うねりが通るたびに氷のあいだのすき間が開いたり閉じたりし、ときどき一筋の割れ目が何枚もの氷を横切る。押すとそこから氷が放射状に割れて水色に光りながら押し広げられ、なぞると指の跡に水路が開いて、しばらくすると氷が寄ってきて閉じる。",
+    "desc_en": "Ice floes of many sizes cover the sea with almost no gaps and drift slowly sideways. Each passing swell opens and closes the gaps between them, and now and then a single crack runs straight across several floes. Press and the ice breaks outward from that point, glowing cyan as the pieces are pushed apart; drag and a channel of open water opens along your path, then the floes drift back and close it.",
+    "icon": "fa-icicles",
+    "group": "tile",
+    "category": "敷き詰めるもの",
+    "category_en": "TILING",
+    "meta": "うねりで開いては閉じる流氷",
+    "meta_en": "Pack ice opening and closing with the swell",
+    "added": "2026-11-08"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
