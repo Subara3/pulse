@@ -5,7 +5,7 @@ recordPageView('stir');
 
 $pageName = 'stir';
 $pageTitle = 'STIR - PULSE';
-$pageDesc = '何本もの縞が並んだ水を、円を描いて回る棒がかき混ぜる。縞は棒に引かれて細く伸び、折り返されて、何重にも重なった層になる。ときどき櫛が端から端へ渡り、混ざりきったところに新しい縞を引き直す。押すとそこに水色のしずくが落ちて渦が巻き、しずくはすぐに細い筋に引き伸ばされる。なぞると水が指についてきて、縞が指の跡に沿って引きずられる。';
+$pageDesc = '縞模様の水を円を描いて回る棒がかき混ぜ、縞は細く伸びて折り返されて何重もの層になる。押すとそこに水色のしずくが落ちて渦が巻き、なぞると水が指についてきて縞が引きずられる。';
 $pageCanonical = 'https://pulse.subara3.com/stir.php';
 $extraStyle = '';
 
@@ -112,6 +112,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   /* 流れ関数から作るので水は縮まない: ψ = (V×d + κ)·exp(-d²/R²) */
   var SRC = [];
+  /* 棒は最大6本＋指1本なので、長さ8の作業配列を使い回す（毎フレーム確保しない） */
+  var SX = new Float32Array(8), SY = new Float32Array(8), SVX = new Float32Array(8),
+      SVY = new Float32Array(8), SK = new Float32Array(8), SR = new Float32Array(8);
   function sources() {
     SRC.length = 0;
     for (var k = 0; k < rods.length; k++) SRC.push(rods[k]);
@@ -120,8 +123,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
 
   function advect(dt) {
     sources();
-    var m = SRC.length, sx = new Float32Array(m), sy = new Float32Array(m), svx = new Float32Array(m),
-        svy = new Float32Array(m), sk = new Float32Array(m), sr = new Float32Array(m), w = new Float32Array(m);
+    var m = SRC.length, sx = SX, sy = SY, svx = SVX, svy = SVY, sk = SK, sr = SR;
     for (var q = 0; q < m; q++) {
       var o = SRC[q], ww = o.w == null ? 1 : o.w;
       sx[q] = o.x; sy[q] = o.y; svx[q] = o.vx * ww; svy[q] = o.vy * ww; sk[q] = o.kap * ww;
