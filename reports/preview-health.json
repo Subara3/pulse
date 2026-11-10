@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-08T01:37:36.174211Z",
+  "generatedAt": "2026-11-10T06:40:46.596482Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok coil\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok floe\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,42 +18,42 @@
         "failed": [],
         "details": [
           {
-            "file": "coil.mp4",
+            "file": "floe.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                43.6281,
-                45.2183,
-                46.8994,
-                47.732,
-                49.3071,
-                50.968,
-                51.0225,
-                51.0158,
-                51.0276,
-                51.0094,
-                51.1152,
-                51.018,
-                51.0946,
-                51.0889,
-                51.0966
+                44.5013,
+                47.2954,
+                49.5731,
+                52.1048,
+                53.9688,
+                56.7464,
+                56.671,
+                56.7671,
+                56.6336,
+                56.8037,
+                56.7602,
+                56.8121,
+                56.6779,
+                61.3481,
+                61.2499
               ],
               "end": [
-                48.1234,
-                46.9289,
-                45.9375,
-                44.6077,
-                43.415,
+                52.743,
+                50.3464,
+                48.6535,
+                46.4105,
+                44.4689,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 51.1152,
-              "end_max": 48.1234,
-              "start_med": 51.0158,
-              "end_med": 43.415
+              "start_max": 61.3481,
+              "end_max": 52.743,
+              "start_med": 56.6779,
+              "end_med": 44.4689
             }
           }
         ]
@@ -68,16 +68,16 @@
         "flagged_pages": [],
         "results": [
           {
-            "file": "coil.mp4",
+            "file": "floe.mp4",
             "ok": true,
             "too_dark": false,
             "too_static": false,
             "luma": [
-              40.69,
-              41.05,
-              40.98
+              47.48,
+              51.01,
+              49.36
             ],
-            "motion": 21.412
+            "motion": 14.156
           }
         ]
       }
@@ -92,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "coil.mp4",
+            "file": "floe.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 47.732,
+              "y1": 52.1048,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
