@@ -147,6 +147,8 @@ git push origin daily/{YYYY-MM-DD}
 **main には直接 push しない。** `daily/` のブランチを push すると、CI が検査を走らせて PR を作り、
 CodeRabbit がレビューする。人が PR を見てマージしたら、デプロイ・プレビュー動画・CLAUDE.md 一覧の再生成を CI がやる。
 同じ日のブランチがもうあれば、そのブランチに追加でコミットする。
+前の日の PR がまだマージされていなくても、ブランチは main から切ってよい。前の PR がマージされて contents.json がぶつかったら、
+`daily-sync.yml` が main を取り込んで両方のエントリを残す（`scripts/resolve_contents_conflict.py`）。
 
 ## 触る必要がないファイル
 
