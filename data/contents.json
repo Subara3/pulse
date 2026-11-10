@@ -1230,10 +1230,23 @@
     "added": "2026-11-07"
   },
   {
+    "page": "floe",
+    "title": "FLOE",
+    "desc": "大小の流氷が海面をすき間なく覆い、ゆっくり横へ流れていく。うねりが通るたびに氷のあいだのすき間が開いたり閉じたりし、ときどき一筋の割れ目が何枚もの氷を横切る。押すとそこから氷が放射状に割れて水色に光りながら押し広げられ、なぞると指の跡に水路が開いて、しばらくすると氷が寄ってきて閉じる。",
+    "desc_en": "Ice floes of many sizes cover the sea with almost no gaps and drift slowly sideways. Each passing swell opens and closes the gaps between them, and now and then a single crack runs straight across several floes. Press and the ice breaks outward from that point, glowing cyan as the pieces are pushed apart; drag and a channel of open water opens along your path, then the floes drift back and close it.",
+    "icon": "fa-icicles",
+    "group": "tile",
+    "category": "敷き詰めるもの",
+    "category_en": "TILING",
+    "meta": "うねりで開いては閉じる流氷",
+    "meta_en": "Pack ice opening and closing with the swell",
+    "added": "2026-11-08"
+  },
+  {
     "page": "stir",
     "title": "STIR",
-    "desc": "何本もの縞が並んだ水を、円を描いて回る棒がかき混ぜる。縞は棒に引かれて細く伸び、折り返されて、何重にも重なった層になる。ときどき櫛が端から端へ渡り、混ざりきったところに新しい縞を引き直す。押すとそこに水色のしずくが落ちて渦が巻き、しずくはすぐに細い筋に引き伸ばされる。なぞると水が指についてきて、縞が指の跡に沿って引きずられる。",
-    "desc_en": "Rods moving in circles stir a tank of water laid out in stripes. The stripes are pulled thin by the rods, folded back, and stacked into many thin layers. Now and then a comb sweeps from one end to the other and lays fresh stripes over the mixed water. Press and a cyan drop falls there with a swirl, and it is quickly stretched into a thin thread. Drag and the water follows your finger, pulling the stripes along your path.",
+    "desc": "縞模様の水を円を描いて回る棒がかき混ぜ、縞は細く伸びて折り返されて何重もの層になる。押すとそこに水色のしずくが落ちて渦が巻き、なぞると水が指についてきて縞が引きずられる。",
+    "desc_en": "Rods moving in circles stir striped water, stretching the stripes thin and folding them into many layers. Press to drop cyan ink with a swirl, and drag to pull the water and stripes along your finger.",
     "icon": "fa-blender",
     "group": "chaos",
     "category": "予測できないもの",
