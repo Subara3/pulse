@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-10T06:40:46.596482Z",
+  "generatedAt": "2026-11-10T07:07:44.565033Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok floe\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok stir\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,42 +18,42 @@
         "failed": [],
         "details": [
           {
-            "file": "floe.mp4",
+            "file": "stir.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                44.5013,
-                47.2954,
-                49.5731,
-                52.1048,
-                53.9688,
-                56.7464,
-                56.671,
-                56.7671,
-                56.6336,
-                56.8037,
-                56.7602,
-                56.8121,
-                56.6779,
-                61.3481,
-                61.2499
+                48.0531,
+                54.1689,
+                60.4662,
+                66.3748,
+                72.9152,
+                78.7508,
+                78.7996,
+                78.8682,
+                78.6908,
+                78.9341,
+                78.8405,
+                78.9152,
+                78.7098,
+                78.8433,
+                78.6935
               ],
               "end": [
-                52.743,
-                50.3464,
-                48.6535,
-                46.4105,
-                44.4689,
+                63.9111,
+                59.3311,
+                55.3315,
+                50.8802,
+                46.7055,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 61.3481,
-              "end_max": 52.743,
-              "start_med": 56.6779,
-              "end_med": 44.4689
+              "start_max": 78.9341,
+              "end_max": 63.9111,
+              "start_med": 78.7098,
+              "end_med": 46.7055
             }
           }
         ]
@@ -68,16 +68,16 @@
         "flagged_pages": [],
         "results": [
           {
-            "file": "floe.mp4",
+            "file": "stir.mp4",
             "ok": true,
             "too_dark": false,
             "too_static": false,
             "luma": [
-              47.48,
-              51.01,
-              49.36
+              73.28,
+              71.9,
+              70.57
             ],
-            "motion": 14.156
+            "motion": 26.565
           }
         ]
       }
@@ -92,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "floe.mp4",
+            "file": "stir.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 52.1048,
+              "y1": 66.3748,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
