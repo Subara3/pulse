@@ -75,7 +75,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       rods.push({
         cx: horiz ? along : W / 2, cy: horiz ? H / 2 : along,
         ro: ro, th: k * Math.PI / 2, om: 0.42, omT: 0.42,
-        x: 0, y: 0, vx: 0, vy: 0, kap: 0
+        x: 0, y: 0, vx: 0, vy: 0, kap: 0, sp: 0
       });
     }
     place(0);
@@ -101,6 +101,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       var r = rods[k];
       r.om += (r.omT - r.om) * Math.min(1, dt * 0.35);
       r.th += r.om * dt;
+      r.sp += r.om * 2.2 * dt;  /* 刻みの角度も積み上げる（clock×om だと回し方が替わるたびに跳ぶ） */
       var nx = r.cx + Math.cos(r.th) * r.ro, ny = r.cy + Math.sin(r.th) * r.ro;
       r.vx = -Math.sin(r.th) * r.ro * r.om; r.vy = Math.cos(r.th) * r.ro * r.om;
       r.x = nx; r.y = ny;
@@ -213,7 +214,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       ctx.lineWidth = 1.4;
       ctx.beginPath(); ctx.arc(r.x, r.y, rr, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
       /* 棒の自転が見える小さな刻み */
-      var sp = clock * r.om * 2.2;
+      var sp = r.sp;
       ctx.beginPath();
       ctx.moveTo(r.x + Math.cos(sp) * rr * 0.55, r.y + Math.sin(sp) * rr * 0.55);
       ctx.lineTo(r.x - Math.cos(sp) * rr * 0.55, r.y - Math.sin(sp) * rr * 0.55);
