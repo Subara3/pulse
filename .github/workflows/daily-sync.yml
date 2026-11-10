@@ -1,0 +1,62 @@
+# main が更新されたら、開いている daily/ の PR に main を取り込む。
+# 毎日の PR はどれも data/contents.json の末尾に1件足すので、前の PR をマージすると次の PR がぶつかって止まる。
+# contents.json だけの衝突なら両方のエントリを残して解消する。それ以外の衝突は触らず、PR にコメントで知らせる。
+name: Daily Sync
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: daily-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: 開いている daily PR に main を取り込む
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -u
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for pr in $(gh pr list -R "$GITHUB_REPOSITORY" --state open --base main --json number,headRefName \
+                        -q '.[] | select(.headRefName | startswith("daily/")) | .number'); do
+            br=$(gh pr view "$pr" -R "$GITHUB_REPOSITORY" --json headRefName -q .headRefName)
+            echo "== #$pr $br"
+            git checkout -q -B "$br" "origin/$br"
+            if git merge-base --is-ancestor origin/main HEAD; then echo "取り込み済み"; continue; fi
+            if git merge --no-edit -m "merge: main を取り込む（Daily Sync）" origin/main; then
+              git push -q origin "$br"; echo "衝突なしで取り込んだ"; continue
+            fi
+            others=$(git diff --name-only --diff-filter=U | grep -v '^data/contents.json$' || true)
+            if [ -z "$others" ] && python scripts/resolve_contents_conflict.py; then
+              git add data/contents.json
+              git commit -q --no-edit -m "merge: main を取り込み、contents.json の衝突を解消（両方のエントリを残す）"
+              if python tests/test_build.py; then
+                git push -q origin "$br"; echo "contents.json の衝突を解消して取り込んだ"
+              else
+                gh pr comment "$pr" -R "$GITHUB_REPOSITORY" --body "main を取り込んで contents.json の衝突を解消しましたが、検査が通らないので push していません。手で確かめてください。"
+              fi
+            else
+              git merge --abort
+              gh pr comment "$pr" -R "$GITHUB_REPOSITORY" --body "main を自動で取り込めませんでした（衝突: ${others:-data/contents.json}）。手で解消してください。"
+            fi
+          done
