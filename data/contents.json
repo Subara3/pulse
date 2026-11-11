@@ -1256,6 +1256,19 @@
     "added": "2026-11-09"
   },
   {
+    "page": "komorebi",
+    "title": "KOMOREBI",
+    "desc": "木の下の地面に、葉のすき間を通った日の光が丸い光の点になって何百も重なり、風が吹くたびに揺れて明るさが変わる。押すとそこの葉が押し分けられて光の点が増え、水色に光りながら外へ広がる。なぞると光の点が指の向きに引きずられ、離すと揺れながら元に戻る。",
+    "desc_en": "Sunlight passes through gaps in the leaves and lands on the ground below as hundreds of round spots of light that overlap, sway and brighten or dim each time the wind blows. Press and the leaves part there: more spots open up and spread outward in cyan. Drag and the spots are pulled along with your finger, then wobble back when you let go.",
+    "icon": "fa-tree",
+    "group": "light",
+    "category": "光るもの",
+    "category_en": "LIGHT",
+    "meta": "葉のすき間から落ちる丸い日の光",
+    "meta_en": "Round sun spots falling through the leaves",
+    "added": "2026-11-10"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
