@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-10T07:07:44.565033Z",
+  "generatedAt": "2026-11-11T09:08:44.420647Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok stir\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok komorebi\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,42 +18,42 @@
         "failed": [],
         "details": [
           {
-            "file": "stir.mp4",
+            "file": "komorebi.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                48.0531,
-                54.1689,
-                60.4662,
-                66.3748,
-                72.9152,
-                78.7508,
-                78.7996,
-                78.8682,
-                78.6908,
-                78.9341,
-                78.8405,
-                78.9152,
-                78.7098,
-                78.8433,
-                78.6935
+                42.6344,
+                43.517,
+                44.1616,
+                44.5643,
+                45.1651,
+                45.8857,
+                45.8798,
+                45.8873,
+                45.8652,
+                46.005,
+                46.0024,
+                47.8919,
+                48.2857,
+                50.0417,
+                51.0817
               ],
               "end": [
-                63.9111,
-                59.3311,
-                55.3315,
-                50.8802,
-                46.7055,
+                43.3027,
+                43.4149,
+                43.1221,
+                42.7661,
+                42.4209,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 78.9341,
-              "end_max": 63.9111,
-              "start_med": 78.7098,
-              "end_med": 46.7055
+              "start_max": 51.0817,
+              "end_max": 43.4149,
+              "start_med": 45.8857,
+              "end_med": 42.4209
             }
           }
         ]
@@ -68,16 +68,16 @@
         "flagged_pages": [],
         "results": [
           {
-            "file": "stir.mp4",
+            "file": "komorebi.mp4",
             "ok": true,
             "too_dark": false,
             "too_static": false,
             "luma": [
-              73.28,
-              71.9,
-              70.57
+              34.82,
+              38.94,
+              34.28
             ],
-            "motion": 26.565
+            "motion": 8.285
           }
         ]
       }
@@ -92,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "stir.mp4",
+            "file": "komorebi.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 66.3748,
+              "y1": 44.5643,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
