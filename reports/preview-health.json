@@ -1,18 +1,18 @@
 {
-  "generatedAt": "2026-11-13T05:30:26.946504Z",
+  "generatedAt": "2026-11-13T05:31:48.709978Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok bubbles\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok bubbles\nok hive\n\nDone. success=2, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
       "name": "check_and_fix_preview_flash",
       "ok": true,
       "result": {
-        "checked": 1,
+        "checked": 2,
         "flagged": 0,
         "fixed": 0,
         "failed": [],
@@ -23,37 +23,76 @@
               "ok": true,
               "start": [
                 42.0,
-                42.3364,
-                42.6365,
-                43.0206,
-                43.4979,
-                43.8125,
-                44.2136,
-                44.0952,
-                44.0325,
-                44.0021,
-                43.9817,
-                43.7825,
-                43.94,
-                43.8937,
-                43.9594,
-                43.8279
+                42.4411,
+                42.8488,
+                43.2057,
+                43.6035,
+                43.9094,
+                44.3158,
+                44.2631,
+                44.2402,
+                44.084,
+                44.1488,
+                43.8917,
+                44.0942,
+                44.0222,
+                44.0485,
+                43.9224
               ],
               "end": [
-                42.6253,
-                42.6649,
-                42.6096,
-                42.1947,
-                42.2826,
+                42.897,
+                42.8998,
+                42.6416,
+                42.3813,
+                42.3681,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 44.2136,
-              "end_max": 42.6649,
-              "start_med": 43.8937,
-              "end_med": 42.1947
+              "start_max": 44.3158,
+              "end_max": 42.8998,
+              "start_med": 44.0222,
+              "end_med": 42.3681
+            }
+          },
+          {
+            "file": "hive.mp4",
+            "initial": {
+              "ok": true,
+              "start": [
+                42.0,
+                44.1239,
+                46.2779,
+                48.564,
+                50.0614,
+                52.4135,
+                54.3783,
+                54.4506,
+                54.4397,
+                54.4689,
+                54.4606,
+                54.4945,
+                54.4551,
+                54.5285,
+                54.5602,
+                54.5514
+              ],
+              "end": [
+                51.0327,
+                49.17,
+                47.6887,
+                45.7826,
+                44.0735,
+                42.0,
+                42.0,
+                42.0,
+                42.0
+              ],
+              "start_max": 54.5602,
+              "end_max": 51.0327,
+              "start_med": 54.4506,
+              "end_med": 44.0735
             }
           }
         ]
@@ -63,7 +102,7 @@
       "name": "check_preview_dark_static",
       "ok": true,
       "result": {
-        "checked": 1,
+        "checked": 2,
         "flagged_count": 1,
         "flagged_pages": [
           "bubbles"
@@ -75,11 +114,23 @@
             "too_dark": true,
             "too_static": false,
             "luma": [
-              32.51,
-              32.35,
-              31.52
+              32.71,
+              32.6,
+              31.88
             ],
-            "motion": 7.916
+            "motion": 8.247
+          },
+          {
+            "file": "hive.mp4",
+            "ok": true,
+            "too_dark": false,
+            "too_static": false,
+            "luma": [
+              44.75,
+              49.96,
+              45.97
+            ],
+            "motion": 10.413
           }
         ]
       }
@@ -88,7 +139,7 @@
       "name": "auto_fix_preview_loop",
       "ok": true,
       "result": {
-        "checked": 1,
+        "checked": 2,
         "flagged": 0,
         "fixed": 0,
         "failed": [],
@@ -99,7 +150,22 @@
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 43.4979,
+              "y1": 43.6035,
+              "y2": 42.0,
+              "y3": null,
+              "seam_diff": 0.0,
+              "start_spike": false,
+              "end_spike": false,
+              "hard_seam": false
+            }
+          },
+          {
+            "file": "hive.mp4",
+            "initial": {
+              "ok": true,
+              "duration": 5.4,
+              "y0": 42.0,
+              "y1": 50.0614,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
