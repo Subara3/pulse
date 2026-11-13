@@ -1295,6 +1295,19 @@
     "added": "2026-11-12"
   },
   {
+    "page": "perch",
+    "title": "PERCH",
+    "desc": "電線に小鳥がとまり、隣と詰まりすぎないように横へ跳ねて、少しずつ等間隔に並んでいく。ときどき何羽かが続けて飛び立ち、空いたところを探して別の電線に降りる。電線を押すと指に引っぱられてたわみ、そのあたりの鳥が水色になって一斉に飛び立つ。空を押さえると、近くの鳥が飛んできて指のまわりを回る。",
+    "desc_en": "Small birds sit on power lines and hop sideways whenever a neighbor is too close, so the rows slowly even out. Now and then a few take off together and look for an open gap on another wire. Press a wire and it bends toward your finger while the birds nearby turn cyan and fly off; hold the sky and nearby birds come to circle your finger.",
+    "icon": "fa-dove",
+    "group": "swarm",
+    "category": "群れるもの",
+    "category_en": "SWARM",
+    "meta": "電線に等間隔に並ぶ小鳥",
+    "meta_en": "Birds spacing out on power lines",
+    "added": "2026-11-13"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
