@@ -45,6 +45,8 @@ jobs:
           CHECK: ${{ needs.check.result }}
         run: |
           set -eu
+          # Daily Sync から呼ばれたとき（workflow_dispatch）は検査だけ。PR は作らない
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then echo "検査だけ（Daily Sync から）"; exit 0; fi
           if [ -n "$(gh pr list -R "$GITHUB_REPOSITORY" --head "$BRANCH" --state open --json number -q '.[].number')" ]; then
             echo "PR はもうある"; exit 0
           fi
