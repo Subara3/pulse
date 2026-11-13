@@ -5,7 +5,7 @@ recordPageView('hive');
 
 $pageName = 'hive';
 $pageTitle = 'HIVE - PULSE';
-$pageDesc = '上の枝から蜂の巣が何枚も垂れ下がり、縁を歩くミツバチが六角形の部屋を1つずつ足して、巣が下へ伸びていく。古い部屋には蜜がたまってふたがされ、伸びきった巣は薄れて、また上から作り直される。押すとそこに水色の部屋がまとめてでき、まわりのミツバチが集まってくる。なぞると指の跡に沿って部屋が並ぶ。';
+$pageDesc = '上の枝から垂れた蜂の巣に、ミツバチが六角形の部屋を1つずつ足して、巣が下へ伸びていく。押すとそこに水色の部屋がまとめてでき、なぞると指の跡に沿って部屋が並ぶ。';
 $pageCanonical = 'https://pulse.subara3.com/hive.php';
 $extraStyle = '';
 
@@ -80,6 +80,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (inside(j)) { tgt[j] = 1; build[j] = 1; age[j] = Math.random() * 30 * (1 - (cy[j] - Y0) / H); }
     }
     ripples.length = 0;
+    bees.length = 0; // 巣を作り直したら蜂も作り直す（古い巣の番号を持った蜂を残さない）
     makeBees();
   }
 
@@ -343,7 +344,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     down = true; px = lx = e.clientX; py = ly = e.clientY; holdAcc = 0;
     raise(px, py, S * 5.2, 14);
     ripples.push({ x: px, y: py, t: 0 });
-    SFX.play('spawn');
+    SFX.play('spawn', 120);
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {

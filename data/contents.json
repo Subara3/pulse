@@ -1271,12 +1271,12 @@
   {
     "page": "hive",
     "title": "HIVE",
-    "desc": "上の枝から蜂の巣が何枚も垂れ下がり、縁を歩くミツバチが六角形の部屋を1つずつ足して、巣が下へ伸びていく。古い部屋には蜜がたまってふたがされ、伸びきった巣は薄れて、また上から作り直される。押すとそこに水色の部屋がまとめてでき、まわりのミツバチが集まってくる。なぞると指の跡に沿って部屋が並ぶ。",
-    "desc_en": "Several combs hang from a branch at the top, and the bees walking along their edges add hexagonal cells one at a time, so each comb grows downward. Older cells fill with honey and get capped; a comb that has grown all the way fades and is rebuilt from the top. Press and a patch of cyan cells forms there while nearby bees gather; drag and cells line up along your path.",
+    "desc": "上の枝から垂れた蜂の巣に、ミツバチが六角形の部屋を1つずつ足して、巣が下へ伸びていく。押すとそこに水色の部屋がまとめてでき、なぞると指の跡に沿って部屋が並ぶ。",
+    "desc_en": "Combs hang from a branch at the top, and bees add hexagonal cells one at a time so each comb grows downward. Press and a patch of cyan cells forms there; drag and cells line up along your path.",
     "icon": "fa-bug",
     "group": "grow",
     "category": "育つもの",
-    "category_en": "GROW",
+    "category_en": "GROWTH",
     "meta": "下へ伸びていく蜂の巣",
     "meta_en": "Honeycomb growing downward",
     "added": "2026-11-12"
