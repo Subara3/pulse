@@ -11,6 +11,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 concurrency:
   group: daily-sync
@@ -37,21 +38,29 @@ jobs:
           set -u
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          for pr in $(gh pr list -R "$GITHUB_REPOSITORY" --state open --base main --json number,headRefName \
-                        -q '.[] | select(.headRefName | startswith("daily/")) | .number'); do
-            br=$(gh pr view "$pr" -R "$GITHUB_REPOSITORY" --json headRefName -q .headRefName)
+          # push して、Daily PR の検査を走らせ直す。GITHUB_TOKEN での push では push のワークフローが起動しないので、
+          # workflow_dispatch で呼ぶ。push に失敗したら 1 を返す
+          push_and_check() {
+            if ! git push -q origin "$1"; then echo "push できなかった"; return 1; fi
+            gh workflow run daily-pr.yml -R "$GITHUB_REPOSITORY" --ref "$1" || echo "検査を呼べなかった"
+          }
+          # fork からの PR は除く（origin に同じ名前のブランチがないため）
+          gh pr list -R "$GITHUB_REPOSITORY" --state open --base main --json number,headRefName,isCrossRepository \
+            -q '.[] | select(.isCrossRepository | not) | select(.headRefName | startswith("daily/")) | "\(.number) \(.headRefName)"' |
+          while read -r pr br; do
             echo "== #$pr $br"
-            git checkout -q -B "$br" "origin/$br"
+            if ! git checkout -q -B "$br" "origin/$br"; then echo "checkout できないので飛ばす"; continue; fi
             if git merge-base --is-ancestor origin/main HEAD; then echo "取り込み済み"; continue; fi
             if git merge --no-edit -m "merge: main を取り込む（Daily Sync）" origin/main; then
-              git push -q origin "$br"; echo "衝突なしで取り込んだ"; continue
+              if push_and_check "$br"; then echo "衝突なしで取り込んだ"; fi
+              continue
             fi
             others=$(git diff --name-only --diff-filter=U | grep -v '^data/contents.json$' || true)
             if [ -z "$others" ] && python scripts/resolve_contents_conflict.py; then
               git add data/contents.json
               git commit -q --no-edit -m "merge: main を取り込み、contents.json の衝突を解消（両方のエントリを残す）"
               if python tests/test_build.py; then
-                git push -q origin "$br"; echo "contents.json の衝突を解消して取り込んだ"
+                if push_and_check "$br"; then echo "contents.json の衝突を解消して取り込んだ"; fi
               else
                 gh pr comment "$pr" -R "$GITHUB_REPOSITORY" --body "main を取り込んで contents.json の衝突を解消しましたが、検査が通らないので push していません。手で確かめてください。"
               fi
