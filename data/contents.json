@@ -990,7 +990,7 @@
     "icon": "fa-hurricane",
     "group": "grow",
     "category": "育つもの",
-    "category_en": "GROW",
+    "category_en": "GROWTH",
     "meta": "輪を足しながら育つ巻き貝の殻",
     "meta_en": "A shell that grows one ring at a time",
     "added": "2026-10-20"
@@ -1280,6 +1280,19 @@
     "meta": "水の底から立ちのぼる泡",
     "meta_en": "Bubbles rising from the bottom of the water",
     "added": "2026-11-11"
+  },
+  {
+    "page": "hive",
+    "title": "HIVE",
+    "desc": "上の枝から垂れた蜂の巣に、ミツバチが六角形の部屋を1つずつ足して、巣が下へ伸びていく。押すとそこに水色の部屋がまとめてでき、なぞると指の跡に沿って部屋が並ぶ。",
+    "desc_en": "Combs hang from a branch at the top, and bees add hexagonal cells one at a time so each comb grows downward. Press and a patch of cyan cells forms there; drag and cells line up along your path.",
+    "icon": "fa-bug",
+    "group": "grow",
+    "category": "育つもの",
+    "category_en": "GROWTH",
+    "meta": "下へ伸びていく蜂の巣",
+    "meta_en": "Honeycomb growing downward",
+    "added": "2026-11-12"
   },
   {
     "page": "about",
