@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-11T09:08:44.420647Z",
+  "generatedAt": "2026-11-13T05:30:26.946504Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok komorebi\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok bubbles\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,42 +18,42 @@
         "failed": [],
         "details": [
           {
-            "file": "komorebi.mp4",
+            "file": "bubbles.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                42.6344,
-                43.517,
-                44.1616,
-                44.5643,
-                45.1651,
-                45.8857,
-                45.8798,
-                45.8873,
-                45.8652,
-                46.005,
-                46.0024,
-                47.8919,
-                48.2857,
-                50.0417,
-                51.0817
+                42.3364,
+                42.6365,
+                43.0206,
+                43.4979,
+                43.8125,
+                44.2136,
+                44.0952,
+                44.0325,
+                44.0021,
+                43.9817,
+                43.7825,
+                43.94,
+                43.8937,
+                43.9594,
+                43.8279
               ],
               "end": [
-                43.3027,
-                43.4149,
-                43.1221,
-                42.7661,
-                42.4209,
+                42.6253,
+                42.6649,
+                42.6096,
+                42.1947,
+                42.2826,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 51.0817,
-              "end_max": 43.4149,
-              "start_med": 45.8857,
-              "end_med": 42.4209
+              "start_max": 44.2136,
+              "end_max": 42.6649,
+              "start_med": 43.8937,
+              "end_med": 42.1947
             }
           }
         ]
@@ -64,20 +64,22 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 0,
-        "flagged_pages": [],
+        "flagged_count": 1,
+        "flagged_pages": [
+          "bubbles"
+        ],
         "results": [
           {
-            "file": "komorebi.mp4",
-            "ok": true,
-            "too_dark": false,
+            "file": "bubbles.mp4",
+            "ok": false,
+            "too_dark": true,
             "too_static": false,
             "luma": [
-              34.82,
-              38.94,
-              34.28
+              32.51,
+              32.35,
+              31.52
             ],
-            "motion": 8.285
+            "motion": 7.916
           }
         ]
       }
@@ -92,12 +94,12 @@
         "failed": [],
         "details": [
           {
-            "file": "komorebi.mp4",
+            "file": "bubbles.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 44.5643,
+              "y1": 43.4979,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
