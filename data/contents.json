@@ -1269,6 +1269,19 @@
     "added": "2026-11-10"
   },
   {
+    "page": "bubbles",
+    "title": "BUBBLES",
+    "desc": "水の底のいくつもの穴から泡が立ちのぼり、小さな泡はジグザグに、大きな泡は形を揺らしながら上がっていく。ぶつかった泡はくっついて大きくなり、水面でしばらく浮いてから弾ける。押すとそこから水色の泡がまとめて湧いてまわりの泡を押しのけ、なぞると水が指の向きに流れて泡の列が曲がる。",
+    "desc_en": "Bubbles rise from holes in the bottom of the water: small ones zigzag, large ones wobble as they go. Bubbles that touch join into bigger ones, float on the surface for a moment, then burst. Press and a cluster of cyan bubbles wells up there and pushes the others aside; drag and the water flows the way your finger moves, bending the columns of bubbles.",
+    "icon": "fa-soap",
+    "group": "flow",
+    "category": "流れるもの",
+    "category_en": "FLOW",
+    "meta": "水の底から立ちのぼる泡",
+    "meta_en": "Bubbles rising from the bottom of the water",
+    "added": "2026-11-11"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
