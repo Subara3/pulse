@@ -5,6 +5,9 @@ name: Daily PR
 on:
   push:
     branches: ['daily/**']
+  # Daily Sync が main を取り込んで push したあと、検査を走らせ直すために呼ぶ
+  # （GITHUB_TOKEN での push では push のワークフローが起動しないため）
+  workflow_dispatch:
 
 permissions:
   contents: read
