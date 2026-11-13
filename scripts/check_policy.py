@@ -67,6 +67,7 @@ ALLOW_COLOR_FILE = os.path.join(ROOT, 'scripts', 'palette_allowlist.json')
 
 # CLAUDE.md「題材の決め方」を機械的に守らせる。直近 7 件の重なりは、この日以降に added したエントリが対象
 RULES_SINCE = '2026-10-11'
+DESC_LEN_SINCE = '2026-11-14'  # 説明文の文の数を数え始める日
 BANNED_DESC = ('創発', '可視化', '体験', '深淵', '紡ぐ', '織りなす', '——', '神秘', '魔法', 'の世界')
 MAX_PER_GROUP = 10
 
@@ -165,6 +166,13 @@ def main() -> int:
         for w in BANNED_DESC:
             if w in c.get('desc', ''):
                 errors.append(f'contents.json: {p} の desc に定型句「{w}」がある（CLAUDE.md「説明文の書き方」）')
+        # 説明文は 1〜2 文（CLAUDE.md「説明文の書き方」）。CodeRabbit が同じ指摘を4回出したので、機械で数える。
+        # それより前のエントリは長いものが多いので、DESC_LEN_SINCE 以降に足したものだけを落とす
+        if c['added'] >= DESC_LEN_SINCE:
+            for key, pat in (('desc', r'(?<=[。！？])'), ('desc_en', r'(?<=[.!?])\s+')):
+                n = len([x for x in re.split(pat, (c.get(key) or '').strip()) if x.strip()])
+                if n > 2:
+                    errors.append(f'contents.json: {p} の {key} が {n} 文ある（CLAUDE.md「説明文の書き方」は 1〜2 文）')
         if c['added'] < RULES_SINCE:
             continue
         recent = [d['group'] for d in dated[max(0, i - 7):i]]
