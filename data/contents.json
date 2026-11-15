@@ -1295,6 +1295,19 @@
     "added": "2026-11-12"
   },
   {
+    "page": "beads",
+    "title": "BEADS",
+    "desc": "台の上の小さな磁石の玉が引き合って鎖や輪につながり、ときどき台のどこかが揺れると、そこの鎖がほどけて別の形につながり直す。押すとまわりの玉が指に吸い寄せられて水色に光り、指から放射状に鎖が伸びて、なぞると玉の束が指についてくる。",
+    "desc_en": "Small magnetic beads on a table pull on each other and link into chains and rings, and when a patch of the table shakes, the chains there come apart and relink in new shapes. Press and nearby beads are drawn to your finger, glow cyan, and stand out from it in radiating chains; drag and the bundle follows your finger.",
+    "icon": "fa-magnet",
+    "group": "force",
+    "category": "引き合うもの",
+    "category_en": "FORCE",
+    "meta": "鎖や輪につながる磁石の玉",
+    "meta_en": "Magnetic beads linking into chains and rings",
+    "added": "2026-11-14"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
