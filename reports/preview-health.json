@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-15T00:51:47.565323Z",
+  "generatedAt": "2026-11-16T15:24:23.976859Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok beads\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok perch\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,42 +18,42 @@
         "failed": [],
         "details": [
           {
-            "file": "beads.mp4",
+            "file": "perch.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                43.529,
-                45.242,
-                46.6367,
-                47.5773,
-                49.3704,
-                50.742,
-                50.803,
-                50.8441,
-                50.8782,
-                50.7132,
-                50.8281,
-                50.804,
-                50.8637,
-                50.8634,
-                51.0613
+                42.4948,
+                43.0248,
+                43.5712,
+                43.223,
+                43.8176,
+                44.3315,
+                44.344,
+                44.312,
+                44.3561,
+                44.3347,
+                44.3624,
+                44.3277,
+                44.3767,
+                44.3667,
+                44.4009
               ],
               "end": [
-                47.9712,
-                46.8237,
-                45.7957,
-                44.5348,
-                43.3676,
+                43.4656,
+                43.5479,
+                43.2754,
+                42.8473,
+                42.468,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 51.0613,
-              "end_max": 47.9712,
-              "start_med": 50.803,
-              "end_med": 43.3676
+              "start_max": 44.4009,
+              "end_max": 43.5479,
+              "start_med": 44.3315,
+              "end_med": 42.468
             }
           }
         ]
@@ -64,20 +64,22 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 0,
-        "flagged_pages": [],
+        "flagged_count": 1,
+        "flagged_pages": [
+          "perch"
+        ],
         "results": [
           {
-            "file": "beads.mp4",
-            "ok": true,
-            "too_dark": false,
+            "file": "perch.mp4",
+            "ok": false,
+            "too_dark": true,
             "too_static": false,
             "luma": [
-              40.34,
-              40.81,
-              40.84
+              32.9,
+              32.91,
+              32.87
             ],
-            "motion": 14.045
+            "motion": 6.014
           }
         ]
       }
@@ -92,12 +94,12 @@
         "failed": [],
         "details": [
           {
-            "file": "beads.mp4",
+            "file": "perch.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 47.5773,
+              "y1": 43.223,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
