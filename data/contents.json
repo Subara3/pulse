@@ -1334,6 +1334,19 @@
     "added": "2026-11-16"
   },
   {
+    "page": "romanesco",
+    "title": "ROMANESCO",
+    "desc": "渦に並んだつぼみの1つ1つが、また同じ渦に並んだ小さなつぼみでできていて、画面はそのつぼみの1つへ回りながらゆっくり寄っていく。押すと指のまわりのつぼみがふくらんで水色に光り、なぞると指の跡に沿ってふくらみが並んで、しばらくすると元に戻る。",
+    "desc_en": "Buds sit in a spiral, each one made of smaller buds in the same spiral, and the view slowly turns and moves into one of them. Press and the buds around your finger swell and glow cyan; drag and the swelling follows your path, then settles back.",
+    "icon": "fa-seedling",
+    "group": "fractal",
+    "category": "繰り返すもの",
+    "category_en": "FRACTAL",
+    "meta": "つぼみがつぼみでできた渦",
+    "meta_en": "Spirals of buds made of buds",
+    "added": "2026-11-17"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
