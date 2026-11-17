@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-16T15:24:23.976859Z",
+  "generatedAt": "2026-11-17T01:22:35.371542Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok perch\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok ribbon\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,42 +18,42 @@
         "failed": [],
         "details": [
           {
-            "file": "perch.mp4",
+            "file": "ribbon.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                42.4948,
-                43.0248,
-                43.5712,
-                43.223,
-                43.8176,
-                44.3315,
-                44.344,
-                44.312,
-                44.3561,
-                44.3347,
-                44.3624,
-                44.3277,
-                44.3767,
-                44.3667,
-                44.4009
+                42.2957,
+                42.5783,
+                42.854,
+                42.434,
+                42.6361,
+                43.1268,
+                43.1545,
+                43.2202,
+                43.2232,
+                43.3486,
+                43.3615,
+                43.4771,
+                43.5002,
+                43.7159,
+                43.8657
               ],
               "end": [
-                43.4656,
-                43.5479,
-                43.2754,
-                42.8473,
-                42.468,
+                43.4704,
+                43.8023,
+                43.4837,
+                43.055,
+                42.5509,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 44.4009,
-              "end_max": 43.5479,
-              "start_med": 44.3315,
-              "end_med": 42.468
+              "start_max": 43.8657,
+              "end_max": 43.8023,
+              "start_med": 43.2202,
+              "end_med": 42.5509
             }
           }
         ]
@@ -66,20 +66,20 @@
         "checked": 1,
         "flagged_count": 1,
         "flagged_pages": [
-          "perch"
+          "ribbon"
         ],
         "results": [
           {
-            "file": "perch.mp4",
+            "file": "ribbon.mp4",
             "ok": false,
             "too_dark": true,
             "too_static": false,
             "luma": [
-              32.9,
-              32.91,
-              32.87
+              31.73,
+              31.73,
+              32.41
             ],
-            "motion": 6.014
+            "motion": 5.189
           }
         ]
       }
@@ -94,12 +94,12 @@
         "failed": [],
         "details": [
           {
-            "file": "perch.mp4",
+            "file": "ribbon.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 43.223,
+              "y1": 42.434,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
