@@ -1321,6 +1321,19 @@
     "added": "2026-11-15"
   },
   {
+    "page": "ribbon",
+    "title": "RIBBON",
+    "desc": "棒の先につけた長いリボンが宙を舞い、ねじれながら小さな輪の連なりや蛇行、大きな輪、8の字を順に描いていく。押すといちばん近いリボンの先が指の下へ来て水色に光り、なぞるとリボンが指の描いた線をたどる。",
+    "desc_en": "Long ribbons on sticks swirl and twist through the air, tracing chains of small loops, a winding snake, wide circles and figure eights in turn. Press and the nearest stick tip comes under your finger and glows cyan; drag and the ribbon follows the line you draw.",
+    "icon": "fa-wind",
+    "group": "curve",
+    "category": "描くもの",
+    "category_en": "CURVE",
+    "meta": "宙に輪と8の字を描くリボン",
+    "meta_en": "Ribbons drawing loops and figure eights in the air",
+    "added": "2026-11-16"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
