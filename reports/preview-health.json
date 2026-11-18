@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-17T01:22:35.371542Z",
+  "generatedAt": "2026-11-18T09:24:36.275683Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok ribbon\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok romanesco\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,42 +18,42 @@
         "failed": [],
         "details": [
           {
-            "file": "ribbon.mp4",
+            "file": "romanesco.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                42.2957,
-                42.5783,
-                42.854,
-                42.434,
-                42.6361,
-                43.1268,
-                43.1545,
-                43.2202,
-                43.2232,
-                43.3486,
-                43.3615,
-                43.4771,
-                43.5002,
-                43.7159,
-                43.8657
+                46.969,
+                51.9994,
+                57.2702,
+                61.721,
+                67.0358,
+                72.1402,
+                72.2401,
+                72.078,
+                72.3396,
+                72.4082,
+                72.4683,
+                72.2034,
+                72.4493,
+                72.4802,
+                72.6865
               ],
               "end": [
-                43.4704,
-                43.8023,
-                43.4837,
-                43.055,
-                42.5509,
+                60.4942,
+                56.7008,
+                53.2947,
+                49.4864,
+                45.896,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 43.8657,
-              "end_max": 43.8023,
-              "start_med": 43.2202,
-              "end_med": 42.5509
+              "start_max": 72.6865,
+              "end_max": 60.4942,
+              "start_med": 72.2034,
+              "end_med": 45.896
             }
           }
         ]
@@ -64,22 +64,20 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 1,
-        "flagged_pages": [
-          "ribbon"
-        ],
+        "flagged_count": 0,
+        "flagged_pages": [],
         "results": [
           {
-            "file": "ribbon.mp4",
-            "ok": false,
-            "too_dark": true,
+            "file": "romanesco.mp4",
+            "ok": true,
+            "too_dark": false,
             "too_static": false,
             "luma": [
-              31.73,
-              31.73,
-              32.41
+              65.63,
+              66.92,
+              65.71
             ],
-            "motion": 5.189
+            "motion": 44.728
           }
         ]
       }
@@ -94,12 +92,12 @@
         "failed": [],
         "details": [
           {
-            "file": "ribbon.mp4",
+            "file": "romanesco.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 42.434,
+              "y1": 61.721,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
