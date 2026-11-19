@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-18T09:24:36.275683Z",
+  "generatedAt": "2026-11-19T14:52:13.693445Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok romanesco\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok fallen\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,42 +18,37 @@
         "failed": [],
         "details": [
           {
-            "file": "romanesco.mp4",
+            "file": "fallen.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                46.969,
-                51.9994,
-                57.2702,
-                61.721,
-                67.0358,
-                72.1402,
-                72.2401,
-                72.078,
-                72.3396,
-                72.4082,
-                72.4683,
-                72.2034,
-                72.4493,
-                72.4802,
-                72.6865
+                47.2752,
+                52.7623,
+                58.4489,
+                63.6723,
+                69.5125,
+                74.6867,
+                74.6683,
+                74.4784,
+                74.4948,
+                74.3856
               ],
               "end": [
-                60.4942,
-                56.7008,
-                53.2947,
-                49.4864,
-                45.896,
+                62.0524,
+                57.9422,
+                54.3598,
+                50.2616,
+                46.3753,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 72.6865,
-              "end_max": 60.4942,
-              "start_med": 72.2034,
-              "end_med": 45.896
+              "start_max": 74.6867,
+              "end_max": 62.0524,
+              "start_med": 69.5125,
+              "end_med": 46.3753
             }
           }
         ]
@@ -68,16 +63,16 @@
         "flagged_pages": [],
         "results": [
           {
-            "file": "romanesco.mp4",
+            "file": "fallen.mp4",
             "ok": true,
             "too_dark": false,
             "too_static": false,
             "luma": [
-              65.63,
-              66.92,
-              65.71
+              67.96,
+              66.83,
+              67.58
             ],
-            "motion": 44.728
+            "motion": 12.07
           }
         ]
       }
@@ -92,12 +87,12 @@
         "failed": [],
         "details": [
           {
-            "file": "romanesco.mp4",
+            "file": "fallen.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 61.721,
+              "y1": 63.6723,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
