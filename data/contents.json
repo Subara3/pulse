@@ -1347,6 +1347,19 @@
     "added": "2026-11-17"
   },
   {
+    "page": "fallen",
+    "title": "FALLEN",
+    "desc": "落ち葉が1枚ずつ舞い落ちて下の葉を隠しながら地面を覆い、古い葉は暗く沈んで少しずつ土に還る。押すとまわりの葉が水色に光って舞い上がり、回りながら近くに落ち直し、なぞると葉が指の向きに掃き寄せられて地面の見える道ができる。",
+    "desc_en": "Leaves drift down one by one and cover the ground, each new leaf hiding the older ones, which darken and slowly return to the soil. Press and the leaves around your finger glow cyan, fly up and spin back down nearby; drag and they are swept aside, leaving a path of bare ground.",
+    "icon": "fa-leaf",
+    "group": "tile",
+    "category": "敷き詰めるもの",
+    "category_en": "TILING",
+    "meta": "重なって地面を覆う落ち葉",
+    "meta_en": "Leaves layering over the ground",
+    "added": "2026-11-18"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
