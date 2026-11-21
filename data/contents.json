@@ -1360,6 +1360,19 @@
     "added": "2026-11-18"
   },
   {
+    "page": "hose",
+    "title": "HOSE",
+    "desc": "上から吊るした何本ものホースが、先から噴き出す水の勢いで勝手に揺れ出して暴れ、水が弧を描いて下の池に落ちる。押すといちばん近いホースの先をつかんで水が水色になり、なぞるとそのホースを振り回せて、放すとまた勝手に暴れ出す。",
+    "desc_en": "Several hoses hang from above, and the push of the water spraying from their tips sets them swinging and thrashing on their own, throwing arcs of water down into a pool. Press to grab the tip of the nearest hose and turn its water cyan, drag to swing it around, and let go to watch it start thrashing again by itself.",
+    "icon": "fa-faucet",
+    "group": "chaos",
+    "category": "予測できないもの",
+    "category_en": "CHAOS",
+    "meta": "水の勢いで暴れるホース",
+    "meta_en": "Hoses thrashing from their own spray",
+    "added": "2026-11-21"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
