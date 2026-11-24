@@ -5,7 +5,7 @@ recordPageView('sandpile');
 
 $pageName = 'sandpile';
 $pageTitle = 'SANDPILE - PULSE';
-$pageDesc = '中心に砂粒が1粒ずつ落ち、4粒たまったマスは隣の4マスに1粒ずつ崩れる。崩れをくり返すうちに、高さの境目を線で描いた模様が円形に広がっていく。触ったところにも砂が落ちる。';
+$pageDesc = '中心に砂粒が1粒ずつ落ち、4粒たまったマスは隣の4マスに1粒ずつ崩れて、高さの境目を線で描いた模様が円く広がり、画面の上下に届くと横へ伸びて画面を埋めていく。押すとそこに砂がまとめて落ちて、まわりに水色の小さな模様の円が広がり、なぞると指の跡に沿って砂が落ちて模様がつながる。';
 $pageCanonical = 'https://pulse.subara3.com/sandpile.php';
 $extraStyle = '';
 
@@ -30,47 +30,51 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* 砂山モデル。1 マスに 4 粒たまると、4 方向へ 1 粒ずつ配って崩れる。端から落ちた粒は消える。
      マスそのものは塗らず、高さの違う隣どうしの境目にだけ細い線を引く。
      高さのそろった区画は空白に、市松に混ざった区画は細かい網になって、曼荼羅の区割りが線画で浮かぶ */
-  var N, S, ox, oy, h, flash, mark, stack, BW, BH, img, buf, bctx;
+  var NX, NY, S, ox, oy, h, flash, mark, stack, BW, BH, img, buf, bctx;
   var pour = 0.4, srcCount = 1, sources = [];
   var state = 'grow', stateT = 0, lost = 0;
 
   function alloc() {
-    var side = Math.min(W, H) * 0.94;
-    /* 小さい画面ではマスを大きくして、開いた時点の山が画面の幅の 8 割を超えるようにする */
-    S = side > 1100 ? 6 : side > 560 ? 5 : 4;
-    N = Math.floor(side / S) | 1;
-    if (N > 241) N = 241;
-    ox = Math.round((W - N * S) / 2); oy = Math.round((H - N * S) / 2);
-    BW = N * S + 1; BH = BW;
+    /* 画面全体を砂の台にする。山は短い辺に届いたあと、長い辺の向きへ伸びて画面を埋めていく */
+    var side = Math.min(W, H);
+    S = side > 1000 ? 6 : side > 520 ? 5 : 4;
+    NX = Math.floor(W / S) | 1; NY = Math.floor(H / S) | 1;
+    while (NX * NY > 62000) { S++; NX = Math.floor(W / S) | 1; NY = Math.floor(H / S) | 1; }
+    ox = Math.round((W - NX * S) / 2); oy = Math.round((H - NY * S) / 2);
+    BW = NX * S + 1; BH = NY * S + 1;
     img = new ImageData(BW, BH);
     buf = document.createElement('canvas'); buf.width = BW; buf.height = BH;
     bctx = buf.getContext('2d');
-    h = new Uint16Array(N * N); flash = new Float32Array(N * N); mark = new Float32Array(N * N);
-    stack = new Int32Array(N * N * 4);
+    h = new Uint16Array(NX * NY); flash = new Float32Array(NX * NY); mark = new Float32Array(NX * NY);
+    stack = new Int32Array(NX * NY * 4);
     restart();
-    /* 開いた瞬間から模様が見えるように、少し積んでおく */
-    for (var i = 0; i < 13000; i++) addSources(1);
+    /* 開いた瞬間から模様が見えるように、少し積んでおく（積みすぎると開くのが遅れるので、粒の数に上限を置く） */
+    var pre = Math.round(Math.min(16000, Math.min(NX, NY) * Math.min(NX, NY) * 0.9) / sources.length);
+    /* 崩れの結果は置く順に依らないので、まとめて置いてから一度に崩す */
+    for (var q = 0; q < sources.length; q++) drop(sources[q][0], sources[q][1], pre, false);
+    relax(1e9);
     flash.fill(0);
   }
 
   function restart() {
     h.fill(0); flash.fill(0); mark.fill(0);
-    var c = (N - 1) / 2, d = Math.round(N * 0.17);
-    sources = srcCount === 1 ? [[c, c]]
-      : srcCount === 2 ? [[c - d, c], [c + d, c]]
-      : [[c - d, c - d], [c + d, c - d], [c - d, c + d], [c + d, c + d]];
+    var cx = (NX - 1) >> 1, cy = (NY - 1) >> 1, wide = NX >= NY;
+    var dx = Math.round(NX * (srcCount === 2 ? (wide ? 0.22 : 0.17) : 0.2)), dy = Math.round(NY * (srcCount === 2 ? (wide ? 0.17 : 0.22) : 0.2));
+    sources = srcCount === 1 ? [[cx, cy]]
+      : srcCount === 2 ? (wide ? [[cx - dx, cy], [cx + dx, cy]] : [[cx, cy - dy], [cx, cy + dy]])
+      : [[cx - dx, cy - dy], [cx + dx, cy - dy], [cx - dx, cy + dy], [cx + dx, cy + dy]];
     state = 'grow'; stateT = 0; lost = 0;
   }
 
   /* 1 粒置いて、崩れが止まるまで配る。budget を超えたら続きは次のフレームへ持ち越す */
   var sp = 0, touch = { i: 0, j: 0 }, touchT = 0;
   function drop(i, j, n, touched) {
-    if (i < 0 || j < 0 || i >= N || j >= N) return;
-    var k = j * N + i;
+    if (i < 0 || j < 0 || i >= NX || j >= NY) return;
+    var k = j * NX + i;
     h[k] += n;
     if (touched) for (var b = -4; b <= 4; b++) for (var a = -4; a <= 4; a++) {
-      if (a * a + b * b > 16 || i + a < 0 || j + b < 0 || i + a >= N || j + b >= N) continue;
-      mark[(j + b) * N + i + a] = 1;
+      if (a * a + b * b > 16 || i + a < 0 || j + b < 0 || i + a >= NX || j + b >= NY) continue;
+      mark[(j + b) * NX + i + a] = 1;
     }
     if (h[k] >= 4) stack[sp++] = k;
   }
@@ -82,7 +86,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
       h[k] -= q * 4;
       flash[k] = 1;
       budget--;
-      var i = k % N, j = (k - i) / N;
+      var i = k % NX, j = (k - i) / NX;
       /* 触った所の近くで起きた崩れだけをシアンで残す */
       if (touchT > 0 && Math.abs(i - touch.i) + Math.abs(j - touch.j) < 22) mark[k] = 1;
       spill(i + 1, j, q); spill(i - 1, j, q); spill(i, j + 1, q); spill(i, j - 1, q);
@@ -90,8 +94,12 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
   }
   function spill(i, j, q) {
-    if (i < 0 || j < 0 || i >= N || j >= N) { lost += q; return; }
-    var k = j * N + i;
+    if (i < 0 || j < 0 || i >= NX || j >= NY) {
+      /* 長い辺の端からこぼれ始めたら、画面いっぱいに広がったということ */
+      if (NX >= NY ? (i < 0 || i >= NX) : (j < 0 || j >= NY)) lost += q;
+      return;
+    }
+    var k = j * NX + i;
     h[k] += q;
     if (h[k] >= 4 && h[k] - q < 4) stack[sp++] = k;
   }
@@ -111,36 +119,49 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var cols = [null, P.mix(BG, ST, 0.75), P.mix(BG, LN, 0.7), P.mix(BG, LN, 0.95)];
     for (var dlt = 0; dlt < 4; dlt++) EDGE.push(cols[dlt]);
   })();
-  function hAt(i, j) { return (i < 0 || j < 0 || i >= N || j >= N) ? 0 : h[j * N + i]; }
+  function hAt(i, j) { return (i < 0 || j < 0 || i >= NX || j >= NY) ? 0 : h[j * NX + i]; }
+  /* マスごとに上と左の境目を調べ、S×S の画素の塊をまとめて書く（32 ビットで 1 画素ずつ） */
+  var LE = new Uint32Array(1), le8 = new Uint8Array(LE.buffer);
+  function pack(r, g, b) { le8[0] = r; le8[1] = g; le8[2] = b; le8[3] = 255; return LE[0]; }
+  var EDGE32 = [0, pack(EDGE[1][0], EDGE[1][1], EDGE[1][2]), pack(EDGE[2][0], EDGE[2][1], EDGE[2][2]), pack(EDGE[3][0], EDGE[3][1], EDGE[3][2])];
   function draw() {
     P.fill(ctx, W, H);
-    var d = img.data, x, y;
-    for (y = 0; y < BH; y++) {
-      var j = Math.floor(y / S), ly = y - j * S;
-      for (x = 0; x < BW; x++) {
-        var i = Math.floor(x / S), lx = x - i * S, o = (y * BW + x) * 4;
-        var c = hAt(i, j), dl = 0, v;
-        if (lx === 0) { v = Math.abs(c - hAt(i - 1, j)); if (v > dl) dl = v; }
-        if (ly === 0) { v = Math.abs(c - hAt(i, j - 1)); if (v > dl) dl = v; }
-        if (lx === 0 && ly === 0) { v = Math.abs(hAt(i - 1, j - 1) - c); if (v > dl) dl = v; }
+    var d32 = new Uint32Array(img.data.buffer), i, j, x, y;
+    for (j = 0; j <= NY; j++) {
+      for (i = 0; i <= NX; i++) {
+        var inside = i < NX && j < NY;
+        var c = inside ? h[j * NX + i] : 0;
+        var l = i > 0 && j < NY ? h[j * NX + i - 1] : 0;
+        var u = j > 0 && i < NX ? h[(j - 1) * NX + i] : 0;
+        var ul = i > 0 && j > 0 ? h[(j - 1) * NX + i - 1] : 0;
+        var dl = Math.abs(c - l), du = Math.abs(c - u), dc = Math.abs(ul - c);
         if (dl > 3) dl = 3;
-        if (dl > 0) {
-          var e = EDGE[dl];
-          d[o] = e[0]; d[o + 1] = e[1]; d[o + 2] = e[2]; d[o + 3] = 255;
-          continue;
-        }
-        if (i < N && j < N) {
-          var k = j * N + i, fl = flash[k], mk = mark[k];
+        if (du > 3) du = 3;
+        var dcor = Math.max(dl, du, dc > 3 ? 3 : dc);
+        var fillC = 0;
+        if (inside) {
+          var k = j * NX + i, fl = flash[k], mk = mark[k];
           if (fl > 0.04 || mk > 0.04) {
-            var a = fl * 0.12, b = mk > 1 ? 0.32 : mk * 0.32;
-            d[o] = BG[0] + (LN[0] - BG[0]) * a + (AC[0] - BG[0]) * b;
-            d[o + 1] = BG[1] + (LN[1] - BG[1]) * a + (AC[1] - BG[1]) * b;
-            d[o + 2] = BG[2] + (LN[2] - BG[2]) * a + (AC[2] - BG[2]) * b;
-            d[o + 3] = 255;
-            continue;
+            var a = fl * 0.12, bb = mk > 1 ? 0.32 : mk * 0.32;
+            fillC = pack(BG[0] + (LN[0] - BG[0]) * a + (AC[0] - BG[0]) * bb,
+                         BG[1] + (LN[1] - BG[1]) * a + (AC[1] - BG[1]) * bb,
+                         BG[2] + (LN[2] - BG[2]) * a + (AC[2] - BG[2]) * bb);
           }
         }
-        d[o + 3] = 0;
+        var x0 = i * S, y0 = j * S;
+        var xe = Math.min(BW, x0 + S), ye = Math.min(BH, y0 + S);
+        /* 角の 1 画素 */
+        d32[y0 * BW + x0] = dcor ? EDGE32[dcor] : fillC;
+        /* 上の辺 */
+        var top = du ? EDGE32[du] : fillC, row = y0 * BW;
+        for (x = x0 + 1; x < xe; x++) d32[row + x] = top;
+        /* 左の辺と中 */
+        var left = dl ? EDGE32[dl] : fillC;
+        for (y = y0 + 1; y < ye; y++) {
+          row = y * BW;
+          d32[row + x0] = left;
+          for (x = x0 + 1; x < xe; x++) d32[row + x] = fillC;
+        }
       }
     }
     bctx.putImageData(img, 0, 0);
@@ -154,7 +175,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   canvas.addEventListener('pointerdown', function (e) {
     down = true; here = cellOf(e);
     touch = here; touchT = 2;
-    drop(here.i, here.j, 1400, true);
+    drop(here.i, here.j, 2600, true);
     SFX.play('collide');
     canvas.setPointerCapture(e.pointerId);
   });
@@ -187,7 +208,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ---------------------------------------------------------- 回す */
   var lastT = performance.now(), acc = 0, lostT = 0, sndT = 0;
   function frame(now) {
-    var dt = Math.min(0.05, (now - lastT) / 1000);
+    var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));   /* 最初の数フレームは負になることがある */
     lastT = now;
     stateT += dt;
     if (touchT > 0) touchT -= dt;
@@ -209,9 +230,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (stateT > 14) { state = 'fade'; stateT = 0; }
     } else if (state === 'fade') {
       /* 外側から順に砂を消していく */
-      var c = (N - 1) / 2, rad = (1 - stateT / 4) * N * 0.75;
-      for (var j = 0; j < N; j++) for (var i = 0; i < N; i++) {
-        if (Math.max(Math.abs(i - c), Math.abs(j - c)) + Math.abs(i - c) * 0.2 + Math.abs(j - c) * 0.2 > rad) h[j * N + i] = 0;
+      var cx = (NX - 1) / 2, cy = (NY - 1) / 2, rad = (1 - stateT / 4) * Math.max(NX, NY) * 0.75;
+      for (var j = 0; j < NY; j++) for (var i = 0; i < NX; i++) {
+        if (Math.max(Math.abs(i - cx), Math.abs(j - cy)) + Math.abs(i - cx) * 0.2 + Math.abs(j - cy) * 0.2 > rad) h[j * NX + i] = 0;
       }
       if (stateT > 4) {
         restart();
