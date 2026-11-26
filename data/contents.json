@@ -701,13 +701,13 @@
   {
     "page": "galaxy",
     "title": "GALAXY",
-    "desc": "何万もの星が中心のまわりを回っている。星は流れていくのに、渦の腕は形を保ったままゆっくり回る。触った星は水色に光り、そのまま渦に乗って流れていく。",
-    "desc_en": "Tens of thousands of stars circle the center, flowing through the spiral arms while the arms themselves keep their shape and turn slowly. Hold a finger down and nearby stars are drawn toward it, then drift back into the stream when you let go.",
+    "desc": "何万もの星が中心のまわりを回り、星は腕を通り抜けていくのに、渦の腕は形を保ったままゆっくり回る。押すとまわりの星が指の下に集まって水色の塊になり、なぞると星が指についてきて、離すと塊は内側ほど速く回って引き伸ばされ、新しい細い腕になる。",
+    "desc_en": "Tens of thousands of stars circle the center, flowing through the spiral arms while the arms keep their shape and turn slowly. Press and nearby stars gather under your finger in a cyan clump that follows as you drag; let go and the clump is sheared, inner stars faster than outer ones, into a new thin arm.",
     "icon": "fa-hurricane",
     "category": "引き合うもの",
     "category_en": "FORCE",
-    "meta": "指を置くと星が寄ってくる",
-    "meta_en": "Hold to pull the stars",
+    "meta": "押して集めた星が新しい腕になる",
+    "meta_en": "Gathered stars wind into a new arm",
     "added": "2026-05-16",
     "group": "force",
     "updated": "2026-10-10"

@@ -5,7 +5,7 @@ recordPageView('galaxy');
 
 $pageName = 'galaxy';
 $pageTitle = 'GALAXY - PULSE';
-$pageDesc = '何万もの星が中心のまわりを回っている。星は流れていくのに、渦の腕は形を保ったままゆっくり回る。触った星は水色に光り、そのまま渦に乗って流れていく。';
+$pageDesc = '何万もの星が中心のまわりを回り、星は腕を通り抜けていくのに、渦の腕は形を保ったままゆっくり回る。押すとまわりの星が指の下に集まって水色の塊になり、なぞると星が指についてきて、離すと塊は内側ほど速く回って引き伸ばされ、新しい細い腕になる。';
 $pageCanonical = 'https://pulse.subara3.com/galaxy.php';
 $extraStyle = '';
 
@@ -25,11 +25,13 @@ require_once __DIR__ . '/includes/floating-nav.php';
 (function () {
   'use strict';
   var canvas = document.getElementById('canvas');
-  var W = 0, H = 0, CX = 0, CY = 0, RS = 1;
+  var W = 0, H = 0, CX = 0, CY = 0, RS = 1, PORT = false;
   var CELL = 2, GX = 0, GY = 0, dens, img, buf, bctx;
   var ctx = P.fit(canvas, function (w, h) {
     W = w; H = h; CX = w / 2; CY = h / 2;
-    RS = Math.min(w * 0.5, h * 0.62) * 1.05;
+    /* 円盤を画面いっぱいに置く。縦長の画面では円盤を縦に寝かせる */
+    PORT = h > w * 1.15;
+    RS = PORT ? Math.min(h * 0.6, w * 0.95) : Math.min(w * 0.6, h * 0.95);
     GX = Math.ceil(w / CELL); GY = Math.ceil(h / CELL);
     dens = new Float32Array(GX * GY);
     img = new ImageData(GX, GY);
@@ -40,18 +42,23 @@ require_once __DIR__ . '/includes/floating-nav.php';
   /* ---------------------------------------------------------- 星
      どの星も楕円の軌道を回る。楕円の向きを半径ごとに少しずつずらすと、
      楕円が混み合うところが腕になる。腕は星の集まりではなく、混み具合の波。 */
-  var N = 25000;
+  var N = 30000;
   var A = new Float32Array(N), TH = new Float32Array(N), LUM = new Float32Array(N);
   var OX = new Float32Array(N), OY = new Float32Array(N), HEAT = new Float32Array(N), LX = new Float32Array(N), LY = new Float32Array(N);
   var EC = new Float32Array(N), OC = new Float32Array(N), OS = new Float32Array(N);
   var JO = new Float32Array(N), JE = new Float32Array(N);   /* 星ごとのばらつき（腕がぼやけて見える） */
+  /* 触った星は、指の位置を通る円軌道へ乗り換える。A0 は元の軌道で、KN は円軌道の割合。
+     乗り換えた星は内側ほど速く回るので、指で作った塊は回るうちに引き伸ばされて細い腕になる。
+     そのあと何十秒もかけて元の軌道へ戻るので、円盤の形は崩れない */
+  var A0 = new Float32Array(N), KN = new Float32Array(N), DXO = new Float32Array(N), DYO = new Float32Array(N);
+  var HELD = new Uint8Array(N), CAP = 1600, ring = new Int32Array(CAP), rn = 0, rh = 0;
   function gauss() { return (Math.random() + Math.random() + Math.random() - 1.5) * 1.15; }
   for (var i = 0; i < N; i++) {
     /* 円盤: 中ほどまでほぼ一様、外へなだらかに減る */
     var a = -Math.log(1 - Math.random() * 0.96) * 0.27;
     if (Math.random() < 0.35) a = Math.sqrt(Math.random()) * 0.62;
     if (Math.random() < 0.06) a = Math.random() * Math.random() * 0.12;   /* 中心のふくらみ */
-    A[i] = Math.min(1.1, a + 0.006);
+    A[i] = A0[i] = Math.min(1.1, a + 0.006 * Math.random());   /* 下限を散らして、中心に穴をあけない */
     TH[i] = Math.random() * Math.PI * 2;
     JO[i] = gauss() * 0.16; JE[i] = gauss() * 0.22;
     var r = Math.random();
@@ -84,25 +91,19 @@ require_once __DIR__ . '/includes/floating-nav.php';
     var cv = Math.cos(view + pattern), sv = Math.sin(view + pattern);
     var incl = 1 - tilt * 0.62 - 0.06 * Math.sin(t * 0.021);
     var cxg = CX / CELL, cyg = CY / CELL, sc = RS / CELL;
-    var px = pe > 0.01 ? ptr.x : -1e9, py = pe > 0.01 ? ptr.y : -1e9, pr2 = 85 * 85;
     for (var i = 0; i < N; i++) {
       var a = A[i];
       var psi = TH[i] - pattern;
-      var x0 = a * Math.cos(psi), y0 = a * EC[i] * Math.sin(psi);
+      var cs = Math.cos(psi), sn = Math.sin(psi);
+      var x0 = a * cs, y0 = a * EC[i] * sn;
       var cp = OC[i], sp = OS[i];
       var x = x0 * cp - y0 * sp, y = x0 * sp + y0 * cp;
+      var kn = KN[i];
+      if (kn > 0) { x += (a * cs - x) * kn; y += (a * sn - y) * kn; }
       var xr = x * cv - y * sv, yr = (x * sv + y * cv) * incl;
+      if (PORT) { var tq = xr; xr = -yr; yr = tq; }
       var sxp = CX + xr * RS + OX[i], syp = CY + yr * RS + OY[i];
       LX[i] = sxp; LY[i] = syp;
-      /* 指に引かれて集まり、集まった星は明るく光る */
-      if (pe > 0.01) {
-        var dx = px - sxp, dy = py - syp, d2 = dx * dx + dy * dy;
-        if (d2 < pr2 * 4) {
-          var ex = Math.exp(-d2 / pr2), g = Math.min(0.12, ex * 1.5 * DT * pe);
-          OX[i] += dx * g; OY[i] += dy * g;
-          if (ex * pe * 0.7 > HEAT[i]) HEAT[i] = ex * pe * 0.7;
-        }
-      }
       OX[i] *= RELAX; OY[i] *= RELAX;
       HEAT[i] *= COOL;
       /* 隣の 4 画素に分けて置く（動いてもちらつかない） */
@@ -158,27 +159,63 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ---------------------------------------------------------- 操作 */
+  var moved = false;
   var hold = false, ptr = { x: 0, y: 0 }, mark = 0, DT = 0.016, RELAX = 1, COOL = 1, pe = 0;
+  /* 画面の点を、円盤の面の上の点に戻す（splat の投影の逆） */
+  var fo = { x: 0, y: 0 };
+  function unproject(sx, sy) {
+    var cv = Math.cos(view + pattern), sv = Math.sin(view + pattern);
+    var incl = 1 - tilt * 0.62 - 0.06 * Math.sin(t * 0.021);
+    var xr = (sx - CX) / RS, yr = (sy - CY) / RS;
+    if (PORT) { var tq = xr; xr = yr; yr = -tq; }
+    yr /= incl;
+    fo.x = xr * cv + yr * sv; fo.y = -xr * sv + yr * cv;
+  }
+  /* 星を指の円軌道へ乗せる。見た目が飛ばないよう、元の場所との差を OX/OY に入れて、すぐ縮める */
+  function pin(i) {
+    var x = fo.x + DXO[i], y = fo.y + DYO[i];
+    var a = Math.max(0.02, Math.min(1.25, Math.sqrt(x * x + y * y)));
+    A[i] = a; TH[i] = Math.atan2(y, x) + pattern; KN[i] = 1;
+  }
+  function grab(i, spread) {
+    if (HELD[i]) return;
+    if (rn === CAP) { HELD[ring[rh]] = 0; rh = (rh + 1) % CAP; rn--; }   /* いちばん古い星から放す: なぞると跡が残る */
+    ring[(rh + rn) % CAP] = i; rn++;
+    HELD[i] = 1;
+    var s = spread / RS;
+    DXO[i] = gauss() * s; DYO[i] = gauss() * s;
+    pin(i);
+    OX[i] = LX[i] - ptr.x - DXO[i] * RS; OY[i] = LY[i] - ptr.y - DYO[i] * RS;
+    HEAT[i] = 1;
+  }
+  function gather(R, prob, spread) {
+    var R2 = R * R;
+    for (var i = 0; i < N; i++) {
+      if (HELD[i]) continue;
+      var dx = ptr.x - LX[i], dy = ptr.y - LY[i], d2 = dx * dx + dy * dy;
+      if (d2 > R2) continue;
+      if (Math.random() < prob * Math.exp(-d2 / (R2 * 0.45))) grab(i, spread);
+    }
+  }
+  function release() {
+    for (var k = 0; k < rn; k++) HELD[ring[(rh + k) % CAP]] = 0;
+    rn = 0; rh = 0;
+  }
   canvas.addEventListener('pointerdown', function (e) {
     hold = true; ptr.x = e.clientX; ptr.y = e.clientY; pe = Math.max(pe, 0.7);
-    /* 押した瞬間、まわりの星がひと息にそこへ寄って光る */
-    var R2 = 85 * 85;
-    for (var i = 0; i < N; i++) {
-      var dx = ptr.x - LX[i], dy = ptr.y - LY[i], d2 = dx * dx + dy * dy;
-      if (d2 > R2 * 4) continue;
-      var ex = Math.exp(-d2 / R2);
-      OX[i] += dx * 0.25 * ex; OY[i] += dy * 0.25 * ex;
-      if (ex > HEAT[i]) HEAT[i] = ex;
-    }
+    /* 押した瞬間、まわりの星がひと息にそこへ集まって明るい塊になる */
+    release();
+    unproject(ptr.x, ptr.y);
+    gather(Math.min(120, RS * 0.25), 0.85, 16);
     SFX.play('grow');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!hold) return;
-    ptr.x = e.clientX; ptr.y = e.clientY;
+    ptr.x = e.clientX; ptr.y = e.clientY; moved = true;
     SFX.play('move', 300);
   });
-  function up() { hold = false; }
+  function up() { hold = false; release(); }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);
 
@@ -203,10 +240,25 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function frame(now) {
     var dt = Math.max(0, Math.min(0.05, (now - lastT) / 1000));
     lastT = now;
-    t += dt; DT = dt; RELAX = Math.exp(-dt * 1.3); COOL = Math.exp(-dt * 0.8);
+    t += dt; DT = dt; RELAX = Math.exp(-dt * 5); COOL = Math.exp(-dt * 0.22);
     pe = hold ? Math.min(1, pe + dt * 6) : pe * Math.exp(-dt * 3);
     /* 星はそれぞれの速さで、腕の模様はゆっくり一定の速さで回る */
-    for (var i = 0; i < N; i++) TH[i] += dt * 0.11 / Math.sqrt(A[i] * A[i] + 0.012);
+    var back = dt * 0.035;
+    for (var i = 0; i < N; i++) {
+      TH[i] += dt * 0.11 / Math.sqrt(A[i] * A[i] + 0.012);
+      if (KN[i] > 0 && !HELD[i]) {
+        /* 乗り換えた星は、ゆっくり元の軌道へ戻る */
+        A[i] += (A0[i] - A[i]) * back;
+        KN[i] = KN[i] > 0.004 ? KN[i] * (1 - back) : 0;
+        if (KN[i] === 0) A[i] = A0[i];
+      }
+    }
+    /* 押さえている星は指の下に留め、なぞった先の星も拾っていく */
+    if (rn > 0) {
+      unproject(ptr.x, ptr.y);
+      for (var k = 0; k < rn; k++) { var j = ring[(rh + k) % CAP]; pin(j); HEAT[j] = 1; }
+    }
+    if (hold && moved) { gather(40, 0.4, 11); moved = false; }
     pattern += dt * 0.025;
     view += dt * 0.004;
     splat();
