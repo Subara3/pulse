@@ -1373,6 +1373,19 @@
     "added": "2026-11-19"
   },
   {
+    "page": "halo",
+    "title": "HALO",
+    "desc": "凍った空気に細かな氷の粒が漂ってきらめき、太陽のまわりに大きな光の輪と、左右に明るい点が浮かぶ。押すとそこから水色の氷の粒が舞い上がって輪の上できらめき、なぞると粒が指についてきて、太陽を押さえて動かすと輪もついてくる。",
+    "desc_en": "Fine ice crystals drift and glint in the frozen air, and a wide ring of light hangs around the sun with a bright spot on each side. Press to toss up cyan crystals that sparkle where they cross the ring, drag and the crystals follow your finger, and hold the sun to move it with the ring in tow.",
+    "icon": "fa-sun",
+    "group": "light",
+    "category": "光るもの",
+    "category_en": "LIGHT",
+    "meta": "氷の粒がつくる太陽のまわりの輪",
+    "meta_en": "A ring around the sun made by ice crystals",
+    "added": "2026-11-20"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
