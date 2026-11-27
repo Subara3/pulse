@@ -7,7 +7,7 @@ PULSE は、数式と規則で動くものを「眺めていられる形」に�
 
 - **URL**: https://pulse.subara3.com/
 - **ホスティング**: Lolipop（FTP経由）
-- **デプロイ**: GitHub Actions（main への push で自動FTPデプロイ）。日々の追加は `daily/` ブランチ → PR → CodeRabbit のレビュー → 人がマージ
+- **デプロイ**: GitHub Actions（main への push で自動FTPデプロイ）。日々の追加は `daily/` ブランチ → PR → 検査が通ったら自動でマージ
 - **技術**: PHP + 素の JavaScript + Canvas 2D。外部ライブラリなし。
 - **デザイン基準**: `css/pulse.css`（トークン・共通コンポーネント）と `includes/colors.php`（Canvas 側の色）。
   ページ側の `$extraStyle` は原則空。トークンを上書きしない。
@@ -145,7 +145,8 @@ git commit -m "add: {TITLE}（{説明}）"
 git push origin daily/{YYYY-MM-DD}
 ```
 **main には直接 push しない。** `daily/` のブランチを push すると、CI が検査を走らせて PR を作り、
-CodeRabbit がレビューする。人が PR を見てマージしたら、デプロイ・プレビュー動画・CLAUDE.md 一覧の再生成を CI がやる。
+検査が通ればそのままマージする。マージのあと、デプロイ・プレビュー動画・CLAUDE.md 一覧の再生成を CI がやる。
+検査に落ちた PR はマージされずに残る。
 同じ日のブランチがもうあれば、そのブランチに追加でコミットする。
 前の日の PR がまだマージされていなくても、ブランチは main から切ってよい。前の PR がマージされて contents.json がぶつかったら、
 `daily-sync.yml` が main を取り込んで両方のエントリを残す（`scripts/resolve_contents_conflict.py`）。
