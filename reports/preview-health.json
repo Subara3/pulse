@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-27T17:41:43.831354Z",
+  "generatedAt": "2026-11-27T17:42:51.412606Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok halo\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok halo\nok hose\n\nDone. success=2, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -23,32 +23,66 @@
               "ok": true,
               "start": [
                 42.0,
-                43.7447,
-                45.215,
-                46.6461,
-                48.0783,
-                49.554,
-                51.1975,
-                51.2367,
-                51.209,
+                43.7375,
+                45.2206,
+                46.6576,
+                48.0716,
+                49.5635,
+                51.2107,
                 51.2527,
-                51.2223
+                51.2167,
+                51.2623,
+                51.2361
               ],
               "end": [
-                47.9597,
-                46.7802,
-                45.7517,
-                44.599,
-                43.3945,
+                47.9456,
+                46.7646,
+                45.7271,
+                44.601,
+                43.4035,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 51.2527,
-              "end_max": 47.9597,
-              "start_med": 49.554,
-              "end_med": 43.3945
+              "start_max": 51.2623,
+              "end_max": 47.9456,
+              "start_med": 49.5635,
+              "end_med": 43.4035
+            }
+          },
+          {
+            "file": "hose.mp4",
+            "initial": {
+              "ok": true,
+              "start": [
+                42.0,
+                42.0496,
+                42.082,
+                42.1377,
+                41.6689,
+                41.7166,
+                41.6281,
+                41.7365,
+                41.7527,
+                41.8196,
+                41.7717
+              ],
+              "end": [
+                41.7748,
+                42.2353,
+                42.2365,
+                42.1059,
+                42.0377,
+                42.0,
+                42.0,
+                42.0,
+                42.0
+              ],
+              "start_max": 42.1377,
+              "end_max": 42.2365,
+              "start_med": 41.7717,
+              "end_med": 42.0
             }
           }
         ]
@@ -58,9 +92,11 @@
       "name": "check_preview_dark_static",
       "ok": true,
       "result": {
-        "checked": 1,
-        "flagged_count": 0,
-        "flagged_pages": [],
+        "checked": 2,
+        "flagged_count": 1,
+        "flagged_pages": [
+          "hose"
+        ],
         "results": [
           {
             "file": "halo.mp4",
@@ -68,11 +104,23 @@
             "too_dark": false,
             "too_static": false,
             "luma": [
-              40.99,
-              40.99,
-              41.03
+              41.01,
+              41.01,
+              41.02
             ],
-            "motion": 3.527
+            "motion": 3.538
+          },
+          {
+            "file": "hose.mp4",
+            "ok": false,
+            "too_dark": true,
+            "too_static": false,
+            "luma": [
+              29.91,
+              29.75,
+              30.02
+            ],
+            "motion": 4.239
           }
         ]
       }
@@ -92,7 +140,22 @@
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 48.0783,
+              "y1": 48.0716,
+              "y2": 42.0,
+              "y3": null,
+              "seam_diff": 0.0,
+              "start_spike": false,
+              "end_spike": false,
+              "hard_seam": false
+            }
+          },
+          {
+            "file": "hose.mp4",
+            "initial": {
+              "ok": true,
+              "duration": 5.4,
+              "y0": 42.0,
+              "y1": 41.6689,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
