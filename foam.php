@@ -5,7 +5,7 @@ recordPageView('foam');
 
 $pageName = 'foam';
 $pageTitle = 'FOAM - PULSE';
-$pageDesc = '泡が押し合い、境目の膜が少しずつ曲がっていく。辺の少ない小さな泡から縮んで消え、ときどき新しい小さな泡がまとまって出てくる。触ったところに小さな泡が増える。';
+$pageDesc = '泡が押し合い、境目の膜が少しずつ曲がって、小さな泡から縮んで消え、大きくなりすぎた泡の中には新しい小さな泡がまとまって湧く。押さえるとその泡が水色の膜でふくらんでまわりの泡を押しのけ、なぞると指のまわりの泡が膜ごと指についてきて、離すと元の大きさに戻っていく。';
 $pageCanonical = 'https://pulse.subara3.com/foam.php';
 $extraStyle = '';
 
@@ -53,19 +53,20 @@ require_once __DIR__ . '/includes/floating-nav.php';
     cand = new Array(TX * TY);
     fresh();
   }
-  var PB, LAB2;
-  var fade = new Float32Array(MAXB);
+  var PB, LAB2, bigA = 0, bigX = 0, bigY = 0;
+  var fade = new Float32Array(MAXB), ext = new Float32Array(MAXB);
 
   function add(x, y, w, t) {
     if (n >= MAXB) return -1;
     bx[n] = x; by[n] = y; bw[n] = w; vx[n] = vy[n] = vw[n] = 0;
-    tint[n] = t || 0; born[n] = 1; fade[n] = 1;
+    tint[n] = t || 0; born[n] = 1; fade[n] = 1; ext[n] = 0;
     return n++;
   }
   function remove(i) {
     n--;
+    if (grab === n) grab = i; else if (grab === i) grab = -1;
     bx[i] = bx[n]; by[i] = by[n]; bw[i] = bw[n]; vx[i] = vx[n]; vy[i] = vy[n]; vw[i] = vw[n];
-    tint[i] = tint[n]; born[i] = born[n]; fade[i] = fade[n];
+    tint[i] = tint[n]; born[i] = born[n]; fade[i] = fade[n]; ext[i] = ext[n];
   }
   function fresh() {
     n = 0;
@@ -104,7 +105,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
         TD[i] = d;
         if (d < up) up = d;
       }
-      var list = [], lim = up + hd * 2 + 8;
+      var list = [], lim = up + hd * 2 + 14;
       for (i = 0; i < n; i++) if (TD[i] <= lim) list.push(i);
       cand[ty * TX + tx] = list;
     }
@@ -151,6 +152,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
       sides[i] = c;
     }
     var rate = 0.35 + pace * 1.6;
+    /* いちばん大きい泡を覚えておく。大きくなりすぎたら、その中に新しい泡が湧く */
+    bigA = 0;
+    for (i = 0; i < n; i++) if (area[i] > bigA) { bigA = area[i]; bigX = sx[i] / area[i]; bigY = sy[i] / area[i]; }
     for (i = n - 1; i >= 0; i--) {
       if (area[i] < 9 && born[i] <= 0) { remove(i); popped++; continue; }
       /* 消えかけの泡は膜ごと薄れていく */
@@ -181,7 +185,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
         if (tn > 0) { lc0 += (AC[0] - lc0) * tn; lc1 += (AC[1] - lc1) * tn; lc2 += (AC[2] - lc2) * tn; }
         r += (lc0 - r) * a; gg += (lc1 - gg) * a; b += (lc2 - b) * a;
       } else if (tn > 0) {
-        var ti = tn * (0.16 + film * 0.8);
+        var ti = tn * (0.05 + film * 0.7);
         r += (AC[0] - r) * ti; gg += (AC[1] - gg) * ti; b += (AC[2] - b) * ti;
       }
       d[o] = r; d[o + 1] = gg; d[o + 2] = b; d[o + 3] = 255;
@@ -190,27 +194,55 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
   function blit() {
     ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    ctx.imageSmoothingQuality = 'low';   /* 'high' はソフト描画（撮影環境）で極端に重い */
     ctx.drawImage(buf, 0, 0, NX * S, NY * S);
   }
 
   /* ---------------------------------------------------------- 操作 */
-  var down = false, last = null, popped = 0;
+  var down = false, last = null, popped = 0, grab = -1, grown = 0;
+  /* 指の下の泡（いちばんスコアの小さい泡） */
+  function under(x, y) {
+    var b = -1, best = 1e9;
+    for (var i = 0; i < n; i++) {
+      var sc = Math.hypot(x - bx[i], y - by[i]) - bw[i];
+      if (sc < best) { best = sc; b = i; }
+    }
+    return b;
+  }
+  /* 指のまわりの泡を、指の動きといっしょに動かす。近いほどよくついてくる */
+  function drag(gx, gy, dx, dy) {
+    var R = 46;
+    for (var i = 0; i < n; i++) {
+      var d = Math.hypot(bx[i] - gx, by[i] - gy);
+      if (d >= R) continue;
+      var f = 1 - d / R; f *= f;
+      bx[i] += dx * f; by[i] += dy * f;
+      if (tint[i] < f) tint[i] = f;
+    }
+  }
   canvas.addEventListener('pointerdown', function (e) {
     down = true; last = { x: e.clientX, y: e.clientY };
-    blow(last.x / S, last.y / S, 14, 34, 5, 12, 1);
+    var gx = last.x / S, gy = last.y / S;
+    grab = under(gx, gy);
+    if (grab >= 0) {
+      /* 押した泡はその場で一回りふくらみ、押しているあいだもふくらみ続ける */
+      bx[grab] = gx; by[grab] = gy;
+      bw[grab] += 10; ext[grab] += 10; tint[grab] = 1; born[grab] = 0.6; grown = 10;
+    }
     SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
     if (!down) return;
     var p = { x: e.clientX, y: e.clientY };
-    if (Math.hypot(p.x - last.x, p.y - last.y) < 30) return;
+    var dx = (p.x - last.x) / S, dy = (p.y - last.y) / S;
+    if (dx * dx + dy * dy < 0.5) return;
+    drag(last.x / S, last.y / S, dx, dy);
+    if (grab >= 0 && grab < n) { bx[grab] = p.x / S; by[grab] = p.y / S; tint[grab] = 1; }
     last = p;
-    blow(p.x / S, p.y / S, 3, 10, 4, 8, 1);
-    SFX.play('pop', 140);
+    SFX.play('move', 140);
   });
-  function up() { down = false; }
+  function up() { down = false; grab = -1; }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);
 
@@ -230,16 +262,26 @@ require_once __DIR__ . '/includes/floating-nav.php';
     for (var i = 0; i < n; i++) {
       bx[i] += vx[i] * dt; by[i] += vy[i] * dt; bw[i] += vw[i] * dt;
       if (tint[i] > 0) tint[i] = Math.max(0, tint[i] - dt * 0.25);
+      /* 指を離したら、押してふくらませた分は数秒でしぼんで元の泡の大きさに戻る */
+      if (ext[i] > 0 && !(down && i === grab)) { var dd = ext[i] * Math.min(1, dt * 0.5); bw[i] -= dd; ext[i] -= dd; }
       if (born[i] > 0) born[i] -= dt;
       if (bx[i] < 0) bx[i] = 0; if (by[i] < 0) by[i] = 0;
       if (bx[i] > NX) bx[i] = NX; if (by[i] > NY) by[i] = NY;
     }
+    /* 押さえているあいだ、指の下の泡がふくらんでまわりの泡を押しのける */
+    if (down && grab >= 0 && grab < n && grown < Math.min(NX, NY) * 0.16) {
+      var inc = dt * 18;
+      bw[grab] += inc; ext[grab] += inc; grown += inc; tint[grab] = 1;
+      if (born[grab] < 0.2) born[grab] = 0.2;
+    }
     /* 泡が減ってきたら、どこかに新しい泡の群れが湧く */
     frothT -= dt;
-    var floor = NX * NY / (2400 - froth * 1600);
-    if (frothT <= 0 && n < floor) {
-      frothT = 3 + Math.random() * 3;
-      blow(NX * (0.15 + Math.random() * 0.7), NY * (0.15 + Math.random() * 0.7), 10 + Math.round(froth * 14), 19 + froth * 16, 3, 9, 0);
+    var floor = NX * NY / (1300 - froth * 700);
+    var tooBig = bigA > NX * NY / (14 + froth * 14);
+    if (frothT <= 0 && (n < floor || tooBig)) {
+      frothT = 2.5 + Math.random() * 3;
+      var fx0 = tooBig ? bigX : NX * (0.15 + Math.random() * 0.7), fy0 = tooBig ? bigY : NY * (0.15 + Math.random() * 0.7);
+      blow(fx0, fy0, 10 + Math.round(froth * 14), 19 + froth * 16, 3, 9, 0);
       SFX.play('grow', 3000);
     }
     tick++;
