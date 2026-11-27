@@ -1386,6 +1386,19 @@
     "added": "2026-11-20"
   },
   {
+    "page": "hose",
+    "title": "HOSE",
+    "desc": "上から吊るした何本ものホースが、先から噴き出す水の勢いで勝手に揺れ出して暴れ、水が弧を描いて下の池に落ちる。押すといちばん近いホースの先をつかんで水が水色になり、なぞるとそのホースを振り回せて、放すとまた勝手に暴れ出す。",
+    "desc_en": "Several hoses hang from above, and the push of the water spraying from their tips sets them swinging and thrashing on their own, throwing arcs of water down into a pool. Press to grab the tip of the nearest hose and turn its water cyan, drag to swing it around, and let go to watch it start thrashing again by itself.",
+    "icon": "fa-faucet",
+    "group": "chaos",
+    "category": "予測できないもの",
+    "category_en": "CHAOS",
+    "meta": "水の勢いで暴れるホース",
+    "meta_en": "Hoses thrashing from their own spray",
+    "added": "2026-11-21"
+  },
+  {
     "page": "sashiko",
     "title": "SASHIKO",
     "desc": "藍の布に白い糸の短い縫い目が縦横に並び、段ごとに縫い目を1目ずらすかどうかで、つながった線が四角や十字の輪を描く。針が1段ずつ縫い直すたびに模様が組み変わり、押すとそこを通る縦と横の段が水色の糸で縫い直され、なぞると指が横切った段が次々に縫い直される。",
