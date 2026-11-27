@@ -1425,6 +1425,19 @@
     "added": "2026-11-23"
   },
   {
+    "page": "skein",
+    "title": "SKEIN",
+    "desc": "雁の群れがいくつもV字に並んで空を渡り、先頭の鳥はしばらくすると列の後ろへ下がって、次の鳥が先頭になる。押すとまわりの鳥が水色になって列を離れ、指を先頭にしたV字に並び直し、なぞるとその列が指についてくる。",
+    "desc_en": "Flocks of geese cross the sky in V formations, and every so often the lead bird drops back to the end of a line while the next one takes the front. Press and nearby birds turn cyan, leave their lines and form a new V with your finger at the point; drag and that V follows your finger.",
+    "icon": "fa-angles-up",
+    "group": "swarm",
+    "category": "群れるもの",
+    "category_en": "SWARM",
+    "meta": "先頭が入れ替わる雁のV字",
+    "meta_en": "Geese in V formations taking turns at the front",
+    "added": "2026-11-27"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
