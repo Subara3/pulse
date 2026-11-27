@@ -799,13 +799,13 @@
   {
     "page": "foam",
     "title": "FOAM",
-    "desc": "泡が押し合い、境目の膜が少しずつ曲がっていく。辺の少ない小さな泡から縮んで消え、ときどき新しい小さな泡がまとまって出てくる。触ったところに小さな泡が増える。",
-    "desc_en": "Bubbles press against each other and the films between them slowly bend. Small bubbles with few sides shrink and vanish first, and every so often a cluster of new small bubbles appears. Touch to add small bubbles there.",
+    "desc": "泡が押し合い、境目の膜が少しずつ曲がって、小さな泡から縮んで消え、大きくなりすぎた泡の中には新しい小さな泡がまとまって湧く。押さえるとその泡が水色の膜でふくらんでまわりの泡を押しのけ、なぞると指のまわりの泡が膜ごと指についてきて、離すと元の大きさに戻っていく。",
+    "desc_en": "Bubbles press against each other and the films between them slowly bend; small bubbles shrink away, and fresh clusters of tiny bubbles well up inside any bubble that grows too large. Press and hold to inflate the bubble under your finger with a cyan film, pushing its neighbours aside, and drag to pull the nearby bubbles along with your finger until they settle back when you let go.",
     "icon": "fa-droplet",
     "category": "敷き詰めるもの",
     "category_en": "TILING",
-    "meta": "触ると泡が増える",
-    "meta_en": "Touch to blow bubbles",
+    "meta": "押すとふくらみ、なぞるとついてくる泡",
+    "meta_en": "Bubbles that inflate under a press and follow a drag",
     "added": "2026-07-16",
     "group": "tile",
     "updated": "2026-10-10"
