@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-27T17:42:51.412606Z",
+  "generatedAt": "2026-11-27T17:44:13.616858Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok halo\nok hose\n\nDone. success=2, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok hose\nok treering\n\nDone. success=2, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,71 +18,71 @@
         "failed": [],
         "details": [
           {
-            "file": "halo.mp4",
-            "initial": {
-              "ok": true,
-              "start": [
-                42.0,
-                43.7375,
-                45.2206,
-                46.6576,
-                48.0716,
-                49.5635,
-                51.2107,
-                51.2527,
-                51.2167,
-                51.2623,
-                51.2361
-              ],
-              "end": [
-                47.9456,
-                46.7646,
-                45.7271,
-                44.601,
-                43.4035,
-                42.0,
-                42.0,
-                42.0,
-                42.0
-              ],
-              "start_max": 51.2623,
-              "end_max": 47.9456,
-              "start_med": 49.5635,
-              "end_med": 43.4035
-            }
-          },
-          {
             "file": "hose.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                42.0496,
-                42.082,
-                42.1377,
-                41.6689,
-                41.7166,
-                41.6281,
-                41.7365,
-                41.7527,
-                41.8196,
-                41.7717
+                42.0669,
+                42.1754,
+                42.2499,
+                41.7867,
+                41.8229,
+                42.0358,
+                42.1158,
+                42.2062,
+                42.1622,
+                42.3058
               ],
               "end": [
-                41.7748,
-                42.2353,
-                42.2365,
-                42.1059,
-                42.0377,
+                41.5033,
+                42.0858,
+                42.1129,
+                42.0044,
+                42.0179,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 42.1377,
-              "end_max": 42.2365,
-              "start_med": 41.7717,
+              "start_max": 42.3058,
+              "end_max": 42.1129,
+              "start_med": 42.1158,
               "end_med": 42.0
+            }
+          },
+          {
+            "file": "treering.mp4",
+            "initial": {
+              "ok": true,
+              "start": [
+                42.0,
+                43.5789,
+                45.6853,
+                47.1821,
+                48.905,
+                50.0451,
+                51.4695,
+                51.6765,
+                51.6131,
+                51.6905,
+                51.4091
+              ],
+              "end": [
+                49.2269,
+                47.5521,
+                46.5448,
+                45.0209,
+                43.7489,
+                42.0,
+                42.0,
+                42.0,
+                42.0
+              ],
+              "start_max": 51.6905,
+              "end_max": 49.2269,
+              "start_med": 50.0451,
+              "end_med": 43.7489
             }
           }
         ]
@@ -99,28 +99,28 @@
         ],
         "results": [
           {
-            "file": "halo.mp4",
-            "ok": true,
-            "too_dark": false,
-            "too_static": false,
-            "luma": [
-              41.01,
-              41.01,
-              41.02
-            ],
-            "motion": 3.538
-          },
-          {
             "file": "hose.mp4",
             "ok": false,
             "too_dark": true,
             "too_static": false,
             "luma": [
-              29.91,
-              29.75,
-              30.02
+              30.51,
+              30.11,
+              30.03
             ],
-            "motion": 4.239
+            "motion": 4.794
+          },
+          {
+            "file": "treering.mp4",
+            "ok": true,
+            "too_dark": false,
+            "too_static": false,
+            "luma": [
+              41.17,
+              42.73,
+              41.87
+            ],
+            "motion": 21.918
           }
         ]
       }
@@ -135,12 +135,12 @@
         "failed": [],
         "details": [
           {
-            "file": "halo.mp4",
+            "file": "hose.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 48.0716,
+              "y1": 41.7867,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
@@ -150,12 +150,12 @@
             }
           },
           {
-            "file": "hose.mp4",
+            "file": "treering.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 41.6689,
+              "y1": 48.905,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
