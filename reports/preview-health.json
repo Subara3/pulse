@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-27T17:45:41.675242Z",
+  "generatedAt": "2026-11-27T17:47:21.066381Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok sandpile\nok sashiko\nok treering\n\nDone. success=3, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok galaxy\nok sashiko\n\nDone. success=2, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,37 +18,37 @@
         "failed": [],
         "details": [
           {
-            "file": "sandpile.mp4",
+            "file": "galaxy.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                43.9685,
-                45.7715,
-                47.6796,
-                48.8526,
-                50.5312,
-                53.1608,
-                53.0912,
-                53.2362,
-                52.9842,
-                53.4351
+                44.3813,
+                46.5026,
+                48.8193,
+                50.7955,
+                52.7313,
+                55.1468,
+                55.0484,
+                55.1917,
+                55.0933,
+                55.2166
               ],
               "end": [
-                51.7379,
-                49.8533,
-                48.597,
-                46.1106,
-                44.1803,
+                50.0018,
+                48.4915,
+                47.0553,
+                45.2956,
+                43.7594,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 53.4351,
-              "end_max": 51.7379,
-              "start_med": 50.5312,
-              "end_med": 44.1803
+              "start_max": 55.2166,
+              "end_max": 50.0018,
+              "start_med": 52.7313,
+              "end_med": 43.7594
             }
           },
           {
@@ -57,100 +57,32 @@
               "ok": true,
               "start": [
                 42.0,
-                43.8601,
-                45.6517,
-                47.5835,
-                48.6686,
-                50.6591,
-                52.4402,
-                52.4472,
-                52.4333,
-                52.452,
-                52.4533
+                43.8516,
+                45.6395,
+                47.5585,
+                48.6283,
+                50.6034,
+                52.3786,
+                52.3811,
+                52.3708,
+                52.3717,
+                52.3758
               ],
               "end": [
-                48.9524,
-                47.4471,
-                46.403,
-                44.9354,
-                43.5661,
+                48.934,
+                47.4291,
+                46.3956,
+                44.9309,
+                43.5666,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 52.4533,
-              "end_max": 48.9524,
-              "start_med": 50.6591,
-              "end_med": 43.5661
-            }
-          },
-          {
-            "file": "treering.mp4",
-            "initial": {
-              "ok": true,
-              "start": [
-                42.0,
-                43.8927,
-                46.4178,
-                48.2223,
-                50.3261,
-                51.8053,
-                53.7613,
-                53.6197,
-                53.8525,
-                53.7792,
-                53.7709
-              ],
-              "end": [
-                49.7698,
-                47.9547,
-                46.8508,
-                45.2311,
-                43.8412,
-                42.0,
-                42.0,
-                42.0,
-                42.0
-              ],
-              "start_max": 53.8525,
-              "end_max": 49.7698,
-              "start_med": 51.8053,
-              "end_med": 43.8412
-            }
-          },
-          {
-            "file": "treering.mp4",
-            "initial": {
-              "ok": true,
-              "start": [
-                42.0,
-                43.5789,
-                45.6853,
-                47.1821,
-                48.905,
-                50.0451,
-                51.4695,
-                51.6765,
-                51.6131,
-                51.6905,
-                51.4091
-              ],
-              "end": [
-                49.2269,
-                47.5521,
-                46.5448,
-                45.0209,
-                43.7489,
-                42.0,
-                42.0,
-                42.0,
-                42.0
-              ],
-              "start_max": 51.6905,
-              "end_max": 49.2269,
-              "start_med": 50.0451,
-              "end_med": 43.7489
+              "start_max": 52.3811,
+              "end_max": 48.934,
+              "start_med": 50.6034,
+              "end_med": 43.5666
             }
           }
         ]
@@ -160,21 +92,21 @@
       "name": "check_preview_dark_static",
       "ok": true,
       "result": {
-        "checked": 3,
+        "checked": 2,
         "flagged_count": 0,
         "flagged_pages": [],
         "results": [
           {
-            "file": "sandpile.mp4",
+            "file": "galaxy.mp4",
             "ok": true,
             "too_dark": false,
             "too_static": false,
             "luma": [
-              43.52,
-              51.96,
-              46.59
+              45.6,
+              44.42,
+              44.54
             ],
-            "motion": 16.365
+            "motion": 12.69
           },
           {
             "file": "sashiko.mp4",
@@ -182,23 +114,11 @@
             "too_dark": false,
             "too_static": false,
             "luma": [
-              42.39,
-              42.05,
-              42.21
+              42.3,
+              41.98,
+              42.17
             ],
-            "motion": 6.578
-          },
-          {
-            "file": "treering.mp4",
-            "ok": true,
-            "too_dark": false,
-            "too_static": false,
-            "luma": [
-              43.94,
-              45.29,
-              44.02
-            ],
-            "motion": 21.849
+            "motion": 7.147
           }
         ]
       }
@@ -213,12 +133,12 @@
         "failed": [],
         "details": [
           {
-            "file": "sandpile.mp4",
+            "file": "galaxy.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 48.8526,
+              "y1": 50.7955,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
@@ -233,22 +153,7 @@
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 48.6686,
-              "y2": 42.0,
-              "y3": null,
-              "seam_diff": 0.0,
-              "start_spike": false,
-              "end_spike": false,
-              "hard_seam": false
-            }
-          },
-          {
-            "file": "treering.mp4",
-            "initial": {
-              "ok": true,
-              "duration": 5.4,
-              "y0": 42.0,
-              "y1": 50.3261,
+              "y1": 48.6283,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
