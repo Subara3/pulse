@@ -1360,6 +1360,19 @@
     "added": "2026-11-18"
   },
   {
+    "page": "knight",
+    "title": "KNIGHT",
+    "desc": "画面いっぱいの盤の上を点が縦2マス横1マスずつ跳んで、まだ通っていないマスをたどり、行き止まりでは跡を消しながら引き返して、跳んだ跡の直線が重なって網目になる。押すとそこのマスから新しい道が速く伸び、なぞると点が指のほうへ跳んでついてくる。",
+    "desc_en": "A dot hops across a board that fills the screen, two squares one way and one the other, visiting only squares it has not been to, backing up and erasing its trail at dead ends, until the straight lines of its hops overlap into a web. Press to start a fresh path that spreads quickly from that square; drag and the dot hops after your finger.",
+    "icon": "fa-chess-knight",
+    "group": "mind",
+    "category": "探すもの",
+    "category_en": "SEARCH",
+    "meta": "空いたマスを跳んでたどる桂馬の道",
+    "meta_en": "A knight's path through unvisited squares",
+    "added": "2026-11-19"
+  },
+  {
     "page": "halo",
     "title": "HALO",
     "desc": "凍った空気に細かな氷の粒が漂ってきらめき、太陽のまわりに大きな光の輪と、左右に明るい点が浮かぶ。押すとそこから水色の氷の粒が舞い上がって輪の上できらめき、なぞると粒が指についてきて、太陽を押さえて動かすと輪もついてくる。",
