@@ -128,16 +128,16 @@
   {
     "page": "sandpile",
     "title": "SANDPILE",
-    "desc": "中心に砂粒が1粒ずつ落ち、4粒たまったマスは隣の4マスに1粒ずつ崩れる。崩れをくり返すうちに、高さの境目を線で描いた模様が円形に広がっていく。触ったところにも砂が落ちる。",
-    "desc_en": "Grains fall one by one onto the centre, and any square holding four spills one grain to each neighbour. As the topplings repeat, a round pattern drawn only along the boundaries between heights keeps growing. Touch drops sand there too.",
+    "desc": "中心に砂粒が1粒ずつ落ち、4粒たまったマスは隣の4マスに1粒ずつ崩れて、高さの境目を線で描いた模様が円く広がり、画面の上下に届くと横へ伸びて画面を埋めていく。押すとそこに砂がまとめて落ちて、まわりに水色の小さな模様の円が広がり、なぞると指の跡に沿って砂が落ちて模様がつながる。",
+    "desc_en": "Grains fall one by one onto the centre and any square holding four spills a grain to each neighbour, so a round pattern drawn along the boundaries between heights grows outward, then spreads sideways across the screen once it reaches the top and bottom. Press and a heap of sand drops there, opening a small cyan pattern of its own; drag and sand falls along your path, joining the patterns together.",
     "icon": "fa-mountain",
     "category": "格子のもの",
     "category_en": "LATTICE",
-    "meta": "触れると砂が落ちて崩れる",
-    "meta_en": "Touch to drop sand",
+    "meta": "画面を埋めていく砂山の模様",
+    "meta_en": "A sandpile pattern spreading across the screen",
     "added": "2026-02-10",
     "group": "lattice",
-    "updated": "2026-10-10"
+    "updated": "2026-11-24"
   },
   {
     "page": "network",
