@@ -1,5 +1,6 @@
-# daily/ ブランチが push されたら、検査を走らせて PR を作る（なければ）。
-# 毎日の追加は main に直接入れず、PR で CodeRabbit のレビューと人の確認を通す。
+# daily/ ブランチが push されたら、検査を走らせて PR を作り（なければ）、検査が通ったらそのままマージする。
+# 検査に落ちた PR はマージせずに残し、Discord に知らせる。
+# （2026-11-05〜11-19 は CodeRabbit のレビューと人の確認を通してからマージしていた。お試しが終わったので自動マージに戻した）
 name: Daily PR
 
 on:
@@ -10,8 +11,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
+  actions: write
 
 jobs:
   check:
@@ -55,39 +57,67 @@ jobs:
           url=$(gh pr create -R "$GITHUB_REPOSITORY" --base main --head "$BRANCH" --title "$title" --body "$body")
           echo "number=${url##*/}" >> "$GITHUB_OUTPUT"
 
-  # 新しく PR を作ったときだけ、CodeRabbit のレビューを待って Discord に知らせる。
-  # Webhook の URL は Secrets の DISCORD_WEBHOOK_URL。未設定なら何もしない。
-  notify:
-    needs: open-pr
-    if: ${{ needs.open-pr.outputs.number != '' }}
+  # 検査が通ったら PR をマージする。GITHUB_TOKEN でのマージでは main の push のワークフローが起動しないので、
+  # プレビュー動画・デプロイ・Daily Sync はここから呼ぶ。Daily Sync が衝突を解消して呼び直したとき（workflow_dispatch）もマージする。
+  merge:
+    needs: [check, open-pr]
+    if: ${{ always() && needs.open-pr.result == 'success' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 10
+    outputs:
+      result: ${{ steps.merge.outputs.result }}
+      number: ${{ steps.merge.outputs.number }}
+    steps:
+      - name: マージする
+        id: merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.ref_name }}
+          CHECK: ${{ needs.check.result }}
+        run: |
+          set -u
+          R="$GITHUB_REPOSITORY"
+          num=$(gh pr list -R "$R" --head "$BRANCH" --state open --json number -q '.[0].number')
+          echo "number=$num" >> "$GITHUB_OUTPUT"
+          if [ -z "$num" ]; then echo "result=nopr" >> "$GITHUB_OUTPUT"; exit 0; fi
+          if [ "$CHECK" != "success" ]; then echo "result=check-failed" >> "$GITHUB_OUTPUT"; exit 0; fi
+          # PR を作った直後はマージできるかの判定がまだ出ていないことがあるので、少し待ってやり直す
+          for i in $(seq 1 12); do
+            if gh pr merge "$num" -R "$R" --merge --delete-branch; then
+              echo "result=merged" >> "$GITHUB_OUTPUT"
+              gh workflow run generate-previews.yml -R "$R" --ref main
+              gh workflow run deploy.yml -R "$R" --ref main
+              gh workflow run daily-sync.yml -R "$R" --ref main
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "result=merge-failed" >> "$GITHUB_OUTPUT"
+
+  # 結果を Discord に知らせる。Webhook の URL は Secrets の DISCORD_WEBHOOK_URL。未設定なら何もしない。
+  notify:
+    needs: merge
+    if: ${{ always() && needs.merge.outputs.number != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Discord に知らせる
         env:
           GH_TOKEN: ${{ github.token }}
           HOOK: ${{ secrets.DISCORD_WEBHOOK_URL }}
-          NUM: ${{ needs.open-pr.outputs.number }}
+          NUM: ${{ needs.merge.outputs.number }}
+          RESULT: ${{ needs.merge.outputs.result }}
         run: |
           set -eu
           if [ -z "$HOOK" ]; then echo "DISCORD_WEBHOOK_URL が未設定"; exit 0; fi
           R="$GITHUB_REPOSITORY"
-          # CodeRabbit のレビューが終わるまで最大20分待つ
-          risk="（レビュー待ち）"; comments=0
-          for i in $(seq 1 40); do
-            body=$(gh api "repos/$R/issues/$NUM/comments" -q '[.[]|select(.user.login|test("coderabbit"))][0].body // ""')
-            if [ -n "$body" ] && ! echo "$body" | grep -q "Currently processing"; then
-              risk=$(echo "$body" | grep -o 'Merge Risk:\*\* \*\*[^*]*' | head -1 | sed 's/.*\*\*//' || true)
-              [ -z "$risk" ] && risk="不明"
-              comments=$(gh api "repos/$R/pulls/$NUM/comments" -q '[.[]|select(.user.login|test("coderabbit"))]|length')
-              break
-            fi
-            sleep 30
-          done
+          case "$RESULT" in
+            merged) head="PULSEに載せました" ;;
+            check-failed) head="PULSEのPRが検査に落ちました。マージしていません" ;;
+            *) head="PULSEのPRをマージできませんでした（衝突など）" ;;
+          esac
           title=$(gh pr view "$NUM" -R "$R" --json title,additions,deletions -q '.title + "（+" + (.additions|tostring) + " / -" + (.deletions|tostring) + "）"')
-          msg="PULSEのPRが届いた: ${title}
-          CodeRabbit: マージのリスク ${risk}、行への指摘 ${comments}件
-          PR: https://github.com/$R/pull/$NUM
-          Change Stack: https://app.coderabbit.ai/change-stack/$R/pull/$NUM"
+          msg="${head}: ${title}
+          PR: https://github.com/$R/pull/$NUM"
           jq -n --arg c "$msg" '{content:$c, allowed_mentions:{parse:[]}}' | curl -sf -H 'Content-Type: application/json' -d @- "$HOOK" >/dev/null
           echo "sent"
