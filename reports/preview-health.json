@@ -1,11 +1,11 @@
 {
-  "generatedAt": "2026-11-19T14:52:13.693445Z",
+  "generatedAt": "2026-11-27T17:38:54.759558Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok fallen\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok knight\n\nDone. success=1, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
@@ -18,37 +18,37 @@
         "failed": [],
         "details": [
           {
-            "file": "fallen.mp4",
+            "file": "knight.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                47.2752,
-                52.7623,
-                58.4489,
-                63.6723,
-                69.5125,
-                74.6867,
-                74.6683,
-                74.4784,
-                74.4948,
-                74.3856
+                42.3238,
+                43.0064,
+                43.3638,
+                43.601,
+                43.906,
+                44.0271,
+                44.0607,
+                44.0401,
+                44.0552,
+                44.0671
               ],
               "end": [
-                62.0524,
-                57.9422,
-                54.3598,
-                50.2616,
-                46.3753,
+                42.7692,
+                42.8367,
+                42.7405,
+                42.5172,
+                42.3085,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 74.6867,
-              "end_max": 62.0524,
-              "start_med": 69.5125,
-              "end_med": 46.3753
+              "start_max": 44.0671,
+              "end_max": 42.8367,
+              "start_med": 43.906,
+              "end_med": 42.3085
             }
           }
         ]
@@ -59,20 +59,22 @@
       "ok": true,
       "result": {
         "checked": 1,
-        "flagged_count": 0,
-        "flagged_pages": [],
+        "flagged_count": 1,
+        "flagged_pages": [
+          "knight"
+        ],
         "results": [
           {
-            "file": "fallen.mp4",
-            "ok": true,
-            "too_dark": false,
+            "file": "knight.mp4",
+            "ok": false,
+            "too_dark": true,
             "too_static": false,
             "luma": [
-              67.96,
-              66.83,
-              67.58
+              32.59,
+              30.88,
+              31.08
             ],
-            "motion": 12.07
+            "motion": 4.193
           }
         ]
       }
@@ -87,12 +89,12 @@
         "failed": [],
         "details": [
           {
-            "file": "fallen.mp4",
+            "file": "knight.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 63.6723,
+              "y1": 43.601,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
