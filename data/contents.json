@@ -1399,6 +1399,19 @@
     "added": "2026-11-21"
   },
   {
+    "page": "treering",
+    "title": "TREE RING",
+    "desc": "丸太の断面に年輪が外側へ1本ずつ増え、よく育った年は広く、育たなかった年は狭い縞になって、ときどき枝の節のまわりで年輪がふくらむ。押すとそこに水色の節ができて外側の年輪が盛り上がり、なぞると年輪が指の動いた向きに引きずられる。",
+    "desc_en": "On the cut end of a log, a new growth ring is added at the edge one year at a time, wide in good years and narrow in poor ones, and the rings bulge around the knots that branches leave. Press and a cyan knot appears there and the rings outside it swell; drag and the rings are pulled the way your finger moves.",
+    "icon": "fa-tree",
+    "group": "number",
+    "category": "数えるもの",
+    "category_en": "NUMBER",
+    "meta": "年ごとの幅が並んだ年輪",
+    "meta_en": "A year-by-year sequence of ring widths",
+    "added": "2026-11-22"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
