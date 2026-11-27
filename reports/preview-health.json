@@ -1,54 +1,88 @@
 {
-  "generatedAt": "2026-11-27T17:38:54.759558Z",
+  "generatedAt": "2026-11-27T17:40:24.866314Z",
   "baseUrl": "http://127.0.0.1:8787",
   "steps": [
     {
       "name": "generate_previews",
       "ok": true,
-      "stdoutTail": "ok knight\n\nDone. success=1, failed=0, jsErrors=0\n",
+      "stdoutTail": "ok foam\nok knight\n\nDone. success=2, failed=0, jsErrors=0\n",
       "stderrTail": ""
     },
     {
       "name": "check_and_fix_preview_flash",
       "ok": true,
       "result": {
-        "checked": 1,
+        "checked": 2,
         "flagged": 0,
         "fixed": 0,
         "failed": [],
         "details": [
+          {
+            "file": "foam.mp4",
+            "initial": {
+              "ok": true,
+              "start": [
+                42.0,
+                44.3866,
+                47.0449,
+                48.9702,
+                51.5739,
+                54.4003,
+                56.7104,
+                56.7819,
+                56.7272,
+                56.7233,
+                56.7389
+              ],
+              "end": [
+                51.3161,
+                49.6639,
+                47.4585,
+                45.6643,
+                44.0989,
+                42.0,
+                42.0,
+                42.0,
+                42.0
+              ],
+              "start_max": 56.7819,
+              "end_max": 51.3161,
+              "start_med": 54.4003,
+              "end_med": 44.0989
+            }
+          },
           {
             "file": "knight.mp4",
             "initial": {
               "ok": true,
               "start": [
                 42.0,
-                42.3238,
-                43.0064,
-                43.3638,
-                43.601,
-                43.906,
-                44.0271,
-                44.0607,
-                44.0401,
-                44.0552,
-                44.0671
+                42.316,
+                42.896,
+                43.6081,
+                43.8249,
+                44.1245,
+                44.2215,
+                44.2433,
+                44.251,
+                44.266,
+                44.2421
               ],
               "end": [
-                42.7692,
-                42.8367,
-                42.7405,
-                42.5172,
-                42.3085,
+                42.7881,
+                42.8746,
+                42.7736,
+                42.5288,
+                42.3153,
                 42.0,
                 42.0,
                 42.0,
                 42.0
               ],
-              "start_max": 44.0671,
-              "end_max": 42.8367,
-              "start_med": 43.906,
-              "end_med": 42.3085
+              "start_max": 44.266,
+              "end_max": 42.8746,
+              "start_med": 44.1245,
+              "end_med": 42.3153
             }
           }
         ]
@@ -58,23 +92,35 @@
       "name": "check_preview_dark_static",
       "ok": true,
       "result": {
-        "checked": 1,
+        "checked": 2,
         "flagged_count": 1,
         "flagged_pages": [
           "knight"
         ],
         "results": [
           {
+            "file": "foam.mp4",
+            "ok": true,
+            "too_dark": false,
+            "too_static": false,
+            "luma": [
+              47.41,
+              48.79,
+              48.0
+            ],
+            "motion": 12.576
+          },
+          {
             "file": "knight.mp4",
             "ok": false,
             "too_dark": true,
             "too_static": false,
             "luma": [
-              32.59,
-              30.88,
+              32.83,
+              30.92,
               31.08
             ],
-            "motion": 4.193
+            "motion": 4.303
           }
         ]
       }
@@ -83,18 +129,33 @@
       "name": "auto_fix_preview_loop",
       "ok": true,
       "result": {
-        "checked": 1,
+        "checked": 2,
         "flagged": 0,
         "fixed": 0,
         "failed": [],
         "details": [
+          {
+            "file": "foam.mp4",
+            "initial": {
+              "ok": true,
+              "duration": 5.4,
+              "y0": 42.0,
+              "y1": 51.5739,
+              "y2": 42.0,
+              "y3": null,
+              "seam_diff": 0.0,
+              "start_spike": false,
+              "end_spike": false,
+              "hard_seam": false
+            }
+          },
           {
             "file": "knight.mp4",
             "initial": {
               "ok": true,
               "duration": 5.4,
               "y0": 42.0,
-              "y1": 43.601,
+              "y1": 43.8249,
               "y2": 42.0,
               "y3": null,
               "seam_diff": 0.0,
