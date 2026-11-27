@@ -1412,6 +1412,19 @@
     "added": "2026-11-22"
   },
   {
+    "page": "sashiko",
+    "title": "SASHIKO",
+    "desc": "藍の布に白い糸の短い縫い目が縦横に並び、段ごとに縫い目を1目ずらすかどうかで、つながった線が四角や十字の輪を描く。針が1段ずつ縫い直すたびに模様が組み変わり、押すとそこを通る縦と横の段が水色の糸で縫い直され、なぞると指が横切った段が次々に縫い直される。",
+    "desc_en": "Short white stitches run across indigo cloth in rows and columns, and whether each row is shifted by one stitch decides how they join into squares and crosses. A needle re-stitches one row at a time so the pattern keeps changing; press to re-stitch the row and column through your finger in cyan, and drag to re-stitch every row you cross.",
+    "icon": "fa-border-all",
+    "group": "lattice",
+    "category": "格子のもの",
+    "category_en": "LATTICE",
+    "meta": "1段ずつ縫い直される刺し子",
+    "meta_en": "Sashiko stitches re-sewn row by row",
+    "added": "2026-11-23"
+  },
+  {
     "page": "about",
     "title": "ABOUT",
     "desc": "PULSEについて。ECHOとNULLの紹介。",
