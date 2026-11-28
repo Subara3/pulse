@@ -56,9 +56,6 @@ jobs:
           body="毎日の自動追加（${BRANCH}）。検査（check_policy / test_build）: ${CHECK}"
           url=$(gh pr create -R "$GITHUB_REPOSITORY" --base main --head "$BRANCH" --title "$title" --body "$body")
           echo "number=${url##*/}" >> "$GITHUB_OUTPUT"
-          # CodeRabbit は 11/19 から、ボットが作った PR を自動ではレビューしない。作った直後にレビューを頼む
-          # （指摘はマージのあとに届くので、まとめて直す PR を出す）
-          gh pr comment "$url" --body "@coderabbitai review" || echo "レビューの依頼を書き込めなかった"
 
   # 検査が通ったら PR をマージする。GITHUB_TOKEN でのマージでは main の push のワークフローが起動しないので、
   # プレビュー動画・デプロイ・Daily Sync はここから呼ぶ。Daily Sync が衝突を解消して呼び直したとき（workflow_dispatch）もマージする。
