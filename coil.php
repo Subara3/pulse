@@ -5,7 +5,7 @@ recordPageView('coil');
 
 $pageName = 'coil';
 $pageTitle = 'COIL - PULSE';
-$pageDesc = '上に並んだ口から細い糸が落ち、下へ流れる床の上に輪や8の字を描いて積もっていく。押すと近くの口が指の下へ来て水色の糸を落とし、なぞると指の跡に沿って輪が並ぶ。';
+$pageDesc = '上に並んだ口から細い糸が落ち、下へ流れる床の上に輪や8の字を描いて積もっていく。押すと近くの口が指の上へ寄って水色の糸を落とし、なぞると指の跡に沿って輪が並ぶ。';
 $pageCanonical = 'https://pulse.subara3.com/coil.php';
 $extraStyle = '';
 
