@@ -241,18 +241,20 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* ---------------------------------------------------------- 操作 */
+  /* いちばん近い先端（各リボンの点0）を持つリボンを選ぶ */
   function nearest(x, y) {
     var best = null, bd = Infinity;
     for (var n = 0; n < ribbons.length; n++) {
       var rb = ribbons[n];
-      for (var i = 0; i < NP; i += 4) {
-        var d = Math.hypot(rb.x[i] - x, rb.y[i] - y) + i * 0.4;
-        if (d < bd) { bd = d; best = rb; }
-      }
+      var d = Math.hypot(rb.x[0] - x, rb.y[0] - y);
+      if (d < bd) { bd = d; best = rb; }
     }
     return best;
   }
+  var pid = null;   /* 操作を始めた指。ほかの指の押す・動かす・離すは無視する */
   canvas.addEventListener('pointerdown', function (e) {
+    if (down) return;
+    pid = e.pointerId;
     down = true; px = e.clientX; py = e.clientY;
     held = nearest(px, py);
     if (held) { held.glow = 1; held.path.length = 0; }
@@ -261,15 +263,16 @@ require_once __DIR__ . '/includes/floating-nav.php';
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
-    if (!down) return;
+    if (!down || e.pointerId !== pid) return;
     var d = Math.hypot(e.clientX - px, e.clientY - py);
     px = e.clientX; py = e.clientY;
     push(px, py, S * 0.12, S * 0.02);
     if (d > 3) SFX.play('move', 160);
   });
-  function up() {
+  function up(e) {
+    if (!down || e.pointerId !== pid) return;
     if (held) held.rel = 0;
-    down = false; held = null;
+    down = false; held = null; pid = null;
   }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);

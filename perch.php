@@ -178,6 +178,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   function sendLand(b, spot) {
     if (!spot) return;
     b.st = 'land'; b.tw = spot.w; b.tx = spot.x; b.g = null;
+    b.leave = -1; b.lg = null;   /* 前の離陸予約を残さない */
   }
 
   /* 同じ電線の鳥どうしは間をあける。近すぎる相手からは横歩きで離れる */
@@ -480,7 +481,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   /* 状態をすべて宣言してから呼ぶ。P.fit はその場で一度コールバックを走らせる */
-  ctx = P.fit(canvas, function (w, h) { W = w; H = h; build(); placeAll(); });
+  ctx = P.fit(canvas, function (w, h) { W = w; H = h; press = null; build(); placeAll(); });
 
   /* ---------------------------------------------------------- 操作 */
   var last = null;
@@ -510,17 +511,18 @@ require_once __DIR__ . '/includes/floating-nav.php';
     }
   }
   canvas.addEventListener('pointerdown', function (e) {
+    if (press) return;   /* 操作を始めた指だけを扱う */
     last = pos(e);
     var g = makeGroup(last.x, last.y, 99);
     g.follow = true; g.rad = 50 * U;
-    press = { x: last.x, y: last.y, g: g };
+    press = { x: last.x, y: last.y, g: g, id: e.pointerId };
     scare(last.x, last.y, 140 * U, g);
     pluck(last.x, last.y, 130 * U, 520);
     SFX.play('ripple');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
-    if (!press) return;
+    if (!press || e.pointerId !== press.id) return;
     var p = pos(e), dist = Math.hypot(p.x - last.x, p.y - last.y);
     press.x = p.x; press.y = p.y;
     if (dist < 8) return;
@@ -533,8 +535,8 @@ require_once __DIR__ . '/includes/floating-nav.php';
     last = p;
     SFX.play('move', 160);
   });
-  function up() {
-    if (!press) return;
+  function up(e) {
+    if (!press || e.pointerId !== press.id) return;
     var g = press.g;
     g.follow = false; g.life = 0.4; g.landX = press.x; g.landY = press.y;
     g.hx = press.x; g.hy = press.y; g.rad = 40 * U;

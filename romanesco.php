@@ -171,8 +171,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
   });
 
   /* ---------------------------------------------------------- 操作 */
-  var down = false, finger = null, last = null;
+  var down = false, finger = null, last = null, pid = null;
   canvas.addEventListener('pointerdown', function (e) {
+    if (down) return;   /* 操作を始めた指だけを扱う */
+    pid = e.pointerId;
     down = true;
     finger = { x: e.clientX, y: e.clientY, s: 0.35, hold: true };
     lens.push(finger);
@@ -181,7 +183,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
-    if (!down || !finger) return;
+    if (!down || !finger || e.pointerId !== pid) return;
     finger.x = e.clientX; finger.y = e.clientY;
     var d = Math.hypot(e.clientX - last.x, e.clientY - last.y);
     if (d > LR * 0.35) {
@@ -190,7 +192,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
       SFX.play('move', 140);
     }
   });
-  function up() { down = false; if (finger) finger.hold = false; finger = null; }
+  function up(e) {
+    if (!down || e.pointerId !== pid) return;
+    down = false; if (finger) finger.hold = false; finger = null; pid = null;
+  }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);
 
@@ -213,7 +218,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
       if (L.hold) L.s += (1 - L.s) * Math.min(1, dt * 9);
       else { L.s -= dt * 0.6; if (L.s <= 0) lens.splice(n, 1); }
     }
-    if (lens.length > 40) lens.splice(0, lens.length - 40);
+    /* 上限を超えたら、押している指のものは残し、古い跡から消す */
+    for (var q = 0; lens.length > 40 && q < lens.length; ) {
+      if (lens[q].hold) q++; else lens.splice(q, 1);
+    }
     render();
     requestAnimationFrame(frame);
   }
