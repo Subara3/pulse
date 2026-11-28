@@ -230,13 +230,16 @@ require_once __DIR__ . '/includes/floating-nav.php';
   ctx = P.fit(canvas, function (w, h) { W = w; H = h; alloc(); });
 
   /* ---------------------------------------------------------- 操作 */
+  var pid = null;   /* 操作を始めた指。ほかの指の押す・動かす・離すは無視する */
   canvas.addEventListener('pointerdown', function (e) {
+    if (down) return;
+    pid = e.pointerId;
     down = true; px = e.clientX; py = e.clientY; pvx = 0; pvy = 0; lastMove = performance.now();
     SFX.play('spawn');
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
-    if (!down) return;
+    if (!down || e.pointerId !== pid) return;
     var now = performance.now(), dt = Math.max(0.008, (now - lastMove) / 1000);
     var nx = e.clientX, ny = e.clientY;
     pvx += ((nx - px) / dt - pvx) * 0.5;
@@ -245,9 +248,10 @@ require_once __DIR__ . '/includes/floating-nav.php';
     SFX.play('move', 140);
   });
   /* 放すと指の下の塊がほぐれて、鎖に戻っていく */
-  function up() {
-    if (down) quake(px, py, RW * 0.8, 0.8);
-    down = false; pvx = 0; pvy = 0;
+  function up(e) {
+    if (!down || e.pointerId !== pid) return;
+    quake(px, py, RW * 0.8, 0.8);
+    down = false; pvx = 0; pvy = 0; pid = null;
   }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);

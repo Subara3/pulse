@@ -1219,8 +1219,8 @@
   {
     "page": "coil",
     "title": "COIL",
-    "desc": "上に並んだ口から細い糸が落ち、下へ流れる床の上に輪や8の字を描きながら積もっていく。輪の大きさと巻き方はゆっくり変わり、描いた線は床といっしょに下へ流れていく。押すと近くの口が指の下へ来て水色の糸を落とし、まわりの線が押しのけられる。なぞると口が指についてきて、指の跡に沿って輪が並ぶ。",
-    "desc_en": "Thin threads fall from a row of spouts at the top and pile onto a floor that keeps sliding downward, laying loops and figure-eights. The size of the loops and the way they wind change slowly, and the drawn lines drift down with the floor. Press and the nearest spout moves under your finger and drops a cyan thread while the lines around it are pushed aside; drag and the spout follows you, leaving a row of loops along your path.",
+    "desc": "上に並んだ口から細い糸が落ち、下へ流れる床の上に輪や8の字を描いて積もっていく。押すと近くの口が指の下へ来て水色の糸を落とし、なぞると指の跡に沿って輪が並ぶ。",
+    "desc_en": "Thin threads fall from a row of spouts and coil into loops and figure-eights on a floor that keeps sliding downward. Press and the nearest spout drops a cyan thread under your finger; drag and it follows, laying loops along your path.",
     "icon": "fa-rotate",
     "group": "curve",
     "category": "描くもの",
@@ -1232,8 +1232,8 @@
   {
     "page": "floe",
     "title": "FLOE",
-    "desc": "大小の流氷が海面をすき間なく覆い、ゆっくり横へ流れていく。うねりが通るたびに氷のあいだのすき間が開いたり閉じたりし、ときどき一筋の割れ目が何枚もの氷を横切る。押すとそこから氷が放射状に割れて水色に光りながら押し広げられ、なぞると指の跡に水路が開いて、しばらくすると氷が寄ってきて閉じる。",
-    "desc_en": "Ice floes of many sizes cover the sea with almost no gaps and drift slowly sideways. Each passing swell opens and closes the gaps between them, and now and then a single crack runs straight across several floes. Press and the ice breaks outward from that point, glowing cyan as the pieces are pushed apart; drag and a channel of open water opens along your path, then the floes drift back and close it.",
+    "desc": "大小の流氷が海面を覆って横へ流れ、うねりが通るたびに氷のすき間が開いたり閉じたりする。押すと氷が放射状に割れて押し広げられ、なぞると指の跡に水路が開いて、しばらくすると閉じる。",
+    "desc_en": "Ice floes of many sizes cover the sea and drift sideways, their gaps opening and closing as each swell passes. Press and the ice breaks outward from your finger; drag and a channel of open water opens along your path, then closes again.",
     "icon": "fa-icicles",
     "group": "tile",
     "category": "敷き詰めるもの",

@@ -128,7 +128,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     c.stroke(L.sh.body);
     c.lineWidth = lw * 0.8;
     c.strokeStyle = P.rgba(edge, 0.08 + dim * 0.32);
-    c.stroke(L.sh.vein);
+    c.save(); c.clip(L.sh.body); c.stroke(L.sh.vein); c.restore();   /* 葉脈は葉身の中だけ */
   }
 
   function rankDim(i, n) { return n > 1 ? Math.pow(i / (n - 1), 0.8) : 1; }
@@ -193,11 +193,17 @@ require_once __DIR__ . '/includes/floating-nav.php';
     dirty = true;
   }
 
+  /* 共有リンクから開いたとき、復元された値を拾う。P.fit が最初の葉を作る前に読む */
+  fall = document.getElementById('k-fall').value / 100;
+  wind = document.getElementById('k-wind').value / 100;
+  var act = document.querySelector('[data-kind].active');
+  if (act) kind = act.dataset.kind;
+
   /* ---------------------------------------------------------- 状態をすべて宣言してから呼ぶ */
   ctx = P.fit(canvas, function (w, h, dpr) { W = w; H = h; DPR = dpr || 1; init(); });
 
   /* ---------------------------------------------------------- 操作 */
-  var down = false, last = null, lastT = 0;
+  var down = false, last = null, lastT = 0, pid = null;
   function pos(e) { return { x: e.clientX, y: e.clientY }; }
 
   /* 押す: まわりの葉が舞い上がり、回りながらまわりへ落ち直す */
@@ -253,13 +259,15 @@ require_once __DIR__ . '/includes/floating-nav.php';
   }
 
   canvas.addEventListener('pointerdown', function (e) {
+    if (down) return;   /* 操作を始めた指だけを扱う */
+    pid = e.pointerId;
     down = true; last = pos(e); lastT = performance.now();
     toss(last.x, last.y);
-    SFX.play('ripple');
+    SFX.play('ripple', 400);
     canvas.setPointerCapture(e.pointerId);
   });
   canvas.addEventListener('pointermove', function (e) {
-    if (!down) return;
+    if (!down || e.pointerId !== pid) return;
     var p = pos(e), now = performance.now();
     var dist = Math.hypot(p.x - last.x, p.y - last.y);
     if (dist < 6) return;
@@ -271,7 +279,7 @@ require_once __DIR__ . '/includes/floating-nav.php';
     last = p; lastT = now;
     SFX.play('move', 140);
   });
-  function up() { down = false; }
+  function up(e) { if (e.pointerId === pid) { down = false; pid = null; } }
   canvas.addEventListener('pointerup', up);
   canvas.addEventListener('pointercancel', up);
 
@@ -281,14 +289,9 @@ require_once __DIR__ . '/includes/floating-nav.php';
     b.addEventListener('click', function () {
       document.querySelectorAll('[data-kind]').forEach(function (o) { o.classList.toggle('active', o === b); });
       kind = b.dataset.kind;
-      SFX.play('toggle');
+      SFX.play('toggle', 200);
     });
   });
-  /* 共有リンクから開いたとき、復元された値を拾う */
-  fall = document.getElementById('k-fall').value / 100;
-  wind = document.getElementById('k-wind').value / 100;
-  var act = document.querySelector('[data-kind].active');
-  if (act) kind = act.dataset.kind;
 
   /* ---------------------------------------------------------- 風の一吹き: 上の葉が何枚か滑る */
   function gust() {
